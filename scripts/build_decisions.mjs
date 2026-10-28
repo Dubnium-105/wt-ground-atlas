@@ -15,7 +15,7 @@ const paths = {
   config: path.resolve(args.config ?? path.join(root, 'config/model.json')),
   probabilities: path.resolve(args.probabilities ?? path.join(root, 'data/snapshots/decision-probabilities.json')),
   layers: path.resolve(args['target-layers'] ?? path.join(root, 'data/snapshots/target-layers.json')),
-  out: path.resolve(args.out ?? path.join(root, 'web/data/recommendations')),
+  out: path.resolve(args.out ?? path.join(root, 'data/derived/recommendations')),
 };
 const started = performance.now();
 const [catalogText, scenarioText, configText] = await Promise.all([fs.readFile(paths.catalog, 'utf8'), fs.readFile(paths.scenario, 'utf8'), fs.readFile(paths.config, 'utf8')]);

@@ -8,6 +8,10 @@ data/cache/
 data/snapshots/
 reports/
 web/data/
+web/shared/
+data/derived/
+data/exports/
+dist/
 *.log
 .env
 .env.*

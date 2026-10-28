@@ -32,7 +32,7 @@ page.on('response',response=>{if(response.status()>=400&&response.url().startsWi
 const run=async(name,task)=>{const start=performance.now();try{await task();results.push({name,status:'passed',elapsed_ms:performance.now()-start});console.log(`PASS ${name}`);}catch(error){results.push({name,status:'failed',message:error.message,elapsed_ms:performance.now()-start});throw error;}};
 let firstLoadResources,firstLoadNavigation,firstLoadMemory,initial,cachedFilterPaintMs;
 const lineupKey=ids=>[...ids].sort().join('|');
-async function expectedTop(nation,version){const rec=JSON.parse(await fs.readFile(path.join(root,`web/data/recommendations/${nation}.${version}.json`),'utf8'));const rows=rec.candidates.flatMap(c=>[c,...c.alternatives_at_br]).sort((a,b)=>b.score-a.score||b.coverage-a.coverage||a.actual_br-b.actual_br||lineupKey(a.lineup_ids).localeCompare(lineupKey(b.lineup_ids)));return [...new Map(rows.filter(c=>c.valid&&Number.isFinite(c.score)).map(c=>[lineupKey(c.lineup_ids),c])).values()].sort((a,b)=>b.score-a.score||b.coverage-a.coverage||a.actual_br-b.actual_br||lineupKey(a.lineup_ids).localeCompare(lineupKey(b.lineup_ids))).slice(0,3);}
+async function expectedTop(nation,version){const rec=JSON.parse(await fs.readFile(path.join(root,`data/derived/recommendations/${nation}.${version}.json`),'utf8'));const rows=rec.candidates.flatMap(c=>[c,...c.alternatives_at_br]).sort((a,b)=>b.score-a.score||b.coverage-a.coverage||a.actual_br-b.actual_br||lineupKey(a.lineup_ids).localeCompare(lineupKey(b.lineup_ids)));return [...new Map(rows.filter(c=>c.valid&&Number.isFinite(c.score)).map(c=>[lineupKey(c.lineup_ids),c])).values()].sort((a,b)=>b.score-a.score||b.coverage-a.coverage||a.actual_br-b.actual_br||lineupKey(a.lineup_ids).localeCompare(lineupKey(b.lineup_ids))).slice(0,3);}
 async function navigateTo(view){
   const link=page.locator(`#navigation [data-view="${view}"]`);
   if(!await link.isVisible()){
@@ -166,7 +166,7 @@ try{
     const data=await page.evaluate(()=>({state:window.__GROUNDOPS__.getState(),diag:window.__GROUNDOPS__.getDiagnostics()}));
     assert.equal(data.diag.lineup.valid,true);assert.ok(data.diag.lineup.pairs>0);assert.equal(data.diag.lineup.pairs,data.diag.lineup.reverse_pairs);
     const actual=Math.max(...data.state.lineup.map(id=>catalog.vehicles.find(v=>v.id===id).br.current));assert.equal(data.diag.lineup.actual_br,actual);
-    const offline=JSON.parse(await fs.readFile(path.join(root,`web/data/recommendations/${data.state.nation}.current.json`),'utf8'));
+    const offline=JSON.parse(await fs.readFile(path.join(root,`data/derived/recommendations/${data.state.nation}.current.json`),'utf8'));
     const match=offline.candidates.flatMap(c=>[c,...c.alternatives_at_br]).find(c=>[...c.lineup_ids].sort().join('|')===[...data.state.lineup].sort().join('|'));
     assert.ok(match);assert.ok(Math.abs(data.diag.lineup.score-match.score)<1e-10,'browser worker must use the same own-ammo layers as offline scoring');
     assert.ok(requests.some(r=>r.url.includes('/target-layers-0.')));

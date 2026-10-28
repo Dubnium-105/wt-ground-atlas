@@ -16,10 +16,10 @@ import struct
 import subprocess
 import time
 import numpy as np
-from .common import read_json, write_json, file_hash, content_hash, resolved, atomic_write
+from .common import read_json, write_json, file_hash, content_hash, resolved, atomic_write, stage_verified_file
 from .geometry import decode_grp, build_cpu_layers
 from .jobs import job_fingerprint, utc_now
-from .cpu_model import recalculate_layers
+from .storage import recalculate_layers_atomic as recalculate_layers
 from .native_binding.grp_directory import parse_grp_directory
 from .native_binding.ordered_blk import parse_ordered_blk
 from .native_binding.native_templates import expand_part_defaults
@@ -345,11 +345,8 @@ def publish_client(root, config):
         group={'vehicle':row['vehicle_id'],'grp_sha256':row['grp_sha256'],'layer_arrays_sha256':meta['arrays_sha256'],'groups':[]}
         for item in row['results']:
             source=root/row['result_directory']/item['file']
-            if file_hash(source)!=item['sha256']:
-                raise ValueError('Computed array hash changed: '+str(source))
             dest=stage/'arrays'/source.name; expected_names.add(dest.name)
-            if not dest.exists() or file_hash(dest)!=item['sha256']:
-                shutil.copyfile(source,dest)
+            stage_verified_file(source,dest,item['sha256'])
             group['groups'].append({'array_file':'arrays/'+dest.name,'array_sha256':item['sha256']})
         groups.append(group)
     for old in (stage/'arrays').glob('*.npz'):
@@ -376,7 +373,7 @@ def publish_client(root, config):
     write_json(output/'index.json',index)
     atomic_write(output/'index.json.gz',gzip.compress((output/'index.json').read_bytes(),compresslevel=config['export']['gzip_level'],mtime=0))
     report=dict(reports[0])
-    for key in ['input_groups','views','valid_samples','uncompressed_shard_bytes','gzip_shard_bytes','reused_shards']:
+    for key in ['input_groups','views','valid_samples','uncompressed_shard_bytes','gzip_shard_bytes','reused_shards','reused_gzip_shards']:
         report[key]=sum(r[key] for r in reports)
     report.update(targets=len(completed),quantization_max_abs_error=max(r['quantization_max_abs_error'] for r in reports),
                   quantization_mean_abs_error=sum((r['quantization_mean_abs_error'] or 0)*r['valid_samples'] for r in reports)/report['valid_samples'] if report['valid_samples'] else None,

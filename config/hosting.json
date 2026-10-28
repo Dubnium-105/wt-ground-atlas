@@ -2,7 +2,7 @@
   "schema_version":"1.0.0",
   "bind":"127.0.0.1",
   "port":8080,
-  "public_directory":"web",
+  "public_directory":"dist/site",
   "cache_seconds":31536000,
   "open_browser":true
 }

@@ -68,7 +68,7 @@ def decode_view(packet, width, height, quantization_max, unknown_value):
     return p.reshape(height, width), status.reshape(height, width), flags.reshape(height, width)
 
 
-def _metadata_for_array(path, input_root, plan, summary, ammo_profiles, config):
+def _metadata_for_array(path, input_root, plan, summary, ammo_profiles, config, source_sha256=None):
     target_id, ammo_id = path.stem.rsplit('.', 1)
     safe_id(target_id); safe_id(ammo_id)
     ammo = next((item for item in ammo_profiles if item.get('name') == ammo_id), None)
@@ -93,7 +93,7 @@ def _metadata_for_array(path, input_root, plan, summary, ammo_profiles, config):
         'pixel_pitch_m': float(plan['pixel_pitch_m']),
         'world_width_m': plan.get('world_width_m'), 'top_y_m': plan.get('top_y_m'), 'bottom_y_m': plan.get('bottom_y_m'),
         'coordinate_convention': plan.get('rotation_convention'),
-        'source_npz_sha256': file_hash(path),
+        'source_npz_sha256': source_sha256 or file_hash(path),
         'layer_npz_sha256': source_group.get('layer_arrays_sha256') or layer.get('arrays_sha256'),
         'reference_ammunition_only': True,
         'proves_vehicle_ammunition_availability': False,
@@ -111,7 +111,7 @@ def _metadata_for_array(path, input_root, plan, summary, ammo_profiles, config):
 def export_atlas(input_root, output_root, config, array_files=None, metadata_root=None):
     """Export every supplied map/angle, validating source hashes and metadata."""
     started = time.perf_counter()
-    input_root, output_root = Path(input_root), Path(output_root)
+    input_root, output_root = Path(input_root).resolve(), Path(output_root).resolve()
     metadata_root = Path(metadata_root) if metadata_root else output_root
     output_root.mkdir(parents=True, exist_ok=True)
     plan = read_json(input_root / 'provenance/plan.json')
@@ -128,13 +128,32 @@ def export_atlas(input_root, output_root, config, array_files=None, metadata_roo
              'flag_legend': config['material_response_flags'], 'scope': scope, 'entries': [],
              'source_created_at': summary.get('created_at_utc'),
              'source_version': summary.get('client_version'), 'datamine_commit': summary.get('datamine_commit'),
+             'compression': {'format': 'gzip-sidecar', 'level': exp['gzip_level']},
              'reference_ammunition_is_not_availability': True,
              'default_precision': 'conditional_unvalidated', 'renderer_does_not_load_raw_npz': True}
-    max_error, total_error, valid_count, raw_bytes, gz_bytes, reused = 0.0, 0.0, 0, 0, 0, 0
-    expected = {item['array_file']: item.get('array_sha256') for group in summary.get('groups', []) for item in group.get('groups', [])}
+    max_error, total_error, valid_count, raw_bytes, gz_bytes, reused, reused_gzip = 0.0, 0.0, 0, 0, 0, 0, 0
+    previous_shards = {}
+    try:
+        previous_index = read_json(metadata_root / 'index.json')
+        if previous_index.get('compression') == index['compression']:
+            previous_shards = {shard['url']: shard for entry in previous_index['entries'] for shard in entry['shards']}
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    expected = {}
+    for group in summary.get('groups', []):
+        for item in group.get('groups', []):
+            key = item['array_file']
+            if key in expected:
+                raise ValueError('Duplicate source array in summary: ' + key)
+            expected[key] = item.get('array_sha256')
+    seen_entries = set()
     for path in sorted(map(Path, array_files) if array_files is not None else (input_root / 'arrays').glob('*.npz')):
+        path = path.resolve()
         key = path.relative_to(input_root).as_posix()
-        if expected.get(key) and file_hash(path) != expected[key]:
+        declared_hash = expected.get(key)
+        if not isinstance(declared_hash, str) or len(declared_hash) != 64 or any(c not in '0123456789abcdef' for c in declared_hash):
+            raise ValueError('Missing or invalid source array SHA256: ' + key)
+        if file_hash(path) != declared_hash:
             raise ValueError('Source array hash mismatch: ' + key)
         with np.load(path, allow_pickle=False) as packet:
             if 'penetration_probability' not in packet:
@@ -147,7 +166,10 @@ def export_atlas(input_root, output_root, config, array_files=None, metadata_roo
                         local_plan[name] = packet[name].tolist()
                 local_plan['height'], local_plan['width'] = p.shape[1:]
             validate_arrays(p, status, flags, local_plan)
-            meta = _metadata_for_array(path, input_root, local_plan, summary, ammo_profiles, config)
+            meta = _metadata_for_array(path, input_root, local_plan, summary, ammo_profiles, config, declared_hash)
+            if meta['id'] in seen_entries:
+                raise ValueError('Duplicate probability entry: ' + meta['key'])
+            seen_entries.add(meta['id'])
             meta['shards'] = []
             for ai, angle in enumerate(meta['angles_deg']):
                 blob, error, errsum, n = encode_view(p[ai], status[ai], flags[ai], exp['quantization_max'], exp['unknown_value'])
@@ -158,17 +180,29 @@ def export_atlas(input_root, output_root, config, array_files=None, metadata_roo
                     reused += 1
                 else:
                     atomic_write(dest, blob)
-                compressed = gzip.compress(blob, compresslevel=exp['gzip_level'], mtime=0)
-                atomic_write(dest.with_suffix(dest.suffix + '.gz'), compressed)
-                state_counts = {str(code): int(np.count_nonzero(status[ai] == code)) for code in sorted(set(status[ai].ravel().tolist()))}
+                compressed_path = dest.with_suffix(dest.suffix + '.gz')
+                previous = previous_shards.get(rel.as_posix(), {})
+                if (previous.get('sha256') == digest and previous.get('gzip_sha256')
+                        and compressed_path.is_file()
+                        and compressed_path.stat().st_size == previous.get('gzip_bytes')
+                        and file_hash(compressed_path) == previous['gzip_sha256']):
+                    compressed_size = previous['gzip_bytes']
+                    compressed_digest = previous['gzip_sha256']
+                    reused_gzip += 1
+                else:
+                    compressed = gzip.compress(blob, compresslevel=exp['gzip_level'], mtime=0)
+                    atomic_write(compressed_path, compressed)
+                    compressed_size = len(compressed)
+                    compressed_digest = hashlib.sha256(compressed).hexdigest()
+                state_counts = {str(code): int(count) for code, count in zip(*np.unique(status[ai], return_counts=True))}
                 finite = (status[ai] == 3) & np.isfinite(p[ai])
                 stat = {'pixels': int(status[ai].size), 'status_counts': state_counts,
                         'known_mean': float(np.mean(p[ai][finite], dtype=np.float64)) if finite.any() else None,
                         'known_mean_is_not_shot_probability': True,
                         'quantization_max_abs_error': error}
                 item = {'angle_index': ai, 'angle_deg': angle, 'url': rel.as_posix(), 'sha256': digest,
-                        'bytes': len(blob), 'gzip_bytes': len(compressed), 'gzip_url': rel.as_posix() + '.gz',
-                        'gzip_sha256': hashlib.sha256(compressed).hexdigest(), 'summary': stat}
+                        'bytes': len(blob), 'gzip_bytes': compressed_size, 'gzip_url': rel.as_posix() + '.gz',
+                        'gzip_sha256': compressed_digest, 'summary': stat}
                 preview = input_root / 'images/native' / meta['key'] / ('yaw_' + f'{angle:03g}' + '.png')
                 if exp['include_native_preview'] and preview.is_file():
                     preview_rel = rel.with_suffix('.png')
@@ -177,8 +211,9 @@ def export_atlas(input_root, output_root, config, array_files=None, metadata_roo
                     shutil.copyfile(preview, target)
                     item['preview_url'] = preview_rel.as_posix()
                 meta['shards'].append(item)
+                previous_shards[rel.as_posix()] = item
                 max_error = max(max_error, error); total_error += errsum; valid_count += n
-                raw_bytes += len(blob); gz_bytes += len(compressed)
+                raw_bytes += len(blob); gz_bytes += compressed_size
             index['entries'].append(meta)
     if not index['entries']:
         raise ValueError('No supported probability arrays')
@@ -195,7 +230,7 @@ def export_atlas(input_root, output_root, config, array_files=None, metadata_roo
               'valid_samples': valid_count, 'uncompressed_shard_bytes': raw_bytes,
               'gzip_shard_bytes': gz_bytes, 'index_bytes': (metadata_root / 'index.json').stat().st_size,
               'index_gzip_bytes': (metadata_root / 'index.json.gz').stat().st_size,
-              'reused_shards': reused, 'build_seconds': time.perf_counter() - started,
+              'reused_shards': reused, 'reused_gzip_shards': reused_gzip, 'build_seconds': time.perf_counter() - started,
               'raw_geometry_published': False, 'raw_npz_published': False,
               'unknown_equals_zero': False, 'physical_recalculation_performed': False,
               'source_array_hashes_verified': True, 'content_hash': index['content_hash']}

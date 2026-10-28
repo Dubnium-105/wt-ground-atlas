@@ -71,7 +71,7 @@ def main(argv=None):
             report = run_jobs(root, config, vehicle_ids=args.vehicle)
             if args.export: report['export'] = export_completed(root, config)
     elif args.command == 'recalculate':
-        from .cpu_model import recalculate_layers
+        from .storage import recalculate_layers_atomic as recalculate_layers
         report = recalculate_layers(args.layers, args.ammo, args.output, config)
     elif args.command == 'bind-audit':
         from .bindings import damageparts_audit

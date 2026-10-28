@@ -1,5 +1,5 @@
-import {fetchJSON, fetchBytes, decodeProbability} from './data-client.mjs';
-import {topLineups} from './shared/engine.mjs';
+import {fetchJSON, fetchBytes, decodeProbability, probabilityBaseURL} from './data-client.mjs';
+import {topLineups} from '../shared/engine.mjs';
 
 const $ = (query, root = document) => root.querySelector(query);
 const $$ = (query, root = document) => [...root.querySelectorAll(query)];
@@ -17,7 +17,7 @@ const state = {
   nation:saved.nation, br:saved.br, version:saved.version, view:null, context:{}, lineups:saved.lineups || {},
   owned:saved.owned || {}, query:'', kind:'all', treeChanged:false, treeMatching:false, treePage:0,
   viewToken:0, result:null, comparison:null, busy:false, worker:null, pending:new Map(), jobCounter:0,
-  armorEntry:null, armorAngle:null, armorGrid:null, armorAim:null, armorSkill:null, armorDistance:null,
+  armorEntry:null, armorAngle:null, armorGrid:null, armorAim:null, armorSkill:null, armorDistance:null, armorError:null, armorRequest:null,
   matrixFold:true, matrixTarget:null, matrixPage:0, scenarioCustom:false, impact:null, analysisGeneration:0, changeScope:'nation', changeFilter:'all', changePage:0
 };
 
@@ -266,6 +266,9 @@ function renderMatrix() {
 }
 
 function renderArmor() {
+  const title=heading('ARMOR LAB / CONDITIONAL', '防护研究','按精确弹药和采样视角查看条件穿透图。');
+  if(!state.manifest.probability||state.probabilityIndex?.entries.length===0)return `${title}${empty('暂未提供防护图','当前数据版本没有可用的防护切片。队列推荐、载具图鉴和对抗分析仍可使用。')}`;
+  if(state.armorError)return `${title}${empty('防护图暂时无法加载',state.armorError,button('armor-retry','重试加载','primary','refresh'))}`;
   if(!state.probabilityIndex)return `${heading('ARMOR LAB / CONDITIONAL', '防护研究','按精确弹药和采样视角查看条件穿透图。')}${busy('按需载入防护元数据…')}`;
   const entry=state.armorEntry,index=state.probabilityIndex;
   const targets=unique(index.entries.map(e=>e.target_id));
@@ -429,15 +432,16 @@ async function navigate() {
   const hash=decodeURIComponent(location.hash.slice(1)),[view,id]=hash.split('/');
   if(view==='vehicle'&&id){openVehicle(id);return;}
   state.view=views.some(v=>v[0]===view)?view:state.ui.default_view;
+  if(state.view!=='armor'){state.armorRequest?.abort();state.armorRequest=null;}
   $('#research-menu').open=false;$('#menu-toggle').setAttribute('aria-expanded','false');window.scrollTo({top:0,behavior:'instant'});render();
-  if(state.view==='armor'){await loadArmor();render();await loadArmorSlice();}
+  if(state.view==='armor'){const available=await loadArmor();render();if(available&&state.view==='armor')await loadArmorSlice();}
   if(state.view==='audit'&&!state.audit){state.audit=await fetchJSON(state.manifest.audit);render();}
   if(state.view==='overview'){await loadRecs();render();}
   if(state.view==='versions'){await loadVersionOverview();if(!state.impact&&state.manifest.impact)state.impact=await fetchJSON(state.manifest.impact);render();}
 }
 async function applyScenarioToIndex() {
   // Reuse the same audited scenario implementation as both the worker and offline build.
-  const engine=await import('./shared/engine.mjs');
+  const engine=await import('../shared/engine.mjs');
   const needDetails=unique((state.scenario.entries||[]).filter(entry=>!entry.field?.startsWith('br')&&!state.baseVehicles.get(entry.vehicle_id)?._detail).map(entry=>entry.vehicle_id)).filter(id=>state.manifest.vehicle_details[id]);
   await Promise.all(needDetails.map(async id=>{const vehicle=await fetchJSON(state.manifest.vehicle_details[id]);state.baseVehicles.set(id,{...vehicle,_detail:true});}));
   const original=[...state.baseVehicles.values()];
@@ -467,20 +471,38 @@ async function compare() {
   finally{state.busyCount--;state.busy=state.busyCount>0;render();}
 }
 async function loadArmor(targetId) {
-  if(!state.probabilityIndex)state.probabilityIndex=await fetchJSON(state.manifest.probability);
+  state.armorError=null;
+  if(!state.manifest.probability){if(targetId)toast('当前数据版本暂未提供防护图。');return false;}
+  if(!state.probabilityIndex){
+    try{
+      const index=await fetchJSON(state.manifest.probability);
+      if(!Array.isArray(index.entries))throw new Error('防护数据索引格式无效');
+      state.probabilityIndex=index;
+    }catch(error){state.armorError=error.message;if(targetId)toast('防护资料暂时无法加载，请稍后重试。');return false;}
+  }
   const list=state.probabilityIndex.entries;
-  if(targetId){const candidate=list.find(e=>e.target_id===targetId);if(!candidate){toast('该构型没有对应防护图。请使用已有研究数据或由后端计算；不会套用其它车辆。');return false;}if(state.armorEntry?.id!==candidate.id){state.armorGrid=null;state.armorAim=null;}state.armorEntry=candidate;}
+  if(!list.length){if(targetId)toast('当前数据版本暂未提供防护图。');return false;}
+  if(targetId){const candidate=list.find(e=>e.target_id===targetId);if(!candidate){toast('该构型暂未提供防护图。请选择已有研究数据的构型。');return false;}if(state.armorEntry?.id!==candidate.id){state.armorGrid=null;state.armorAim=null;}state.armorEntry=candidate;}
   if(!state.armorEntry)state.armorEntry=list[0];
   if(!state.armorEntry?.angles_deg.includes(state.armorAngle))state.armorAngle=state.armorEntry?.angles_deg[0];
   return true;
 }
 async function loadArmorSlice() {
   const entry=state.armorEntry;if(!entry)return;
+  state.armorRequest?.abort();
+  const request=new AbortController();state.armorRequest=request;
   const shard=entry.shards.find(s=>s.angle_deg===state.armorAngle),key=`${entry.id}/${state.armorAngle}`;state.armorKey=key;
-  state.armorGrid=null;state.armorAim=null;const canvas=$('#armor-canvas');if(canvas){canvas.width=entry.width;canvas.height=entry.height;}renderAim();
-  const buffer=await fetchBytes({...shard,gzip_url:`${shard.url}.gz`},new URL(state.manifest.probability.url,import.meta.url));
-  if(state.armorKey!==key)return;
-  state.armorGrid={...decodeProbability(buffer,entry,state.probabilityIndex.encoding),entry_id:entry.id,angle_deg:shard.angle_deg,metadata:{target_id:entry.target_id,ammo_id:entry.ammo_id,physical_distance_m:entry.physical_distance_m,geometry_version:entry.geometry_version,configuration_version:entry.configuration_version,source_version:entry.source_version,model_version:entry.model_version}};drawArmor();await calculateAim();
+  state.armorError=null;state.armorGrid=null;state.armorAim=null;const canvas=$('#armor-canvas');if(canvas){canvas.width=entry.width;canvas.height=entry.height;}renderAim();
+  try{
+    if(!shard)throw new Error('该采样视角没有可用的概率切片');
+    const base=probabilityBaseURL(state.manifest.probability,state.probabilityIndex,import.meta.url);
+    const buffer=await fetchBytes(shard,base,{signal:request.signal});
+    if(state.armorRequest!==request)return;
+    state.armorGrid={...decodeProbability(buffer,entry,state.probabilityIndex.encoding),entry_id:entry.id,angle_deg:shard.angle_deg,metadata:{target_id:entry.target_id,ammo_id:entry.ammo_id,physical_distance_m:entry.physical_distance_m,geometry_version:entry.geometry_version,configuration_version:entry.configuration_version,source_version:entry.source_version,model_version:entry.model_version}};drawArmor();await calculateAim();
+  }catch(error){
+    if(request.signal.aborted||state.armorRequest!==request)return;
+    state.armorError=error.message;render();
+  }finally{if(state.armorRequest===request)state.armorRequest=null;}
 }
 async function calculateAim() {
   if(!state.armorGrid)return;
@@ -518,6 +540,7 @@ async function action(name) {
     case 'auto-lineup':{const c=selectedCandidate();if(!c)return toast('当前没有可用推荐，请先执行本地扫描。');adoptCandidate(c.lineup_ids,c.actual_br??c.br);break;}
     case 'evaluate':await evaluate();break;
     case 'scan':await scan();break;
+    case 'armor-retry':state.armorError=null;render();{const available=await loadArmor();render();if(available)await loadArmorSlice();}break;
     case 'compare':await compare();break;
     case 'clear-lineup':state.lineups[state.nation]=[];invalidateAnalysis();save();render();break;
     case 'import-lineup':$('#lineup-file').click();break;
@@ -591,7 +614,7 @@ async function handleChange(event) {
 }
 
 async function boot() {
-  state.manifest=await fetchJSON({url:'./data/manifest.json',gzip_url:'./data/manifest.json.gz'});
+  state.manifest=await fetchJSON({url:'./data/manifest.json',gzip_url:'./data/manifest.json.gz',cache:'no-cache'});
   const [ui,config,catalog,scenario]=await Promise.all([fetchJSON(state.manifest.ui),fetchJSON(state.manifest.model),fetchJSON(state.manifest.catalog_index),fetchJSON(state.manifest.scenario)]);
   Object.assign(state,{ui,config,catalog,scenario,sourceScenario:structuredClone(scenario)});
   state.context={...config.defaults};state.version=['current','planned'].includes(state.version)?state.version:config.defaults.version;
@@ -616,4 +639,4 @@ async function boot() {
   await navigate();
   window.__GROUNDOPS__={snapshot:catalog.snapshot.id,model:config.model_version,ready:true,getState:()=>({view:state.view,nation:state.nation,br:state.br,version:state.version,lineup:chosenIds(),busy:state.busy,hasResult:!!state.result,hasComparison:!!state.comparison}),getDiagnostics:()=>({context:{...state.context},lineup:state.result?{actual_br:state.result.actual_br,valid:state.result.valid,score:state.result.score,pairs:state.result.matrix.length,reverse_pairs:state.result.reverse_matrix.length,invalid:state.result.invalid}:null,comparison:state.comparison?{old_br:state.comparison.before.actual_br,new_br:state.comparison.after_fixed.actual_br,announcements:state.comparison.announcements,rejected:state.comparison.rejected}:null,aim:state.armorAim,scenario:state.scenarioApplied?{applied:state.scenarioApplied.applied.length,rejected:state.scenarioApplied.rejected.length}:null})};
 }
-boot().catch(error=>{$('#workspace').innerHTML=`<div class="error-block"><h1>数据未能装载</h1><p>${esc(error.message)}</p><p>请通过静态 HTTP 服务打开此站点，并保留完整 data 目录。示例：<code>python -m http.server --directory web</code></p></div>`;console.error(error);});
+boot().catch(error=>{$('#workspace').innerHTML=`<div class="error-block"><h1>数据未能装载</h1><p>${esc(error.message)}</p><p>请刷新页面后重试，或稍后再访问。</p></div>`;console.error(error);});

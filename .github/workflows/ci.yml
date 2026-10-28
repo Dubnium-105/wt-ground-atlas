@@ -1,0 +1,35 @@
+name: Validate source and lightweight site
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install development dependencies
+        run: |
+          npm ci
+          python -m pip install -r requirements.txt
+      - name: Engine, transport, pipeline and deployment contracts
+        run: npm test
+      - name: Install test browser
+        run: npx playwright install --with-deps chromium
+      - name: Synthetic site over HTTP with a separate probability origin
+        run: npm run test:smoke

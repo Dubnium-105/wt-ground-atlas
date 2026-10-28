@@ -15,7 +15,7 @@ node scripts/build_decisions.mjs --probabilities data/snapshots/decision-probabi
 python scripts/build_web.py
 ```
 
-`summarize` 默认读取 `web/data/probability/index.json`、索引对应的切片和 `config/model.json`，调用网站同一份 `integrateAim()`。输出 `data/snapshots/decision-probabilities.json` 及 gzip 副本，报告写到 `reports/probability-summaries.json`。
+`summarize` 默认读取 `data/exports/probability/index.json`、索引对应的切片和 `config/model.json`，调用网站同一份 `integrateAim()`。输出 `data/snapshots/decision-probabilities.json` 及 gzip 副本，报告写到 `reports/probability-summaries.json`。
 
 不需要重新计算原始弹道物理，也不把一个像素均值当成每发击穿概率。摘要使用中心/弱点混合瞄准与完整高斯落点质量，包含背景、未知、无受保护内部目标和目标外质量。默认技能与瞄准距离来自模型配置；每张图的物理距离、采样间距与视角来自该图元数据。
 
@@ -25,7 +25,7 @@ python scripts/build_web.py
 
 生成器生成的记录**始终是 `reference_only: true`**。它不会因为一张图使用某颗参考弹，就认为目标车或任何别的载具拥有该弹；不会向 catalog 自动加入武器、几何版本或配置版本。
 
-当前上传 atlas 的全部 192 个视角已实际积分成 192 条摘要。它们会作为轻量数据被决策管线加载，但严格身份门禁会阻止其被当成当前 Wiki 载具的已核验精确配对。
+原始四车 atlas 的 192 个视角曾积分成 192 条摘要；后续客户端批次的实际规模以对应快照和报告为准。完整研究摘要由离线决策管线读取，但严格身份门禁会阻止参考记录被当成当前 Wiki 载具的已核验精确配对。静态站点只发布下述运行时投影，避免把随视角数量增长的大型研究摘要传入浏览器。
 
 物理射距仍是来源弹药档案声明的距离。若只更改 `--context` 中的瞄准距离，改变的是落点误差，不会生成新的物理穿深。
 
@@ -61,9 +61,23 @@ bundle
 
 `aim_context_key` 使用共享函数 `aimContextKey(context, config)` 生成，必须完整保留，不得自行删除技能或运动条件以提高缓存命中。技能、瞄准距离或模型参数改变时，摘要不再匹配；应重新积分对应图，或者回退为有标记的粗模型。
 
+## 浏览器运行时投影
+
+`scripts/decision_bundle.py` 在组装网站时读取完整的 `decision-probabilities.json`，生成独立的、带内容哈希的浏览器输入。原始离线快照不被修改。
+
+- `records` 只保留 **`reference_only` 严格等于布尔 `false`** 的记录，完整保留每条记录的字段、核验依据和原始顺序。`true`、缺失、`null`、数值 `0` 或字符串 `"false"` 都不会被升级为已核验记录。
+- `model_version`、`decision_model_version`、`schema_version`、`build_key`、状态、校准标志、默认参考语义和外部核验契约保留；概率匹配仍使用原来的全部身份条件。
+- `provenance` 保留索引、配置、引擎、解码器和摘要工具 SHA-256，来源版本/提交、瞄准身份、积分来源、核验策略、游戏概率验证标志及并行分区信息。未约定的额外研究大表不复制到网站；原件由完整源快照的哈希追溯。
+- `entries` 压缩为每个目标一个 `{target_id}`。它只用于保持“存在参考研究图，但当前配对身份未匹配”的原有说明；具体弹药、视角和研究元数据从独立概率索引按需获取。
+- `runtime_projection` 记录 `source_bundle_sha256`、原始/发布/省略记录数、原始目录条数、发布的目标数及投影策略。
+
+推荐缓存身份继续包含**完整源快照**的 SHA-256；即使只修改了一条没有发布到浏览器的参考记录，也必须重新校验或生成推荐。投影本身不推断弹药归属、不删除已核验配对，也不重新积分概率。全部记录仍为参考数据的快照可以只向浏览器发送目标存在性与来源信息；原研究图继续由防护研究页读取。
+
+自动回归使用同一个决策引擎比较完整源 bundle 与投影的逐车、队列和推荐结果，并覆盖技能、射距、角度和弹药归属不匹配的情况。
+
 ## 接入未来已核验的完整车型结果
 
-可以把后端产出的已核验记录放入一个遵守上述契约的独立 bundle，并通过 `build_decisions.mjs --probabilities` 指定。主站从构建清单加载同一个 bundle。**现有参考记录不会自动升级。**
+可以把后端产出的已核验记录放入一个遵守上述契约的独立 bundle，并通过 `build_decisions.mjs --probabilities` 指定。常规站点组装使用 `data/snapshots/decision-probabilities.json`，该文件必须与推荐构建使用的内容身份一致；浏览器加载它的运行时投影，其中已核验记录保持完整。**现有参考记录不会自动升级。**
 
 发布已核验记录的前提：
 

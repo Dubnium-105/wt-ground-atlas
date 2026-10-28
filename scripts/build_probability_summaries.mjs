@@ -10,7 +10,7 @@ import zlib from 'node:zlib';
 import {fileURLToPath} from 'node:url';
 import {Worker, isMainThread, parentPort, workerData} from 'node:worker_threads';
 import {aimContextKey, integrateAim, validateModelConfig} from '../shared/engine.mjs';
-import {decodeProbability} from '../web/data-client.mjs';
+import {decodeProbability} from '../shared/probability-codec.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const finite = value => typeof value === 'number' && Number.isFinite(value);
@@ -43,7 +43,7 @@ export async function buildProbabilitySummaries(options = {}) {
   if (Number(options.workers) > 1 && !options.partition) return buildParallelSummaries(options);
   const started = performance.now();
   const paths = {
-    index: path.resolve(options.index ?? path.join(ROOT, 'web/data/probability/index.json')),
+    index: path.resolve(options.index ?? path.join(ROOT, 'data/exports/probability/index.json')),
     config: path.resolve(options.config ?? path.join(ROOT, 'config/model.json')),
     context: options.context ? path.resolve(options.context) : null,
     out: path.resolve(options.out ?? path.join(ROOT, 'data/snapshots/decision-probabilities.json')),
@@ -61,7 +61,7 @@ export async function buildProbabilitySummaries(options = {}) {
   const provenance = {
     index_sha256: hash(indexBytes), config_sha256: hash(configBytes),
     engine_sha256: hash(await fs.readFile(path.join(ROOT, 'shared/engine.mjs'))),
-    decoder_sha256: hash(await fs.readFile(path.join(ROOT, 'web/data-client.mjs'))),
+    decoder_sha256: hash(await fs.readFile(path.join(ROOT, 'shared/probability-codec.mjs'))),
     summarizer_sha256: hash(await fs.readFile(fileURLToPath(import.meta.url))),
     source_version: index.source_version ?? null, datamine_commit: index.datamine_commit ?? null,
     aim_context_key: contextKey,
@@ -141,7 +141,7 @@ export async function buildProbabilitySummaries(options = {}) {
 
 async function buildParallelSummaries(options) {
   const started = performance.now();
-  const indexFile = path.resolve(options.index ?? path.join(ROOT, 'web/data/probability/index.json'));
+  const indexFile = path.resolve(options.index ?? path.join(ROOT, 'data/exports/probability/index.json'));
   const index = await readJSON(indexFile);
   const count = Math.min(Number(options.workers), index.entries.length);
   if (!Number.isInteger(count) || count < 1) throw new Error('workers must be a positive integer');

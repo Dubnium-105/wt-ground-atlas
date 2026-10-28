@@ -10,9 +10,9 @@ import sys
 import time
 import urllib.parse
 import urllib.request
-from .common import read_json, write_json, file_hash, content_hash, resolved, safe_id
+from .common import read_json, write_json, file_hash, content_hash, resolved, safe_id, stage_verified_file
 from .geometry import decode_grp, export_mesh, build_cpu_layers
-from .cpu_model import recalculate_layers
+from .storage import recalculate_layers_atomic as recalculate_layers
 
 
 def utc_now():
@@ -271,8 +271,7 @@ def export_completed(root, config, output=None):
             raise ValueError('Stale physical job cache; run the pipeline with current inputs before export')
     stage = store.work / 'computed_atlas'; stage.mkdir(parents=True, exist_ok=True)
     for part in ['arrays', 'geometry_layers', 'provenance']: (stage / part).mkdir(exist_ok=True)
-    # A new stage must never silently retain removed jobs or stale ammo arrays.
-    for old in (stage / 'arrays').glob('*.npz'): old.unlink()
+    expected_names = set()
     ammo_path = resolved(root, config['compute'].get('ammunition_file', str(vendor / 'data/ammunition.json')))
     ammo = read_json(ammo_path)
     if isinstance(ammo, dict): ammo = [ammo]
@@ -291,11 +290,15 @@ def export_completed(root, config, output=None):
         shutil.copyfile(metadata, stage / 'geometry_layers' / metadata.name)
         for item in job['results']:
             file = resolved(root, job['result_directory']) / item['file']
-            if file_hash(file) != item['sha256']: raise ValueError('Computed file hash changed before export')
             dest = stage / 'arrays' / file.name
-            shutil.copyfile(file, dest)
+            expected_names.add(dest.name)
+            stage_verified_file(file, dest, item['sha256'], allow_hardlink=config['compute']['backend'] == 'cpu')
             group['groups'].append({'array_file': 'arrays/' + dest.name, 'array_sha256': item['sha256']})
         summary['groups'].append(group)
+    # Retain verified links for resumable exports; discard removed jobs/ammo.
+    for old in (stage / 'arrays').glob('*.npz'):
+        if old.name not in expected_names:
+            old.unlink()
     if len(versions) != 1 or len(commits) != 1:
         raise ValueError('Mixed source versions must be exported into separate atlas snapshots')
     summary['client_version'] = next(iter(versions)); summary['datamine_commit'] = next(iter(commits))

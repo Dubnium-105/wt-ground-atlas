@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "probability": {
+    "mode": "disabled",
+    "base_url": "",
+    "index_sha256": null
+  },
+  "budgets": {
+    "site_bytes": 104857600,
+    "file_bytes": 26214400
+  }
+}
