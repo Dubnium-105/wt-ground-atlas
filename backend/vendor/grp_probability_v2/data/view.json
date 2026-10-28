@@ -1,0 +1,12 @@
+{
+  "pixel_pitch_m": 0.025,
+  "width": 434,
+  "height": 137,
+  "world_width_m": 10.850000000000001,
+  "bottom_y_m": -0.125,
+  "top_y_m": 3.3000000000000003,
+  "camera_margin_m": 0.5,
+  "ray_limit_m": 15.0,
+  "rotation_convention": "Camera rotates about each vehicle bbox center; yaw0 faces +X, positive yaw toward +Z. +Y up; image left at yaw0 is +Z.",
+  "common_metric_scale_all_vehicles_angles": true
+}

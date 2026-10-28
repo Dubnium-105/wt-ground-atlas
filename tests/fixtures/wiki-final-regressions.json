@@ -1,0 +1,73 @@
+{
+  "rocket_guidance": [
+    {
+      "vehicle_id": "uk_matilda_hedgehog",
+      "source_url": "https://wiki.warthunder.com/unit/uk_matilda_hedgehog",
+      "expected_min_elevation_deg": 30,
+      "expected_max_elevation_deg": 45,
+      "html": "<div><div class=\"game-unit_weapon\"><span class=\"game-unit_weapon-title\"><a href=\"/collections/weapon/hedgehog\">Hedgehog</a></span>\n                                                                        <div class=\"game-unit_chars-line\">\n                                            <span class=\"game-unit_chars-header\">Vertical guidance</span>\n                                            <span class=\"game-unit_chars-value\">30 / 45°</span>\n                                        </div>\n                                                                                                        </div></div>"
+    },
+    {
+      "vehicle_id": "ussr_bm_13n",
+      "source_url": "https://wiki.warthunder.com/unit/ussr_bm_13n",
+      "expected_min_elevation_deg": 7,
+      "expected_max_elevation_deg": 45,
+      "html": "<div><div class=\"game-unit_weapon\"><span class=\"game-unit_weapon-title\"><a href=\"/collections/weapon/rs_132\">132 mm M13 rocket</a></span>\n                                                                        <div class=\"game-unit_chars-line\">\n                                            <span class=\"game-unit_chars-header\">Vertical guidance</span>\n                                            <span class=\"game-unit_chars-value\">7 / 45°</span>\n                                        </div>\n                                                                                                                </div></div>"
+    },
+    {
+      "vehicle_id": "ussr_bm_31_12",
+      "source_url": "https://wiki.warthunder.com/unit/ussr_bm_31_12",
+      "expected_min_elevation_deg": 10,
+      "expected_max_elevation_deg": 48,
+      "html": "<div><div class=\"game-unit_weapon\"><span class=\"game-unit_weapon-title\">300 mm M-31 rocket</span>\n                                                                        <div class=\"game-unit_chars-line\">\n                                            <span class=\"game-unit_chars-header\">Vertical guidance</span>\n                                            <span class=\"game-unit_chars-value\">10 / 48°</span>\n                                        </div>\n                                                                                                                </div></div>"
+    },
+    {
+      "vehicle_id": "ussr_rbt_5",
+      "source_url": "https://wiki.warthunder.com/unit/ussr_rbt_5",
+      "expected_min_elevation_deg": 9,
+      "expected_max_elevation_deg": 50,
+      "html": "<div><div class=\"game-unit_weapon\"><span class=\"game-unit_weapon-title\">TT-250 tank torpedo</span>\n                                                                        <div class=\"game-unit_chars-line\">\n                                            <span class=\"game-unit_chars-header\">Vertical guidance</span>\n                                            <span class=\"game-unit_chars-value\">9 / 50°</span>\n                                        </div>\n                                                                                                        </div></div>"
+    }
+  ],
+  "air_speed": [
+    {
+      "vehicle_id": "su_30mkk",
+      "source_url": "https://wiki.warthunder.com/unit/su_30mkk",
+      "expected_forward_kmh": 2304,
+      "expected_altitude_m": 12000,
+      "html": "<div><div class=\"game-unit_chars-block\">\n                    <div class=\"game-unit_chars-line\">\n                        <span class=\"game-unit_chars-header\">Max speed</span>\n                    </div>\n                    <div class=\"game-unit_chars-subline\">\n                        <span>\n                            at <span>12,000</span> m                        </span>\n                        <span class=\"game-unit_chars-value\">\n                            <span class=\"show-char-rb-mod-ref\">2,304</span><span class=\"show-char-rb-mod-basic text-danger\">2,182</span><span class=\"show-char-ab-mod-ref text-success\">2,405</span><span class=\"show-char-ab-mod-basic text-danger\">2,218</span> km/h                        </span>\n                    </div>\n                </div>\n                                </div>"
+    },
+    {
+      "vehicle_id": "saab_j29b",
+      "source_url": "https://wiki.warthunder.com/unit/saab_j29b",
+      "expected_forward_kmh": 1015,
+      "expected_altitude_m": 0,
+      "html": "<div><div class=\"game-unit_chars-block\">\n                    <div class=\"game-unit_chars-line\">\n                        <span class=\"game-unit_chars-header\">Max speed</span>\n                    </div>\n                    <div class=\"game-unit_chars-subline\">\n                        <span>\n                            at <span>0</span> m                        </span>\n                        <span class=\"game-unit_chars-value\">\n                            <span class=\"show-char-rb-mod-ref\">1,015</span><span class=\"show-char-rb-mod-basic text-danger\">961</span><span class=\"show-char-ab-mod-ref text-success\">1,027</span><span class=\"show-char-ab-mod-basic text-danger\">993</span> km/h                        </span>\n                    </div>\n                </div>\n                                </div>"
+    },
+    {
+      "vehicle_id": "ah_64d",
+      "source_url": "https://wiki.warthunder.com/unit/ah_64d",
+      "expected_forward_kmh": 295,
+      "expected_altitude_m": 1000,
+      "html": "<div><div class=\"game-unit_chars-block\">\n                    <div class=\"game-unit_chars-line\">\n                        <span class=\"game-unit_chars-header\">Max speed</span>\n                    </div>\n                    <div class=\"game-unit_chars-subline\">\n                        <span>\n                            at <span>1,000</span> m                        </span>\n                        <span class=\"game-unit_chars-value\">\n                            <span class=\"show-char-rb-mod-ref\">295</span><span class=\"show-char-rb-mod-basic text-danger\">254</span><span class=\"show-char-ab-mod-ref text-success\">318</span><span class=\"show-char-ab-mod-basic text-danger\">271</span> km/h                        </span>\n                    </div>\n                </div>\n                                </div>"
+    }
+  ],
+  "multiunit": [
+    {
+      "vehicle_id": "jp_type_81_tansam_fcs",
+      "source_url": "https://wiki.warthunder.com/unit/jp_type_81_tansam_fcs",
+      "expected_basic_id": "jp_type_81_tansam_fcs",
+      "expected_component_id": "jp_type_81_tansam_launcher",
+      "expected_component_count": 2,
+      "html": "<div><div class=\"arrow-scroll_wrapper game-unit_multiunit overflow-x-auto\">\n                                                                                                                    <span class=\"game-unit_multiunit-item active\">                                        <img class=\"icon\" src=\"https://static.encyclopedia.warthunder.com/slots/jp_type_81_tansam_fcs.png\">\n                                        <div class=\"text\">\n                                            <div class=\"name text-truncate\">Tan-SAM Kai (TADS)</div>\n                                            <div class=\"subtitle\">Basic unit</div>\n                                        </div>\n                                        </span>                                                                                                                    <a class=\"game-unit_multiunit-item\" href=\"/unit/jp_type_81_tansam_launcher\">                                        <img class=\"icon\" src=\"https://static.encyclopedia.warthunder.com/slots/jp_type_81_tansam_launcher.png\">\n                                        <div class=\"text\">\n                                            <div class=\"name text-truncate\">Tan-SAM Kai (TEL)</div>\n                                            <div class=\"subtitle\">2 vehicles</div>\n                                        </div>\n                                        </a>                                                                    </div>\n                            </div>"
+    },
+    {
+      "vehicle_id": "jp_type_81_tansam_launcher",
+      "source_url": "https://wiki.warthunder.com/unit/jp_type_81_tansam_launcher",
+      "expected_basic_id": "jp_type_81_tansam_fcs",
+      "expected_component_id": "jp_type_81_tansam_launcher",
+      "expected_component_count": 2,
+      "html": "<div><div class=\"arrow-scroll_wrapper game-unit_multiunit overflow-x-auto\">\n                                                                                                                    <a class=\"game-unit_multiunit-item\" href=\"/unit/jp_type_81_tansam_fcs\">                                        <img class=\"icon\" src=\"https://static.encyclopedia.warthunder.com/slots/jp_type_81_tansam_fcs.png\">\n                                        <div class=\"text\">\n                                            <div class=\"name text-truncate\">Tan-SAM Kai (TADS)</div>\n                                            <div class=\"subtitle\">Basic unit</div>\n                                        </div>\n                                        </a>                                                                                                                    <span class=\"game-unit_multiunit-item active\">                                        <img class=\"icon\" src=\"https://static.encyclopedia.warthunder.com/slots/jp_type_81_tansam_launcher.png\">\n                                        <div class=\"text\">\n                                            <div class=\"name text-truncate\">Tan-SAM Kai (TEL)</div>\n                                            <div class=\"subtitle\">2 vehicles</div>\n                                        </div>\n                                        </span>                                                                    </div>\n                            </div>"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+numpy==2.4.4
+cupy-cuda13x==14.2.0
+Pillow==13.0.0
+zstandard==0.25.0

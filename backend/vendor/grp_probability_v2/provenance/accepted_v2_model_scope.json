@@ -1,0 +1,103 @@
+{
+  "complete_requested_four_vehicle_probability_atlas": false,
+  "model": "Straight-path full interval model with source armor fields, thin-part and reactive geometric gates, and normalized source KE range-carry budget.",
+  "game_probability_validated": false,
+  "ammunition": [
+    "M829A2",
+    "M830"
+  ],
+  "angles": [
+    0,
+    15,
+    30,
+    45,
+    60,
+    75,
+    90,
+    105,
+    120,
+    135,
+    150,
+    165,
+    180,
+    195,
+    210,
+    225,
+    240,
+    255,
+    270,
+    285,
+    300,
+    315,
+    330,
+    345
+  ],
+  "true_sampling_resolution": [
+    434,
+    137
+  ],
+  "true_pixel_pitch_m": 0.025,
+  "metric_canvas_m": [
+    10.85,
+    3.425
+  ],
+  "images": {
+    "native_png": 192,
+    "hd_png": 192,
+    "hd_size": [
+      4050,
+      1500
+    ],
+    "hd_is_nearest_sample_display": true
+  },
+  "conditions": "Pristine authored pose. Armor-stack traversal ends after final armor layer before first bound inner part; no post-armor cabin-air charge.",
+  "probability_law": "CE: uniform shot-level penetration dispersion threshold and independent ricochet survival. KE with source range curve:16-step monotonic initial-penetration threshold search, preserving layer loss and equivalent range.",
+  "unknowns": "NaN for missing mapped material, missing solid exit, extra disjoint interval before protected target. Source binding part=-1 explicitly excluded. Background and no protected target have separate masks, not probability zero.",
+  "simplifications": [
+    "Additive layer costs instead of iterative projectile carry/stability/breakup",
+    "No trajectory changes after ricochet: ricochet counts as straight-path penetration failure",
+    "ERA/composite response uses only loaded scalar qualities and geometry; activation, destruction and dynamic directional response omitted",
+    "No cumulative fuse/deviation/precharge state; ordinary M830 main-charge approximation",
+    "No fragments, blast, pressure, lethal damage, crew health depletion or repeat-hit state",
+    "Nonpositive/disabled armor uses declared source field branch; no game runtime overrides"
+  ],
+  "performance_scope": "Warm prepared geometry and GPU context; new numerical penetration value each request, no cached probability/image results. 434x137 true samples/view, not 2K true-ray sampling. Local HTTP + all PNG decode is measured; browser paint is separately user-visible, not benchmarked here.",
+  "raw_array_keys": [
+    "penetration_probability",
+    "model_required_charge_mm",
+    "status"
+  ],
+  "required_charge_is_not_RHAe": true,
+  "version": 2,
+  "complete_native_nera_response": false,
+  "geometry_model": "All inward intervals retained. Nearest next distinct crossing must be outward for solid exit; shared triangle clustering10micrometers.",
+  "scope_of_correction": [
+    "All separated intervals retained instead of one interval/node",
+    "Source material family provenance preserved; NERA quality fields not replaced with guessed RHAe",
+    "Thin-part KE gate and reactive class geometric bypass retained",
+    "KE available penetration propagated across layers using full21-point source range profile",
+    "CE inter-layer gaps retained, post-armor interior gap removed to match requested penetration endpoint"
+  ],
+  "remaining_unverified": [
+    "Full NERA-induced projectile precession/yaw/stability and integrity changes",
+    "Finite-caliber19-ray collector/reduction/selection equivalence",
+    "ERA activation/destruction and runtime damage state",
+    "Exact whole-scene float32 transform/edge identity parity",
+    "Game probability calibration and random-state/correlation assumptions"
+  ],
+  "material_response_flags": {
+    "1": "Source NERA family; full angular/dynamic response unvalidated",
+    "2": "Source reactive armor; activation/destruction unvalidated",
+    "4": "Source spaced_armor_air/grille_air family",
+    "8": "Source variableThickness flag"
+  },
+  "hatch": "NERA/ERA source regions get light diagonal hatching. Numeric colors are conditional estimates; material/ray coverage is not a validation confidence.",
+  "validation": {
+    "original_source_rays": 6,
+    "nera_field_groups_bitwise_equal": 14,
+    "inverse_carry_operators_bitwise_equal": 62,
+    "selected_original_records_missing_v1": 3,
+    "selected_original_records_missing_v2": 0,
+    "independent_cpu_model_rays": 2400
+  }
+}

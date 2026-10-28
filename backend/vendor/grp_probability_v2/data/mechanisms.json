@@ -1,0 +1,22 @@
+[
+  "generic",
+  "snowball",
+  "genericLongRod",
+  "genericFirearm",
+  "tandemPrecharge",
+  "explosion",
+  "shatter",
+  "secondaryShatter",
+  "fire",
+  "napalm",
+  "cumulative",
+  "explosiveFormedProjectile",
+  "collision",
+  "drowning",
+  "laserBeam",
+  "fireExplosion",
+  "pressure",
+  "hydroShock",
+  "sonic",
+  "overheat"
+]

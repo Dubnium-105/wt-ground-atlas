@@ -1,0 +1,351 @@
+{
+  "schema_version": "1.0.0",
+  "model_version": "ground-rb-decision-1.2.0",
+  "calibration_status": "uncalibrated",
+  "description": "可解释的决策效用模型。全部经验参数为公开、待校准配置；分数不是胜率、击毁率或实测穿透率。",
+  "defaults": {
+    "version": "current",
+    "slots": 10,
+    "skill": 0,
+    "distance_m": 1000,
+    "physical_distance_m": 1000,
+    "angle_deg": 0,
+    "includeSpecial": false,
+    "performance_state": "fully_modified",
+    "crew_state": "max_level_ace",
+    "target_motion_mps": 0,
+    "own_motion_mps": 0,
+    "available_spawn_points": null,
+    "target_radar_emitting": null
+  },
+  "ui": {
+    "slots": {
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    "skill": {
+      "min": -3,
+      "max": 3,
+      "step": 0.25
+    },
+    "distance_m": {
+      "min": 0,
+      "max": 5000,
+      "step": 50
+    },
+    "angle_deg": {
+      "min": 0,
+      "max": 360,
+      "step": 1
+    },
+    "decimal_places": 3
+  },
+  "matching": {
+    "max_br_spread": 1.0,
+    "epsilon": 1e-06,
+    "rule_status": "configurable_rule",
+    "rule_source": "https://wiki.warthunder.com/mechanics/matchmaking",
+    "lower_vehicle_carry_note": "低于主力匹配区间的载具仍可被高 BR 队列携带；离开主力区间不代表绝不会遇见。",
+    "opponent_prior": "equal_mass_per_confirmed_configuration_group",
+    "empirical_encounter_frequencies": false
+  },
+  "roles": {
+    "main": [
+      "mbt",
+      "heavy",
+      "medium",
+      "td",
+      "tank_destroyer",
+      "tank"
+    ],
+    "scout": [
+      "light",
+      "scout",
+      "ifv"
+    ],
+    "aa": [
+      "spaa",
+      "anti_air"
+    ],
+    "air": [
+      "cas",
+      "fighter",
+      "bomber",
+      "attacker",
+      "attack_heli",
+      "helicopter",
+      "aircraft"
+    ]
+  },
+  "search": {
+    "algorithm": "role-constrained deterministic greedy with marginal opponent coverage",
+    "global_optimum_guaranteed": false,
+    "lookback_br": 1.3,
+    "candidates_per_role": 6,
+    "variants_per_br": 3,
+    "alternatives": 3,
+    "max_air_fraction": 0.4,
+    "default_role_order": [
+      "main",
+      "scout",
+      "aa",
+      "air",
+      "main"
+    ],
+    "profile_orders": {
+      "balanced": [
+        "main",
+        "scout",
+        "aa",
+        "air",
+        "main"
+      ],
+      "ground": [
+        "main",
+        "scout",
+        "aa",
+        "main",
+        "scout"
+      ],
+      "air_support": [
+        "main",
+        "aa",
+        "air",
+        "scout",
+        "main"
+      ]
+    },
+    "selection_weights": {
+      "coverage": 0.55,
+      "role": 0.25,
+      "br_proximity": 0.2
+    },
+    "max_pair_cache_entries": 40000
+  },
+  "pair": {
+    "weights": {
+      "armor_pressure": 0.4,
+      "tempo": 0.24,
+      "mobility": 0.16,
+      "observation": 0.12,
+      "concealment": 0.08
+    },
+    "aa_aa_aggregation_weight": 0.1,
+    "default_aggregation_weight": 1,
+    "unknown_prior": 0.5,
+    "unknown_interval": [
+      0,
+      1
+    ],
+    "coarse_proxy_uncertainty": 0.35,
+    "minimum_evidence_fraction": 0.05,
+    "logistic_slope": 2,
+    "sustain_window_s": 30,
+    "first_aim_s": 2.5,
+    "reaim_s": 1,
+    "mobility_skill_sensitivity": 0.2,
+    "tempo_skill_sensitivity": 0.15,
+    "armor_skill_sensitivity": -0.12,
+    "relative_scales": {
+      "forward_kmh": 40,
+      "reverse_kmh": 20,
+      "power_to_weight_hp_t": 20,
+      "traverse_deg_s": 30,
+      "vertical_deg_s": 15,
+      "reload_s": 8,
+      "thermal_generation": 2,
+      "depression_deg": 10,
+      "penetration_mm": 300
+    },
+    "mobility_weights": {
+      "forward_kmh": 0.3,
+      "reverse_kmh": 0.3,
+      "power_to_weight_hp_t": 0.3,
+      "neutral_steering": 0.1
+    },
+    "observation_weights": {
+      "thermal_generation": 0.5,
+      "traverse_deg_s": 0.3,
+      "vertical_deg_s": 0.2
+    },
+    "concealment_weights": {
+      "smoke_grenades": 0.6,
+      "engine_smoke": 0.4
+    },
+    "sampled_layers": {
+      "penetration_transition_fraction": 0.05,
+      "model_uncertainty": 0.12,
+      "minimum_slope_ratio": 0.025,
+      "max_cached_profiles_per_view": 256,
+      "slope_tail": "cosine continuation beyond last source obliquity"
+    },
+    "ammo_selection_weights": {
+      "penetration": 0.9,
+      "tempo": 0.1
+    }
+  },
+  "lineup": {
+    "duel_weights": {
+      "outbound": 0.5,
+      "resilience": 0.5
+    },
+    "response_weights": {
+      "best": 0.65,
+      "depth": 0.35
+    },
+    "scenario_prior": {
+      "down": 0.3333333333333333,
+      "same": 0.3333333333333333,
+      "up": 0.3333333333333333
+    },
+    "scenario_prior_status": "assumed_not_matchmaker_telemetry",
+    "weights": {
+      "mean": 0.55,
+      "worst_case": 0.25,
+      "role_coverage": 0.1,
+      "air_window": 0.06,
+      "aa_coverage": 0.04
+    },
+    "required_role_weights": {
+      "main": 0.4,
+      "scout": 0.2,
+      "aa": 0.2,
+      "air": 0.2
+    },
+    "air_support_cap": 0.5,
+    "threat_thresholds": {
+      "high": 0.68,
+      "medium": 0.42
+    },
+    "explanation_limit": 8,
+    "worst_quantile": 0.1,
+    "availability_unknown_prior": 0.35,
+    "duel_model": "relative_pressure_odds",
+    "duel_epsilon": 1e-06
+  },
+  "air": {
+    "weights": {
+      "weapon_delivery": 0.35,
+      "target_effectiveness": 0.2,
+      "survival_window": 0.25,
+      "availability": 0.2
+    },
+    "range_scale_m": 10000,
+    "overload_scale_g": 30,
+    "ready_ammo_scale": 8,
+    "scan_period_scale_s": 4,
+    "gun_rate_scale_rpm": 3000,
+    "payload_scale_kg": 1000,
+    "weapon_count_scale": 4,
+    "spawn_point_scale": 800,
+    "unknown_sp_availability": 0.35,
+    "flight_condition_unknown_factor": 0.5,
+    "guidance_condition_unknown_factor": 0.5,
+    "target_motion_scale_mps": 15,
+    "target_mobility_scale_kmh": 40,
+    "target_evasion_prior_fraction": 0.35,
+    "target_effect_weights": {
+      "armor_response": 0.6,
+      "evasion_window": 0.4
+    },
+    "aa_weights": {
+      "range": 0.3,
+      "overload": 0.15,
+      "ready_ammo": 0.15,
+      "scan": 0.2,
+      "gun_rate": 0.2
+    },
+    "ground_weapon_types": [
+      "agm",
+      "guided_bomb",
+      "bomb",
+      "rocket",
+      "atgm",
+      "arm"
+    ],
+    "air_weapon_types": [
+      "aam",
+      "gun"
+    ],
+    "anti_radiation_types": [
+      "arm",
+      "anti_radiation"
+    ],
+    "weapon_weights": {
+      "range": 0.3,
+      "explosive_mass": 0.25,
+      "accuracy": 0.25,
+      "count": 0.2
+    }
+  },
+  "aim": {
+    "model": "Gaussian impact error with center/robust-weakpoint aim mixture",
+    "calibration_status": "uncalibrated",
+    "latent_skill_prior": {
+      "distribution": "normal_assumption",
+      "mean": 0,
+      "standard_deviation": 1
+    },
+    "weak_probability_threshold": 0.6,
+    "weak_preference_intercept": 0,
+    "weak_preference_skill_slope": 0.7,
+    "base_sigma_x_m": 0.25,
+    "base_sigma_y_m": 0.2,
+    "distance_scale_m": 1000,
+    "minimum_distance_factor": 0.2,
+    "skill_error_slope": 0.35,
+    "target_motion_sigma_m_per_mps": 0.025,
+    "own_motion_sigma_m_per_mps": 0.02,
+    "gun_control_reference_deg_s": 25,
+    "gun_control_sensitivity": 0.15,
+    "max_weak_components": 4,
+    "minimum_sigma_pixels": 0.2,
+    "cdf": {
+      "method": "Abramowitz-Stegun erf polynomial",
+      "p": 0.3275911,
+      "coefficients": [
+        0.254829592,
+        -0.284496736,
+        1.421413741,
+        -1.453152027,
+        1.061405429
+      ]
+    },
+    "note": "仅改变瞄准距离只改变落点误差；装甲物理数据仍属于其声明的 physical_distance_m。"
+  },
+  "cache": {
+    "exact_required_fields": [
+      "target_id",
+      "configuration_id",
+      "ammo_id",
+      "ammo_profile_sha256",
+      "physical_distance_m",
+      "angle_deg",
+      "geometry_version",
+      "configuration_version",
+      "model_version",
+      "source_version",
+      "aim_context_key"
+    ],
+    "allow_reference_only_for_pair": false
+  },
+  "calibration": {
+    "allowed_parameter_roots": [
+      "aim",
+      "pair",
+      "lineup",
+      "air"
+    ],
+    "required_metadata": [
+      "source",
+      "mode",
+      "time_window",
+      "sample_count",
+      "bias_notes",
+      "fit_method",
+      "validation_report"
+    ],
+    "result_status": "offline_parameters_imported_requires_validation"
+  }
+}

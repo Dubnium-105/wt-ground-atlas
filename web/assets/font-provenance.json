@@ -1,0 +1,79 @@
+{
+  "family": "WT Atlas Sans SC",
+  "upstream": {
+    "family": "Noto Sans SC",
+    "repository": "https://github.com/google/fonts",
+    "commit": "a85815a42757630ce188fdad368c2dfc444d4773",
+    "commit_date": "2026-03-25T20:42:06Z",
+    "directory_api": "https://api.github.com/repos/google/fonts/contents/ofl/notosanssc?ref=a85815a42757630ce188fdad368c2dfc444d4773",
+    "font": {
+      "filename": "NotoSansSC[wght].ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/a85815a42757630ce188fdad368c2dfc444d4773/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf",
+      "sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
+      "git_blob_sha1": "fb0637bafbcd804fe32152370a1225990745b4bc"
+    },
+    "license": {
+      "filename": "OFL.txt",
+      "url": "https://raw.githubusercontent.com/google/fonts/a85815a42757630ce188fdad368c2dfc444d4773/ofl/notosanssc/OFL.txt",
+      "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9",
+      "git_blob_sha1": "1c9f43281b8f216c5461fe9ac729afbade7724e4"
+    }
+  },
+  "license": "SIL Open Font License 1.1",
+  "modified": "Display-text subset and WOFF2 conversion; renamed family",
+  "build_versions": {
+    "fonttools": "4.61.1",
+    "Brotli": "1.2.1"
+  },
+  "input_sha256": {
+    "config/font.json": "03bffa83de7226725830718c5ed668559df375d1670d00f3e601fe42743e752e",
+    "config/hosting.json": "bbc67f3e00a3d69f805a56aa7272628f1d93860428094e667c847257a8333068",
+    "config/model.json": "6a71edb99655bfff3d91b2afc3fc1c804b64869274787eced545d99e0a458484",
+    "config/pipeline.json": "b4e0fdba4a37aea8ea1556db98c272ec2f52d6cf56c9011d3f4dcbd3d56dc40f",
+    "config/qa.json": "65ddbb839f4b178476660a83c383644fc0be5cf4676c2f051655dbcd9b7454ac",
+    "config/sources.json": "025d2e8dbe618ca74b61e7d32930d2d3bcd1c6951abf18113fcd9fb721b6de51",
+    "config/ui.json": "02d425f23ae40e4bbf69a71ba195dbcd415c54a4a1df41d6bf65eb005701faf2",
+    "shared/engine.mjs": "7f2a0837200b34745f45ae26867727154c0e7f72e60f7e79006368a3018a0e34",
+    "web/app.mjs": "54202a75721a4c3af1c6bfdca34d2dd053ae295a8af6fb7992563651c2569e45",
+    "web/data-client.mjs": "272f30c7f86d42fc0d53d6d246bff6053aaa8a42a7e040df739f3747928420d0",
+    "web/index.html": "c5c5a80a2c36fcad76e0fa6cc9749a1018336688c9de63b28d69a573cbf84587",
+    "web/styles.css": "b6621d0e084040cf1c78b7b74db9814cd703d96c965527639b8be6af778ab982",
+    "web/worker.mjs": "d16d88e784c999e0f209b271fcedcdfc1d18917ff15aec0a821f2d32ed8f2d69",
+    "data/snapshots/catalog.json": "a643ff2fc733615a07a86144911ae269b9037d312bcbdda62b88e9beef0a8253",
+    "data/snapshots/changes.json": "968a8dbb76b190c739f117c81ab1297a0454f09ad79f2c0889efd39589e8f35c"
+  },
+  "requested_characters": 908,
+  "covered_characters": 893,
+  "source_unsupported_codepoints": [
+    8627,
+    8928,
+    8981,
+    9239,
+    9241,
+    9248,
+    9668,
+    9672,
+    9677,
+    9684,
+    9687,
+    9688,
+    9697,
+    9776,
+    9881
+  ],
+  "source_unsupported_characters": "↳⋠⌕␗␙␠◄◈◍◔◗◘◡☰⚙",
+  "all_requested_cjk_present": true,
+  "variation_axes": [
+    {
+      "tag": "wght",
+      "minimum": 100.0,
+      "default": 100.0,
+      "maximum": 900.0
+    }
+  ],
+  "output": {
+    "path": "web/assets/wt-atlas-sans-sc.woff2",
+    "bytes": 257196,
+    "sha256": "65ada0923edd9a689c9e7e25c41169b2af5f6043190ab1569ddf970a12e5a213"
+  }
+}

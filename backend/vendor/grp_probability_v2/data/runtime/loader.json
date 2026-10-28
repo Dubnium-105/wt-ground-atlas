@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "case_count": 1079,
+  "case_data_file": "native_resource_blas_loader_validation.cases.jsonl.gz",
+  "case_data_sha256": "67f773df2c5431a1161e5d6e0f261deb15f29dbd3e2467e0db2ee699e173ddf2",
+  "exe_sha256": "3acb70f728dd4695f3a16ca8b188141a2b51e6f03b89570adaeb5fae2e6687e4",
+  "whole_original_node_blas_loader_executed": true,
+  "whole_original_resource_blas_loader_executed": true,
+  "all_source_nonempty_nodes_loaded": true,
+  "all_source_wire_flags_equal_one": true,
+  "all_native_runtime_flags_equal_one": true,
+  "runtime_blob_file": "original_blas_resource_full.chunks.bin",
+  "runtime_blob_sha256": "af5d76b6060eae2533a8b34265d21c2ff0d7f3687eba3242d9fd533b2cf6f3c0",
+  "runtime_blob_bytes": 1571928,
+  "extracted_from_metadata_sha256": "752a48dae98707405b292aa898727fd2fb7803268885a8af87ae163bc7ac7033"
+}

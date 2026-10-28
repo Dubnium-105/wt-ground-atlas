@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "title": "GROUND OPS",
+  "subtitle": "陆战历史 · 决策工作台",
+  "default_nation": "ussr",
+  "default_vehicle": "ussr_t_72b",
+  "default_view": "overview",
+  "table_page_size": 36,
+  "matrix_column_limit": 16,
+  "overview_candidate_limit": 4,
+  "overview_threat_limit": 6,
+  "tree_initial_rank_count": 3,
+  "toast_duration_ms": 4200,
+  "search_debounce_ms": 180,
+  "chart_min_height_percent": 4,
+  "display_digits": 1,
+  "probability_digits": 3,
+  "motion_mps": {"min":0,"max":50,"step":0.5},
+  "aim_marker_radius_px": 3,
+  "aim_marker_line_width_px": 1,
+  "heavy_machine_gun_min_caliber_mm": 12.7,
+  "heatmap": {
+    "background": [19, 29, 34],
+    "no_target": [99, 111, 118],
+    "unknown": [151, 112, 198],
+    "low": [223, 100, 84],
+    "mid": [224, 190, 103],
+    "high": [89, 188, 136],
+    "midpoint": 0.5,
+    "hatch_period": 9,
+    "hatch_opacity": 0.3
+  },
+  "nation_labels": {
+    "usa": "美国", "germany": "德国", "ussr": "苏联", "britain": "英国",
+    "japan": "日本", "china": "中国", "italy": "意大利", "france": "法国",
+    "sweden": "瑞典", "israel": "以色列"
+  },
+  "kind_labels": {"ground": "地面载具", "aircraft": "固定翼", "helicopter": "直升机"},
+  "role_labels": {
+    "mbt": "主战", "medium": "中型坦克", "heavy": "重型坦克", "light": "轻型 / 侦察",
+    "tank": "坦克", "td": "坦克歼击车", "tank_destroyer": "坦克歼击车", "ifv": "步战 / 侦察",
+    "spaa": "防空", "anti_air": "防空", "scout": "侦察", "fighter": "战斗机", "cas": "对地支援",
+    "attacker": "攻击机", "bomber": "轰炸机", "aircraft": "航空", "attack_heli": "攻击直升机", "helicopter": "直升机"
+  },
+  "metric_labels": {
+    "mean": "环境平均效用", "down_tier": "对下表现", "same_tier": "同档表现", "up_tier": "升房表现",
+    "worst_case": "不利情景", "role_coverage": "任务覆盖", "air_window": "航空攻击窗口",
+    "aa_coverage": "防空覆盖", "known_pair_fraction": "配对资料覆盖"
+  },
+  "scenario_fields": [
+    {"key": "br.current", "label": "陆战历史 BR"},
+    {"key": "mobility.forward_kmh", "label": "前进极速 km/h"},
+    {"key": "mobility.reverse_kmh", "label": "倒车极速 km/h"},
+    {"key": "mobility.power_to_weight_hp_t", "label": "功重比 hp/t"},
+    {"key": "firepower.reload_ace_s", "label": "王牌人工装填 s"},
+    {"key": "firepower.autoload_s", "label": "自动装填周期 s"},
+    {"key": "firepower.traverse_deg_s", "label": "方向机 °/s"},
+    {"key": "firepower.vertical_deg_s", "label": "高低机 °/s"},
+    {"key": "sensors.thermal_generation", "label": "炮手热像代数"},
+    {"key": "air_defence.missile_range_m", "label": "防空导弹标称射程 m"}
+  ]
+}

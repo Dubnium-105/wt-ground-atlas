@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+data/raw/
+data/work/
+data/cache/
+data/snapshots/
+reports/
+web/data/
+*.log
+.env
+.env.*
+/FILE_INTEGRITY.sha256

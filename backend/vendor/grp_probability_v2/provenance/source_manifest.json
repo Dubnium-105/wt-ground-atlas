@@ -1,0 +1,229 @@
+{
+  "exported_at": "2026-10-26T06:09:58.662959+00:00",
+  "client_version": "2.59.0.86",
+  "datamine_commit": "aa326f10c6ba7d523647572368ead2e4d51ffb4d",
+  "algorithm": "layered_probability_v2",
+  "sources": [
+    {
+      "source": "outputs/wt_armor_project/src/wt_armor/layered_penetration_v2.py",
+      "sha256": "4d1715936294a72e93a1a0a7eeb108da333e3d0bea17776eba7cbc7ecf96936d",
+      "bytes": 7954,
+      "exported_as": "lib/wt_armor/layered_penetration_v2.py"
+    },
+    {
+      "source": "outputs/wt_armor_project/src/wt_armor/simplified_penetration.py",
+      "sha256": "7b496105e99811b00fe51d58c9dce97da1b773de1378510b135185fdd78a654e",
+      "bytes": 9307,
+      "exported_as": "lib/wt_armor/simplified_penetration.py"
+    },
+    {
+      "source": "outputs/wt_armor_project/src/wt_armor/gpu_slope.py",
+      "sha256": "4540c45c386ff85e1dfd8ecc2f554c40e32ac305b5962733eb442d0871303fc1",
+      "bytes": 3691,
+      "exported_as": "lib/wt_armor/gpu_slope.py"
+    },
+    {
+      "source": "outputs/wt_armor_project/src/wt_armor/gpu_local_geometry.py",
+      "sha256": "aa0ff26df482dff97f6ef5c1c3f1639bf1c99a669eaa0b5809ddfaa362f4df58",
+      "bytes": 4943,
+      "exported_as": "lib/wt_armor/gpu_local_geometry.py"
+    },
+    {
+      "source": "outputs/wt_armor_project/src/wt_armor/native_loaded_blas.py",
+      "sha256": "c241a5a41158ba700e12196842e8d21be57642604885b644d291ec47337d7172",
+      "bytes": 2808,
+      "exported_as": "lib/wt_armor/native_loaded_blas.py"
+    },
+    {
+      "source": "outputs/wt_armor_project/src/wt_armor/native_loaded_bvh.py",
+      "sha256": "abd1f6f36b2ebb8c3ba1db14a0ba5726ed2c0f4534358768d7196617c9025077",
+      "bytes": 3740,
+      "exported_as": "lib/wt_armor/native_loaded_bvh.py"
+    },
+    {
+      "source": "outputs/wt_armor_project/src/wt_armor/native_loaded_ray.py",
+      "sha256": "e4c85f6958713d5ae274146e4740a079f5d45e6200274ee8a2073a2d9d93158d",
+      "bytes": 4281,
+      "exported_as": "lib/wt_armor/native_loaded_ray.py"
+    },
+    {
+      "source": "outputs/wt_armor_project/src/wt_armor/native_quantized_bvh.py",
+      "sha256": "346b46571b0be4d1a3e525a9459b7407215f9678a4456050b06b14e7e5c8de8b",
+      "bytes": 2636,
+      "exported_as": "lib/wt_armor/native_quantized_bvh.py"
+    },
+    {
+      "source": "outputs/wt_armor_project/src/wt_armor/native_bvh_reference.py",
+      "sha256": "1f84a1a2f92d9e96a667b324f9815c910c645da07b2dd7e99a80934990567071",
+      "bytes": 3175,
+      "exported_as": "lib/wt_armor/native_bvh_reference.py"
+    },
+    {
+      "source": "outputs/wt_armor_project/src/wt_armor/native_blas_chunk.py",
+      "sha256": "9640417e7cc56294e570b04f1fb6a75ff02304cd5309eda2b1faf11e81669be5",
+      "bytes": 10000,
+      "exported_as": "lib/wt_armor/native_blas_chunk.py"
+    },
+    {
+      "source": "work/decode_grp_collision.py",
+      "sha256": "41d1a9764c79c811eb9ffde60d023c6372f1931038dbdac9bce364c7708a95fe",
+      "bytes": 14536
+    },
+    {
+      "source": "outputs/wt_armor_project/research/tools/build_layered_cache_v2.py",
+      "sha256": "82daf6622acef7472cd7394f474c44d016005fe56ce3447fc7c805e9922c704e",
+      "bytes": 8905
+    },
+    {
+      "source": "outputs/wt_armor_project/research/tools/benchmark_interactive_pipeline.py",
+      "sha256": "9dae90a1c9e6df9a506a5c143fe037605c541a7f2a13abbcc385bd9536e7b928",
+      "bytes": 4525
+    },
+    {
+      "source": "work/wt_grp_script_export_src/grp_probability.py",
+      "sha256": "5f6518a4582a46b7c22a9a416273004afc576c17cc85afb47458d1865dfe0bf4",
+      "bytes": 14803,
+      "exported_as": "grp_probability.py"
+    },
+    {
+      "source": "work/wt_grp_script_export_src/README_使用说明.txt",
+      "sha256": "6b62da36aebec17d8fb08a6cf080de303de8e9f4075add94dee5c704816bb94f",
+      "bytes": 9369,
+      "exported_as": "README_使用说明.txt"
+    },
+    {
+      "source": "work/wt_grp_script_export_src/grp_export.py",
+      "sha256": "fc54a38b5cc3eec9eed9a303581648b7bc086a21dde10af3e89972c8f0f5ebf3",
+      "bytes": 4895,
+      "exported_as": "lib/grp_export.py"
+    },
+    {
+      "source": "outputs/wt_penetration_probability_v2/requirements.txt",
+      "sha256": "c0576210135459240d16a8ec186ec6e23da7beb8c4ebbffcea0eaea19aa1b8fa",
+      "bytes": 71,
+      "exported_as": "requirements.txt"
+    },
+    {
+      "source": "outputs/wt_penetration_probability_v2/ammunition.json",
+      "sha256": "b46c6f2471c87842ea4aac93287876a123c288844d0219c5a68c0f6873133292",
+      "bytes": 4791,
+      "exported_as": "data/ammunition.json"
+    },
+    {
+      "source": "outputs/wt_armor_project/research/native_quantized_bvh_constants.json",
+      "sha256": "929c0a4d4556f5789f4cbe3c34e71bd0447ce79d7b75c75570cdbd3cef2c65e5",
+      "bytes": 774,
+      "exported_as": "data/runtime/constants.json"
+    },
+    {
+      "source": "outputs/wt_armor_project/research/native_resource_blas_loader_validation.json",
+      "sha256": "752a48dae98707405b292aa898727fd2fb7803268885a8af87ae163bc7ac7033",
+      "bytes": 4445874
+    },
+    {
+      "source": "outputs/wt_armor_project/research/native_resource_blas_loader_validation.cases.jsonl.gz",
+      "sha256": "67f773df2c5431a1161e5d6e0f261deb15f29dbd3e2467e0db2ee699e173ddf2",
+      "bytes": 268540,
+      "exported_as": "data/runtime/native_resource_blas_loader_validation.cases.jsonl.gz"
+    },
+    {
+      "source": "outputs/wt_armor_project/research/original_blas_resource_full.chunks.bin",
+      "sha256": "af5d76b6060eae2533a8b34265d21c2ff0d7f3687eba3242d9fd533b2cf6f3c0",
+      "bytes": 1571928,
+      "exported_as": "data/runtime/original_blas_resource_full.chunks.bin"
+    },
+    {
+      "source": "outputs/wt_armor_project/research/class_binding_audit.json",
+      "sha256": "adcc4461d2fbc35a60f5e6905ab5123c7b334c04b4daf5184c05b695f00de1f7",
+      "bytes": 15587680
+    },
+    {
+      "source": "outputs/wt_armor_multiview/plan.json",
+      "sha256": "7afbb3a6e590347623eb8e3b3d6c2fa1c03b6044d01a776354add6386e092b1b",
+      "bytes": 3807
+    },
+    {
+      "source": "outputs/wt_penetration_probability_v2/layers/germ_leopard_2a4.layers.json",
+      "sha256": "6eb3c32b2320dc8d365ad46adea84d4f67ba598f93cb1ab297dadec25894a4c6",
+      "bytes": 1366320
+    },
+    {
+      "source": "work/source_grp/germ_leopard_2a4.grp",
+      "sha256": "4ff9469e064b096461f8f4a834342b23c2f78b2009f3db9a0871512e6404749c",
+      "bytes": 3181078,
+      "exported_as": "examples/grp/germ_leopard_2a4.grp"
+    },
+    {
+      "source": "outputs/wt_penetration_probability_v2/layers/germ_leopard_2a5.layers.json",
+      "sha256": "66014cca55842e305191aa4e120563955a07481d593120a03d24e7251e1e90ea",
+      "bytes": 1472541
+    },
+    {
+      "source": "work/source_grp/germ_leopard_2a5.grp",
+      "sha256": "5db7385e78e725215f31779b216dee7f67c87097621f18f7a222a39e8cc4a451",
+      "bytes": 2814057,
+      "exported_as": "examples/grp/germ_leopard_2a5.grp"
+    },
+    {
+      "source": "outputs/wt_penetration_probability_v2/layers/ussr_bmpt_72.layers.json",
+      "sha256": "8f4e07fed0b3969f5ef3847dd1dfe8caca6cbf96af20c74d4f528eb70b90f8d8",
+      "bytes": 1926289
+    },
+    {
+      "source": "work/source_grp/ussr_bmpt_72.grp",
+      "sha256": "779653eda8d6dce5b650ff78a5e99cd770bc099be41592951cda35e4b6a2468b",
+      "bytes": 5744223,
+      "exported_as": "examples/grp/ussr_bmpt_72.grp"
+    },
+    {
+      "source": "outputs/wt_penetration_probability_v2/layers/ussr_t_72b.layers.json",
+      "sha256": "73fa892128479e9a8607845af563c607e9a5a691f7e341e908c34da9c6724853",
+      "bytes": 1783195
+    },
+    {
+      "source": "work/source_grp/ussr_t_72b.grp",
+      "sha256": "b09a0d7d6bacb44f1802fb6e9a213703fc69ae70d0f73c3022ca522623a469e6",
+      "bytes": 5829316,
+      "exported_as": "examples/grp/ussr_t_72b.grp"
+    },
+    {
+      "source": "outputs/wt_penetration_probability_v2/模型范围.json",
+      "sha256": "eb885a3e76118a6f07b3b2b93dd38ac29fe1971cf2cc87ecebfcf88cd2decb90",
+      "bytes": 4442,
+      "exported_as": "provenance/accepted_v2_model_scope.json"
+    },
+    {
+      "source": "outputs/wt_penetration_probability_v2/model_audit.json",
+      "sha256": "fa64bf321f848822488578ae5f91387fca1ee021fb7efe1bb63c851c98af14b9",
+      "bytes": 43507,
+      "exported_as": "provenance/accepted_v2_model_audit.json"
+    }
+  ],
+  "transformations": [
+    {
+      "target": "lib/grp_decoder.py",
+      "method": "Copy original function source verbatim; remove legacy path globals, import-time mkdir, OBJ writer and CLI.",
+      "functions": [
+        "u32",
+        "sha256",
+        "grp_entries",
+        "collision_body",
+        "s13",
+        "unpack_leaf",
+        "decode_tree",
+        "vec21",
+        "mat43_transform",
+        "parse_collision"
+      ]
+    },
+    {
+      "target": "lib/grp_geometry.py",
+      "original_interval_core_sha256": "e7d1201289ed42c29987f8c2c31847975c9c738531b53655b0cc44b77f48a35a",
+      "method": "Preserve V2 interval mathematics; parameterize paths/batch, use source node index, stream identical single-view rays, add pinned-input and fingerprinted cache adapters."
+    },
+    {
+      "target": "data/vehicles/*.json",
+      "method": "Export accepted V2 materials unchanged, joined to exact input collision-node identity and original common-view parameters. No new resistance coefficients."
+    }
+  ]
+}

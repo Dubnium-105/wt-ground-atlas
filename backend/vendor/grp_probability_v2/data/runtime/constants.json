@@ -1,0 +1,31 @@
+{
+  "exe_sha256": "3acb70f728dd4695f3a16ca8b188141a2b51e6f03b89570adaeb5fae2e6687e4",
+  "values": {
+    "quantized_low_padding": -1.0,
+    "quantized_high_padding": 1.0,
+    "scaled_direction_epsilon": 1.000000023742228e-32,
+    "parallel_reciprocal": 9.99999936467288e+31
+  },
+  "source_fields": {
+    "quantized_low_padding": {
+      "va": "0x146b9cab0",
+      "f32_bytes": "000080bf"
+    },
+    "quantized_high_padding": {
+      "va": "0x146b9d250",
+      "f32_bytes": "0000803f"
+    },
+    "scaled_direction_epsilon": {
+      "va": "0x1471c62c0",
+      "f32_bytes": "1fb14f0a"
+    },
+    "parallel_reciprocal": {
+      "va": "0x1471c62d0",
+      "f32_bytes": "adc59d74"
+    }
+  },
+  "functions": [
+    "0x143111310",
+    "0x143140c20"
+  ]
+}

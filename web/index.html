@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#172c43">
+  <meta name="description" content="战争雷霆陆战历史：可追溯版本推演、队列推荐、逐车对抗与条件防护概率研究。">
+  <title>GROUND OPS · 版本变化与队列推荐</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#workspace">跳至主要内容</a>
+  <header class="app-header">
+    <a class="brand" href="#overview" aria-label="GROUND OPS 队列推荐">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 3 35 12v16L20 37 5 28V12Z M20 10 29 15v10l-9 5-9-5V15Z M20 15v10m-5-5h10"/></svg></span>
+      <span><strong>GROUND OPS</strong><small>战争雷霆 · 陆战历史</small></span>
+    </a>
+    <div id="sidebar"><nav id="navigation" aria-label="主要导航"></nav></div>
+    <button class="icon-button mobile-menu" id="menu-toggle" aria-label="打开研究工具" aria-controls="research-menu" aria-expanded="false">☰</button>
+    <span id="current-view-label" class="sr-only">队列推荐</span>
+  </header>
+  <div class="main-shell">
+    <div class="contextbar" id="contextbar">
+      <div class="nation-picker"><span class="context-label">国家 / 区域</span><div id="nation-flags" role="group" aria-label="国家或区域"></div></div>
+      <div class="version-control" role="group" aria-label="数据版本"><button data-version="current" class="active">当前版本</button><button data-version="planned">调整后 · 模拟</button></div>
+      <div class="context-spacer"></div>
+      <div class="searchbox"><span aria-hidden="true">⌕</span><input type="search" id="global-search" placeholder="查找载具" aria-label="搜索载具"><kbd>/</kbd></div>
+    </div>
+    <main id="workspace" tabindex="-1" aria-live="polite">
+      <div class="initial-loading"><span class="loader"></span><h1>正在装载战备数据</h1><p>载入目录、固定快照与模型配置。</p></div>
+    </main>
+    <footer class="page-footer"><div><strong>GROUND OPS</strong><span id="data-state">载入快照</span></div><span id="footer-status">模型指数用于条件比较，不代表游戏胜率。</span><button class="text-button" id="open-method">数据来源与方法</button><button class="text-button" id="settings-button">模型参数</button><span id="sidebar-build" hidden></span></footer>
+  </div>
+  <dialog id="detail-dialog" class="detail-dialog"><button class="dialog-close icon-button" aria-label="关闭详情">×</button><div id="dialog-content"></div></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <input type="file" id="scenario-file" accept="application/json,.json" hidden>
+  <input type="file" id="lineup-file" accept="application/json,.json" hidden>
+  <noscript><div class="noscript">此站点的筛选和本地分析需要 JavaScript；原始静态数据仍可通过数据清单访问。</div></noscript>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>

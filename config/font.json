@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "family": "WT Atlas Sans SC",
+  "postscript_family": "WTAtlasSansSC",
+  "upstream": {
+    "family": "Noto Sans SC",
+    "repository": "https://github.com/google/fonts",
+    "commit": "a85815a42757630ce188fdad368c2dfc444d4773",
+    "commit_date": "2026-03-25T20:42:06Z",
+    "directory_api": "https://api.github.com/repos/google/fonts/contents/ofl/notosanssc?ref=a85815a42757630ce188fdad368c2dfc444d4773",
+    "font": {
+      "filename": "NotoSansSC[wght].ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/a85815a42757630ce188fdad368c2dfc444d4773/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf",
+      "sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
+      "git_blob_sha1": "fb0637bafbcd804fe32152370a1225990745b4bc"
+    },
+    "license": {
+      "filename": "OFL.txt",
+      "url": "https://raw.githubusercontent.com/google/fonts/a85815a42757630ce188fdad368c2dfc444d4773/ofl/notosanssc/OFL.txt",
+      "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9",
+      "git_blob_sha1": "1c9f43281b8f216c5461fe9ac729afbade7724e4"
+    }
+  },
+  "text_sources": {
+    "globs": ["web/*.mjs", "web/*.js", "web/*.html", "web/*.css", "shared/*.mjs", "config/*.json"],
+    "catalog": "data/snapshots/catalog.json",
+    "scenario": "data/snapshots/changes.json",
+    "vehicle_fields": ["name", "nation", "kind", "role", "branch", "folder", "wiki_role"],
+    "nested_display_fields": {"ammo": ["name"], "loadouts": ["name"], "weapon_profiles": ["name"]}
+  },
+  "output": "web/assets/wt-atlas-sans-sc.woff2",
+  "provenance": "web/assets/font-provenance.json",
+  "license_outputs": ["web/assets/OFL-NotoSansSC.txt", "docs/FONT_LICENSE.txt"],
+  "build_dependencies": {"fonttools": "4.61.1", "Brotli": "1.2.1"}
+}

@@ -1,0 +1,185 @@
+{
+  "files": [
+    {
+      "path": "data/ammunition.json",
+      "bytes": 4791,
+      "sha256": "b46c6f2471c87842ea4aac93287876a123c288844d0219c5a68c0f6873133292"
+    },
+    {
+      "path": "data/mechanisms.json",
+      "bytes": 350,
+      "sha256": "68a72c3b7dc730571a07f44ac22442c665c6a396e45f0f6030b3eb98d8314e6b"
+    },
+    {
+      "path": "data/runtime/constants.json",
+      "bytes": 774,
+      "sha256": "929c0a4d4556f5789f4cbe3c34e71bd0447ce79d7b75c75570cdbd3cef2c65e5"
+    },
+    {
+      "path": "data/runtime/loader.json",
+      "bytes": 846,
+      "sha256": "607deb4ec36980281e002594399b0678df178573ef691973aef33d9708083b75"
+    },
+    {
+      "path": "data/runtime/native_resource_blas_loader_validation.cases.jsonl.gz",
+      "bytes": 268540,
+      "sha256": "67f773df2c5431a1161e5d6e0f261deb15f29dbd3e2467e0db2ee699e173ddf2"
+    },
+    {
+      "path": "data/runtime/original_blas_resource_full.chunks.bin",
+      "bytes": 1571928,
+      "sha256": "af5d76b6060eae2533a8b34265d21c2ff0d7f3687eba3242d9fd533b2cf6f3c0"
+    },
+    {
+      "path": "data/vehicles/germ_leopard_2a4.json",
+      "bytes": 1390949,
+      "sha256": "43d580c2048b15c25ba48b7518a41b40ef909870e8b33fb881b3be643d4c4bb0"
+    },
+    {
+      "path": "data/vehicles/germ_leopard_2a5.json",
+      "bytes": 1499371,
+      "sha256": "908b6e96cf83b019aade2cf99d90a28dbdf1dd7099707561c1bbddbfbbe52f5e"
+    },
+    {
+      "path": "data/vehicles/ussr_bmpt_72.json",
+      "bytes": 1961121,
+      "sha256": "19cc730acaffd7d36d3a779489fbadff4aaa3fd2e9444431642244459f1e5c67"
+    },
+    {
+      "path": "data/vehicles/ussr_t_72b.json",
+      "bytes": 1817556,
+      "sha256": "b9f42708050422d430507d74adf68f926d738eb39a3187a7e983731586eb737f"
+    },
+    {
+      "path": "data/view.json",
+      "bytes": 417,
+      "sha256": "187aff9825fe56780523884bc08ec6bcdaccb2209e08d1c4ce347f2daae75be2"
+    },
+    {
+      "path": "examples/grp/germ_leopard_2a4.grp",
+      "bytes": 3181078,
+      "sha256": "4ff9469e064b096461f8f4a834342b23c2f78b2009f3db9a0871512e6404749c"
+    },
+    {
+      "path": "examples/grp/germ_leopard_2a5.grp",
+      "bytes": 2814057,
+      "sha256": "5db7385e78e725215f31779b216dee7f67c87097621f18f7a222a39e8cc4a451"
+    },
+    {
+      "path": "examples/grp/ussr_bmpt_72.grp",
+      "bytes": 5744223,
+      "sha256": "779653eda8d6dce5b650ff78a5e99cd770bc099be41592951cda35e4b6a2468b"
+    },
+    {
+      "path": "examples/grp/ussr_t_72b.grp",
+      "bytes": 5829316,
+      "sha256": "b09a0d7d6bacb44f1802fb6e9a213703fc69ae70d0f73c3022ca522623a469e6"
+    },
+    {
+      "path": "grp_probability.py",
+      "bytes": 14803,
+      "sha256": "5f6518a4582a46b7c22a9a416273004afc576c17cc85afb47458d1865dfe0bf4"
+    },
+    {
+      "path": "lib/grp_decoder.py",
+      "bytes": 11350,
+      "sha256": "a13b8da8188f3a3ae6375edccd4ff2d60fe2f0653ee833f3084f316fc42ada92"
+    },
+    {
+      "path": "lib/grp_export.py",
+      "bytes": 4895,
+      "sha256": "fc54a38b5cc3eec9eed9a303581648b7bc086a21dde10af3e89972c8f0f5ebf3"
+    },
+    {
+      "path": "lib/grp_geometry.py",
+      "bytes": 10810,
+      "sha256": "6701e509d04a49f248f44900f6c072cdced762fec993ab3b390cb002ea18a1cf"
+    },
+    {
+      "path": "lib/wt_armor/__init__.py",
+      "bytes": 59,
+      "sha256": "dc4194dab46c882248e8761c979a6a94268269de8469a17edc7d9dcc5322d50b"
+    },
+    {
+      "path": "lib/wt_armor/gpu_local_geometry.py",
+      "bytes": 4943,
+      "sha256": "aa0ff26df482dff97f6ef5c1c3f1639bf1c99a669eaa0b5809ddfaa362f4df58"
+    },
+    {
+      "path": "lib/wt_armor/gpu_slope.py",
+      "bytes": 3691,
+      "sha256": "4540c45c386ff85e1dfd8ecc2f554c40e32ac305b5962733eb442d0871303fc1"
+    },
+    {
+      "path": "lib/wt_armor/layered_penetration_v2.py",
+      "bytes": 7954,
+      "sha256": "4d1715936294a72e93a1a0a7eeb108da333e3d0bea17776eba7cbc7ecf96936d"
+    },
+    {
+      "path": "lib/wt_armor/native_blas_chunk.py",
+      "bytes": 10000,
+      "sha256": "9640417e7cc56294e570b04f1fb6a75ff02304cd5309eda2b1faf11e81669be5"
+    },
+    {
+      "path": "lib/wt_armor/native_bvh_reference.py",
+      "bytes": 3175,
+      "sha256": "1f84a1a2f92d9e96a667b324f9815c910c645da07b2dd7e99a80934990567071"
+    },
+    {
+      "path": "lib/wt_armor/native_loaded_blas.py",
+      "bytes": 2808,
+      "sha256": "c241a5a41158ba700e12196842e8d21be57642604885b644d291ec47337d7172"
+    },
+    {
+      "path": "lib/wt_armor/native_loaded_bvh.py",
+      "bytes": 3740,
+      "sha256": "abd1f6f36b2ebb8c3ba1db14a0ba5726ed2c0f4534358768d7196617c9025077"
+    },
+    {
+      "path": "lib/wt_armor/native_loaded_ray.py",
+      "bytes": 4281,
+      "sha256": "e4c85f6958713d5ae274146e4740a079f5d45e6200274ee8a2073a2d9d93158d"
+    },
+    {
+      "path": "lib/wt_armor/native_quantized_bvh.py",
+      "bytes": 2636,
+      "sha256": "346b46571b0be4d1a3e525a9459b7407215f9678a4456050b06b14e7e5c8de8b"
+    },
+    {
+      "path": "lib/wt_armor/simplified_penetration.py",
+      "bytes": 9307,
+      "sha256": "7b496105e99811b00fe51d58c9dce97da1b773de1378510b135185fdd78a654e"
+    },
+    {
+      "path": "provenance/accepted_v2_model_audit.json",
+      "bytes": 43507,
+      "sha256": "fa64bf321f848822488578ae5f91387fca1ee021fb7efe1bb63c851c98af14b9"
+    },
+    {
+      "path": "provenance/accepted_v2_model_scope.json",
+      "bytes": 4442,
+      "sha256": "eb885a3e76118a6f07b3b2b93dd38ac29fe1971cf2cc87ecebfcf88cd2decb90"
+    },
+    {
+      "path": "provenance/source_manifest.json",
+      "bytes": 9465,
+      "sha256": "ad30ec2f1c3b906fa27515cbbbf20710c0d461ae1b3a756eabf11f378e4d6047"
+    },
+    {
+      "path": "README_使用说明.txt",
+      "bytes": 9369,
+      "sha256": "6b62da36aebec17d8fb08a6cf080de303de8e9f4075add94dee5c704816bb94f"
+    },
+    {
+      "path": "requirements.txt",
+      "bytes": 71,
+      "sha256": "c0576210135459240d16a8ec186ec6e23da7beb8c4ebbffcea0eaea19aa1b8fa"
+    },
+    {
+      "path": "Run.ps1",
+      "bytes": 259,
+      "sha256": "15cad382bcf5668e66dc4128f846f0e91bb02f400d309a101339c911bc72f4d4"
+    }
+  ],
+  "contains_precomputed_layer_or_probability_cache": false
+}

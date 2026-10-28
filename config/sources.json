@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0.0",
+  "wiki": {
+    "base_url": "https://wiki.warthunder.com",
+    "image_base_url": "https://static.encyclopedia.warthunder.com/slots/",
+    "catalogs": {
+      "ground": "ground",
+      "aviation": "aircraft",
+      "helicopters": "helicopter"
+    },
+    "br_fields": {
+      "ground": "rb",
+      "aircraft": "trb",
+      "helicopter": "rb"
+    },
+    "br_encoding": {
+      "minimum": 1,
+      "steps_per_whole": 3,
+      "decimal_places": 1
+    },
+    "br_encoding_source": "https://wiki.warthunder.com/js/common.82e38d9bbc4f8e2cedba.min.js",
+    "role_mapping": {
+      "medium_tank": "mbt",
+      "light_tank": "light",
+      "tank_destroyer": "td",
+      "heavy_tank": "heavy",
+      "spaa": "spaa",
+      "assault": "cas",
+      "fighter": "fighter",
+      "jet_fighter": "fighter",
+      "bomber": "bomber",
+      "dive_bomber": "bomber",
+      "frontline_bomber": "bomber",
+      "torpedo_bomber": "bomber",
+      "longrange_bomber": "bomber",
+      "naval_fighter": "fighter",
+      "interceptor": "fighter"
+    },
+    "nation_labels": {
+      "usa": "美国",
+      "germany": "德国",
+      "ussr": "苏联",
+      "britain": "英国",
+      "japan": "日本",
+      "china": "中国",
+      "italy": "意大利",
+      "france": "法国",
+      "sweden": "瑞典",
+      "israel": "以色列"
+    },
+    "details_workers": 8,
+    "timeout_s": 40,
+    "retries": 3,
+    "retry_backoff_s": 1,
+    "user_agent": "WT-Ground-Atlas/1.0 (public offline snapshot builder; conditional cache)",
+    "regular_status_code": 0,
+    "modification_state": "reference",
+    "crew_state": "aces"
+  },
+  "datamine": {
+    "repository": "https://github.com/gszabi99/War-Thunder-Datamine",
+    "api_base": "https://api.github.com/repos/gszabi99/War-Thunder-Datamine",
+    "raw_base": "https://raw.githubusercontent.com/gszabi99/War-Thunder-Datamine",
+    "ref": "aa326f10c6ba7d523647572368ead2e4d51ffb4d",
+    "version": "2.59.0.86",
+    "localization_path": "lang.vromfs.bin_u/lang/units.csv",
+    "resource_prefix": "aces.vromfs.bin_u/",
+    "flightmodels_directory": "aces.vromfs.bin_u/gamedata/flightmodels",
+    "external_weapon_triggers": [
+      "bombs",
+      "rockets",
+      "atgm",
+      "aam",
+      "guided bombs",
+      "guided_rockets"
+    ]
+  },
+  "changes": {
+    "url": "https://docs.qq.com/sheet/DRURScE9ueWVRa0pq?tab=000002",
+    "ground_tab": "000002",
+    "aviation_tab": "000001",
+    "status": "proposed",
+    "mode_labels": [
+      "陆战历史",
+      "陆战历史模式",
+      "陆战历史性能",
+      "Ground RB",
+      "Realistic Battles (tanks)"
+    ],
+    "numeric_inline_max": 128,
+    "numeric_dictionary_source": "https://docs.gtimg.com/sheet/js/initial_chunk_pb_4.e3257394406857f6.js#module-458782",
+    "column_headers": {
+      "ground": "历史性能",
+      "aircraft": "陆战历史及全真"
+    },
+    "before_header": "更新前",
+    "after_header": "更新后",
+    "text_change_min_chars": 12,
+    "country_aliases": {
+      "美国": "usa",
+      "德国": "germany",
+      "苏联": "ussr",
+      "英国": "britain",
+      "日本": "japan",
+      "中国": "china",
+      "意大利": "italy",
+      "法国": "france",
+      "瑞典": "sweden",
+      "以色列": "israel"
+    },
+    "user_agent": "Mozilla/5.0 (compatible; WTAtlas public-source reader)"
+  },
+  "cache": {
+    "raw_directory": "data/raw/wiki",
+    "compress_details": true
+  }
+}
