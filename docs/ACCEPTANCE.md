@@ -1,3 +1,5 @@
+> 历史基线文档：下文记录原交付的数据覆盖、验收结论和旧目录。当前源码仓库不包含生产快照或这些运行报告；目录、构建和部署入口以 [架构](ARCHITECTURE.md)、[开发](DEVELOPMENT.md) 与 [部署](DEPLOYMENT.md) 为准。历史结果不代表本次重构已重算全量数据。
+
 # 验收报告：应用流程与数据/模型覆盖分开验收
 
 日期：2026-10-26。基线：[REQUIREMENTS_BASELINE.md](REQUIREMENTS_BASELINE.md)。机器可读逐项结果：[acceptance.json](../reports/acceptance.json)。

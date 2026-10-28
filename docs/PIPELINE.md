@@ -148,9 +148,28 @@ PYTHONPATH=backend python -m wt_atlas export
 PYTHONPATH=backend python -m wt_atlas run --export
 ```
 
-默认发布到 `web/data/probability/`；也可传 `--output` 生成独立版本目录，再由根构建脚本纳入站点。不同物理网格或版本分成不同 atlas，防止无说明混合。发布前校验来源文件哈希、维数、角度顺序、状态、概率范围与量化误差。
+默认导出到 `data/exports/probability/`，与轻量网站产物 `dist/site/` 独立；`import-atlas` 和 `export` 仍支持 `--output` 指定其他数据目录。普通站点构建不会复制这些大分片。不同物理网格或版本分成不同 atlas，防止无说明混合。发布前校验来源文件哈希、维数、角度顺序、状态、概率范围与量化误差。
 
 发布物只有索引、按需单视角二进制、gzip 副本及原生分辨率缩略图。原始 GRP、NPZ、射线层、全部 HD 图片、材料大表和中间 `model_required_charge_mm` 都留在构建端。静态服务器支持 gzip 时可直接复用压缩副本；普通静态服务器下前端请求 `.bin.gz` 并用浏览器 `DecompressionStream` 解码。
+
+### 独立数据发布与磁盘预算
+
+全量分片按 10+GB 数据集独立管理。`data/work/` 中的 GRP、NPZ 与射线缓存只在离线计算机保存；`data/exports/probability/` 只包含可公开的概率导出物。不要把整个工作目录打包到静态站点。
+
+CPU 结果使用原子替换写入，导出中间目录优先以硬链接复用已验证 NPZ；跨磁盘或不支持硬链接时使用原子复制。原始 CUDA 兼容生产器不保证原子替换，因此仍使用复制。单个导出进程一次读取一个目标/弹药 NPZ，包含该文件的全部视角；并行进程数仍需按本机内存调整。
+
+重复导出会校验并复用已有 `.bin` 和 gzip 分片；不自动删除旧内容寻址文件，避免破坏仍在使用旧索引的站点。发布前生成只包含当前引用文件的上传清单：
+
+```bash
+python scripts/prepare_probability_release.py \
+  --source data/exports/probability \
+  --report reports/probability-release.json \
+  --list-files reports/probability-files.txt
+```
+
+验证器按块计算 SHA-256，并解压检查 gzip 的长度与原始哈希，拒绝目录越界、符号链接、损坏文件与冲突元数据。报告写入前会完成全部验证，过程不复制 10+GB 数据，也不执行上传。`release_id` 是完整 `index.json` 的 SHA-256；`files` 记录每个相对路径、字节数和哈希，顺序为分片/预览在前、索引在后。
+
+将清单内文件发布到对象存储或独立静态数据服务的不可变版本前缀 `probability/<release_id>/`，完成后再切换站点所引用的数据地址。保留仍被现有站点引用的版本。具体站点配置见 [轻量部署](DEPLOYMENT.md)。
 
 ## 模型与验证边界
 
@@ -158,7 +177,7 @@ PYTHONPATH=backend python -m wt_atlas run --export
 
 CPU 层模型与原数组核对，四车 × 两弹药共采样 32,768 条射线，状态和材料标志没有差异，最大概率差约 `5.96e-8`。这是模型实现对照，不是游戏验证。CPU 几何另有独立版本，在 T-72B 正面原分辨率测试中，59,458 条射线有 22 个边界状态与上传原始运行时参考不同；不会把两套几何标成同一精度/同一缓存。
 
-量化测量、解码报告、CPU 对照与断点复用的真实结果位于 `reports/` 和 `web/data/probability/export-report.json`。测试命令：
+量化测量、解码报告、CPU 对照与断点复用的真实结果位于 `reports/` 和 `data/exports/probability/export-report.json`。测试命令：
 
 ```bash
 PYTHONPATH=backend python -m unittest discover -s tests -p 'test_*.py' -v

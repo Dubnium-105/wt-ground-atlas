@@ -100,7 +100,7 @@ node scripts/build_decisions.mjs \
   --config config/model.json \
   --probabilities data/snapshots/decision-probabilities.json \
   --target-layers data/snapshots/target-layers.json \
-  --out web/data/recommendations
+  --out data/derived/recommendations
 ```
 
 支持 `--nations usa,germany` 做限定构建，`--force` 强制重算。输出每个国家、版本的轻量 JSON、内容哈希文件名、Gzip 旁文件与 `index.json`。不发布全配对稠密矩阵。构建键包含目录、方案、模型配置、轻量概率摘要、目标抽样层和引擎源码的哈希；完全相同输入会复用已有构建。

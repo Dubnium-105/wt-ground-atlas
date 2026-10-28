@@ -1,1 +1,160 @@
-{"acquisition":{"attempts":3,"chunk_bytes":1048576,"max_file_bytes":1073741824,"max_manifest_bytes":10485760,"retry_backoff_seconds":2,"timeout_seconds":60,"workers":2},"client":{"extractor":"backend/vendor/client_tools/wt_ext_cli.exe","source":"D:/steam/steamapps/common/War Thunder","view_margin_m":0.125,"work":"data/work/client","workers":8},"compute":{"angles_deg":[0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345],"backend":"cpu","compiled_raster":true,"cpu_ray_batch":8192,"cuda_device":0,"cuda_ray_batch":128,"export_images":false,"geometry_ray_batch":128,"geometry_triangle_batch":512,"pixel_pitch_m":null,"prefer_pinned_runtime_vertices":true,"rebuild":false},"export":{"compression":"gzip-sidecar","gzip_level":9,"include_native_preview":true,"max_export_error":8e-06,"preview_format":"png","quantization_max":65534,"unknown_value":65535},"material_response_flags":{"1":"source NERA family; dynamics unvalidated","2":"reactive armor; activation unvalidated","4":"source spaced/grille air","8":"variable thickness"},"numerics":{"behavior_bits":{"solid":4},"class_bits":{"armor":2,"internal":4,"reactive":8192},"edge_cluster_tolerance_m":1e-05,"empty_limit_mm":1000000000.0,"grid_rounding_epsilon":1e-10,"layer_kind":{"armor":1,"excluded":3,"protected":2,"unknown":0},"material_flags":{"reactive_non_geometric":4,"ricochet":2,"solid":1},"max_geometry_scale":20.0,"millimetres_per_metre":1000.0,"min_cosine":1e-06,"min_effective_thickness":4e-19,"ratio_denominator_epsilon":1e-12,"ray_dummy_direction":[1,0,0],"ray_dummy_origin":[0,0,0],"relative_thin_caliber_ratio":7.0,"runtime_max_barycentric_sum":1.0000040531158447,"runtime_min_barycentric_numerator":-3.999999989900971e-06,"search_iterations":16,"triangle_epsilon":1e-09},"paths":{"profiles":"backend/vendor/grp_probability_v2/data/vehicles","static_probability":"web/data/probability","vendor":"backend/vendor/grp_probability_v2","work":"data/work"},"pipeline_version":"offline-grp-v1","schema_version":1,"scope":{"calibrated_game_probability":false,"cpu_geometry_version":"authored_mesh_cpu_v1","cpu_model_version":"layered_probability_v2_cpu_v1","datamine_commit":"aa326f10c6ba7d523647572368ead2e4d51ffb4d","default_scope":"straight-path layered conditional estimate; no lethality model","model_required_charge_is_rhae":false,"model_version":"layered_probability_v2","source_version":"2.59.0.86"},"source":{"allowed_hosts":[],"kind":"local_directory","manifest_url":null,"path":"backend/vendor/grp_probability_v2/examples/grp","recursive":true,"require_sha256":true},"status_legend":{"0":"background","1":"no protected inner target on ray","2":"unknown geometry/material","3":"conditional model estimate available"},"summary":{"input_index":"web/data/probability/index.json","model_config":"config/model.json","node_binary":"node","output":"data/snapshots/decision-probabilities.json","report":"reports/probability-summaries.json","script":"scripts/build_probability_summaries.mjs","workers":8},"validation":{"sample_rays":4096}}
+{
+  "acquisition": {
+    "attempts": 3,
+    "chunk_bytes": 1048576,
+    "max_file_bytes": 1073741824,
+    "max_manifest_bytes": 10485760,
+    "retry_backoff_seconds": 2,
+    "timeout_seconds": 60,
+    "workers": 2
+  },
+  "client": {
+    "extractor": "backend/vendor/client_tools/wt_ext_cli.exe",
+    "source": "D:/steam/steamapps/common/War Thunder",
+    "view_margin_m": 0.125,
+    "work": "data/work/client",
+    "workers": 8
+  },
+  "compute": {
+    "angles_deg": [
+      0,
+      15,
+      30,
+      45,
+      60,
+      75,
+      90,
+      105,
+      120,
+      135,
+      150,
+      165,
+      180,
+      195,
+      210,
+      225,
+      240,
+      255,
+      270,
+      285,
+      300,
+      315,
+      330,
+      345
+    ],
+    "backend": "cpu",
+    "compiled_raster": true,
+    "cpu_ray_batch": 8192,
+    "cuda_device": 0,
+    "cuda_ray_batch": 128,
+    "export_images": false,
+    "geometry_ray_batch": 128,
+    "geometry_triangle_batch": 512,
+    "pixel_pitch_m": null,
+    "prefer_pinned_runtime_vertices": true,
+    "rebuild": false
+  },
+  "export": {
+    "compression": "gzip-sidecar",
+    "gzip_level": 9,
+    "include_native_preview": true,
+    "max_export_error": 8e-06,
+    "preview_format": "png",
+    "quantization_max": 65534,
+    "unknown_value": 65535
+  },
+  "material_response_flags": {
+    "1": "source NERA family; dynamics unvalidated",
+    "2": "reactive armor; activation unvalidated",
+    "4": "source spaced/grille air",
+    "8": "variable thickness"
+  },
+  "numerics": {
+    "behavior_bits": {
+      "solid": 4
+    },
+    "class_bits": {
+      "armor": 2,
+      "internal": 4,
+      "reactive": 8192
+    },
+    "edge_cluster_tolerance_m": 1e-05,
+    "empty_limit_mm": 1000000000.0,
+    "grid_rounding_epsilon": 1e-10,
+    "layer_kind": {
+      "armor": 1,
+      "excluded": 3,
+      "protected": 2,
+      "unknown": 0
+    },
+    "material_flags": {
+      "reactive_non_geometric": 4,
+      "ricochet": 2,
+      "solid": 1
+    },
+    "max_geometry_scale": 20.0,
+    "millimetres_per_metre": 1000.0,
+    "min_cosine": 1e-06,
+    "min_effective_thickness": 4e-19,
+    "ratio_denominator_epsilon": 1e-12,
+    "ray_dummy_direction": [
+      1,
+      0,
+      0
+    ],
+    "ray_dummy_origin": [
+      0,
+      0,
+      0
+    ],
+    "relative_thin_caliber_ratio": 7.0,
+    "runtime_max_barycentric_sum": 1.0000040531158447,
+    "runtime_min_barycentric_numerator": -3.999999989900971e-06,
+    "search_iterations": 16,
+    "triangle_epsilon": 1e-09
+  },
+  "paths": {
+    "profiles": "backend/vendor/grp_probability_v2/data/vehicles",
+    "static_probability": "data/exports/probability",
+    "vendor": "backend/vendor/grp_probability_v2",
+    "work": "data/work"
+  },
+  "pipeline_version": "offline-grp-v1",
+  "schema_version": 1,
+  "scope": {
+    "calibrated_game_probability": false,
+    "cpu_geometry_version": "authored_mesh_cpu_v1",
+    "cpu_model_version": "layered_probability_v2_cpu_v1",
+    "datamine_commit": "aa326f10c6ba7d523647572368ead2e4d51ffb4d",
+    "default_scope": "straight-path layered conditional estimate; no lethality model",
+    "model_required_charge_is_rhae": false,
+    "model_version": "layered_probability_v2",
+    "source_version": "2.59.0.86"
+  },
+  "source": {
+    "allowed_hosts": [],
+    "kind": "local_directory",
+    "manifest_url": null,
+    "path": "backend/vendor/grp_probability_v2/examples/grp",
+    "recursive": true,
+    "require_sha256": true
+  },
+  "status_legend": {
+    "0": "background",
+    "1": "no protected inner target on ray",
+    "2": "unknown geometry/material",
+    "3": "conditional model estimate available"
+  },
+  "summary": {
+    "input_index": "data/exports/probability/index.json",
+    "model_config": "config/model.json",
+    "node_binary": "node",
+    "output": "data/snapshots/decision-probabilities.json",
+    "report": "reports/probability-summaries.json",
+    "script": "scripts/build_probability_summaries.mjs",
+    "workers": 8
+  },
+  "validation": {
+    "sample_rays": 4096
+  }
+}

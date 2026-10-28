@@ -1,18 +1,14 @@
-import {fetchJSON} from './data-client.mjs';
-import {applyScenario,evaluateLineup,recommendNation,compareVersions,integrateAim,buildVersionOverview} from './shared/engine.mjs';
+import {createDataClient} from './data-client.mjs';
+import {applyScenario,evaluateLineup,recommendNation,compareVersions,integrateAim,buildVersionOverview} from '../shared/engine.mjs';
 
-let catalogPromise;
-let catalogURL;
-async function getCatalog(manifest) {
-  if(catalogURL!==manifest.engine_catalog.url){catalogURL=manifest.engine_catalog.url;catalogPromise=fetchJSON(manifest.engine_catalog);}
-  return catalogPromise;
-}
-const probabilityBundles=new Map();
+// Catalog, summary and only the recently used target angles stay in memory.
+// Failed requests leave no sticky rejected promise and can be retried.
+const {fetchJSON}=createDataClient({maxEntries:4,maxBytes:32*1024*1024});
+const getCatalog=manifest=>fetchJSON(manifest.engine_catalog);
 async function getProbabilities(manifest,context) {
   const angle=((context.angle_deg??0)%360+360)%360, layers=manifest.target_layers?.[angle];
-  const key=JSON.stringify([manifest.decision_probabilities?.url,layers?.url]);
-  if(!probabilityBundles.has(key))probabilityBundles.set(key,Promise.all([manifest.decision_probabilities?fetchJSON(manifest.decision_probabilities):{},layers?fetchJSON(layers):null]).then(([summaries,target_layers])=>({...summaries,target_layers})).catch(error=>{probabilityBundles.delete(key);throw error;}));
-  return probabilityBundles.get(key);
+  const [summaries,target_layers]=await Promise.all([manifest.decision_probabilities?fetchJSON(manifest.decision_probabilities):{},layers?fetchJSON(layers):null]);
+  return {...summaries,target_layers};
 }
 
 self.onmessage=async event=>{

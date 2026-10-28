@@ -2,7 +2,7 @@
 
 ## 索引
 
-`web/data/probability/index.json` 是按需热图的入口。`entries` 每项是一个**目标构型 × 精确参考弹药 × 物理条件**，而不是攻击载具的装备证明。
+`data/exports/probability/index.json` 是独立概率数据发布的入口。轻量站点通过 `manifest.probability.url` 指向它的外部版本地址；分片 URL 相对于该索引解析，与站点所在子路径无关。仅显式 `embedded` 模式会把数据复制到 `dist/site/data/probability/`。`entries` 每项是一个**目标构型 × 精确参考弹药 × 物理条件**，而不是攻击载具的装备证明。
 
 索引保存稳定目标 ID、构型 ID、弹药 ID、弹药参数 SHA256、原客户端版本/提交、GRP 哈希、配置哈希、物理射距、模型版本、原 NPZ 哈希、坐标约定、米制采样间距、实际宽高及有序角度。静态缓存键不包含 BR。使用逐车配对前须同时验证攻击车辆实际拥有这颗弹、目标构型/版本、物理射距、姿态与模型配置；缺一个必要身份就不能标为该配对的精确计算。
 
@@ -21,7 +21,7 @@
 ```javascript
 const n = entry.width * entry.height;
 const view = new DataView(buffer);
-const p = new Float32Array(n);
+const p = new Float64Array(n);
 for (let i = 0; i < n; i++) {
   const q = view.getUint16(i * Uint16Array.BYTES_PER_ELEMENT, true);
   p[i] = q === index.encoding.unknown_value ? NaN : q / index.encoding.quantization_max;
@@ -47,3 +47,11 @@ const materialFlags = new Uint8Array(buffer,
 ## 发布精度
 
 当前交付输出真实量化误差来自全量有限像素测量，报告中分别列最大和平均绝对误差。压缩不影响像素采样；不发布 `model_required_charge_mm` 为物理防护厚度。各输入文件和输出切片都有内容哈希，可追踪变更、增量更新和回滚。
+
+## 传输与发布
+
+纯解码实现位于 `shared/probability-codec.mjs`，离线摘要和浏览器共享这一份代码。`web/data-client.mjs` 只负责 HTTP、解压、哈希校验与有界缓存，修改缓存策略不会改变解码器的来源哈希。
+
+`.gz` 是显式 gzip sidecar，按 `gzip_url` 原样访问；不要通过原始 URL 猜测压缩文件名。浏览器检查响应字节，兼容 HTTP 层已解压的情况；压缩加载失败后尝试原始文件。未知值、状态和材料标志在两种传输路径中完全一致。
+
+发布前运行 `scripts/prepare_probability_release.py`，按生成的文件清单上传到不可变版本前缀，先传分片，再传索引。详细步骤、CORS 与缓存策略见 [DEPLOYMENT.md](DEPLOYMENT.md)。

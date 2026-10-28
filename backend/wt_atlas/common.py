@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
+import tempfile
 from pathlib import Path
 
 
@@ -39,6 +41,41 @@ def atomic_write(path, data):
 
 def write_json(path, value):
     atomic_write(path, canonical(value) + b'\n')
+
+
+def stage_verified_file(source, destination, expected_sha256, *, allow_hardlink=True):
+    """Stage an immutable result without duplicating it on the same filesystem.
+
+    A hard link shares disk blocks with the content-addressed computation cache.
+    Filesystems that cannot link (including different volumes) fall back to an
+    atomic copy. Neither a corrupt input nor an interrupted copy replaces the
+    previous staging file. Callers must replace, never edit, cached results.
+    """
+    source, destination = Path(source), Path(destination)
+    if file_hash(source) != expected_sha256:
+        raise ValueError('Computed file hash changed before staging: ' + str(source))
+    if destination.is_file() and file_hash(destination) == expected_sha256:
+        return 'reused'
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(prefix='.' + destination.name + '-', suffix='.part', dir=destination.parent)
+    os.close(fd)
+    temporary = Path(name)
+    temporary.unlink()
+    try:
+        try:
+            if not allow_hardlink:
+                raise OSError('This producer does not replace result files atomically')
+            os.link(source, temporary)
+            method = 'linked'
+        except OSError:
+            shutil.copyfile(source, temporary)
+            method = 'copied'
+        if file_hash(temporary) != expected_sha256:
+            raise ValueError('Computed file changed while staging: ' + str(source))
+        temporary.replace(destination)
+        return method
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def load_config(path):

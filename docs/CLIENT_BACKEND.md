@@ -17,7 +17,7 @@ python build.py
 
 可以分步执行 `client prepare`、`client sources`、`client compute`、`client publish`、`client link`。`client status` 只读取任务状态。`prepare` 和 `compute` 支持 `--vehicle` 后跟一个或多个目录 ID；完整发布会校验所有已完成任务是否匹配当前输入。
 
-`client all` 完成提取、绑定、武器资料索引、概率计算、切片导出和目录来源关联；`summarize` 生成瞄准积分摘要，`build.py` 更新全国推荐与静态网页。模型输入不变时计算任务会校验并复用结果，进程中断后重新运行 `client compute` 即可恢复。
+`client all` 完成提取、绑定、武器资料索引、概率计算、切片导出和目录来源关联；`summarize` 生成瞄准积分摘要，`build.py` 更新全国推荐与静态网页。模型输入不变时计算任务会校验并复用结果，进程中断后重新运行 `client compute` 即可恢复。概率分片默认留在 `data/exports/probability/`，站点只发布 `dist/site/`；大数据上传与校验见 [离线流水线](PIPELINE.md#独立数据发布与磁盘预算) 和 [轻量部署](DEPLOYMENT.md)。
 
 ## 资源与材料匹配
 
@@ -42,7 +42,7 @@ python build.py
 | `data/work/client/source-index.json` | 单位、挂载、预设、武器与弹丸来源关系 |
 | `data/work/client/source_units/`、`source_weapons/` | 完整解析后的单位和武器配置 |
 | `data/snapshots/client-ground.json` | 可复核的逐车客户端覆盖摘要 |
-| `web/data/probability/` | 网站按需读取的概率切片 |
+| `data/exports/probability/` | 单独托管、由网站按需读取的概率切片 |
 | `reports/client-*.json` | 资源覆盖、材料对照、计算、导出和武器来源报告 |
 
 逐车客户端来源也写入 `catalog.json` 的 `source_attributes.client`，与 Wiki 属性分开归因。公共网站不加载原始 GRP、BLK、材料大表或 NPZ。
@@ -55,9 +55,11 @@ python build.py
 
 计算仍采用原脚本的分层直线路径条件模型，不包含完整毁伤、碎片、爆压、ERA 消耗和 NERA 动态，也不代表击毁率。这里完成的是客户端数据与既有模型的批处理接入；具体完成数和失败项以 `client status`、`reports/client-compute.json` 与 `reports/client-probability-export.json` 为准。
 
-## 本次构建结果
+## 历史构建记录
 
-已完成 1,225 个构型、937 份不同 GRP、196,918 个碰撞节点；两份参考弹各 24 个视角，共 2,450 份数组、58,800 个切片。所有任务完成，材料绑定未解决项为 0。切片 gzip 总计 101,605,934 字节，最大量化误差 7.629627368999081e-6。
+以下为原交付记录，生产快照、计算结果与验收报告未包含在源码仓库；本次重构不会重新生成或重新验证这些全量数据。
+
+原记录完成 1,225 个构型、937 份不同 GRP、196,918 个碰撞节点；两份参考弹各 24 个视角，共 2,450 份数组、58,800 个切片。所有任务完成，材料绑定未解决项为 0。切片 gzip 总计 101,605,934 字节，最大量化误差 7.629627368999081e-6。
 
 武器来源索引包含 773 份文件、3,567 条弹丸定义和 1,225 套单位预设，无缺失引用。61 项单元测试与 8 项浏览器流程全部通过。最终目标覆盖、输入哈希与发布一致性可运行 `python scripts/validate_client_build.py` 复核，结果记录于 `reports/client-backend-validation.json`。
 
@@ -66,6 +68,6 @@ python build.py
 
 `data/snapshots/target-layers.json` 保存与参考弹无关的目标分层采样。当前每构型每方向最多 64 条路径，共 1,881,600 条；其中 184 条保留未知。导出器根据原材料机制索引分别保存动能与破甲响应，并保留几何、构型、源版本与层数组哈希。
 
-静态构建按 24 个方向拆分 `web/data/physics/target-layers-*.json`，Worker 仅加载当前方向。推荐页本身只读取已计算的候选；自定义计算会使用自己的弹药列表与抽样路径。细节和近似边界见 [决策引擎](DECISION_ENGINE.md)。原两种参考弹的完整热力图继续独立提供。
+静态构建按 24 个方向拆分 `dist/site/data/physics/target-layers-*.json`，Worker 仅加载当前方向。推荐页本身只读取已计算的候选；自定义计算会使用自己的弹药列表与抽样路径。细节和近似边界见 [决策引擎](DECISION_ENGINE.md)。原两种参考弹的完整热力图继续独立提供。
 
 新增验证：`node scripts/validate_owned_ammo.mjs` 检查真实 T-72B 弹药对 T-90M 的结果差异；`python scripts/validate_client_build.py` 同时检查所有候选的用弹归属、全目标覆盖与抽样数据哈希。

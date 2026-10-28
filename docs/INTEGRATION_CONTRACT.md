@@ -12,11 +12,16 @@ Vehicle: id (stable wiki/datamine ID), name, nation, kind (ground|aircraft|helic
 ## Core engine (`shared/engine.mjs`, `config/model.json`)
 Exports: applyScenario(catalog,scenario,version), getBRs(vehicles, nation,version), matchEnvironment(vehicles,lineup,version,config), evaluatePair(attacker,target,context,config,probabilities), evaluateLineup(vehicles,lineupIds,context,config,probabilities), recommendNation(vehicles,nation,context,config,probabilities), compareVersions(vehicles,lineupIds,scenario,context,config,probabilities), validateLoadout(vehicle,loadout,context,config). Context fields {version,nation,br,slots,skill,distance_m,angle_deg,includeSpecial,availableIds}. Return rich explanations, missing fields, data coverage; never label scores win rates. Shared engine runs in browser Worker and node precompute. Engine owner can finalize return shape and coordinate root.
 
-## Probability export (`web/data/probability/index.json`)
-Backend owns format; root reads returned schema before integrating. Dynamic dimensions, angles and spacing; status semantics preserved. Export per-vehicle/ammo/angle small shards (JSON probability quantization + statuses or binary), metadata with full physical key, references are never vehicle ammunition availability. Backend writes `web/data/probability`, root builds other web/data.
+## Probability export (`data/exports/probability/index.json`)
+Backend owns format; root reads returned schema before integrating. Dynamic dimensions, angles and spacing; status semantics preserved. Export per-vehicle/ammo/angle small shards (JSON probability quantization + statuses or binary), metadata with full physical key, references are never vehicle ammunition availability. The backend writes `data/exports/probability`. The site builder writes `dist/site` and references an external index in external mode; it never packages all probability shards implicitly. Shard URLs resolve relative to the external index URL.
 
-## Source/build ownership
-Source agent: backend/wt_atlas/sources.py and supporting source modules, config/sources.json, data/snapshots/catalog.json and changes.json, source audits/docs/tests.
-Engine agent: shared/engine.mjs, config/model.json, scripts/build_decisions.mjs, tests/engine.test.mjs; communicate output schema.
-Backend agent: backend/wt_atlas remaining modules, CLI/GRP pipeline/export, requirements, Python probability/pipeline tests. Coordinate sources.py import; do not edit agent source or engine files.
-Root: web UI, integration scripts/docs/deploy packaging, final QA.
+## Module ownership and dependency direction
+
+- `backend/wt_atlas`: offline acquisition, geometry/material binding, compute and export; never a public runtime dependency.
+- `shared`: the canonical pure decision engine and probability codec, imported by Node and copied into the generated site.
+- `web`: browser UI, transport and Worker source; generated data is excluded.
+- `scripts`: recommendation build, site assembly, artifact validation and packaging.
+- `config`: source/model/runtime parameters; no game data hidden in UI code.
+- `tests`: numeric regression and synthetic deployment/browser contracts; synthetic inputs never become production snapshots.
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for lifecycle boundaries and [DEPLOYMENT.md](DEPLOYMENT.md) for the external index, CORS, gzip and versioned-publication contract.

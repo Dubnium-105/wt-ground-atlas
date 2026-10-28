@@ -73,7 +73,7 @@ class ProbabilityContracts(unittest.TestCase):
             write_json(root / 'provenance/model_scope.json', {})
             write_json(root / 'format.json', {'per_ammunition_arrays': {'status': {'values': CONFIG['status_legend']}}})
             np.savez(root / 'arrays/test.test.npz', penetration_probability=np.zeros((1, 1, 1)), status=np.full((1, 1, 1), 3), material_response_flags=np.zeros((1, 1, 1)))
-            write_json(root / 'summary.json', {'groups': [{'vehicle': 'test', 'groups': [{'array_file': 'arrays/test.test.npz', 'array_sha256': 'wrong'}]}]})
+            write_json(root / 'summary.json', {'groups': [{'vehicle': 'test', 'groups': [{'array_file': 'arrays/test.test.npz', 'array_sha256': '0' * 64}]}]})
             with self.assertRaisesRegex(ValueError, 'hash mismatch'): export_atlas(root, root / 'public', CONFIG)
 
 
@@ -114,6 +114,32 @@ class CPUModelContracts(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             metadata = make_layers(Path(tmp), [(9, 0, 1, 2, 1, np.inf)], [material('protected')], 1)
             with self.assertRaisesRegex(ValueError, 'outside metadata'): PreparedLayers(metadata, CONFIG)
+
+    def test_recalculation_replaces_result_without_changing_staged_hardlink(self):
+        from wt_atlas.common import stage_verified_file
+        from wt_atlas.storage import recalculate_layers_atomic as recalculate_layers
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            metadata = make_layers(root, [(0, 0, 1, 1.1, 1, np.inf), (0, 1, 2, 2.1, 1, np.inf)],
+                                   [material('armor', 100), material('protected')], 1)
+            ammo_path = root / 'ammo.json'
+            write_json(ammo_path, [self.ammo])
+            report = recalculate_layers(metadata, ammo_path, root / 'results', CONFIG)
+            result = root / 'results' / report['results'][0]['file']
+            staged = root / 'stage' / result.name
+            stage_verified_file(result, staged, report['results'][0]['sha256'])
+            original = file_hash(staged)
+            write_json(ammo_path, [{**self.ammo, 'penetration_mm': 200}])
+            recalculate_layers(metadata, ammo_path, root / 'results', CONFIG)
+            self.assertEqual(file_hash(staged), original)
+            self.assertNotEqual(file_hash(result), original)
+            replacement_hash = file_hash(result)
+            write_json(ammo_path, [self.ammo, {**self.ammo, 'name': 'invalid/name'}])
+            with self.assertRaisesRegex(ValueError, 'file-safe'):
+                recalculate_layers(metadata, ammo_path, root / 'results', CONFIG)
+            self.assertEqual(file_hash(result), replacement_hash)
+            self.assertEqual(file_hash(staged), original)
+            self.assertEqual(list(root.glob('.wt-atlas-compute-*')), [])
 
 
 class AcquisitionContracts(unittest.TestCase):

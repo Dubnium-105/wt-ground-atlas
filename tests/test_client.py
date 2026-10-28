@@ -6,7 +6,7 @@ import shutil
 import tempfile
 import unittest
 import numpy as np
-from wt_atlas.common import read_json, write_json
+from wt_atlas.common import read_json, write_json, file_hash
 from wt_atlas.client import make_materials, scan_resources
 from wt_atlas.geometry import build_cpu_layers
 from wt_atlas.native_binding.grp_directory import parse_grp_directory
@@ -95,11 +95,14 @@ class ClientContracts(unittest.TestCase):
             write_json(root/'provenance/ammunition.json',[{'name':'test','mode':'KE','distance_m':0}])
             write_json(root/'provenance/model_scope.json',{})
             write_json(root/'format.json',{'per_ammunition_arrays':{'status':{'values':CONFIG['status_legend']}}})
-            write_json(root/'summary.json',{'client_version':'fixture','groups':[{'vehicle':v,'grp_sha256':v,'groups':[]} for v in ['small','large']]})
+            groups=[]
             for name,width,top in [('small',2,1.),('large',7,3.)]:
                 shape=(1,1,width)
                 np.savez(root/'arrays'/(name+'.test.npz'),penetration_probability=np.ones(shape,np.float32),status=np.full(shape,3,np.uint8),
                          material_response_flags=np.zeros(shape,np.uint8),angles_deg=[0],pixel_pitch_m=.1,world_width_m=width*.1,top_y_m=top,bottom_y_m=top-.1)
+                relative='arrays/'+name+'.test.npz'
+                groups.append({'vehicle':name,'grp_sha256':name,'groups':[{'array_file':relative,'array_sha256':file_hash(root/relative)}]})
+            write_json(root/'summary.json',{'client_version':'fixture','groups':groups})
             export_atlas(root,root/'out',CONFIG)
             rows={r['target_id']:r for r in read_json(root/'out/index.json')['entries']}
             self.assertEqual(rows['large']['width'],7)

@@ -1,0 +1,33 @@
+# Adapt domain and filesystem root; serve the generated site only.
+# Probability data is served separately with CORS configured on that origin.
+server {
+    listen 80;
+    server_name atlas.example.com;
+    root /srv/wt-atlas/site;
+    index index.html;
+
+    include /etc/nginx/mime.types;
+    types { text/javascript mjs; application/gzip gz; }
+    default_type application/octet-stream;
+
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy no-referrer always;
+
+    # Content-addressed files, including a shard whose basename is its hash.
+    location ~ (?:/|\.)[a-f0-9]{16,64}\.(?:json|bin)(?:\.gz)?$ {
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        add_header X-Content-Type-Options nosniff always;
+        try_files $uri =404;
+    }
+
+    # Named entry points and the manifest must revalidate across releases.
+    # Do not rewrite missing data/modules to index.html.
+    location / {
+        add_header Cache-Control "no-cache" always;
+        add_header X-Content-Type-Options nosniff always;
+        try_files $uri $uri/ =404;
+    }
+
+    # .gz sidecars are compressed file resources. Do not add a gzip
+    # Content-Encoding header to them or configure automatic double compression.
+}

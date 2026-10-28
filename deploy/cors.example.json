@@ -1,0 +1,9 @@
+[
+  {
+    "AllowedOrigins": ["https://atlas.example.com"],
+    "AllowedMethods": ["GET", "HEAD"],
+    "AllowedHeaders": ["*"],
+    "ExposeHeaders": ["Content-Length", "ETag"],
+    "MaxAgeSeconds": 3600
+  }
+]

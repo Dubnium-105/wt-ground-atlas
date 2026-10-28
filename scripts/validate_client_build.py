@@ -4,6 +4,7 @@ import gzip
 import json
 import hashlib
 from collections import Counter
+from site_lib import probability_directory, site_directory
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -21,10 +22,11 @@ def main():
     catalog=read(ROOT/'data/snapshots/catalog.json')
     targets={v['id'] for v in catalog['vehicles'] if v['kind']=='ground'}
     client=read(ROOT/'reports/client-compute.json')
-    atlas_path=ROOT/'web/data/probability/index.json';atlas=read(atlas_path)
+    atlas_root=probability_directory(ROOT)
+    atlas_path=atlas_root/'index.json';atlas=read(atlas_path)
     summary=read(ROOT/'reports/probability-summaries.json')
-    manifest=read(ROOT/'web/data/manifest.json')
-    index=read(ROOT/'web/data/recommendations/index.json')
+    manifest=read(site_directory(ROOT)/'data/manifest.json')
+    index=read(ROOT/'data/derived/recommendations/index.json')
     hashes={key:index.get(key)==sha(ROOT/path) for key,path in {
         'catalog_sha256':'data/snapshots/catalog.json','scenario_sha256':'data/snapshots/changes.json',
         'config_sha256':'config/model.json','engine_sha256':'shared/engine.mjs',
@@ -34,7 +36,7 @@ def main():
     foreign_ammo=[]
     errors=[];outside=[];counts=Counter()
     for item in index['files']:
-        path=ROOT/'web/data/recommendations'/item['url'];raw=path.read_bytes()
+        path=ROOT/'data/derived/recommendations'/item['url'];raw=path.read_bytes()
         if hashlib.sha256(raw).hexdigest()!=item['sha256'] or gzip.decompress(path.with_suffix(path.suffix+'.gz').read_bytes())!=raw:
             errors.append(item['url'])
         payload=json.loads(raw)
@@ -61,8 +63,8 @@ def main():
         'summary_covers_every_view':summary['records']==expected_views and summary['entry_count']==len(atlas['entries']),
         'summary_hash_matches':summary['bundle_sha256']==sha(ROOT/'data/snapshots/decision-probabilities.json'),
         'summary_verified_current_shards':summary['all_shard_hashes_verified'] and summary['source_index_sha256']==sha(atlas_path),
-        'public_index_hash_matches':manifest['probability']['sha256']==sha(atlas_path),
-        'public_target_count_matches':manifest['probability_summary']['targets']==len(targets),
+        'public_index_hash_matches':not manifest.get('probability') or manifest['probability'].get('sha256')==sha(atlas_path),
+        'public_target_count_matches':not manifest.get('probability') or manifest.get('probability_summary',{}).get('targets')==len(targets),
         'catalog_client_coverage_matches':manifest['client_summary']['status_counts']==client['status_counts'],
         'reference_only_preserved':summary['verified_records']==0 and all(e['reference_ammunition_only'] for e in atlas['entries']),
         'recommendation_inputs_and_files_match':all(hashes.values()) and not errors and not outside,
@@ -72,7 +74,7 @@ def main():
         'reference_ammunition':sorted({e['ammo_id'] for e in atlas['entries']}),
         'pixel_pitch_m':sorted({e['pixel_pitch_m'] for e in atlas['entries']}),
         'source_shard_hash_verification_report':'reports/probability-summaries.json','build_key':index['build_key'],
-        'quantization':read(ROOT/'web/data/probability/export-report.json')}
+        'quantization':read(atlas_root/'export-report.json')}
     write(ROOT/'reports/decision-integrity.json',integrity)
     write(ROOT/'reports/client-backend-validation.json',report)
     print(json.dumps(report,ensure_ascii=False,indent=2))
