@@ -13,297 +13,261 @@
     {
       "name": "AT12: static boot with external services unavailable",
       "status": "passed",
-      "elapsed_ms": 916.0822000000001
+      "elapsed_ms": 957.8395
     },
     {
       "name": "Primary navigation, scoped version filters and pagination",
       "status": "passed",
-      "elapsed_ms": 1414.0081999999998
+      "elapsed_ms": 155.0453
     },
     {
       "name": "Flag controls, custom-only BR cap and nation-wide top three",
       "status": "passed",
-      "elapsed_ms": 824.3197000000005
+      "elapsed_ms": 904.2165
     },
     {
       "name": "New-version adoption and split review keep their own version and members",
       "status": "passed",
-      "elapsed_ms": 26871.4587
+      "elapsed_ms": 395.36360000000013
     },
     {
       "name": "Manual lineup uses actual member BR and independent bidirectional pairs",
       "status": "passed",
-      "elapsed_ms": 706.7381999999998
+      "elapsed_ms": 1496.6726999999996
     },
     {
       "name": "Matrix drilldown retains ammunition, uncertainty and reverse direction",
       "status": "passed",
-      "elapsed_ms": 233.44030000000203
+      "elapsed_ms": 270.4265999999998
     },
     {
       "name": "AT01/AT11: imported scenario changes fixed member cost and retains baseline",
       "status": "passed",
-      "elapsed_ms": 60262.95449999999
+      "elapsed_ms": 61622.138
     },
     {
       "name": "Changed engagement conditions invalidate both lineup and version results",
       "status": "passed",
-      "elapsed_ms": 183.79460000000836
+      "elapsed_ms": 184.63959999999497
     },
     {
       "name": "AT08/AT09/AT10: lazy heatmap, full probability mass, unchanged physical shot data",
       "status": "passed",
-      "elapsed_ms": 433.21659999999974
+      "elapsed_ms": 469.1171000000031
     },
     {
       "name": "Tree source fields and responsive mobile navigation",
       "status": "passed",
-      "elapsed_ms": 1199.7170999999944
+      "elapsed_ms": 1279.4179999999906
     },
     {
       "name": "No browser runtime exceptions or missing local assets",
       "status": "passed",
-      "elapsed_ms": 0.10829999999259599
+      "elapsed_ms": 0.0864000000001397
     }
   ],
   "page_errors": [],
   "local_http_failures": [],
   "first_load_resources": [
     {
-      "name": "http://127.0.0.1:7051/styles.css",
+      "name": "http://127.0.0.1:7846/styles.css",
       "transferSize": 54080,
       "encodedBodySize": 53780,
-      "duration": 3.899999976158142
+      "duration": 4.800000071525574
     },
     {
-      "name": "http://127.0.0.1:7051/app.mjs",
-      "transferSize": 119902,
-      "encodedBodySize": 119602,
-      "duration": 4.100000023841858
+      "name": "http://127.0.0.1:7846/app.mjs",
+      "transferSize": 120798,
+      "encodedBodySize": 120498,
+      "duration": 5.399999976158142
     },
     {
-      "name": "http://127.0.0.1:7051/assets/wt-atlas-sans-sc.woff2",
-      "transferSize": 257496,
-      "encodedBodySize": 257196,
-      "duration": 41
-    },
-    {
-      "name": "http://127.0.0.1:7051/data-client.mjs",
+      "name": "http://127.0.0.1:7846/data-client.mjs",
       "transferSize": 6467,
       "encodedBodySize": 6167,
-      "duration": 4.100000023841858
+      "duration": 5.399999976158142
     },
     {
-      "name": "http://127.0.0.1:7051/shared/engine.mjs",
+      "name": "http://127.0.0.1:7846/scenario-state.mjs",
+      "transferSize": 599,
+      "encodedBodySize": 299,
+      "duration": 7.299999952316284
+    },
+    {
+      "name": "http://127.0.0.1:7846/shared/engine.mjs",
       "transferSize": 95387,
       "encodedBodySize": 95087,
-      "duration": 4.5
+      "duration": 5.600000023841858
     },
     {
-      "name": "http://127.0.0.1:7051/shared/probability-codec.mjs",
+      "name": "http://127.0.0.1:7846/shared/probability-codec.mjs",
       "transferSize": 2387,
       "encodedBodySize": 2087,
-      "duration": 1.7999999523162842
+      "duration": 3.700000047683716
     },
     {
-      "name": "http://127.0.0.1:7051/data/manifest.json.gz",
-      "transferSize": 276090,
-      "encodedBodySize": 275790,
-      "duration": 1.7999999523162842
+      "name": "http://127.0.0.1:7846/data/manifest.json.gz",
+      "transferSize": 275015,
+      "encodedBodySize": 274715,
+      "duration": 2.700000047683716
     },
     {
-      "name": "http://127.0.0.1:7051/data/config/ui.a07bb1c6462fbb80.json.gz",
-      "transferSize": 1663,
-      "encodedBodySize": 1363,
-      "duration": 3.6999999284744263
-    },
-    {
-      "name": "http://127.0.0.1:7051/data/config/model.a3c4044c3b628c01.json.gz",
-      "transferSize": 3186,
-      "encodedBodySize": 2886,
-      "duration": 3.9000000953674316
-    },
-    {
-      "name": "http://127.0.0.1:7051/data/catalog/index.09d15b98c0a66847.json.gz",
-      "transferSize": 106675,
-      "encodedBodySize": 106375,
+      "name": "http://127.0.0.1:7846/assets/wt-atlas-sans-sc.woff2",
+      "transferSize": 257496,
+      "encodedBodySize": 257196,
       "duration": 4.300000071525574
     },
     {
-      "name": "http://127.0.0.1:7051/data/scenarios/planned.f128e96e844abf84.json.gz",
-      "transferSize": 33977,
-      "encodedBodySize": 33677,
-      "duration": 4.5
+      "name": "http://127.0.0.1:7846/data/config/ui.a07bb1c6462fbb80.json.gz",
+      "transferSize": 1663,
+      "encodedBodySize": 1363,
+      "duration": 6.700000047683716
     },
     {
-      "name": "http://127.0.0.1:7051/data/nations/ussr.e590fcbf9373329b.json.gz",
-      "transferSize": 932674,
-      "encodedBodySize": 932374,
-      "duration": 3.5999999046325684
+      "name": "http://127.0.0.1:7846/data/config/model.a3c4044c3b628c01.json.gz",
+      "transferSize": 3186,
+      "encodedBodySize": 2886,
+      "duration": 6.799999952316284
     },
     {
-      "name": "http://127.0.0.1:7051/data/recommendations/ussr.current.c466611705472e3b.json.gz",
-      "transferSize": 145429,
-      "encodedBodySize": 145129,
-      "duration": 4.399999976158142
+      "name": "http://127.0.0.1:7846/data/catalog/index.2dc147ee94c94dba.json.gz",
+      "transferSize": 107138,
+      "encodedBodySize": 106838,
+      "duration": 7
     },
     {
-      "name": "http://127.0.0.1:7051/assets/flags/usa.svg",
-      "transferSize": 8425,
-      "encodedBodySize": 8125,
-      "duration": 5.099999904632568
+      "name": "http://127.0.0.1:7846/data/scenarios/planned.936c0d9d7cb78df3.json.gz",
+      "transferSize": 602,
+      "encodedBodySize": 302,
+      "duration": 7.199999928474426
     },
     {
-      "name": "http://127.0.0.1:7051/assets/flags/ussr.svg",
-      "transferSize": 697,
-      "encodedBodySize": 397,
-      "duration": 5.900000095367432
+      "name": "http://127.0.0.1:7846/data/nations/ussr.ee631cb9404f4154.json.gz",
+      "transferSize": 987836,
+      "encodedBodySize": 987536,
+      "duration": 3.799999952316284
     },
     {
-      "name": "http://127.0.0.1:7051/assets/flags/germany.svg",
-      "transferSize": 497,
-      "encodedBodySize": 197,
-      "duration": 6.300000071525574
+      "name": "http://127.0.0.1:7846/data/recommendations/ussr.current.32693af5464ae8ed.json.gz",
+      "transferSize": 135253,
+      "encodedBodySize": 134953,
+      "duration": 4.100000023841858
     },
     {
-      "name": "http://127.0.0.1:7051/assets/flags/britain.svg",
-      "transferSize": 662,
-      "encodedBodySize": 362,
-      "duration": 6.300000071525574
-    },
-    {
-      "name": "http://127.0.0.1:7051/assets/flags/japan.svg",
-      "transferSize": 455,
-      "encodedBodySize": 155,
-      "duration": 6.300000071525574
-    },
-    {
-      "name": "http://127.0.0.1:7051/assets/flags/china.svg",
+      "name": "http://127.0.0.1:7846/assets/flags/china.svg",
       "transferSize": 1199,
       "encodedBodySize": 899,
-      "duration": 6.600000023841858
+      "duration": 4.899999976158142
     },
     {
-      "name": "http://127.0.0.1:7051/assets/flags/italy.svg",
+      "name": "http://127.0.0.1:7846/assets/flags/france.svg",
       "transferSize": 505,
       "encodedBodySize": 205,
-      "duration": 7.100000023841858
+      "duration": 4.600000023841858
     },
     {
-      "name": "http://127.0.0.1:7051/assets/flags/france.svg",
-      "transferSize": 505,
-      "encodedBodySize": 205,
-      "duration": 7.600000023841858
+      "name": "http://127.0.0.1:7846/assets/flags/germany.svg",
+      "transferSize": 497,
+      "encodedBodySize": 197,
+      "duration": 4.600000023841858
     },
     {
-      "name": "http://127.0.0.1:7051/assets/flags/sweden.svg",
-      "transferSize": 473,
-      "encodedBodySize": 173,
-      "duration": 7.900000095367432
-    },
-    {
-      "name": "http://127.0.0.1:7051/assets/flags/israel.svg",
+      "name": "http://127.0.0.1:7846/assets/flags/israel.svg",
       "transferSize": 559,
       "encodedBodySize": 259,
-      "duration": 8.300000071525574
+      "duration": 5.299999952316284
     },
     {
-      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_bt_7_m.png",
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "duration": 5
+      "name": "http://127.0.0.1:7846/assets/flags/italy.svg",
+      "transferSize": 505,
+      "encodedBodySize": 205,
+      "duration": 5.799999952316284
     },
     {
-      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_su_76m_1943.png",
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "duration": 6.299999952316284
+      "name": "http://127.0.0.1:7846/assets/flags/japan.svg",
+      "transferSize": 455,
+      "encodedBodySize": 155,
+      "duration": 6.399999976158142
     },
     {
-      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_gaz_4m.png",
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "duration": 6.299999952316284
+      "name": "http://127.0.0.1:7846/assets/flags/sweden.svg",
+      "transferSize": 473,
+      "encodedBodySize": 173,
+      "duration": 6.699999928474426
     },
     {
-      "name": "https://static.encyclopedia.warthunder.com/slots/mig_3_series_1_15.png",
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "duration": 6.299999952316284
+      "name": "http://127.0.0.1:7846/assets/flags/usa.svg",
+      "transferSize": 8425,
+      "encodedBodySize": 8125,
+      "duration": 7.299999952316284
     },
     {
-      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_t_70_1942.png",
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "duration": 6.200000047683716
+      "name": "http://127.0.0.1:7846/assets/flags/britain.svg",
+      "transferSize": 662,
+      "encodedBodySize": 362,
+      "duration": 7.299999952316284
     },
     {
-      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_t_28.png",
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "duration": 6.300000071525574
-    },
-    {
-      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_9p157.png",
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "duration": 6.300000071525574
-    },
-    {
-      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_t_64a_1971.png",
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "duration": 6.300000071525574
-    },
-    {
-      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_bmp_3.png",
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "duration": 7
-    },
-    {
-      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_zsu_23_4m4.png",
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "duration": 7
-    },
-    {
-      "name": "https://static.encyclopedia.warthunder.com/slots/su_17m2.png",
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "duration": 7
-    },
-    {
-      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_object_775.png",
-      "transferSize": 0,
-      "encodedBodySize": 0,
-      "duration": 7.100000023841858
+      "name": "http://127.0.0.1:7846/assets/flags/ussr.svg",
+      "transferSize": 697,
+      "encodedBodySize": 397,
+      "duration": 7.5
     },
     {
       "name": "https://static.encyclopedia.warthunder.com/slots/ussr_bmd_4m2.png",
       "transferSize": 0,
       "encodedBodySize": 0,
-      "duration": 7
+      "duration": 5.899999976158142
+    },
+    {
+      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_t_64a_1971.png",
+      "transferSize": 0,
+      "encodedBodySize": 0,
+      "duration": 6.100000023841858
     },
     {
       "name": "https://static.encyclopedia.warthunder.com/slots/ussr_2s25.png",
       "transferSize": 0,
       "encodedBodySize": 0,
-      "duration": 7
+      "duration": 6.399999976158142
     },
     {
-      "name": "https://static.encyclopedia.warthunder.com/slots/su_25.png",
+      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_zsu_23_4m4.png",
       "transferSize": 0,
       "encodedBodySize": 0,
-      "duration": 7.100000023841858
+      "duration": 6.5
+    },
+    {
+      "name": "https://static.encyclopedia.warthunder.com/slots/mig-21_smt.png",
+      "transferSize": 0,
+      "encodedBodySize": 0,
+      "duration": 6.399999976158142
+    },
+    {
+      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_t_72a.png",
+      "transferSize": 0,
+      "encodedBodySize": 0,
+      "duration": 6.399999976158142
+    },
+    {
+      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_bmp_3.png",
+      "transferSize": 0,
+      "encodedBodySize": 0,
+      "duration": 6.399999976158142
+    },
+    {
+      "name": "https://static.encyclopedia.warthunder.com/slots/ussr_2s25m.png",
+      "transferSize": 0,
+      "encodedBodySize": 0,
+      "duration": 6.5
     }
   ],
   "first_load_navigation": [
     {
-      "name": "http://127.0.0.1:7051/",
+      "name": "http://127.0.0.1:7846/",
       "transferSize": 3620,
       "encodedBodySize": 3320,
-      "duration": 71.59999990463257
+      "duration": 93.5
     }
   ],
   "first_load_memory": {
@@ -316,8 +280,8 @@
     "interval_ms": 250,
     "method": "CDP process list + /proc VmRSS; sum includes shared pages and is a sampled upper estimate, not exact unique physical memory."
   },
-  "cached_filter_to_next_frame_ms": 23,
-  "total_local_requests": 67,
+  "cached_filter_to_next_frame_ms": 18.59999990463257,
+  "total_local_requests": 91,
   "raw_geometry_requests": [],
   "application_api_requests": [],
   "limitations": [

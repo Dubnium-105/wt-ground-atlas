@@ -1,6 +1,69 @@
-# 最新继续实施验收（2026-10-30T12:05:14.842103+00:00）
+# 当前完整产品验收（代码 52d5902）
 
-当前已测试代码提交 `9331d2e75c56aa5cf90dad99d0091677b0407fc6`；本节及更新后的机器报告为最新结果。后面的 09e431a 记录作为历史基线保留。原工作区的 30 个修改文件和 11 个未跟踪文件仍留在原目录。
+PR [#6](https://github.com/Dubnium-105/wt-ground-atlas/pull/6)，分支 `feature/atlas-complete-product`，基于 PR #5 合并后的 main `57c6859`。原用户工作区的 30 个已修改文件和 11 个未跟踪文件保留在原位。PR #4 的 V3 物理来源与版本隔离继续有效。
+
+本轮补齐了全局截断之前的独立 BR/国家/抗升房/纯地面/空地视图、严格槽位完整性、版本化敏感性策略、按哈希分片懒加载的迁移详情、当前 Wiki 自动采集与精确 ID 更新。未知己方弹药或挂载不再补齐队列，敌方未知总体仍保留；物理与毁伤 NPZ 在分配前检查形状/长度/预算，毁伤核校验全部角度。
+
+自动预测是统一站点首页；旧图鉴、逐车对抗、防护与手工编队在 `/research/` 下钻。没有独立未来方案时，研究页禁用未来榜，保留导入/编辑本地方案功能。研究站使用原工作区研究引擎的独立副本重算，未覆盖用户源码。
+
+## 实际验收
+
+| 命令/场景 | 结果 |
+|---|---|
+| `python -m pip install -r requirements.txt`、`npm ci` | 成功 |
+| `npm test` | 156 Python（无跳过）＋58 Node.js 通过；Python 44.214s |
+| `python -m unittest discover -s tests -p "test_forecast*.py" -v` | 103 通过，已计入 Python 总数 |
+| `npm run test:smoke` | 4 HTTP 检查通过 |
+| `node tests/forecast.e2e.mjs` | 自动搜索、独立 BR/国家、懒加载、九组合、移动端、版本、重试、下钻通过 |
+| 真实组合站 / 真实研究站 Playwright | 5 / 11 项通过，无页面异常 |
+| 原研究引擎 Node 测试 | 58 通过；与新预测 Node 套件分开统计 |
+| 真实 10m 子集 | 72 诊断；6 历史检查点最大差 0；4 文件源 SHA 不变 |
+| 两车原生 100/500/1000m 子集 | 6 张真实重算图、432 诊断；0 正式榜 |
+| 无输入 `npm run build -- ...` | 明确的静态诊断站构建成功，0 假榜 |
+
+源码提交两项 CI 已通过：[Generative forecast contracts](https://github.com/Dubnium-105/wt-ground-atlas/actions/runs/41067886291)、[Validate source and lightweight site](https://github.com/Dubnium-105/wt-ground-atlas/actions/runs/41067886286)。后续验收材料提交的 CI 以 PR Checks 为准。
+
+## 当前真实数据与门禁
+
+官方 Wiki 于 `2026-10-30T13:06:38.003583+00:00` 采集，目录 **2,680 辆、10 国家**，与旧目录相比 592 项 Ground RB 变化，新增 `fw_190a_8_mistel`。固定翼读取 Ground RB `trb`。已实装变化纳入当前基线；没有复制当前榜充当下一版。
+
+目录未提供可核验游戏版本，仍为 `game_version=null / source_status=unknown`。旧挂载/规则涉及 1,195 车、10,678 预设，保留证据但暂停其当前合法性。2.59.0.92 客户端和固定 Datamine 来源继续保留，未擅自宣称与当前 Wiki 同版本。
+
+原图集 220,202 个 JSON+NPZ，NPZ 总计 44,165,399,237 bytes。当前选择并核验 **97,421 张图**、404 弹药档案、1,226 个独立几何绑定。全量原图为原生 10m；两车远距子集单列，不混入全服覆盖。当前有界验收场景的需求 236,848、正向 171,703、双向 125,158，详见 [覆盖矩阵](../reports/data-coverage.json)。这些是场景需求计数，不是独立文件数或真实排队频率。
+
+本次使用 `config/forecast.audit.json`：所有采集国家/合法 BR、5 槽、常规/全部、每表 2 次评估、8 个敌队、1 个积分节点、10m 正面。执行计数为 `{"current": {"restored_tables": 0, "computed_tables": 758, "new_evaluations": 1100, "restored_evaluations": 0}}`。它验证全量链路和来源门禁，不表示已充分搜索生产最优解。默认完整预算及 `--all-profiles` 路径保留；九组合在合成端到端验证。
+
+**algorithm_ready=true / data_ready=false / publishable=false**。正式榜 0 条、研究榜 0 条。敏感性已实际运行，完整结果与未通过原因记录于报告；没有足够合格候选时不会把空集比较当作稳定性通过。条件效用不等于击毁率或胜率，仍未独立校准。
+
+## 实测性能与发布
+
+全量端到端 7935.008s，主进程峰值 RSS 1,041,932,288 bytes，CPU 5124.125s。worker 的解码负载单独受配置约束，峰值 RSS 不包含其合计。本轮与研究构建/浏览器验收并行，不能作为独占机器的吞吐承诺。研究十国推荐重算 938.432s，静态组装 28.843s。
+
+1k/10k 合成索引冷构建分别 5.942s / 59.148s；热构建 0.664s / 6.756s，增量命中 100%，各按需读取 3 张 NPZ。小世界预算 4/64 均达到穷举 oracle，两个种子一致；预算 1 未产生完整队列，最优差距为 null。
+
+统一站点：`dist/site-8060dd2`，66,559,129 bytes。build key：`d0bca96c6fd8e436e5ebcca7849428042065723db6a667fc81849e6cb7bde0c9`。ZIP：`dist/ground-atlas-complete-8060dd2.zip`，63,645,418 bytes，SHA-256 `edb9618e7224d8c172a4bd3cb81ec74d2308c6207e74f35a2441fc1acf4de148`。ZIP 全条目 CRC、解压后逐文件 SHA 和静态发布预算全部通过。初屏本机 loopback 96.82ms / 1,698,119 bytes，0 个 GRP/NPZ 请求。
+
+可部署的静态包已生成并验证；**未发布到公网**，缺少托管目标及版本化概率 CDN。概率模式保持 disabled；真实防护浏览器验收通过本地只读服务器单独挂载原概率导出，不代表已有公共 CDN。
+
+## 可复现入口与外部缺口
+
+```powershell
+# 先采集当前目录；支持 --offline 从已验证缓存重放
+python scripts/update_forecast.py --refresh-wiki --before "$env:WT_ATLAS_DATA_ROOT/data/snapshots/catalog.json" --catalog-output data/snapshots/catalog.current-wiki.json --cache data/cache/current-wiki --out reports/current-wiki-refresh.json
+# 完整输入具备后的一条正式入口（默认完整预算；本轮有界验收另用 forecast.audit.json）
+python build.py --forecast --catalog data/snapshots/catalog.current-wiki.json --ammunition "$env:WT_ATLAS_DATA_ROOT/data/derived/grp_probability_v2/2.59.0.92/ammunition/all_resolved_profiles_final_with_apcr_gun_caliber.json" --atlas "$env:WT_ATLAS_DATA_ROOT/data/derived/grp_probability_v2/2.59.0.92/KE-weighted-opponents" --bindings data/cache/geometry-bindings.json --preflight --resume --run-sensitivity --all-profiles --research-site dist/research-rebuilt-current --output dist/site
+python scripts/package_release.py --site dist/site --output dist/ground-atlas.zip
+```
+
+原始 `analysis-sample-2.59.0.92.zip`（32 文件 manifest）仍缺失，现有 4 文件真实子集不能替代该归档验收。同版本 Wiki/客户端身份、官方完整 BR/挂载/SP 规则、足够双向原生距离物理图、任务/穿后证据和授权统计仍需补足；下一版正式方案和公共托管目标尚未提供。精确建议路径、字段和门禁原因均在 [release-readiness.json](../reports/release-readiness.json) 的 `required_external_inputs` 中，输入格式与部署/回滚见 [产品手册](NEXT_STAGE_PRODUCT.md)。
+
+以下是早期交付的历史记录，其目录、计数、提交和发布包不代表本轮结果。
+
+---
+
+# 历史继续实施验收（2026-10-30T12:05:14.842103+00:00）
+
+当时已测试代码提交 `9331d2e75c56aa5cf90dad99d0091677b0407fc6`；本节仅保留当时结果，当前结论以文首和最新机器报告为准。后面的 09e431a 记录同样作为历史基线保留。原工作区的 30 个修改文件和 11 个未跟踪文件仍留在原目录。
 
 - 修复等待动作被误算为证据覆盖、正式榜任务证据未绑定具体队列的问题；恢复历史评估与本轮新增计算现在分别计数。
 - 新增从源穿深表和独立绑定几何层重新计算原生距离的 CPU 路径，支持原子输出、内容哈希、版本隔离、损坏重算和分批恢复。

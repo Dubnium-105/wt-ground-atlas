@@ -246,13 +246,14 @@
     "schema_version": "1.0.0"
   },
   "build": {
-    "build_key": "f0d9a4a7377aa9600f46cd63ed93aac6131f4ed2c113b6e1d2d264557a8f8ae4",
+    "out": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\native-8060dd2",
+    "build_key": "8ec57b793250770f3b32b9bdb9fdde8fd85aa23931b67cebd06ec44d93c6c99b",
     "catalog_vehicles": 2,
     "maps": 6,
     "diagnostic_rows": 432,
-    "cache_hits": 486,
-    "cache_misses": 18,
-    "npz_loads": 23,
+    "cache_hits": 48,
+    "cache_misses": 456,
+    "npz_loads": 29,
     "ranked_counts": {
       "current": 0
     },
@@ -270,10 +271,64 @@
     "research_counts": {
       "current": 0
     },
-    "duration_seconds": 2.837656300049275,
+    "release_readiness": {
+      "current": {
+        "algorithm_ready": true,
+        "data_ready": false,
+        "publishable": false,
+        "why_not_publishable": [
+          "sample_subset",
+          "snapshot_identity_missing",
+          "baseline_release_status_unverified",
+          "source_version_timeline_incomplete",
+          "snapshot_physics_version_mismatch",
+          "independent_target_geometry_not_verified",
+          "physical_arrays_not_fully_verified",
+          "no_candidates_meet_bidirectional_coverage",
+          "scope_is_limited_ground_research",
+          "full_mode_mission_evidence_missing",
+          "spawn_rules_assumed",
+          "sensitivity_not_verified",
+          "rating_version_provenance_incomplete"
+        ],
+        "snapshot": {
+          "snapshot_id": "wiki-d759fcb02ab375b4",
+          "game_version": null,
+          "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+          "wiki_collected_at": "2026-10-29T01:19:11.129331+00:00",
+          "effective_date": null,
+          "source_status": "unknown",
+          "sources": [
+            {
+              "count": 1226,
+              "kind": "ground",
+              "sha256": "48f16f5a4dd40cc4243530035609689926d9d0809b9cdf69f0e28f22a5f90243",
+              "url": "https://wiki.warthunder.com/ground"
+            },
+            {
+              "count": 1341,
+              "kind": "aircraft",
+              "sha256": "fdac34358e9626485d27352a7f21c5e2fcab9c6147345a32fadc819d49c86963",
+              "url": "https://wiki.warthunder.com/aviation"
+            },
+            {
+              "count": 112,
+              "kind": "helicopter",
+              "sha256": "d2caa3307d468a25290085dd8292ce4cf4dd41c6fc58eede53aa1121c8d623b9",
+              "url": "https://wiki.warthunder.com/helicopters"
+            }
+          ],
+          "sha256": "f1738dae0a13689edd1a985b8ef31a8f5bb328a3223a712da911de9685701884"
+        },
+        "calibration_status": "uncalibrated",
+        "empirical_win_rate_validated": false,
+        "research_candidates": 0
+      }
+    },
+    "duration_seconds": 3.8597236999776214,
     "resources": {
-      "peak_rss_bytes": 137248768,
-      "cpu_seconds": 1.4375,
+      "peak_rss_bytes": 129363968,
+      "cpu_seconds": 4.28125,
       "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
     },
     "publication": "sample_diagnostics_only"
@@ -352,7 +407,7 @@
           "boards": [],
           "case": "aim_narrower",
           "changed_truncated": 0,
-          "config_sha256": "e6acd0130642e6afd747dd2d8b249934f46580ff036feb9966ae302b17963ae6",
+          "config_sha256": "1abab7bf6b8c633e053220e47a9ca1860da96bed644d0cb01e61506cda682059",
           "evaluations": 2,
           "execution": {
             "computed_tables": 4,
@@ -367,7 +422,7 @@
           "boards": [],
           "case": "aim_wider",
           "changed_truncated": 0,
-          "config_sha256": "146458590c47f997e4f4595ab4ba8978eb95248470dc345ae6b8455673f4e473",
+          "config_sha256": "cca45a5a3878267b8fb779cd910ede3ee5bd33a7bc86619bd7a6dc7bca530770",
           "evaluations": 2,
           "execution": {
             "computed_tables": 4,
@@ -382,7 +437,7 @@
           "boards": [],
           "case": "opponent_skill_higher",
           "changed_truncated": 0,
-          "config_sha256": "dca7134fead42f1e260f77825beac24306168704f12a2273eb9c64b791663578",
+          "config_sha256": "e3aaf2ca9d4c0df56d5ae00b50fc72040d7c113ed987fa58d187842c3d5abe75",
           "evaluations": 2,
           "execution": {
             "computed_tables": 4,
@@ -395,9 +450,9 @@
         {
           "baseline_truncated": 0,
           "boards": [],
-          "case": "double_search_budget",
+          "case": "increased_search_budget",
           "changed_truncated": 0,
-          "config_sha256": "1174863320fe4b016ca87c2ab806c27339afe6a04b78e8116dfc0f26b38b5802",
+          "config_sha256": "36b5240f763ced6d9572ef1ea17096a8d1afb007158babda2d7b44a481d05365",
           "evaluations": 2,
           "execution": {
             "computed_tables": 4,
@@ -412,7 +467,7 @@
           "boards": [],
           "case": "alternate_queue_seed",
           "changed_truncated": 0,
-          "config_sha256": "2ed48e08f7c057cfc664cbcde298b5e30ba24677c644253fec8d0c5ce3a44467",
+          "config_sha256": "4e06dea165da46410d592100d1716aaa513593c8762ed1992a7d369c8cf01a82",
           "evaluations": 2,
           "execution": {
             "computed_tables": 4,
@@ -424,14 +479,27 @@
         }
       ],
       "catalog_sha256": "ad3c467589006c7e1b6ebe5359c027274d9597181a51c1d85f1a00330304f67b",
-      "config_sha256": "8014efa997b82d93a07ab945d1c802fed4638bd0109c9ab4fe85e90b5645a5d9",
-      "duration_seconds": 1.625156300025992,
+      "config_sha256": "9b0be35c33b8cb1c924e29141285f54117901b598b001e6049450c2f361b315b",
+      "duration_seconds": 0.698101400048472,
       "empirical_validation": false,
-      "inputs_sha256": "17fdd76830f3049c404e358137dd01e0723a45c39856964f8cc67a2c1cd86f06",
+      "inputs_sha256": "2c2f1b4c49314e09079d5e8d15706c19c5f1fdf3af70bac34e94671f53b64d91",
       "kind": "measured_model_search_sensitivity",
       "passed": false,
+      "policy": {
+        "aim_narrower_factor": 0.8,
+        "aim_wider_factor": 1.2,
+        "opponent_skill_mean_shift": 0.5,
+        "schema_version": "1.0.0",
+        "search_budget_multiplier": 2,
+        "seed_offset": 1,
+        "status": "assumed_robustness_policy",
+        "thresholds": {
+          "maximum_score_delta": 10.0,
+          "minimum_overlap": 0.5
+        }
+      },
       "schema_version": "1.0.0",
-      "sha256": "1f9aab6a2282058a51f36357dfbe4d806d0808463911272150cdd135ea4d8c45",
+      "sha256": "b40642afedb7bd412fb9241d4c011e4b8be23d8a36767a6b8a96c97147ecec59",
       "thresholds": {
         "maximum_score_delta": 10.0,
         "minimum_overlap": 0.5
