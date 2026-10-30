@@ -18,7 +18,7 @@ const state = {
   owned:saved.owned || {}, query:'', kind:'all', treeChanged:false, treeMatching:false, treePage:0,
   viewToken:0, result:null, comparison:null, busy:false, worker:null, pending:new Map(), jobCounter:0,
   armorEntry:null, armorAngle:null, armorGrid:null, armorAim:null, armorSkill:null, armorDistance:null, armorError:null, armorRequest:null,
-  matrixFold:true, matrixTarget:null, matrixPage:0, scenarioCustom:false, impact:null, analysisGeneration:0, changeScope:'nation', changeFilter:'all', changePage:0
+  matrixFold:true, matrixTarget:null, matrixPage:0, scenarioCustom:false, impact:null, metaRankings:null, metaRankingsError:null, analysisGeneration:0, changeScope:'nation', changeFilter:'all', changePage:0
 };
 
 const icons = {
@@ -123,6 +123,37 @@ function nationalRecommendations() {
   return `${!defaultRecommendationConditions()?notice('此表为离线默认条件的各国结果。当前自选条件仅作用于本国扫描与手动队列。','warning'):''}<section class="panel"><div class="table-wrap"><table class="data-table"><thead><tr><th>国家</th><th>推荐 BR</th><th>模型指数 / 区间</th><th>资料覆盖</th><th>已扫描档位</th><th>具体队列</th></tr></thead><tbody>${rows.map(row=>`<tr><td><button data-nation="${esc(row.nation)}" data-nation-br="${esc(row.best?.actual_br)}">${esc(nationName(row.nation))} ↗</button></td><td class="mono">${fmt(row.best?.actual_br)}</td><td class="mono">${indexScore(row.best?.score)} <small class="muted">${indexScore(row.best?.lower)}–${indexScore(row.best?.upper)}</small></td><td>${pct(row.best?.coverage)}</td><td class="mono">${row.br_caps}</td><td class="wrap">${esc((row.best?.lineup_ids||[]).map(nameOf).join(' · '))}</td></tr>`).join('')}</tbody></table></div></section>`;
 }
 
+function globalMetaBoard() {
+  if (state.scenarioCustom) return notice('本地自定义调整不会改变离线预生成的全球预测榜；当前榜单仍基于采集的公开调整方案。','warning');
+  const meta=state.metaRankings;
+  if (!meta) return notice(state.metaRankingsError
+    ? '全球榜单暂不可用：'+esc(state.metaRankingsError)
+    : '当前构建未发布全国全 BR 预测榜单。请运行新版离线决策构建。','warning');
+  const rows=meta.planned?.global?.slice(0,state.config.meta?.global_limit??100)||[];
+  const uncertain=meta.calibration_status!=='calibrated';
+  return `<section class="panel">
+    <div class="panel-title"><h2>下版本 · 全服强势队列预测</h2><span class="muted">遍历所有国家与 BR · ${rows.length} 支代表队列</span></div>
+    <div class="panel-body">
+      <p class="lead">以下为模型预测而非实测胜率；${uncertain?'权重尚未完成实战校准，跨 BR 排序仅供参考。':'仍需按版本来源检验。'} 每个国家和 BR 只展示部分不同编成，避免相似队列占满榜单。配置来源状态：${esc(meta.scenario_status)}。</p>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>预测排名</th><th>国家</th><th>队列 BR</th><th>具体载具</th><th>模型指数</th><th>资料覆盖</th><th>可靠性提示</th></tr></thead><tbody>
+      ${rows.map((item,i)=>`<tr><td class="mono">#${i+1}</td><td><button data-meta-nation="${esc(item.nation)}" data-meta-br="${esc(item.br)}">${esc(nationName(item.nation))}</button></td>
+      <td class="mono">${fmt(item.br)}</td><td class="wrap">${esc((item.vehicle_ids||[]).map(nameOf).join(' · '))}</td>
+      <td class="mono">${indexScore(item.score)} <small class="muted">${indexScore(item.lower)}–${indexScore(item.upper)}</small></td>
+      <td>${pct(item.coverage)}</td><td>${(item.quality_flags||[]).length?tag('证据不足','warn'):tag('模型待校准','neutral')}</td></tr>`).join('')||`<tr><td colspan="7">本次快照没有足够的合法候选形成预测榜。</td></tr>`}
+      </tbody></table></div>
+    </div></section>`;
+}
+function patchMetaMovers() {
+  if (state.scenarioCustom||!state.metaRankings)return '';
+  const meta=state.metaRankings, moves=meta.movements||{};
+  const list=(title,rows,positive)=>`<section class="panel panel-pad"><h3>${esc(title)}</h3><div class="mt">
+    ${(rows||[]).slice(0,8).map(row=>`<div class="threat-row"><span class="threat-rank">${esc(nationName(row.nation))}</span>
+      <div class="threat-main"><button data-meta-nation="${esc(row.nation)}" data-meta-br="${esc(row.carried_br??row.original_cap)}">BR ${fmt(row.original_br??row.original_cap)} → ${fmt(row.carried_br??row.original_cap)}</button><small>${esc(row.classification==='directly_modified'?'含直接改动':row.classification==='indirect_matchmaking_change'?'主要因匹配环境变化':'其他环境变化')}</small></div>
+      <span class="mono">${row.fixed_lineup_delta>0?'+':''}${indexScore(row.fixed_lineup_delta)}</span>
+    </div>`).join('')||'<span class="muted">暂无可比较样本</span>'}</div></section>`;
+  return `<div class="two-column mb">${list('原队列升值最快',moves.rising,true)}${list('原队列削弱最明显',moves.falling,false)}</div>
+    <p class="lead mb">变化值来自保留相同成员在调整前后的效用差值，不是胜率差，也不等于新旧榜单名次变化。</p>`;
+}
 function impactMap() {
   if(state.scenarioCustom)return notice('以下离线全国影响图对应采集的原始调整方案。当前本地方案请查看上方原队列推演和本国重新扫描结果。','warning');
   const rows=state.impact?.impact;if(!rows)return busy('按需载入各国 / BR 版本影响分片…');
@@ -162,7 +193,9 @@ function recommendationChoice(c,index,{mode='overview',split=null}={}) {
 }
 function renderOverview() {
   const choices=overviewChoices();
-  return `${heading('', '队列推荐','该系所有 BR 候选中的评分前三，按成员去重排序。')}
+  return `${heading('NEXT PATCH / META PREDICTOR', '下版本队列推荐与强度预测','全服主动扫描所有国家与 BR，展示调整后的领先候选；当前国家的详细编队在榜单下方。')}
+  ${globalMetaBoard()}
+  ${section('02','本国详细推荐',`${esc(nationName(state.nation))} · 可切换当前/调整后版本`)}
   <div class="choices-heading"><span class="selection-context">${esc(nationName(state.nation))}<span> / </span>${esc(versionName())}<span> / </span>全 BR 排名</span><span>${choices.length} 支推荐 · ${state.context.slots} 槽位</span></div>
   <section class="lineup-options" aria-label="推荐队列待选">${choices.map((c,i)=>recommendationChoice(c,i)).join('')||empty('当前条件没有可用队列','可在研究工具中的自定义队列设置条件。',button('scan','扫描可用队列','primary','refresh'))}</section>${sourceNote()}`;
 }
@@ -231,6 +264,7 @@ function renderVersions() {
   const fieldName=key=>key==='br'?'陆战历史 BR':state.ui.scenario_fields.find(f=>f.key===key)?.label||key;
   return `${heading('', '版本变化','查看新版最强候选，以及此次调整拆分的高分旧队列。',button('compare','比较队列影响','primary','versions'))}
   <section class="version-banner"><div class="version-banner-title">${icon('versions')}<div><h2>${state.scenarioCustom?'我的调整方案':'已采集的调整方案'}</h2><p>以当前目录为基线，预览调整后的陆战历史环境。</p></div></div><div class="version-flow"><span>当前版本</span>${icon('arrow')}<span>调整后 ${tag('模拟','warn')}</span></div></section>
+  ${patchMetaMovers()}
   ${renderVersionRankings()}
   <div class="changes-heading"><div><h2>载具变化</h2><span class="muted">${scoped.length} 项调整</span></div><label class="scope-field">查看范围<select id="change-scope"><option value="nation" ${state.changeScope==='nation'?'selected':''}>${esc(nationName(state.nation))}</option><option value="all" ${state.changeScope==='all'?'selected':''}>全部国家</option></select></label></div>
   <section class="changes-panel"><div class="change-tabs" aria-label="变更类型">${[['all','全部',scoped.length],['up','BR 上调',up],['down','BR 下调',down],['other','性能调整',scoped.filter(e=>!isBR(e)).length]].map(([id,label,count])=>`<button data-change-filter="${id}" class="${state.changeFilter===id?'active':''}" aria-pressed="${state.changeFilter===id}">${label}<span>${count}</span></button>`).join('')}</div>
@@ -402,6 +436,16 @@ async function loadRecs(version=state.version) {
   const path=state.manifest.recommendations?.[`${version}/${state.nation}`];
   if(path){const result=await fetchJSON(path);state.recommendations.set(key,result.recommendation||result);}
 }
+async function loadMetaRankings() {
+  if (state.metaRankings || !state.manifest.meta_rankings) return;
+  try {
+    state.metaRankings = await fetchJSON(state.manifest.meta_rankings);
+    state.metaRankingsError = null;
+  } catch (error) {
+    state.metaRankingsError = error.message;
+    console.error(error);
+  }
+}
 async function loadVersionOverview() {
   const key=recommendationKey('planned');
   if(state.versionOverviews.has(key))return;
@@ -570,6 +614,7 @@ async function handleClick(event) {
     if(target.dataset.vehicle){await openVehicle(target.dataset.vehicle);return;}
     if(target.dataset.pair){openPair(target.dataset.pair);return;}
     if(target.dataset.version){await switchContext({version:target.dataset.version});return;}
+    if(target.dataset.metaNation){await switchContext({nation:target.dataset.metaNation,br:Number(target.dataset.metaBr),version:'planned'});window.scrollTo({top:0,behavior:'smooth'});return;}
     if(target.dataset.nation){await switchContext({nation:target.dataset.nation,br:target.dataset.nationBr===undefined?state.br:Number(target.dataset.nationBr)});window.scrollTo({top:0,behavior:'smooth'});return;}
     if(target.dataset.impact){const [nation,cap]=target.dataset.impact.split('/'),br=Number(cap);const row=state.impact?.impact.filter(r=>r.nation===nation&&r.br===br).sort((a,b)=>(b.previous_score??-Infinity)-(a.previous_score??-Infinity))[0];if(!row)return;await switchContext({nation,br,version:'current'});state.lineups[nation]=row.previous_lineup_ids;save();await compare();window.scrollTo({top:0,behavior:'smooth'});return;}
     if(target.dataset.br){await switchContext({br:Number(target.dataset.br)});return;}
@@ -624,7 +669,8 @@ async function boot() {
   $('#navigation').innerHTML=`<div class="primary-nav">${views.slice(0,2).map(navLink).join('')}</div><details class="tools-menu" id="research-menu"><summary>研究工具 <span aria-hidden="true">⌄</span></summary><div class="tools-links">${views.slice(2).map(navLink).join('')}</div></details>`;
   $('#data-state').textContent=`${catalog.vehicles.length.toLocaleString('zh-CN')} 辆 · 官方目录快照`;
   $('#sidebar-build').textContent=`SNAPSHOT ${catalog.snapshot.id}\nMODEL ${config.model_version}`;
-  await loadNation(state.nation);await applyScenarioToIndex();updateSelectors();await loadRecs();
+  await loadNation(state.nation);await applyScenarioToIndex();updateSelectors();
+  await Promise.all([loadRecs(),loadMetaRankings()]);
   document.addEventListener('click',handleClick);document.addEventListener('change',handleChange);
   document.addEventListener('keydown',event=>{if(event.key==='/'&&!['INPUT','TEXTAREA','SELECT'].includes(event.target.tagName)){event.preventDefault();$('#global-search').focus();}if((event.key==='Enter'||event.key===' ')&&event.target.matches('article[data-vehicle]')){event.preventDefault();openVehicle(event.target.dataset.vehicle);}});
   document.addEventListener('input',event=>{if(event.target.id==='br-slider')updateBRPreview();if(['global-search','tree-search','lineup-search'].includes(event.target.id)){clearTimeout(boot.searchTimer);const value=event.target.value,id=event.target.id;boot.searchTimer=setTimeout(()=>{state.query=value;state.treePage=0;if(id==='global-search'){if(state.view!=='tree')location.hash='#tree';else render();}else{const cursor=event.target.selectionStart;render();const input=$(`#${id}`);if(input){input.focus();input.setSelectionRange(cursor,cursor);}}},ui.search_debounce_ms);}if(event.target.id==='armor-skill')$('#armor-skill-value').textContent=fmt(Number(event.target.value));});
