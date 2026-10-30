@@ -1,3 +1,5 @@
+import {resolveVehicleRating, validateRatingLoadout, hasRatingConfigurations, enumerateRatingConfigurations} from './rating-configurations.mjs';
+
 /** Pure, deterministic Ground RB decision functions. All empirical parameters
  * are supplied through config/model.json; no vehicle-specific rules live here. */
 export const ENGINE_SCHEMA = '1.0.0';
@@ -31,12 +33,13 @@ export function aimContextKey(suppliedContext = {}, config) {
   const context = contextOf(suppliedContext, config);
   return stable({schema: 'aim-context-v1', decision_model_version: config.model_version, aim: config.aim, unknown_prior: config.pair.unknown_prior, skill: context.skill, distance_m: context.distance_m, target_motion_mps: context.target_motion_mps, own_motion_mps: context.own_motion_mps, gun_control_deg_s: context.gun_control_deg_s ?? null, sigma_x_m: context.sigma_x_m ?? null, sigma_y_m: context.sigma_y_m ?? null});
 }
-export const getBR = (vehicle, version = 'current') => {
-  const value = Object.prototype.hasOwnProperty.call(vehicle.br ?? {}, version) ? vehicle.br[version] : vehicle.br?.current;
-  return finite(value) ? value : null;
-};
-export function getBRs(vehicles, nation, version = 'current') {
-  return unique(list(vehicles).filter(v => !nation || v.nation === nation).map(v => getBR(v, version)).filter(finite)).sort((a, b) => a - b);
+/** Existing two-argument calls remain fixed-BR compatible. Optional context
+ * chooses a verified configuration instead of inferring BR from weapons. */
+export const getBR = (vehicle, version = 'current', context = {}) =>
+  resolveVehicleRating(vehicle, context, version).br;
+export function getBRs(vehicles, nation, version = 'current', context = {}) {
+  return unique(list(vehicles).filter(v => !nation || v.nation === nation)
+    .map(v => getBR(v, version, context)).filter(finite)).sort((a, b) => a - b);
 }
 export function roleOf(vehicle, config) {
   for (const [role, aliases] of Object.entries(config.roles)) if (aliases.includes(vehicle.role)) return role;
@@ -58,7 +61,7 @@ export function applyScenario(catalog, scenario = {}, version = 'planned') {
   const vehicles = copy(list(catalog));
   const byId = new Map(vehicles.map(v => [v.id, v]));
   const audit = copy(scenario.audit ?? []), applied = [], rejected = [];
-  for (const vehicle of vehicles) vehicle.br = {...vehicle.br, planned: getBR(vehicle, 'current')};
+  for (const vehicle of vehicles) if (!hasRatingConfigurations(vehicle)) vehicle.br = {...vehicle.br, planned: getBR(vehicle, 'current')};
   const entries = scenario.entries ?? [];
   const counts = new Map();
   for (const entry of entries) {
@@ -73,6 +76,7 @@ export function applyScenario(catalog, scenario = {}, version = 'planned') {
     let reason = null;
     if (!vehicle) reason = 'unmapped_vehicle';
     else if (counts.get(`${entry.vehicle_id}|${fieldKey}`) > 1) reason = 'duplicate_field';
+    else if (fieldKey === 'br' && hasRatingConfigurations(vehicle)) reason = 'configuration_specific_br_change_required';
     else if (!allowed.has(field.split('.')[0]) || field.split('.').some(part => ['__proto__', 'constructor', 'prototype'].includes(part))) reason = 'unsupported_field';
     else if (!Object.prototype.hasOwnProperty.call(entry, 'old') || !Object.prototype.hasOwnProperty.call(entry, 'new')) reason = 'text_only_or_missing_old_new';
     const current = vehicle ? (field === 'br' || field.startsWith('br.') ? getBR(vehicle, 'current') : pathGet(vehicle, field)) : undefined;
@@ -110,29 +114,59 @@ function opponentWeights(vehicles) {
   return result;
 }
 
-export function matchEnvironment(vehicles, lineup, version, config) {
+export function matchEnvironment(vehicles, lineup, version, config, context = {}) {
   const all = list(vehicles), byId = new Map(all.map(v => [v.id, v]));
   const members = lineup.map(value => typeof value === 'string' ? byId.get(value) : value).filter(Boolean);
-  const known = members.map(v => getBR(v, version)).filter(finite);
+  const ratingOf = v => getBR(v, version, context);
+  const known = members.map(ratingOf).filter(finite);
   const actual_br = known.length ? Math.max(...known) : null;
   const nations = unique(members.map(v => v.nation));
   const invalid = [];
   if (!members.length) invalid.push('empty_lineup');
   if (nations.length > 1) invalid.push('mixed_nations');
-  if (members.some(v => !finite(getBR(v, version)))) invalid.push('unknown_ground_rb');
+  if (members.some(v => !finite(ratingOf(v)))) invalid.push('unknown_ground_rb');
+  if (members.some(v => hasRatingConfigurations(v) && !finite(ratingOf(v))))
+    invalid.push('rating_configuration_selection_required_or_invalid');
   if (members.every(v => v.kind !== 'ground')) invalid.push('requires_ground_vehicle');
   const minimum = finite(actual_br) ? actual_br - config.matching.max_br_spread : null;
   const maximum = finite(actual_br) ? actual_br + config.matching.max_br_spread : null;
-  const opponents = finite(actual_br) ? all.filter(v => !nations.includes(v.nation) && finite(getBR(v, version)) && getBR(v, version) >= minimum - config.matching.epsilon && getBR(v, version) <= maximum + config.matching.epsilon) : [];
-  const carry = finite(actual_br) ? all.filter(v => !nations.includes(v.nation) && finite(getBR(v, version)) && getBR(v, version) < minimum - config.matching.epsilon) : [];
+  const opponents = finite(actual_br) ? all.filter(v => !nations.includes(v.nation)
+    && finite(ratingOf(v)) && ratingOf(v) >= minimum - config.matching.epsilon
+    && ratingOf(v) <= maximum + config.matching.epsilon) : [];
+  const carry = finite(actual_br) ? all.filter(v => !nations.includes(v.nation)
+    && finite(ratingOf(v)) && ratingOf(v) < minimum - config.matching.epsilon) : [];
+  // Do not silently treat an opponent with an unresolved alternate BR as absent.
+  // Future opponent population weighting must be by *vehicle*, then by tier,
+  // rather than multiplying the count of a multi-BR aircraft.
+  const unresolved_opponent_configurations = finite(actual_br) ? all.filter(v =>
+    !nations.includes(v.nation) && hasRatingConfigurations(v) && !finite(ratingOf(v))
+    && (() => {
+      const choices = enumerateRatingConfigurations(v, {mode: 'ground_rb', version});
+      return !choices.length || choices.some(choice =>
+        choice.br >= minimum - config.matching.epsilon && choice.br <= maximum + config.matching.epsilon);
+    })()).map(v => v.id) : [];
+  if (unresolved_opponent_configurations.length)
+    invalid.push('opponent_rating_configuration_unresolved');
   const weights = opponentWeights(opponents);
-  return {actual_br, version, nation: nations.length === 1 ? nations[0] : null, minimum, maximum, opponents, opponent_ids: opponents.map(v => v.id), opponent_weights: Object.fromEntries(weights), lower_carry_count: carry.length, lower_carry_note: config.matching.lower_vehicle_carry_note, excluded_unknown_br: all.filter(v => !nations.includes(v.nation) && !finite(getBR(v, version))).map(v => v.id), valid: !invalid.length, invalid, prior: config.matching.opponent_prior, prior_is_empirical: config.matching.empirical_encounter_frequencies};
+  return {actual_br, version, nation: nations.length === 1 ? nations[0] : null,
+    minimum, maximum, opponents, opponent_ids: opponents.map(v => v.id),
+    opponent_weights: Object.fromEntries(weights),
+    unresolved_opponent_configurations,
+    selected_rating_configurations: Object.fromEntries(members.filter(v => hasRatingConfigurations(v))
+      .map(v => [v.id, context.configuration_by_vehicle?.[v.id] ?? null])),
+    lower_carry_count: carry.length, lower_carry_note: config.matching.lower_vehicle_carry_note,
+    excluded_unknown_br: all.filter(v => !nations.includes(v.nation) && !finite(ratingOf(v))).map(v => v.id),
+    valid: !invalid.length, invalid, prior: config.matching.opponent_prior,
+    prior_is_empirical: config.matching.empirical_encounter_frequencies};
 }
 
 export function validateLoadout(vehicle, loadout, context = {}, config) {
   const errors = [], warnings = [], active_weapons = [];
   if (!loadout) return {valid: false, errors: ['missing_loadout'], warnings, active_weapons};
   if (loadout.legal !== true) errors.push('loadout_legality_unverified');
+  const configured = validateRatingLoadout(vehicle, loadout, context);
+  errors.push(...configured.errors);
+  warnings.push(...configured.warnings);
   const found = (vehicle.loadouts ?? []).find(candidate => candidate.id === loadout.id);
   if (!found || stable(found.weapons) !== stable(loadout.weapons)) errors.push('loadout_not_available_on_vehicle');
   const stations = new Set(), weaponIds = new Set((loadout.weapons ?? []).map(w => w.id));
@@ -158,7 +192,10 @@ export function validateLoadout(vehicle, loadout, context = {}, config) {
   const capacity = loadout.max_payload_kg ?? vehicle.max_payload_kg ?? vehicle.payload_limits?.total_mass_kg;
   if (finite(capacity) && allMassKnown && totalMass > capacity) errors.push('payload_overweight');
   if (!allMassKnown) warnings.push('payload_mass_incomplete');
-  return {valid: !errors.length, errors: unique(errors), warnings: unique(warnings), active_weapons, preset_id: loadout.id, mixed_preset: false};
+  return {valid: !errors.length, errors: unique(errors), warnings: unique(warnings), active_weapons,
+    preset_id: loadout.id, mixed_preset: false,
+    rating_configuration_id: configured.rating.configuration_id,
+    effective_br: configured.rating.br};
 }
 
 function penetrationAt(ammo, distance, angle, config) {
@@ -490,7 +527,10 @@ export function evaluatePair(attacker, target, suppliedContext = {}, config, pro
   const coverage = sum && raw.mission_capability_known !== false ? evidence / sum : 0;
   const resultScore = coverage >= config.pair.minimum_evidence_fraction && raw.mission_capability_known !== false ? score / sum : null;
   const aggregation_weight = roleOf(attacker, config) === 'aa' && roleOf(target, config) === 'aa' ? config.pair.aa_aa_aggregation_weight : config.pair.default_aggregation_weight;
-  return {...raw, attacker_id: attacker.id, target_id: target.id, score: resultScore, lower: sum ? low / sum : 0, upper: sum ? high / sum : 1, coverage, aggregation_weight, weights, missing: unique(raw.missing), conditions: {version: context.version, attacker_configuration: attacker.configuration_id ?? null, target_configuration: target.configuration_id ?? null, ammo_id: raw.ammo_id, loadout_id: raw.loadout_id, physical_distance_m: context.physical_distance_m, aiming_distance_m: context.distance_m, angle_deg: context.angle_deg, skill: context.skill, performance_state: context.performance_state, crew_state: context.crew_state}, model_version: config.model_version, calibration_status: config.calibration_status, score_semantics: 'decision_utility_not_win_probability'};
+  return {...raw, attacker_id: attacker.id, target_id: target.id, score: resultScore, lower: sum ? low / sum : 0, upper: sum ? high / sum : 1, coverage, aggregation_weight, weights, missing: unique(raw.missing), conditions: {version: context.version, attacker_configuration: attacker.configuration_id ?? null, target_configuration: target.configuration_id ?? null,
+    attacker_rating_configuration_id: context.configuration_by_vehicle?.[attacker.id] ?? null,
+    target_rating_configuration_id: context.configuration_by_vehicle?.[target.id] ?? null,
+    ammo_id: raw.ammo_id, loadout_id: raw.loadout_id, physical_distance_m: context.physical_distance_m, aiming_distance_m: context.distance_m, angle_deg: context.angle_deg, skill: context.skill, performance_state: context.performance_state, crew_state: context.crew_state}, model_version: config.model_version, calibration_status: config.calibration_status, score_semantics: 'decision_utility_not_win_probability'};
 }
 
 function summarizeResponses(pairs, config) {
@@ -541,7 +581,7 @@ function airEnvironment(lineup, environment, context, config) {
 
 export function evaluateLineup(vehicles, lineupIds, suppliedContext = {}, config, probabilities = {}) {
   const context = contextOf(suppliedContext, config), all = list(vehicles), byId = new Map(all.map(v => [v.id, v]));
-  const ids = unique(lineupIds), lineup = ids.map(id => byId.get(id)).filter(Boolean), environment = matchEnvironment(all, lineup, context.version, config);
+  const ids = unique(lineupIds), lineup = ids.map(id => byId.get(id)).filter(Boolean), environment = matchEnvironment(all, lineup, context.version, config, context);
   const invalid = [...environment.invalid];
   if (ids.length !== lineupIds.length) invalid.push('duplicate_vehicle_slots');
   if (lineupIds.length > context.slots) invalid.push('slot_limit_exceeded');
@@ -563,7 +603,7 @@ export function evaluateLineup(vehicles, lineupIds, suppliedContext = {}, config
     const balanceLow = duelBalance(ours.lower,theirs.upper,config);
     const balanceHigh = duelBalance(ours.upper,theirs.lower,config);
     const known = finite(ours.score) || finite(theirs.score);
-    opponentResults.push({vehicle_id: enemy.id, br: getBR(enemy, context.version), role: roleOf(enemy, config), score: theirs.score, our_best: ours.score, enemy_best: theirs.score, our_best_vehicle_id: ours.best_id, balance: known ? balance : null, lower: balanceLow, upper: balanceHigh, coverage: (ours.coverage + theirs.coverage) / 2, category: !finite(theirs.score) ? 'unknown' : theirs.score >= config.lineup.threat_thresholds.high ? 'high' : theirs.score >= config.lineup.threat_thresholds.medium ? 'medium' : 'low', prior_weight: environment.opponent_weights[enemy.id]});
+    opponentResults.push({vehicle_id: enemy.id, br: getBR(enemy, context.version, context), role: roleOf(enemy, config), score: theirs.score, our_best: ours.score, enemy_best: theirs.score, our_best_vehicle_id: ours.best_id, balance: known ? balance : null, lower: balanceLow, upper: balanceHigh, coverage: (ours.coverage + theirs.coverage) / 2, category: !finite(theirs.score) ? 'unknown' : theirs.score >= config.lineup.threat_thresholds.high ? 'high' : theirs.score >= config.lineup.threat_thresholds.medium ? 'medium' : 'low', prior_weight: environment.opponent_weights[enemy.id]});
   }
   const tier = {down: [], same: [], up: []};
   for (const row of opponentResults) {
@@ -592,8 +632,11 @@ export function evaluateLineup(vehicles, lineupIds, suppliedContext = {}, config
   const explanations = ['只使用每辆载具自身可用的弹药；自动模式按敌车分层防护选弹，指定弹药时严格按指定项计算。', '对手频率与升降房占比使用明确先验，不代表真实排队分布。', '效用分数越高越有利；不表示胜率、击毁率或保证收益。'];
   if (metrics.known_pair_fraction < 1) explanations.push('配对资料不完整：缺项保留不确定区间，角色完整度仍可用于初步组队。');
   if (air.aircraft_ids.length) explanations.push('航空价值受到合法挂载、重生点可用性和敌方防空条件约束。');
+  if (lineup.some(v => hasRatingConfigurations(v)))
+    explanations.push('自选 BR 配置由玩家显式选择；高级改装解锁不自动改变 BR，受限挂载仍按实际配置核验。');
   if (lineup.some(v => roleOf(v, config) === 'aa')) explanations.push('防空对防空只在整队汇总降权；防空对航空不使用该降权。');
-  return {lineup_ids: ids, nation: environment.nation, version: context.version, br: environment.actual_br, actual_br: environment.actual_br, valid: !invalid.length, invalid: unique(invalid), score: invalid.length ? null : total.value, lower: weighted(lowerMetrics, config.lineup.weights, config.pair.unknown_interval[0]).value, upper: weighted(upperMetrics, config.lineup.weights, config.pair.unknown_interval[1]).value, coverage: metrics.known_pair_fraction, metrics, environment, matrix, reverse_matrix: reverse, threats, advantages, roles: roleList, ammo_choices: ammoChoices, ammo_matchups:Object.fromEntries([...usedAmmo].map(([id,counts])=>[id,Object.fromEntries(counts)])), loadout_choices: loadoutChoices, air, missing: [...missing].sort(), explanations, model_version: config.model_version, calibration_status: config.calibration_status, conditions: {skill: context.skill, distance_m: context.distance_m, physical_distance_m: context.physical_distance_m, angle_deg: context.angle_deg, slots: context.slots, includeSpecial: context.includeSpecial}, scenario_prior: config.lineup.scenario_prior, score_semantics: 'decision_utility_not_win_probability'};
+  return {lineup_ids: ids, nation: environment.nation, version: context.version, br: environment.actual_br, actual_br: environment.actual_br, valid: !invalid.length, invalid: unique(invalid), score: invalid.length ? null : total.value, lower: weighted(lowerMetrics, config.lineup.weights, config.pair.unknown_interval[0]).value, upper: weighted(upperMetrics, config.lineup.weights, config.pair.unknown_interval[1]).value, coverage: metrics.known_pair_fraction, metrics, environment, matrix, reverse_matrix: reverse, threats, advantages, roles: roleList, selected_rating_configurations: environment.selected_rating_configurations,
+    ammo_choices: ammoChoices, ammo_matchups:Object.fromEntries([...usedAmmo].map(([id,counts])=>[id,Object.fromEntries(counts)])), loadout_choices: loadoutChoices, air, missing: [...missing].sort(), explanations, model_version: config.model_version, calibration_status: config.calibration_status, conditions: {skill: context.skill, distance_m: context.distance_m, physical_distance_m: context.physical_distance_m, angle_deg: context.angle_deg, slots: context.slots, includeSpecial: context.includeSpecial}, scenario_prior: config.lineup.scenario_prior, score_semantics: 'decision_utility_not_win_probability'};
 }
 
 function staticVehicleMerit(vehicle, cap, context, config) {
@@ -604,7 +647,7 @@ function staticVehicleMerit(vehicle, cap, context, config) {
   const air = vehicle.kind !== 'ground' ? bestLoadout(vehicle, context, config)?.score ?? null : null;
   const aa = roleOf(vehicle, config) === 'aa' ? aaPotential(vehicle, config).value : null;
   const observed = [mobility, tempo, fire, air, aa].filter(finite);
-  const br_proximity = finite(getBR(vehicle, context.version)) ? clamp(1 - (cap - getBR(vehicle, context.version)) / config.search.lookback_br) : 0;
+  const br_proximity = finite(getBR(vehicle, context.version, context)) ? clamp(1 - (cap - getBR(vehicle, context.version, context)) / config.search.lookback_br) : 0;
   return weighted({coverage: observed.length ? mean(observed) : null, role: 1, br_proximity}, config.search.selection_weights, config.pair.unknown_prior).value;
 }
 function slimEvaluation(result, config) {
@@ -616,8 +659,12 @@ function slimEvaluation(result, config) {
  * and greedy marginal opponent coverage; no global-optimum claim is made. */
 export function recommendNation(vehicles, nation, suppliedContext = {}, config, probabilities = {}) {
   const context = contextOf(suppliedContext, config), all = list(vehicles);
-  const eligible = all.filter(v => v.nation === nation && finite(getBR(v, context.version)) && (context.includeSpecial || v.special !== true) && (!context.availableIds || context.availableIds.includes(v.id)));
-  const caps = getBRs(eligible, nation, context.version), candidates = [], pairs = new Map();
+  const eligible = all.filter(v => v.nation === nation && finite(getBR(v, context.version, context)) && (context.includeSpecial || v.special !== true) && (!context.availableIds || context.availableIds.includes(v.id)));
+  const caps = getBRs(eligible, nation, context.version, context), candidates = [], pairs = new Map();
+  // Explicitly selected configurations only. Variant enumeration in the
+  // recommendation search requires a later, source-backed opponent prior.
+  const unselected_rating_configurations = all.filter(v => v.nation === nation
+    && hasRatingConfigurations(v) && !finite(getBR(v, context.version, context))).map(v => v.id);
   const roleCandidateLimit=Math.max(config.search.candidates_per_role,context.slots);
   const evaluator = (a, b) => {
     const key = `${a.id}|${b.id}`;
@@ -630,14 +677,14 @@ export function recommendNation(vehicles, nation, suppliedContext = {}, config, 
   const cachedContext = {...context, _pairEvaluator: evaluator, includeMatrix: false};
   let tested = 0, pruned = 0;
   for (const cap of caps) {
-    const near = eligible.filter(v => getBR(v, context.version) <= cap + config.matching.epsilon && getBR(v, context.version) >= cap - config.search.lookback_br - config.matching.epsilon);
+    const near = eligible.filter(v => getBR(v, context.version, context) <= cap + config.matching.epsilon && getBR(v, context.version, context) >= cap - config.search.lookback_br - config.matching.epsilon);
     let anchors = near.filter(v => v.kind === 'ground');
     if (!anchors.length) {
-      anchors = eligible.filter(v => v.kind === 'ground' && getBR(v, context.version) <= cap + config.matching.epsilon);
-      const fallback = anchors.slice().sort((a, b) => getBR(b, context.version) - getBR(a, context.version) || a.id.localeCompare(b.id)).slice(0, config.search.candidates_per_role);
+      anchors = eligible.filter(v => v.kind === 'ground' && getBR(v, context.version, context) <= cap + config.matching.epsilon);
+      const fallback = anchors.slice().sort((a, b) => getBR(b, context.version, context) - getBR(a, context.version, context) || a.id.localeCompare(b.id)).slice(0, config.search.candidates_per_role);
       near.push(...fallback);
     }
-    anchors.sort((a, b) => getBR(b, context.version) - getBR(a, context.version) || staticVehicleMerit(b, cap, context, config) - staticVehicleMerit(a, cap, context, config) || a.id.localeCompare(b.id));
+    anchors.sort((a, b) => getBR(b, context.version, context) - getBR(a, context.version, context) || staticVehicleMerit(b, cap, context, config) - staticVehicleMerit(a, cap, context, config) || a.id.localeCompare(b.id));
     if (!anchors.length) continue;
     const byRole = Object.fromEntries(Object.keys(config.roles).map(role => {
       const pool = near.filter(v => roleOf(v, config) === role).sort((a, b) => staticVehicleMerit(b, cap, context, config) - staticVehicleMerit(a, cap, context, config) || a.id.localeCompare(b.id));
@@ -647,7 +694,7 @@ export function recommendNation(vehicles, nation, suppliedContext = {}, config, 
     const variants = [];
     for (const [profile, order] of Object.entries(config.search.profile_orders).slice(0, config.search.variants_per_br)) {
       const selected = [anchors[0]], selectedIds = new Set([anchors[0].id]);
-      const environment = matchEnvironment(all, selected, context.version, config);
+      const environment = matchEnvironment(all, selected, context.version, config, context);
       let index = 0;
       while (selected.length < context.slots) {
         const desired = order[index % order.length];
@@ -665,7 +712,7 @@ export function recommendNation(vehicles, nation, suppliedContext = {}, config, 
             value += marginal * weight * p.aggregation_weight; mass += weight;
           }
           const role = Number(!selected.some(v => roleOf(v, config) === roleOf(candidate, config)));
-          const proximity = clamp(1 - (cap - getBR(candidate, context.version)) / config.search.lookback_br);
+          const proximity = clamp(1 - (cap - getBR(candidate, context.version, context)) / config.search.lookback_br);
           return weighted({coverage: mass ? value / mass : null, role, br_proximity: proximity}, config.search.selection_weights, config.pair.unknown_prior).value;
         };
         const next = pool.map(v => ({v, score: scoreCandidate(v)})).sort((a, b) => b.score - a.score || staticVehicleMerit(b.v, cap, context, config) - staticVehicleMerit(a.v, cap, context, config) || a.v.id.localeCompare(b.v.id))[0].v;
@@ -679,7 +726,8 @@ export function recommendNation(vehicles, nation, suppliedContext = {}, config, 
     candidates.push({...variants[0], alternatives_at_br: variants.slice(1).map(v => ({...v,alternatives_at_br:undefined}))});
   }
   const sorted = candidates.slice().sort((a, b) => (b.score ?? -Infinity) - (a.score ?? -Infinity) || b.coverage - a.coverage || a.actual_br - b.actual_br);
-  return {nation, version: context.version, best: sorted[0] ?? null, alternatives: sorted.slice(1, config.search.alternatives + 1), candidates, search: {algorithm: config.search.algorithm, global_optimum_guaranteed: false, br_caps_scanned: caps, candidates_evaluated: tested, pruned_role_candidates: pruned, eligible_vehicle_count: eligible.length, all_effective_caps_scanned: true, constraints: {slots: context.slots, includeSpecial: context.includeSpecial, availableIds: context.availableIds ?? null}}, model_version: config.model_version, calibration_status: config.calibration_status, conditions: {skill: context.skill, physical_distance_m: context.physical_distance_m, distance_m: context.distance_m, angle_deg: context.angle_deg}};
+  return {nation, version: context.version, best: sorted[0] ?? null, alternatives: sorted.slice(1, config.search.alternatives + 1), candidates, search: {algorithm: config.search.algorithm, global_optimum_guaranteed: false, br_caps_scanned: caps, candidates_evaluated: tested, pruned_role_candidates: pruned, eligible_vehicle_count: eligible.length, all_effective_caps_scanned: unselected_rating_configurations.length === 0,
+    unselected_rating_configurations, automatic_configuration_search: false, constraints: {slots: context.slots, includeSpecial: context.includeSpecial, availableIds: context.availableIds ?? null}}, model_version: config.model_version, calibration_status: config.calibration_status, conditions: {skill: context.skill, physical_distance_m: context.physical_distance_m, distance_m: context.distance_m, angle_deg: context.angle_deg}};
 }
 
 /** Rank every searched composition, including role variants; order does not
@@ -697,9 +745,9 @@ export function topLineups(recommendations, limit=3) {
   }
   return result;
 }
-function lineupSplit(all,applied,ids,config) {
+function lineupSplit(all,applied,ids,config,context = {}) {
   const before=new Map(all.map(v=>[v.id,v])),after=new Map(applied.vehicles.map(v=>[v.id,v]));
-  const member_deltas=ids.map(id=>({id,before:getBR(before.get(id)??{},'current'),after:getBR(after.get(id)??{},'planned')})).filter(row=>finite(row.before)&&finite(row.after)).map(row=>({...row,delta:row.after-row.before}));
+  const member_deltas=ids.map(id=>({id,before:getBR(before.get(id)??{},'current',context),after:getBR(after.get(id)??{},'planned',context)})).filter(row=>finite(row.before)&&finite(row.after)).map(row=>({...row,delta:row.after-row.before}));
   const changed=applied.applied.some(change=>ids.includes(change.vehicle_id)&&change.effective_field==='br.planned');
   const spread=member_deltas.length?Math.max(...member_deltas.map(row=>row.delta))-Math.min(...member_deltas.map(row=>row.delta)):0;
   return {is_split:changed&&spread>config.matching.epsilon,member_deltas};
@@ -710,7 +758,7 @@ export function buildVersionOverview(vehicles,nation,scenario,suppliedContext,co
   const all=list(vehicles),context=contextOf(suppliedContext,config),applied=applyScenario(all,scenario,'planned');
   const current=recommendations.current??recommendNation(all,nation,{...context,version:'current'},config,probabilities);
   const planned=recommendations.planned??recommendNation(applied.vehicles,nation,{...context,version:'planned'},config,probabilities);
-  const affected=topLineups(current,Infinity).map(before=>({before,...lineupSplit(all,applied,before.lineup_ids,config)})).filter(row=>row.is_split);
+  const affected=topLineups(current,Infinity).map(before=>({before,...lineupSplit(all,applied,before.lineup_ids,config,context)})).filter(row=>row.is_split);
   const split_top=affected.slice(0,3).map(({before,member_deltas})=>({before,member_deltas,after_fixed:slimEvaluation(evaluateLineup(applied.vehicles,before.lineup_ids,{...context,version:'planned',includeMatrix:false},config,probabilities),config)}));
   return {nation,planned_top:topLineups(planned),split_top,split_candidate_count:affected.length,split_rank_by:'previous_score',split_definition:'成员 BR 变化不同步，按旧版评分排序；仍可一起编队。',model_version:config.model_version,conditions:planned.conditions,slots:context.slots,simulated:true};
 }
@@ -727,7 +775,7 @@ export function compareVersions(vehicles, lineupIds, scenario, suppliedContext =
   const announcements = [];
   if (finite(before.actual_br) && finite(afterFixed.actual_br) && before.actual_br !== afterFixed.actual_br) announcements.push({type: 'lineup_br_changed', vehicle_ids: lineupIds, nation, old_br: before.actual_br, new_br: afterFixed.actual_br, message: `原成员组合最高 BR 由 ${before.actual_br} 变为 ${afterFixed.actual_br}。成员仍可一起编队，但匹配成本发生变化。`, action: 'compare_keep_members_or_reoptimize'});
   const changes = applied.applied.filter(change => lineupIds.includes(change.vehicle_id));
-  const split=lineupSplit(all,applied,lineupIds,config);
+  const split=lineupSplit(all,applied,lineupIds,config,suppliedContext);
   if (split.is_split) announcements.push({type: 'lineup_split', nation, vehicle_ids: split.member_deltas.map(item=>item.id), member_deltas: split.member_deltas, message: '原队列成员 BR 变化不同步；可保留全组合或替换上调幅度较大的成员。', action: 'compare_ground_only_or_replace_aircraft'});
   if (entered.length || left.length) announcements.push({type: 'opponent_boundary_change', nation, vehicle_ids: [...entered, ...left], entered, left, message: '敌我双方按方案版重新计算，主力匹配对手发生进出。离开主力区间的低 BR 载具仍可能被更高队列携带。', action: 'inspect_matrix'});
   const oldAA = new Set(before.air.enemy_aa_ids), newAA = new Set(afterFixed.air.enemy_aa_ids);

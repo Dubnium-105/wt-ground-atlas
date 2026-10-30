@@ -12,7 +12,7 @@
 
 ## 数据与模型契约
 
-[来源](SOURCES.md) · [客户端后端](CLIENT_BACKEND.md) · [离线流水线](PIPELINE.md) · [集成契约](INTEGRATION_CONTRACT.md) · [概率二进制](PROBABILITY_CONTRACT.md) · [决策概率摘要](DECISION_PROBABILITIES.md) · [决策引擎](DECISION_ENGINE.md) · [字体许可](FONT_LICENSE.md)
+[来源](SOURCES.md) · [客户端后端](CLIENT_BACKEND.md) · [离线流水线](PIPELINE.md) · [集成契约](INTEGRATION_CONTRACT.md) · [概率二进制](PROBABILITY_CONTRACT.md) · [决策概率摘要](DECISION_PROBABILITIES.md) · [决策引擎](DECISION_ENGINE.md) · [自选 BR 与挂载配置架构](CUSTOM_BR_ARCHITECTURE.md) · [字体许可](FONT_LICENSE.md)
 
 ## 历史记录
 
