@@ -1,11 +1,21 @@
 {
-  "schema_version":"1.0.0",
-  "base_url":"http://127.0.0.1:8765/",
-  "desktop":{"width":1440,"height":1000},
-  "mobile":{"width":390,"height":844},
-  "timeout_ms":60000,
-  "memory_sample_interval_ms":250,
-  "screenshot_directory":"reports/screenshots",
-  "resource_budget":{"core_gzip_bytes":1000000,"default_data_gzip_bytes":2000000},
-  "probability_mass_tolerance":0.000001
+  "schema_version": "1.0.0",
+  "base_url": "http://127.0.0.1:8765/",
+  "desktop": {
+    "width": 1440,
+    "height": 1000
+  },
+  "mobile": {
+    "width": 390,
+    "height": 844
+  },
+  "timeout_ms": 60000,
+  "memory_sample_interval_ms": 250,
+  "screenshot_directory": "reports/screenshots",
+  "resource_budget": {
+    "core_gzip_bytes": 1000000,
+    "default_data_gzip_bytes": 2000000
+  },
+  "probability_mass_tolerance": 1e-06,
+  "large_catalog_timeout_ms": 300000
 }

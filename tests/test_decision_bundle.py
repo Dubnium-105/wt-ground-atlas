@@ -51,7 +51,7 @@ const config = JSON.parse(fs.readFileSync(process.argv[1], 'utf8'));
 process.stdout.write(aimContextKey({}, config));
 """
             aim_key = subprocess.run([node, '--input-type=module', '-e', aim_script, str(config_path)],
-                                     cwd=PROJECT, check=True, capture_output=True, text=True).stdout
+                                     cwd=PROJECT, check=True, capture_output=True, text=True, encoding='utf-8').stdout
             exact = {
                 'id': 'verified-test-record', 'target_id': 'synthetic_ussr_0',
                 'configuration_id': 'synthetic_ussr_0', 'ammo_id': 'synthetic_usa_0_round',
@@ -67,7 +67,7 @@ process.stdout.write(aimContextKey({}, config));
                            'research_detail': 'R' * 4096} for i in range(512)]
             source = {
                 'schema_version': '1.0.0', 'model_version': 'synthetic-physics',
-                'decision_model_version': json.loads(config_path.read_text())['model_version'],
+                'decision_model_version': json.loads(config_path.read_text(encoding="utf-8"))['model_version'],
                 'records': [*references, exact],
                 'entries': [{'id': f'research-{i}', 'target_id': 'synthetic_ussr_0', 'shards': ['unused'] * 30}
                             for i in range(512)],
@@ -82,9 +82,9 @@ process.stdout.write(aimContextKey({}, config));
             with contextlib.redirect_stdout(io.StringIO()):
                 self.builder.build(root)
             site = root / 'dist/site'
-            manifest = json.loads((site / 'data/manifest.json').read_text())
+            manifest = json.loads((site / 'data/manifest.json').read_text(encoding="utf-8"))
             published_path = site / manifest['decision_probabilities']['url']
-            runtime = json.loads(published_path.read_text())
+            runtime = json.loads(published_path.read_text(encoding="utf-8"))
             self.assertLess(published_path.stat().st_size, 4096)
             self.assertEqual(runtime['records'], [exact])
             self.assertEqual(runtime['entries'], [{'target_id': 'synthetic_ussr_0'}])
@@ -116,7 +116,7 @@ for (const context of [{}, {physical_distance_m:2000}, {skill:1}, {angle_deg:90}
 console.log('Exact, unmatched and unowned-ammo results match the original research bundle.');
 """
             subprocess.run([node, '--input-type=module', '-e', parity_script, str(root), str(published_path)],
-                           cwd=PROJECT, check=True, capture_output=True, text=True)
+                           cwd=PROJECT, check=True, capture_output=True, text=True, encoding='utf-8')
 
             # Even an omitted research record is still part of input identity:
             # a new source requires rebuilt recommendations before publication.

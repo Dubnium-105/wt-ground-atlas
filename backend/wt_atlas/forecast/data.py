@@ -5,6 +5,7 @@ import copy
 import hashlib
 import json
 import math
+import zipfile
 from pathlib import Path
 from typing import Any
 
@@ -34,7 +35,7 @@ def number(value: Any) -> bool:
 
 
 def safe_file(root: Path, name: str) -> Path:
-    if not isinstance(name, str) or not name or "\\" in name:
+    if not isinstance(name, str) or not name or "\\" in name or ":" in name or "%" in name:
         raise ValueError("Invalid relative file")
     relative = Path(name)
     if relative.is_absolute() or ".." in relative.parts:
@@ -133,12 +134,26 @@ def validate_config(c: dict) -> None:
     for s in scenarios:
         for key in ("weight", "physical_distance_m", "aiming_distance_m", "horizon_s", "approach_m", "cover_distance_m", "hull_offset_deg"):
             if not number(s[key]) or s[key] < 0: raise ValueError("Invalid scenario " + key)
-        if s["horizon_s"] <= 0 or not 0 <= s["yaw_deg"] < 360: raise ValueError("Invalid scenario bounds")
+        if s["horizon_s"] <= 0 or not number(s['yaw_deg']) or not 0 <= s["yaw_deg"] < 360: raise ValueError("Invalid scenario bounds")
         for key in ("target_velocity_xy_m_s", "own_velocity_xy_m_s", "target_angular_velocity_xy_rad_s"):
             if len(s[key]) != 2 or not all(number(v) for v in s[key]): raise ValueError("Invalid motion vector")
         if c["publication"]["require_consistent_distance"] and s["physical_distance_m"] != s["aiming_distance_m"]:
             raise ValueError("Ranking cannot substitute aiming distance for physical distance")
     if not math.isclose(sum(s["weight"] for s in scenarios), 1): raise ValueError("Scenario weights must sum to one")
+    def positive_int(value):
+        return isinstance(value,int) and not isinstance(value,bool) and value>0
+    for profile in [*c.get('skill_profiles',{}).values(),c.get('opponent_population',p)]:
+        if profile.get('distribution')!='normal_assumption' or not number(profile.get('mean')) or not number(profile.get('sd')) or profile['sd']<0 or not positive_int(profile.get('nodes')) or profile['nodes']>15:raise ValueError('Invalid skill profile')
+    sampler=rules.get('lineup_sampler',{})
+    if sampler and (not isinstance(sampler.get('enabled'),bool) or not positive_int(sampler.get('samples')) or not positive_int(sampler.get('slots')) or sampler['slots']>10 or not isinstance(sampler.get('seed'),int)):raise ValueError('Invalid lineup sampler')
+    for profile in c.get('task_profiles',{}).values():
+        weights=profile.get('phase_weights',[])
+        if not weights or len(weights)!=len(profile.get('phases',[])) or any(not number(w) or w<0 for w in weights) or not math.isclose(sum(weights),1):raise ValueError('Invalid task profile')
+    if any(not positive_int(v) for v in c['publication'].get('budgets',{}).values()):raise ValueError('Invalid publication budget')
+    stats=c.get('statistics')
+    if stats:
+        if any(not positive_int(stats[k]) for k in ('minimum_samples','max_iterations','bins','bootstrap_draws')) or any(not number(stats[k]) or not 0<stats[k]<1 for k in ('train_fraction','validation_fraction')) or stats['train_fraction']+stats['validation_fraction']>=1 or not number(stats['shrinkage']) or stats['shrinkage']<0:raise ValueError('Invalid statistics settings')
+    if search.get('br_range') and (len(search['br_range'])!=2 or any(not number(x) for x in search['br_range']) or search['br_range'][0]>search['br_range'][1]):raise ValueError('Invalid BR range')
 
 
 def taxonomy(v: dict) -> dict:
@@ -221,8 +236,9 @@ def patch_catalog(catalog: dict, patch: dict | None) -> tuple[dict, list[dict]]:
 
 class Atlas:
     """Index small metadata, load exactly one map on demand. No reference-slice fallback."""
-    def __init__(self, root: Path, ammunition: Path, catalog: dict):
+    def __init__(self, root: Path, ammunition: Path, catalog: dict, *, index=None, memory_budget=512 * 1024**2):
         self.root = root.resolve()
+        self.memory_budget = memory_budget
         raw = read_json(ammunition)
         if not isinstance(raw, list): raise ValueError("Ammunition must be an array")
         self.profiles = {a["name"]: a for a in raw}
@@ -233,9 +249,13 @@ class Atlas:
                 raise ValueError("Unsafe nation/shard identity")
         self.catalog = {v["id"]: v for v in catalog["vehicles"]}
         if len(self.catalog) != len(catalog["vehicles"]): raise ValueError("Duplicate catalog vehicle")
+        self._binding_index = {}
+        for profile in self.profiles.values():
+            for ammo_id in profile.get("provenance", {}).get("penetration_source_ammo_ids", []):
+                self._binding_index.setdefault(ammo_id, []).append(profile)
         self.meta = {}
         self.lookup = {}
-        for path in sorted((self.root / "arrays").glob("*.json")):
+        for path in ([] if index is not None else sorted((self.root / "arrays").glob("*.json"))):
             item = read_json(path)
             for key in ("map_id", "target_id", "target_sha256", "ammo_id", "ammo_profile_sha256",
                         "source_version", "datamine_commit", "array_file", "array_sha256"):
@@ -246,6 +266,8 @@ class Atlas:
             provenance = profile.get("provenance", {})
             if provenance.get("client_version") != item["source_version"] or provenance.get("datamine_commit") != item["datamine_commit"]:
                 raise ValueError("Map/profile version mismatch")
+            if profile.get("mode") not in ("KE", "CE") or item.get("reference_only") or profile.get("reference_only"):
+                raise ValueError("Unsupported/reference-only ammunition")
             if not number(profile.get("distance_m")) or profile["distance_m"] < 0: raise ValueError("Unknown map physical distance")
             key = (item["target_id"], item["ammo_id"], profile["distance_m"])
             if key in self.lookup or item["map_id"] in self.meta: raise ValueError("Ambiguous physical map identity")
@@ -262,7 +284,9 @@ class Atlas:
             item.pop("images", None)  # PNG paths never enter physics or offline memory indices.
             self.meta[item["map_id"]] = item
             self.lookup[key] = item["map_id"]
-        if not self.meta: raise ValueError("No V2 map metadata under atlas/arrays")
+        if index is not None:
+            self.meta, self.lookup = index.metadata, index.lookup
+        elif not self.meta: raise ValueError("No V2 map metadata under atlas/arrays")
         self._loaded_id = None
         self._loaded = None
         self.loads = 0
@@ -285,6 +309,10 @@ class Atlas:
         source = self.verify(map_id)
         if self._loaded_id == map_id: return self._loaded
         m = self.meta[map_id]
+        with zipfile.ZipFile(source) as archive:
+            names = archive.namelist()
+            if len(names) != len(set(names)) or sum(i.file_size for i in archive.infolist()) > self.memory_budget:
+                raise ValueError("NPZ duplicate member or expanded memory budget exceeded")
         with np.load(source, allow_pickle=False) as packet:
             data = {k: packet[k] for k in ("penetration_probability", "status", "material_response_flags",
                     "angles_deg", "pixel_pitch_m", "top_y_m", "bottom_y_m", "world_width_m")}
@@ -299,10 +327,14 @@ class Atlas:
             raise ValueError("Invalid conditional probabilities")
         pitch = float(data["pixel_pitch_m"])
         if not math.isfinite(pitch) or pitch <= 0: raise ValueError("Invalid pixel pitch")
+        if any(np.asarray(data[k]).ndim != 0 or not np.isfinite(data[k]) for k in ("pixel_pitch_m", "top_y_m", "bottom_y_m", "world_width_m")):
+            raise ValueError("Invalid scalar map coordinates")
         if not math.isclose(float(data["world_width_m"]), p.shape[2] * pitch, abs_tol=1e-6) or not math.isclose(float(data["top_y_m"] - data["bottom_y_m"]), p.shape[1] * pitch, abs_tol=1e-6):
             raise ValueError("Map coordinate bounds mismatch")
         if "status_counts" in m and any(int(np.count_nonzero(s == int(k))) != count for k, count in m["status_counts"].items()):
             raise ValueError("Status count audit mismatch")
+        if m.get("angles_deg") is not None and angles.tolist() != m["angles_deg"]:
+            raise ValueError("Exact angle metadata mismatch")
         self._loaded_id, self._loaded = map_id, data
         self.loads += 1
         return data
@@ -310,9 +342,10 @@ class Atlas:
     def bindings(self, vehicle: dict) -> list[tuple[dict, dict]]:
         result = []
         for ammo in vehicle.get("ammo", []):
-            for p in self.profiles.values():
+            for p in self._binding_index.get(ammo["id"], []):
                 if ammo["id"] in p.get("provenance", {}).get("penetration_source_ammo_ids", []):
                     client = vehicle.get("source_attributes", {}).get("client", {})
                     if client.get("source_version") != p["provenance"].get("client_version"): continue
+                    if p.get("mode") not in ("KE", "CE") or p.get("reference_only"): continue
                     result.append((ammo, p))
         return result

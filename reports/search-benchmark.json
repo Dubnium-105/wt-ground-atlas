@@ -1,0 +1,354 @@
+{
+  "data_kind": "synthetic_only",
+  "global_optimum_claimed": false,
+  "metadata": [
+    {
+      "cold": {
+        "metadata_cpu_seconds": 0.65625,
+        "metadata_rebuilt": 1000,
+        "metadata_seconds": 3.4202676999848336
+      },
+      "duration_seconds": 4.01407619996462,
+      "index_bytes": 1622016,
+      "npz_loads": 3,
+      "objects": 1000,
+      "resources": {
+        "cpu_seconds": 1.734375,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+        "peak_rss_bytes": 66285568
+      },
+      "selected_maps": 1000,
+      "warm": {
+        "incremental_hits": 1000,
+        "metadata_cpu_seconds": 0.5625,
+        "metadata_seconds": 0.5834259000839666
+      }
+    },
+    {
+      "cold": {
+        "metadata_cpu_seconds": 8.03125,
+        "metadata_rebuilt": 10000,
+        "metadata_seconds": 34.08380619995296
+      },
+      "duration_seconds": 39.98977629991714,
+      "index_bytes": 16060416,
+      "npz_loads": 3,
+      "objects": 10000,
+      "resources": {
+        "cpu_seconds": 18.328125,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+        "peak_rss_bytes": 90353664
+      },
+      "selected_maps": 10000,
+      "warm": {
+        "incremental_hits": 10000,
+        "metadata_cpu_seconds": 5.78125,
+        "metadata_seconds": 5.836653599981219
+      }
+    }
+  ],
+  "real_116k_throughput": null,
+  "resources": {
+    "cpu_seconds": 19.75,
+    "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+    "peak_rss_bytes": 90353664
+  },
+  "schema_version": "1.0.0",
+  "search": [
+    {
+      "best": 30.918843741148706,
+      "budget": 1,
+      "evaluations": 1,
+      "optimality_gap": 19.387437505900863,
+      "oracle": 50.30628124704957,
+      "seconds": 0.002968599903397262,
+      "seed": 17,
+      "truncated": true
+    },
+    {
+      "best": 30.918843741148706,
+      "budget": 1,
+      "evaluations": 1,
+      "optimality_gap": 19.387437505900863,
+      "oracle": 50.30628124704957,
+      "seconds": 0.002897700062021613,
+      "seed": 105,
+      "truncated": true
+    },
+    {
+      "best": 50.30628124704957,
+      "budget": 4,
+      "evaluations": 3,
+      "optimality_gap": 0.0,
+      "oracle": 50.30628124704957,
+      "seconds": 0.0058874000096693635,
+      "seed": 17,
+      "truncated": false
+    },
+    {
+      "best": 50.30628124704957,
+      "budget": 4,
+      "evaluations": 3,
+      "optimality_gap": 0.0,
+      "oracle": 50.30628124704957,
+      "seconds": 0.006250299979001284,
+      "seed": 105,
+      "truncated": false
+    },
+    {
+      "best": 50.30628124704957,
+      "budget": 64,
+      "evaluations": 3,
+      "optimality_gap": 0.0,
+      "oracle": 50.30628124704957,
+      "seconds": 0.0061144999926909804,
+      "seed": 17,
+      "truncated": false
+    },
+    {
+      "best": 50.30628124704957,
+      "budget": 64,
+      "evaluations": 3,
+      "optimality_gap": 0.0,
+      "oracle": 50.30628124704957,
+      "seconds": 0.005790600087493658,
+      "seed": 105,
+      "truncated": false
+    }
+  ],
+  "real_data_runs": {
+    "initial_metadata_inventory": {
+      "status": "blocked",
+      "blockers": [
+        "incomplete_bidirectional_native_coverage",
+        "arrays_not_fully_verified"
+      ],
+      "inventory": {
+        "metadata_objects": 220202,
+        "selected_maps": 97421,
+        "verified_arrays": 0,
+        "selected_array_bytes": 16853831074,
+        "status_counts": {
+          "metadata_valid": 97421,
+          "rejected": 122781
+        },
+        "rejections": {
+          "distance_missing": 19395,
+          "profile_hash_mismatch": 103263,
+          "profile_missing": 123
+        },
+        "ambiguous_maps": 0,
+        "content_sha256": "a8395440b60363796c4dfcbd46da89cc915723b6f4adfa651ad478bf910f0727",
+        "metrics": {
+          "metadata_rebuilt": 97421,
+          "rejected": 122781,
+          "metadata_seconds": 883.7060080000665,
+          "metadata_cpu_seconds": 211.484375
+        }
+      },
+      "duration_seconds": 889.0534299000865
+    },
+    "full_array_preflight": {
+      "ambiguous_maps": 0,
+      "binding_count": 1226,
+      "binding_errors": [],
+      "content_sha256": "4d55a4a246e5df20d1d3cf5fb7f9f36f3325f5d849b03211fa7ce1626bd61732",
+      "duration_seconds": 390.99986790004186,
+      "metadata_objects": 220202,
+      "metrics": {
+        "array_seconds": 360.61779739998747,
+        "arrays_checked": 97421,
+        "memory_budget_bytes": 1610612736,
+        "workers": 6
+      },
+      "rejections": {
+        "distance_missing": 19395,
+        "profile_hash_mismatch": 103263,
+        "profile_missing": 123
+      },
+      "selected_array_bytes": 16853831074,
+      "selected_maps": 97421,
+      "status_counts": {
+        "rejected": 122781,
+        "verified": 97421
+      },
+      "verified_arrays": 97421
+    },
+    "initial_end_to_end": {
+      "build_key": "f3225b99a26269b010873bed358e4899657d323fd15fa47de00e960e88259f5b",
+      "catalog_vehicles": 2679,
+      "maps": 97421,
+      "diagnostic_rows": 0,
+      "cache_hits": 6326,
+      "cache_misses": 19123,
+      "npz_loads": 19037,
+      "ranked_counts": {
+        "current": 0
+      },
+      "evaluations": {
+        "current": 1410
+      },
+      "research_counts": {
+        "current": 0
+      },
+      "duration_seconds": 1805.0065452000126,
+      "publication": "conditional_research_only"
+    },
+    "previous_warm_build": {
+      "build_key": "d4814526e594d7e6b730075bc71f546c1b75b2964e04f6de386debcf7e492187",
+      "catalog_vehicles": 2679,
+      "maps": 97421,
+      "diagnostic_rows": 0,
+      "cache_hits": 25449,
+      "cache_misses": 0,
+      "npz_loads": 0,
+      "ranked_counts": {
+        "current": 0
+      },
+      "evaluations": {
+        "current": 1410
+      },
+      "research_counts": {
+        "current": 0
+      },
+      "duration_seconds": 1435.0156436000252,
+      "resources": {
+        "peak_rss_bytes": 756817920,
+        "cpu_seconds": 369.4375,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
+      },
+      "publication": "conditional_research_only"
+    },
+    "final_frozen_code_build": {
+      "build_key": "3a389aaae149267783b68b9246fc5af627999429c2233ce19baf9cc311d6a42f",
+      "catalog_vehicles": 2679,
+      "maps": 97421,
+      "diagnostic_rows": 0,
+      "cache_hits": 0,
+      "cache_misses": 0,
+      "npz_loads": 0,
+      "ranked_counts": {
+        "current": 0
+      },
+      "evaluations": {
+        "current": 1410
+      },
+      "search_execution": {
+        "current": {
+          "restored_tables": 716,
+          "computed_tables": 0,
+          "new_evaluations": 0,
+          "restored_evaluations": 1410
+        }
+      },
+      "research_counts": {
+        "current": 0
+      },
+      "duration_seconds": 1790.5400995999807,
+      "resources": {
+        "peak_rss_bytes": 755965952,
+        "cpu_seconds": 376.984375,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
+      },
+      "publication": "conditional_research_only",
+      "measurement_context": "concurrent full legacy research regeneration"
+    },
+    "static_product": {
+      "static_total_bytes": 76950842,
+      "static_published_file_count": 5446,
+      "probability_mode": "disabled",
+      "budgets": {
+        "site_bytes": 104857600,
+        "file_bytes": 26214400
+      },
+      "build_key": "3a389aaae149267783b68b9246fc5af627999429c2233ce19baf9cc311d6a42f",
+      "research": {
+        "url": "research/index.html",
+        "status": "available",
+        "manifest_sha256": "a4859e4721a493037449dd2e1e2b43cb71944ab7ae67bd6e382e3ab050708fab",
+        "source_manifest_sha256": "f7fac16167477134ac0587ad544ce4cf9f19cf89fe9ded196e207757680f9aad"
+      }
+    },
+    "browser": {
+      "checks": [
+        "same-build identity and no initial raw physics requests",
+        "truthful source coverage and publication gate",
+        "mobile layout",
+        "real research drilldown",
+        "no page exceptions"
+      ],
+      "build_key": "3a389aaae149267783b68b9246fc5af627999429c2233ce19baf9cc311d6a42f",
+      "source_vehicles": 2679,
+      "source_maps": 97421,
+      "ready_ms": 101.40329999999994,
+      "first_load_transfer_bytes": 251536,
+      "page_errors": [],
+      "status": "passed"
+    },
+    "measurement_limit": "Wall time is end-to-end including repeated source checks; process RSS excludes workers. Synthetic 1k/10k indexing is separate from the actual 220202-object scan. Real audit uses bounded search and proves no global optimum.",
+    "baseline_09e431a_build": {
+      "build_key": "d4814526e594d7e6b730075bc71f546c1b75b2964e04f6de386debcf7e492187",
+      "catalog_vehicles": 2679,
+      "maps": 97421,
+      "diagnostic_rows": 0,
+      "cache_hits": 0,
+      "cache_misses": 0,
+      "npz_loads": 0,
+      "ranked_counts": {
+        "current": 0
+      },
+      "evaluations": {
+        "current": 1410
+      },
+      "research_counts": {
+        "current": 0
+      },
+      "duration_seconds": 1442.9516759000253,
+      "resources": {
+        "peak_rss_bytes": 756023296,
+        "cpu_seconds": 281.046875,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
+      },
+      "publication": "conditional_research_only",
+      "evaluation_semantics": "Final resume restored complete search tables after source validation. evaluations=1410 describes saved tables, not 1410 new evaluations this run; shot hits/misses/array decodes are zero.",
+      "restored_search_tables": 716
+    }
+  },
+  "environment": {
+    "cpu": {
+      "Name": "AMD Ryzen 7 9700X 8-Core Processor             ",
+      "NumberOfCores": 8,
+      "NumberOfLogicalProcessors": 16
+    },
+    "memory": {
+      "TotalPhysicalMemory": 50588905472
+    },
+    "os": "Microsoft Windows NT 10.0.19045.0"
+  },
+  "offline_disk_bytes": {
+    "forecast-inventory.sqlite": 275550208,
+    "real-audit-shots.sqlite": 136880128
+  },
+  "native_range_generation": [
+    {
+      "computed_maps": 3,
+      "source_npz_probability_maps_read": 0,
+      "duration_seconds": 11.178416699985974,
+      "resources": {
+        "peak_rss_bytes": 534900736,
+        "cpu_seconds": 11.34375,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
+      }
+    },
+    {
+      "computed_maps": 3,
+      "source_npz_probability_maps_read": 0,
+      "duration_seconds": 7.5959825000027195,
+      "resources": {
+        "peak_rss_bytes": 448991232,
+        "cpu_seconds": 7.703125,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
+      }
+    }
+  ]
+}

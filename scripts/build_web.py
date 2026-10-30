@@ -49,7 +49,7 @@ def _assemble(root: Path, web: Path, mode: str, base_url: str, settings: dict):
     changes=load(changes_path);model=load(root/'config/model.json');ui=load(root/'config/ui.json')
     index_fields=('id','name','nation','kind','role','rank','branch','folder','folder_members','predecessors','special','br','br_source_mode','image_url','wiki_url','configuration_id','equivalence_group','equivalence_verified')
     index_vehicles=[{key:vehicle.get(key) for key in index_fields} for vehicle in catalog['vehicles']]
-    light_fields=(*index_fields,'mobility','firepower','protection','sensors','air_defence','auxiliary','ammo','loadouts','hardpoints','payload_limits','max_payload_kg','system_id','system_role','multi_vehicle_system','configuration_version','geometry_version','source_version')
+    light_fields=(*index_fields,'mobility','firepower','protection','sensors','air_defence','auxiliary','ammo','loadouts','weapon_profiles','hardpoints','payload_limits','max_payload_kg','system_id','system_role','multi_vehicle_system','configuration_version','geometry_version','source_version')
     engine_vehicles=[]
     for vehicle in catalog['vehicles']:
         item={key:vehicle.get(key) for key in light_fields if key in vehicle}

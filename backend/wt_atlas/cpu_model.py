@@ -114,6 +114,12 @@ class PreparedLayers:
         curve = np.asarray(ammo.get('normalized_distance_curve', []), np.float32).reshape(-1, 2)
         if len(curve) and (not np.isfinite(curve).all() or np.any(np.diff(curve[:, 0]) <= 0) or np.any(np.diff(curve[:, 1]) > 0)):
             raise ValueError('Distance curve must be finite and monotone')
+        impact_distance = ammo.get('impact_distance_m')
+        if impact_distance is not None:
+            if (isinstance(impact_distance, bool) or not isinstance(impact_distance,(int,float)) or
+                not np.isfinite(impact_distance) or ammo['mode']!='KE' or len(curve)<2 or
+                not curve[0,0]<=impact_distance<=curve[-1,0]):
+                raise ValueError('Impact distance requires a supported KE source curve')
         selected = np.arange(self.n) if ray_ids is None else np.asarray(ray_ids, np.int64)
         if np.any((selected < 0) | (selected >= self.n)):
             raise ValueError('Selected ray ID outside grid')
@@ -208,17 +214,24 @@ class PreparedLayers:
         else:
             prob = (penetration >= cost).astype(np.float32)
         if ammo['mode'] == 'KE' and len(curve) > 1:
+            # New explicit profiles anchor the supplied range at the first armor
+            # intersection. Legacy profiles retain their exact old coordinates.
+            coordinates = entry
+            if ammo.get('impact_distance_m') is not None:
+                first = np.min(np.where(armor, entry, np.inf), axis=1)
+                first = np.where(np.isfinite(first), first, F(0))
+                coordinates = entry - first[:, None] + F(ammo['impact_distance_m'])
             def reaches(initial):
                 shift = np.zeros(number, np.float32); survives = np.ones(number, bool)
                 for step in range(depth):
                     include = armor[:, step] & (charges[:, step] > 0) & survives
                     if not include.any(): continue
-                    multiplier = _curve(curve, entry[:, step] + shift)
+                    multiplier = _curve(curve, coordinates[:, step] + shift)
                     remaining = initial * multiplier - charges[:, step]
                     survives &= ~include | (remaining > 0)
                     ratio = np.divide(remaining, initial, out=np.zeros_like(remaining), where=initial > 0)
                     inv = np.interp(ratio, curve[::-1, 1], curve[::-1, 0]).astype(np.float32)
-                    next_shift = inv - entry[:, step]
+                    next_shift = inv - coordinates[:, step]
                     shift = np.where(include & (next_shift > shift), next_shift, shift)
                 return survives
             low = np.full(number, penetration - variation, np.float32)

@@ -8,9 +8,10 @@ import {fileURLToPath} from 'node:url';
 const require=createRequire(import.meta.url);
 const {chromium}=require('playwright');
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const dataRoot=process.env.GROUNDOPS_DATA_ROOT||root;
 const qa=JSON.parse(await fs.readFile(path.join(root,'config/qa.json'),'utf8'));
-const config=JSON.parse(await fs.readFile(path.join(root,'config/model.json'),'utf8'));
-const catalog=JSON.parse(await fs.readFile(path.join(root,'data/snapshots/catalog.json'),'utf8'));
+const config=JSON.parse(await fs.readFile(path.join(dataRoot,'config/model.json'),'utf8'));
+const catalog=JSON.parse(await fs.readFile(path.join(dataRoot,'data/snapshots/catalog.json'),'utf8'));
 const base=process.env.GROUNDOPS_TEST_URL||qa.base_url;
 const screenshots=path.join(root,qa.screenshot_directory);await fs.mkdir(screenshots,{recursive:true});
 const results=[],requests=[],failures=[],pageErrors=[];
@@ -25,14 +26,14 @@ async function sampleMemory(){
 const memoryTimer=setInterval(sampleMemory,qa.memory_sample_interval_ms);
 const context=await browser.newContext({viewport:qa.desktop,deviceScaleFactor:1});
 await context.route('https://**/*',route=>route.abort());
-const page=await context.newPage();page.setDefaultTimeout(qa.timeout_ms);
+const page=await context.newPage();page.setDefaultTimeout(dataRoot===root?qa.timeout_ms:qa.large_catalog_timeout_ms);
 page.on('pageerror',error=>pageErrors.push(error.message));
 page.on('request',request=>requests.push({url:request.url(),method:request.method(),kind:request.resourceType()}));
 page.on('response',response=>{if(response.status()>=400&&response.url().startsWith(base))failures.push({url:response.url(),status:response.status()});});
 const run=async(name,task)=>{const start=performance.now();try{await task();results.push({name,status:'passed',elapsed_ms:performance.now()-start});console.log(`PASS ${name}`);}catch(error){results.push({name,status:'failed',message:error.message,elapsed_ms:performance.now()-start});throw error;}};
 let firstLoadResources,firstLoadNavigation,firstLoadMemory,initial,cachedFilterPaintMs;
 const lineupKey=ids=>[...ids].sort().join('|');
-async function expectedTop(nation,version){const rec=JSON.parse(await fs.readFile(path.join(root,`data/derived/recommendations/${nation}.${version}.json`),'utf8'));const rows=rec.candidates.flatMap(c=>[c,...c.alternatives_at_br]).sort((a,b)=>b.score-a.score||b.coverage-a.coverage||a.actual_br-b.actual_br||lineupKey(a.lineup_ids).localeCompare(lineupKey(b.lineup_ids)));return [...new Map(rows.filter(c=>c.valid&&Number.isFinite(c.score)).map(c=>[lineupKey(c.lineup_ids),c])).values()].sort((a,b)=>b.score-a.score||b.coverage-a.coverage||a.actual_br-b.actual_br||lineupKey(a.lineup_ids).localeCompare(lineupKey(b.lineup_ids))).slice(0,3);}
+async function expectedTop(nation,version){const rec=JSON.parse(await fs.readFile(path.join(dataRoot,`data/derived/recommendations/${nation}.${version}.json`),'utf8'));const rows=rec.candidates.flatMap(c=>[c,...c.alternatives_at_br]).sort((a,b)=>b.score-a.score||b.coverage-a.coverage||a.actual_br-b.actual_br||lineupKey(a.lineup_ids).localeCompare(lineupKey(b.lineup_ids)));return [...new Map(rows.filter(c=>c.valid&&Number.isFinite(c.score)).map(c=>[lineupKey(c.lineup_ids),c])).values()].sort((a,b)=>b.score-a.score||b.coverage-a.coverage||a.actual_br-b.actual_br||lineupKey(a.lineup_ids).localeCompare(lineupKey(b.lineup_ids))).slice(0,3);}
 async function navigateTo(view){
   const link=page.locator(`#navigation [data-view="${view}"]`);
   if(!await link.isVisible()){
@@ -166,9 +167,9 @@ try{
     const data=await page.evaluate(()=>({state:window.__GROUNDOPS__.getState(),diag:window.__GROUNDOPS__.getDiagnostics()}));
     assert.equal(data.diag.lineup.valid,true);assert.ok(data.diag.lineup.pairs>0);assert.equal(data.diag.lineup.pairs,data.diag.lineup.reverse_pairs);
     const actual=Math.max(...data.state.lineup.map(id=>catalog.vehicles.find(v=>v.id===id).br.current));assert.equal(data.diag.lineup.actual_br,actual);
-    const offline=JSON.parse(await fs.readFile(path.join(root,`data/derived/recommendations/${data.state.nation}.current.json`),'utf8'));
+    const offline=JSON.parse(await fs.readFile(path.join(dataRoot,`data/derived/recommendations/${data.state.nation}.current.json`),'utf8'));
     const match=offline.candidates.flatMap(c=>[c,...c.alternatives_at_br]).find(c=>[...c.lineup_ids].sort().join('|')===[...data.state.lineup].sort().join('|'));
-    assert.ok(match);assert.ok(Math.abs(data.diag.lineup.score-match.score)<1e-10,'browser worker must use the same own-ammo layers as offline scoring');
+    assert.ok(match);assert.ok(Math.abs(data.diag.lineup.score-match.score)<1e-10,`browser/offline score mismatch: ${JSON.stringify({browser:data.diag.lineup.score,offline:match.score,context:data.diag.context,conditions:offline.conditions})}`);
     assert.ok(requests.some(r=>r.url.includes('/target-layers-0.')));
     assert.ok(!requests.some(r=>/target-layers-(?:15|30|90)\./.test(r.url)));
     await page.screenshot({path:path.join(screenshots,'lineup-desktop.png'),fullPage:false});
@@ -228,6 +229,7 @@ try{
     assert.ok(await page.locator('[data-vehicle]').count()>0);
     cachedFilterPaintMs=await page.evaluate(async()=>{const target=document.querySelector('[data-kind="ground"]');const start=performance.now();target.click();await new Promise(requestAnimationFrame);return performance.now()-start;});
     await page.locator('article[data-vehicle]').first().click();
+    await page.locator('#dialog-content').getByText('防护 · 物理厚度不代表全车 RHAe',{exact:true}).waitFor();
     assert.ok((await page.locator('#dialog-content').innerText()).includes('物理厚度不代表全车 RHAe'));
     await page.locator('.dialog-close').click();
     await page.setViewportSize(qa.mobile);await navigateTo('overview');

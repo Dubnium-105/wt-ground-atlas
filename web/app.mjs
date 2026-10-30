@@ -434,7 +434,7 @@ async function navigate() {
   state.view=views.some(v=>v[0]===view)?view:state.ui.default_view;
   if(state.view!=='armor'){state.armorRequest?.abort();state.armorRequest=null;}
   $('#research-menu').open=false;$('#menu-toggle').setAttribute('aria-expanded','false');window.scrollTo({top:0,behavior:'instant'});render();
-  if(state.view==='armor'){const available=await loadArmor();render();if(available&&state.view==='armor')await loadArmorSlice();}
+  if(state.view==='armor'){const available=await loadArmor(id);render();if(available&&state.view==='armor')await loadArmorSlice();}
   if(state.view==='audit'&&!state.audit){state.audit=await fetchJSON(state.manifest.audit);render();}
   if(state.view==='overview'){await loadRecs();render();}
   if(state.view==='versions'){await loadVersionOverview();if(!state.impact&&state.manifest.impact)state.impact=await fetchJSON(state.manifest.impact);render();}
@@ -619,6 +619,10 @@ async function boot() {
   Object.assign(state,{ui,config,catalog,scenario,sourceScenario:structuredClone(scenario)});
   state.context={...config.defaults};state.version=['current','planned'].includes(state.version)?state.version:config.defaults.version;
   state.nation=catalog.nations.some(n=>n.id===state.nation)?state.nation:catalog.nations.some(n=>n.id===ui.default_nation)?ui.default_nation:catalog.nations[0].id;
+  const route=new URLSearchParams(location.search);
+  if(catalog.nations.some(n=>n.id===route.get('nation')))state.nation=route.get('nation');
+  if(['current','planned'].includes(route.get('version')))state.version=route.get('version');
+  if(route.has('br')&&Number.isFinite(Number(route.get('br'))))state.br=Number(route.get('br'));
   for(const v of catalog.vehicles){state.vehicles.set(v.id,v);state.baseVehicles.set(v.id,v);}
   const navLink=([id,label])=>`<a href="#${id}" data-view="${id}">${icon(id)}<span>${label}</span></a>`;
   $('#navigation').innerHTML=`<div class="primary-nav">${views.slice(0,2).map(navLink).join('')}</div><details class="tools-menu" id="research-menu"><summary>研究工具 <span aria-hidden="true">⌄</span></summary><div class="tools-links">${views.slice(2).map(navLink).join('')}</div></details>`;

@@ -22,7 +22,7 @@ from wt_atlas.forecast.search import Optimizer, feasible, lower_tail, sortie_pol
 
 
 def settings():
-    c = json.loads((ROOT / "config/forecast.json").read_text())
+    c = json.loads((ROOT / "config/forecast.json").read_text(encoding="utf-8"))
     c["population"]["sd"] = 0
     c["scenarios"] = [copy.deepcopy(c["scenarios"][0])]
     c["scenarios"][0].update(weight=1., horizon_s=8.)
@@ -207,7 +207,7 @@ class IntegrationTests(unittest.TestCase):
         with self.assertRaises(ValueError): Atlas(self.aroot, self.ammo, corrupt)
 
     def test_profile_hash_and_ownership(self):
-        profiles = json.loads(self.ammo.read_text()); profiles[0]["distance_m"] = 100.
+        profiles = json.loads(self.ammo.read_text(encoding="utf-8")); profiles[0]["distance_m"] = 100.
         self.ammo.write_text(canonical(profiles))
         with self.assertRaises(ValueError): Atlas(self.aroot, self.ammo, self.cat)
         v = copy.deepcopy(self.cat["vehicles"][0]); v["ammo"][0]["id"] = "foreign"
@@ -351,7 +351,7 @@ class IntegrationTests(unittest.TestCase):
         second = subprocess.run(args, check=True, text=True, capture_output=True)
         after = {p.relative_to(out).as_posix(): file_hash(p) for p in out.rglob("*") if p.is_file()}
         self.assertEqual(before, after); self.assertGreater(json.loads(second.stdout)["cache_hits"], 0)
-        index = json.loads((out / "index.json").read_text())
+        index = json.loads((out / "index.json").read_text(encoding="utf-8"))
         self.assertEqual(set(index["worlds"]), {"current", "planned"})
         self.assertFalse(any(p.suffix in (".npz", ".sqlite") for p in out.rglob("*")))
         for item in list(index["worlds"].values()) + [index["report"], index["migrations"]]:

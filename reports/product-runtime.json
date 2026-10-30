@@ -1,0 +1,16 @@
+{
+  "checks": [
+    "same-build identity and no initial raw physics requests",
+    "truthful source coverage and publication gate",
+    "mobile layout",
+    "real research drilldown",
+    "no page exceptions"
+  ],
+  "build_key": "3a389aaae149267783b68b9246fc5af627999429c2233ce19baf9cc311d6a42f",
+  "source_vehicles": 2679,
+  "source_maps": 97421,
+  "ready_ms": 101.40329999999994,
+  "first_load_transfer_bytes": 251536,
+  "page_errors": [],
+  "status": "passed"
+}

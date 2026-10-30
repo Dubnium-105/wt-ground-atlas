@@ -10,7 +10,7 @@
   },
   "client": {
     "extractor": "backend/vendor/client_tools/wt_ext_cli.exe",
-    "source": "D:/steam/steamapps/common/War Thunder",
+    "source": null,
     "view_margin_m": 0.125,
     "work": "data/work/client",
     "workers": 8

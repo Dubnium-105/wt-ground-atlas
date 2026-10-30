@@ -44,7 +44,10 @@ def main(argv=None):
         from .client_sources import index_client_sources, link_client_catalog
         workers = args.workers or config['client']['workers']
         if workers < 1: raise ValueError('workers must be positive')
-        source = args.source or config['client']['source']
+        source = args.source or config['client'].get('source')
+        if args.stage in ('prepare','all') and not source:
+            from .client_paths import find_client
+            source = find_client()
         if args.stage == 'prepare': report = prepare_client(root, config, source, workers, args.vehicle)
         elif args.stage == 'sources': report = index_client_sources(root, config)
         elif args.stage == 'link': report = link_client_catalog(root, config)
