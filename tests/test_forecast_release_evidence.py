@@ -51,7 +51,7 @@ class ReleaseEvidenceTests(unittest.TestCase):
                 'missions':{'fixture':{'task':'cas','production_validated':True}},
                 'sensitivity':{'passed':True,'catalog_sha256':digest(catalog),'config_sha256':digest(config)}}
         measured=kwargs['sensitivity']
-        measured.update(kind='measured_model_search_sensitivity',cases=[{'case':name,'passed':True,
+        measured.update(kind='measured_model_search_sensitivity',policy=config['sensitivity'],thresholds=config['sensitivity']['thresholds'],cases=[{'case':name,'passed':True,
             'baseline_truncated':0,'changed_truncated':0,'boards':[{'overlap':1.,'maximum_score_delta':0.}]} for name in CASES])
         measured['sha256']=digest(measured)
         return catalog,atlas,config,world,kwargs

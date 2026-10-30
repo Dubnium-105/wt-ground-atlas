@@ -68,6 +68,31 @@ def verify_manifest(root: Path) -> dict:
     return {"status": "verified", "files": len(seen), "sha256": file_hash(path)}
 
 
+def validate_sensitivity_policy(policy):
+    if not isinstance(policy, dict):
+        raise ValueError('Sensitivity requires an explicit versioned sensitivity config section')
+    try:
+        thresholds = policy['thresholds']
+        if policy['schema_version'] != '1.0.0' or policy['status'] != 'assumed_robustness_policy':
+            raise ValueError('Unsupported sensitivity policy version/status')
+        if not number(thresholds['minimum_overlap']) or not 0 < thresholds['minimum_overlap'] <= 1:
+            raise ValueError('Invalid sensitivity overlap threshold')
+        if not number(thresholds['maximum_score_delta']) or not 0 <= thresholds['maximum_score_delta'] <= 100:
+            raise ValueError('Invalid sensitivity utility threshold')
+        if not number(policy['aim_narrower_factor']) or not 0 < policy['aim_narrower_factor'] < 1:
+            raise ValueError('Invalid sensitivity narrower factor')
+        if not number(policy['aim_wider_factor']) or policy['aim_wider_factor'] <= 1:
+            raise ValueError('Invalid sensitivity wider factor')
+        if not number(policy['opponent_skill_mean_shift']) or policy['opponent_skill_mean_shift'] <= 0:
+            raise ValueError('Invalid sensitivity opponent skill shift')
+        for key in ('search_budget_multiplier', 'seed_offset'):
+            if not isinstance(policy[key], int) or isinstance(policy[key], bool) or policy[key] < (2 if key == 'search_budget_multiplier' else 1):
+                raise ValueError('Invalid sensitivity ' + key)
+    except (KeyError, TypeError) as error:
+        raise ValueError('Incomplete sensitivity policy') from error
+    return policy
+
+
 def validate_config(c: dict) -> None:
     for key in ("aim", "population", "timing", "matchmaking", "spawn", "search", "scenarios", "publication"):
         if key not in c:
@@ -97,6 +122,8 @@ def validate_config(c: dict) -> None:
     if not isinstance(p["nodes"], int) or not 1 <= p["nodes"] <= 15: raise ValueError("Invalid quadrature size")
     for key, v in c["timing"].items():
         if not number(v) or v <= 0: raise ValueError("Invalid timing setting: " + key)
+    if "sensitivity" in c:
+        validate_sensitivity_policy(c["sensitivity"])
     search = c["search"]
     for key in ("beam_width", "exchange_width", "max_evaluations", "per_cap_limit", "global_limit"):
         if not isinstance(search[key], int) or isinstance(search[key], bool) or search[key] < 1:

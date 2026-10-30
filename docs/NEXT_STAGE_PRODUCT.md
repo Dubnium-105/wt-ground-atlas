@@ -135,7 +135,7 @@ python scripts/rebuild_range_maps.py --repository "$WT_ATLAS_DATA_ROOT" --catalo
 
 `build_forecast.py --run-sensitivity` 在基线搜索后实际重跑五组条件：横纵瞄准误差各缩小/扩大 20%、敌方技能均值增加 0.5、搜索预算翻倍、队列采样种子切换。报告保存在 forecast validation 的 `sensitivity` 字段，含每次评估/恢复次数、候选重合度和最大效用变化。
 
-当前明确的稳健性政策为每榜候选重合度至少 0.5、共有候选效用变化不超过 10 分，且不能有空榜或截断搜索；这不是实测误差或统计置信度。失败不会阻止诊断站构建，只阻止正式榜发布。外部 `--sensitivity` 必须提供同结构的完整测量报告，绑定目录、有效配置、物理图、任务/毁伤与代码输入及内容校验和；仅 `passed: true` 不再通过。使用 `--run-sensitivity` 可在离线本机生成该报告，不依赖外部授权数据。
+扰动幅度和通过阈值均来自版本化的 `sensitivity` 配置：`aim_narrower_factor/aim_wider_factor/opponent_skill_mean_shift/search_budget_multiplier/seed_offset` 控制实际重跑；`thresholds.minimum_overlap/maximum_score_delta` 控制准入。随仓库提供的默认政策为每个非空视图候选重合度至少 0.5、共有候选效用变化不超过 10 分，且不能有空榜或截断搜索；这不是实测误差或统计置信度。失败不会阻止诊断站构建，只阻止正式榜发布。外部 `--sensitivity` 必须提供同结构的完整测量报告，绑定目录、有效配置、物理图、任务/毁伤与代码输入及内容校验和；仅 `passed: true` 不再通过。使用 `--run-sensitivity` 可在离线本机生成该报告，不依赖外部授权数据。
 
 真实研究站验收可使用 `node scripts/qa_research_http.mjs <与推荐缓存一致的源码/数据根> <研究站目录> <独立概率导出目录>`。第三个参数可选，默认使用数据根下的 `data/exports/probability`。这样可以在隔离副本中重新生成旧研究推荐并核对 Worker 结果，同时只读原有大型概率导出；临时 HTTP 清单仅用于验收，不会写回站点或宣称已配置生产 CDN。
 
@@ -146,3 +146,5 @@ python scripts/rebuild_range_maps.py --repository "$WT_ATLAS_DATA_ROOT" --catalo
 各视图发布为内容哈希 JSON/gzip 分片，切换时才读取。来源门禁检查所有可通过国家/BR 筛选访问的候选，敏感性测量覆盖所有非空视图。样例、未知分数和截断结果不能借分类入口进入正式榜。
 
 版本变化跟随槽位、获取范围、国家、当前/新版本 BR 筛选，并支持上升、衰退、不可迁移的独立筛选和分页。对照展示原队列、保留成员迁移、同新版 BR 重组及具体配置；已移除配置保留原筛选上下文，截断搜索不展示已核验的最优变化值。
+
+敏感性报告保存完整政策及有效配置哈希。修改阈值、扰动或数据后，旧报告不能继续放行；政策声明为 `assumed_robustness_policy`，不代表实战校准。旧配置缺少该节时仍可构建资料诊断，但 `--run-sensitivity` 要求先显式补充政策，不使用代码中的隐含默认阈值。

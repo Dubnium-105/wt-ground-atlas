@@ -90,7 +90,7 @@ class RankingViewTests(unittest.TestCase):
         before = {'boards': {'2/all': [global_row]}, 'truncated_searches': 0,
                   'views': {'global': {'2/all': [global_row]}, 'uptier': {'2/all': [{'keys': ['reserve'], 'score': 40.}]}}}
         after = copy.deepcopy(before); after['views']['uptier']['2/all'][0]['score'] = 75.
-        result = compare(before, after)
+        result = compare(before, after, **settings()["sensitivity"]["thresholds"])
         self.assertFalse(result['passed'])
         self.assertEqual(next(r for r in result['boards'] if r['board'] == 'uptier/2/all')['maximum_score_delta'], 35.)
 
