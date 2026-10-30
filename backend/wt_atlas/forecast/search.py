@@ -132,6 +132,7 @@ class Optimizer:
         for m,v in zip(members,lineup):
             m.update(name=v['vehicle'].get('name',v['vehicle_id']),mode='ground_rb',version=v.get('version'),
                      loadout=v.get('loadout'),ammo_profile_sha256=digest(v['profile']) if v.get('profile') else None,
+                     ammo_profiles_by_distance=[{'distance_m':p['distance_m'],'profile_id':p['name'],'sha256':digest(p)} for p in v.get('profiles',())],
                      source=v['vehicle'].get('source_url'),taxonomy_original={'kind':v['vehicle'].get('kind'),'role':v['vehicle'].get('role')})
         return {"keys": list(keys), "members": members, "nation": nation,
                 "actual_br": round(cap / self.config["matchmaking"]["br_step_denominator"], 1),

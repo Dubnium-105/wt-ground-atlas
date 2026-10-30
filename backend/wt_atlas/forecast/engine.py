@@ -16,6 +16,25 @@ from .capabilities import loadout_errors, validate_mission
 from .data import Atlas, br_step, canonical, digest, file_hash, number, read_json, safe_file, taxonomy
 
 
+def variant_profiles(variant: dict) -> tuple:
+    """Physical datasets are contexts of a selected round, not extra loadouts."""
+    return tuple(variant.get('profiles', (variant['profile'],) if variant.get('profile') else ()))
+
+
+def ammunition_payloads(bindings):
+    grouped = {}
+    for ammo, profile in bindings:
+        distance = profile.get('distance_m')
+        if not number(distance) or distance < 0:
+            continue  # Unknown physical distance cannot support a modeled shot.
+        stored_ammo, by_distance = grouped.setdefault(ammo['id'], (ammo, {}))
+        if distance in by_distance and digest(by_distance[distance]) != digest(profile):
+            raise ValueError('Ambiguous ammunition distance: ' + ammo['id'] + ' at ' + str(distance))
+        by_distance[distance] = profile
+    return [(ammo, tuple(profiles[d] for d in sorted(profiles)), None)
+            for ammo, profiles in grouped.values()]
+
+
 def enumerate_variants(catalog: dict, atlas: Atlas, config: dict | None = None) -> tuple[list[dict], list[dict]]:
     variants, rejected = [], []
     config = config or {}
@@ -44,7 +63,7 @@ def enumerate_variants(catalog: dict, atlas: Atlas, config: dict | None = None) 
             if not number(br):
                 rejected.append({"vehicle_id": vehicle["id"], "reason": "unknown_ground_rb"}); continue
             br_step(br)
-            payloads = [(ammo, p, None) for ammo, p in bindings] if domain == "ground" else []
+            payloads = ammunition_payloads(bindings) if domain == "ground" else []
             if domain == "air":
                 for loadout in vehicle.get("loadouts", []):
                     errors = loadout_errors(loadout, vehicle, option, unlocked=unlocked, require_unlocked=ownership.get('require_unlocked',False))
@@ -64,7 +83,9 @@ def enumerate_variants(catalog: dict, atlas: Atlas, config: dict | None = None) 
                     payloads.append((None, None, loadout))
             # Keep unknown configurations in the opponent population rather than erase them.
             if not payloads: payloads = [(None, None, None)]
-            for ammo, profile, loadout in payloads:
+            for ammo, profiles, loadout in payloads:
+                profiles = profiles or ()
+                profile = profiles[0] if profiles else None
                 if block is not None:
                     has_policy = any(k in option for k in ("allowed_loadout_ids", "allowed_weapon_ids", "allowed_ammo_ids"))
                     if not has_policy: continue
@@ -74,7 +95,7 @@ def enumerate_variants(catalog: dict, atlas: Atlas, config: dict | None = None) 
                 identity = {"vehicle_id": vehicle["id"], "mode": "ground_rb", "version": version, "rating_configuration_id": option["id"],
                             "ammo_id": ammo["id"] if ammo else None, "loadout_id": loadout["id"] if loadout else None}
                 variants.append({**identity, "key": digest(identity), "vehicle": vehicle, "ammo": ammo,
-                                 "profile": profile, "loadout": loadout, "nation": vehicle["nation"],
+                                 "profile": profile, "profiles": profiles, "loadout": loadout, "nation": vehicle["nation"],
                                  "br": br, "br_step": br_step(br), "domain": domain,
                                  "classification": taxonomy(vehicle), "system_id": vehicle.get("system_id")})
     return sorted(variants, key=lambda v: v["key"]), rejected
@@ -158,6 +179,7 @@ class Forecast:
                 if 'array_file' in row and file_hash(safe_file(effects_path.parent,row['array_file']))!=row['array_sha256']:
                     raise ValueError('Effect array checksum')
                 self.effects[row["map_id"]] = row
+        self.missions_path = missions_path
         self.missions = {}
         if missions_path:
             for row in read_json(missions_path)["records"]:
@@ -191,8 +213,9 @@ class Forecast:
     def shot(self, attacker: dict, target: dict, scenario: dict, skill: float) -> dict | None:
         if attacker["vehicle"].get("forecast_physics_invalidated") or target["vehicle"].get("forecast_physics_invalidated"):
             return None
-        profile = attacker["profile"]
-        if profile is None: return None
+        profiles = [p for p in variant_profiles(attacker) if p['distance_m'] == scenario['physical_distance_m']]
+        if len(profiles) != 1: return None  # Never substitute another physical range.
+        profile = profiles[0]
         map_id = self.atlas.map_for(target["vehicle_id"], profile["name"], scenario["physical_distance_m"])
         if map_id is None: return None
         m = self.atlas.meta[map_id]

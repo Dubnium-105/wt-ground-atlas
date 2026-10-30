@@ -14,7 +14,7 @@ import time
 from . import MODEL_VERSION
 from .aim import skill_nodes
 from .data import Atlas, canonical, digest, file_hash, patch_catalog, read_json, validate_config, verify_manifest
-from .engine import Forecast, ShotCache
+from .engine import variant_profiles, Forecast, ShotCache
 from .search import Optimizer
 from .inventory import Inventory, coverage, discover, bind_geometry
 from .versions import apply_version, invalidation, release_gate, selection_identity, snapshot
@@ -191,7 +191,7 @@ def build(args, root: Path) -> dict:
             engine = engines["current"]
             for map_id, meta in atlas.meta.items():
                 arrays = atlas.load(map_id)
-                attackers = [v for v in engine.variants if v["profile"] and v["profile"]["name"] == meta["ammo_id"]]
+                attackers = [v for v in engine.variants if any(p["name"] == meta["ammo_id"] for p in variant_profiles(v))]
                 targets = [v for v in engine.variants if v["vehicle_id"] == meta["target_id"]]
                 if not attackers or not targets: continue
                 for angle in arrays["angles_deg"]:
@@ -231,18 +231,23 @@ def build(args, root: Path) -> dict:
             for world in worlds.values(): world["boards"] = {k: [] for k in world["boards"]}
         binding_counts = {}
         for m in atlas.meta.values(): binding_counts[m["target_binding"]] = binding_counts.get(m["target_binding"], 0) + 1
-        gates={}
+        gates={};sensitivity_reports={}
         for version,world in worlds.items():
             e=engines[version]
             active_index=index if version=='current' or not all(planned_inputs) else planned_index
+            sensitivity_inputs=digest([inputs,version])
+            if getattr(args,'run_sensitivity',False):
+                from .sensitivity import run
+                sensitivity_reports[version]=run(e,world,inputs_sha256=sensitivity_inputs)
+            else:sensitivity_reports[version]=read_json(Path(args.sensitivity)) if getattr(args,'sensitivity',None) else None
             gates[version]=release_gate(e.catalog,e.atlas,config,world,inventory=active_index.summary() if active_index else None,missions=e.missions,
-                sensitivity=read_json(Path(args.sensitivity)) if getattr(args,'sensitivity',None) else None)
+                sensitivity=sensitivity_reports[version],sensitivity_inputs=sensitivity_inputs)
             world['research_boards']=world['boards'] if not sample_only else {k:[] for k in world['boards']}
             if not gates[version]['publishable']:world['boards']={k:[] for k in world['boards']}
         public_coverage=copy.deepcopy({k:v for k,v in coverage_report.items() if k not in ('matrix','groups')})
         if public_coverage.get('inventory'):public_coverage['inventory'].pop('metrics',None)
         report = {"schema_version": "1.1.0", "model_version": config["model_version"], "build_key": digest(inputs), "inputs": inputs,
-                  "release_readiness":gates,"coverage":public_coverage,"community":community,
+                  "release_readiness":gates,"sensitivity":sensitivity_reports,"coverage":public_coverage,"community":community,
                   "snapshots":{v:snapshot(e.catalog) for v,e in engines.items()},
                   "why_rebuilt":invalidation(original_baseline,planned or baseline),
                   "publication_budgets":config['publication'].get('budgets',{'site_bytes':104857600,'file_bytes':8388608,'gzip_file_bytes':2097152}),
@@ -315,6 +320,7 @@ def main(argv=None):
     parser.add_argument('--nations');parser.add_argument('--br-range',type=float,nargs=2);parser.add_argument('--slots',type=int,nargs='+')
     parser.add_argument('--max-evaluations',type=int);parser.add_argument('--reports');parser.add_argument('--sensitivity')
     parser.add_argument('--skill',choices=['novice','normal','expert']);parser.add_argument('--preference',choices=['ground','balanced','air_support'])
+    parser.add_argument('--run-sensitivity',action='store_true',help='Measure five model/search perturbations on exact current inputs')
     parser.add_argument('--all-profiles',action='store_true',help='Precompute all nine skill/task profiles for interactive static switching')
     parser.add_argument('--community',help='Authorized qualitative annotations; never used as score weights')
     parser.add_argument("--cache", default=str(root / "data" / "cache" / "forecast.sqlite"))

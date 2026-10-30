@@ -8,6 +8,7 @@ from wt_atlas.forecast.data import Atlas, digest
 from wt_atlas.forecast.engine import Forecast, ShotCache
 from wt_atlas.forecast.search import Optimizer, sortie_policy
 from wt_atlas.forecast.versions import release_gate
+from wt_atlas.forecast.sensitivity import CASES
 
 class ReleaseEvidenceTests(unittest.TestCase):
     def test_waiting_does_not_invent_task_evidence(self):
@@ -49,6 +50,10 @@ class ReleaseEvidenceTests(unittest.TestCase):
         kwargs={'inventory':{'verified_arrays':1,'selected_maps':1},
                 'missions':{'fixture':{'task':'cas','production_validated':True}},
                 'sensitivity':{'passed':True,'catalog_sha256':digest(catalog),'config_sha256':digest(config)}}
+        measured=kwargs['sensitivity']
+        measured.update(kind='measured_model_search_sensitivity',cases=[{'case':name,'passed':True,
+            'baseline_truncated':0,'changed_truncated':0,'boards':[{'overlap':1.,'maximum_score_delta':0.}]} for name in CASES])
+        measured['sha256']=digest(measured)
         return catalog,atlas,config,world,kwargs
 
     def test_complete_context_can_pass_but_unrelated_evidence_cannot(self):
@@ -59,10 +64,21 @@ class ReleaseEvidenceTests(unittest.TestCase):
         self.assertFalse(result['publishable'])
         self.assertIn('ranked_lineup_mission_evidence_incomplete',result['why_not_publishable'])
 
+    def test_sensitivity_report_is_invalidated_by_physics_and_content_changes(self):
+        cat,atlas,config,world,kwargs=self.gate_inputs()
+        report=kwargs['sensitivity'];report['inputs_sha256']='original-maps'
+        report['sha256']=digest({k:v for k,v in report.items() if k!='sha256'})
+        self.assertTrue(release_gate(cat,atlas,config,world,**kwargs,sensitivity_inputs='original-maps')['publishable'])
+        self.assertFalse(release_gate(cat,atlas,config,world,**kwargs,sensitivity_inputs='changed-maps')['publishable'])
+        report['cases'][0]['boards'][0]['overlap']=0
+        report['sha256']=digest({k:v for k,v in report.items() if k!='sha256'})
+        self.assertFalse(release_gate(cat,atlas,config,world,**kwargs,sensitivity_inputs='original-maps')['publishable'])
+
     def test_required_tasks_must_be_part_of_the_actual_model(self):
         cat,atlas,config,world,kwargs=self.gate_inputs()
         config['spawn']['phases']=['ground','ground']
         kwargs['sensitivity']['config_sha256']=digest(config)
+        kwargs['sensitivity']['sha256']=digest({k:v for k,v in kwargs['sensitivity'].items() if k!='sha256'})
         result=release_gate(cat,atlas,config,world,**kwargs)
         self.assertFalse(result['publishable'])
         self.assertIn('required_tasks_not_modeled',result['why_not_publishable'])

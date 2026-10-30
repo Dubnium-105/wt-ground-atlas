@@ -56,7 +56,7 @@ def selection_identity(variant):
     return tuple(variant.get(k) for k in ('vehicle_id','rating_configuration_id','loadout_id','ammo_id'))
 
 
-def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensitivity=None):
+def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensitivity=None,sensitivity_inputs=None):
     info=snapshot(catalog); blockers=[]
     synthetic=catalog.get('test_fixture') is True
     if synthetic:blockers.append('synthetic_fixture_not_production')
@@ -92,7 +92,8 @@ def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensi
     for v in catalog['vehicles']:
         if any(l.get('source_version')!=info['game_version'] or l.get('source_status')!='official_verified' or not l.get('source') for l in v.get('loadouts',[])):
             blockers.append('loadout_source_unverified');break
-    if sensitivity is None or sensitivity.get('passed') is not True or sensitivity.get('catalog_sha256')!=digest(catalog) or sensitivity.get('config_sha256')!=digest(config):blockers.append('sensitivity_not_verified')
+    from .sensitivity import valid
+    if not valid(sensitivity,catalog,config,sensitivity_inputs):blockers.append('sensitivity_not_verified')
     if config.get('endpoint')=='damage' and config.get('damage_status')!='validated':blockers.append('damage_evidence_unvalidated')
     if config.get('calibration_status')=='validated' and not config.get('calibration',{}).get('independent_report_sha256'):
         blockers.append('unsupported_calibration_claim')

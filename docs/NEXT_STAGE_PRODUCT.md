@@ -118,3 +118,21 @@ release-readiness 独立列 algorithm_ready、data_ready、publishable。正式�
 完整模式配置必须明确设置 publication.scope=full_ground_rb、publication.required_tasks，并把所有所需任务放进正权重的 spawn.phases；默认配置维持原生距离地面研究身份。完整模式对每个入榜队列逐任务检查 minimum_pair_coverage；假设性或未配置的任务不放行。缺少官方 SP/BR、版本身份等其他门禁仍独立阻止发布。
 
 构建命令的 search_execution 是实际本次执行记录：computed_tables / restored_tables / new_evaluations / restored_evaluations。原 evaluations 字段表示产物内搜索表所记录的总评估数，恢复时不能将其当成本轮计算量。执行耗时和命中计数不参与发布内容哈希。
+
+## 源原生距离重算与多距离弹药（2026-10-30 追加）
+
+`scripts/rebuild_range_maps.py` 从独立核验的 GRP、构型和有序几何层重新执行 CPU 物理模型。只接受同版本 KE 自有弹药源穿深表的精确距离节点，不读取、缩放或反推已有概率图。新增距离以第一层装甲交点为参考，仍是已声明限制的直线路径条件模型，不是游戏实测弹道或击毁率。无 `impact_distance_m` 的旧档案保持原算法输出。
+
+```sh
+python scripts/rebuild_range_maps.py --repository "$WT_ATLAS_DATA_ROOT" --catalog "$WT_ATLAS_DATA_ROOT/data/snapshots/catalog.json" --ammunition "$WT_ATLAS_DATA_ROOT/data/derived/grp_probability_v2/2.59.0.92/ammunition/all_resolved_profiles_final_with_apcr_gun_caliber.json" --target uk_khalid --profile ammo_30166cc90bd7c43e5753 --distances 100 500 1000 --out data/derived/native-ranges-2.59.0.92 --resume --limit 3
+```
+
+输出 `ammunition.json`、`arrays/*.json+npz`、模型来源标记、`events.jsonl` 与 `run.json`。生成目录可直接作为 `--atlas`；使用其配套弹药清单及独立绑定文件完成 preflight。模型/数值配置变化使用新输出目录，弹药源变化使用新的内容哈希；损坏输出在 resume 时重新计算。`--limit` 限制本轮新增图，恢复任务会越过已完成图继续推进。内存预算约束解码单个几何/数组大小，不宣称等于进程 RSS 上限。
+
+同一 `(vehicle, BR configuration, loadout, ammo)` 仅占一个候选配置位置。该弹药的多距离档案归入 `profiles`，按场景精确距离选择，证据记录每个距离的档案哈希；同弹药同距离的冲突档案拒绝进入搜索。缺失距离返回未知，不复制邻近距离。
+
+## 可执行敏感性验收
+
+`build_forecast.py --run-sensitivity` 在基线搜索后实际重跑五组条件：横纵瞄准误差各缩小/扩大 20%、敌方技能均值增加 0.5、搜索预算翻倍、队列采样种子切换。报告保存在 forecast validation 的 `sensitivity` 字段，含每次评估/恢复次数、候选重合度和最大效用变化。
+
+当前明确的稳健性政策为每榜候选重合度至少 0.5、共有候选效用变化不超过 10 分，且不能有空榜或截断搜索；这不是实测误差或统计置信度。失败不会阻止诊断站构建，只阻止正式榜发布。外部 `--sensitivity` 必须提供同结构的完整测量报告，绑定目录、有效配置、物理图、任务/毁伤与代码输入及内容校验和；仅 `passed: true` 不再通过。使用 `--run-sensitivity` 可在离线本机生成该报告，不依赖外部授权数据。
