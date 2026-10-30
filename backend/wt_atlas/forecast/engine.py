@@ -244,13 +244,14 @@ class Forecast:
         scenario = next(s for s in self.config["scenarios"] if s["id"] == scenario_id)
         endpoint = self.config.get("endpoint", "penetration")
         totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "first_fire": 0.}
-        missing = set(); trace = set()
+        missing = set(); trace = set();timing_trace=[]
         for sa, wa in self.skills:
             for sb, wb in self.enemy_skills:
                 weight = wa * wb
                 pa, pb = self.shot(a, b, scenario, sa), self.shot(b, a, scenario, sb)
                 ta = weapon_timing(a["vehicle"], a["ammo"] or {}, sa, scenario, self.config["timing"])
                 tb = weapon_timing(b["vehicle"], b["ammo"] or {}, sb, scenario, self.config["timing"])
+                timing_trace.append({'skill_a':sa,'skill_b':sb,'weight':weight,'a':ta,'b':tb})
                 if pa is None or pb is None or not ta["valid"] or not tb["valid"]:
                     missing.add("one_or_both_directions_or_timing_missing")
                     totals["mean"] += weight * .5; totals["upper"] += weight
@@ -281,9 +282,9 @@ class Forecast:
                 totals["first_fire"] += weight * outcome["first_fire_probability"][0]
         result={**totals, "score": totals["mean"] if totals["coverage"] > 0 else None,
                 "endpoint": endpoint, "missing": sorted(missing), "calibrated": False,
-                "shot_keys":sorted(trace), "pair_key":digest([a_key,b_key,scenario,sorted(trace),totals,self.config]),
+                "shot_keys":sorted(trace), "pair_key":digest([a_key,b_key,scenario,sorted(trace),timing_trace,totals,self.config]),
                 "estimate_kind":"conditional_model_with_declared_unknown_prior", "observed_mean":None}
-        self.cache.evidence_put(result['pair_key'],'pair',{**result,'attacker_key':a_key,'target_key':b_key,'scenario':scenario})
+        self.cache.evidence_put(result['pair_key'],'pair',{**result,'attacker_key':a_key,'target_key':b_key,'scenario':scenario,'timing':timing_trace})
         return result
 
     def rooms(self, nation: str, cap: int) -> list[tuple[int, float]]:

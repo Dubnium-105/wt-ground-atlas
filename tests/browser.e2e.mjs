@@ -229,6 +229,7 @@ try{
     assert.ok(await page.locator('[data-vehicle]').count()>0);
     cachedFilterPaintMs=await page.evaluate(async()=>{const target=document.querySelector('[data-kind="ground"]');const start=performance.now();target.click();await new Promise(requestAnimationFrame);return performance.now()-start;});
     await page.locator('article[data-vehicle]').first().click();
+    await page.locator('#dialog-content').getByText('防护 · 物理厚度不代表全车 RHAe',{exact:true}).waitFor();
     assert.ok((await page.locator('#dialog-content').innerText()).includes('物理厚度不代表全车 RHAe'));
     await page.locator('.dialog-close').click();
     await page.setViewportSize(qa.mobile);await navigateTo('overview');

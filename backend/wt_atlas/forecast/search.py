@@ -137,7 +137,7 @@ class Optimizer:
                 "evidence_coverage": coverage, "rankable": eligible,
                 "status": "uncalibrated_conditional_prediction" if eligible else "insufficient_paired_evidence",
                 "cases": cases, "endpoint": self.config.get("endpoint", "penetration"),
-                "lineup_key":digest([keys,self.config]),
+                "lineup_key":digest([getattr(self.e,'build_key',None),keys,self.config,cases]),
                 "uncertainty":{"physical_missing_interval":[100*aggregate('lower'),100*aggregate('upper')],
                     "model_error":None,"out_of_sample_confidence_interval":None},
                 "mission_coverage":{task:sum(r['weight']*r['task_evidence'][i] for r in cases) for i,task in enumerate(self.config['spawn']['phases'])},

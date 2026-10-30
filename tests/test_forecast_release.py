@@ -8,7 +8,9 @@ import tempfile
 import unittest
 from test_forecast import fixture,settings,ROOT
 from wt_atlas.forecast.data import canonical,read_json,validate_config
-from wt_atlas.forecast.engine import ShotCache
+from wt_atlas.forecast.engine import ShotCache,Forecast
+from wt_atlas.forecast.data import Atlas
+from wt_atlas.forecast.search import Optimizer
 from wt_atlas.forecast.inventory import Inventory
 from wt_atlas.forecast.statistics import community_annotations
 sys.path.insert(0,str(ROOT/'scripts'))
@@ -18,16 +20,29 @@ from site_lib import validate_site
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_same_client_version_timing_patch_isolates_evidence_keys(self):
+        with tempfile.TemporaryDirectory() as t:
+            r=Path(t);cat,root,ammo=fixture(r);cache=ShotCache(r/'cache.sqlite');atlas=Atlas(root,ammo,cat);cfg=settings()
+            first=Forecast(cat,atlas,cfg,cache);keys=tuple(sorted(v['key'] for v in first.variants if v['nation']=='a'))
+            before=Optimizer(first).evaluate(keys)
+            changed=copy.deepcopy(cat)
+            for vehicle in changed['vehicles']:
+                vehicle['firepower']['reload_ace_s']*=2;vehicle['ammo'][0]['weapon_profile']['reload_ace_s']*=2
+            second=Forecast(changed,atlas,cfg,cache);after=Optimizer(second).evaluate(keys)
+            self.assertNotEqual(before['lineup_key'],after['lineup_key'])
+            self.assertNotEqual(before['cases'][0]['mission_keys'],after['cases'][0]['mission_keys']);cache.close()
+
     def test_research_weapon_profile_projection_repair_preserves_snapshot(self):
         with tempfile.TemporaryDirectory() as t:
             r=Path(t);(r/'app.mjs').write_text("async function navigate(){\n  const hash=decodeURIComponent(location.hash.slice(1)),[view,id]=hash.split('/');\n}")
-            old=write_json(r,'data/catalog/engine.json',{'vehicles':[{'id':'a'}]})
+            old=write_json(r,'data/catalog/engine.json',{'vehicles':[{'id':'a','air_defence_applicability':{'status':'not-applicable'}}]})
             nation=write_json(r,'data/nations/a.json',{'vehicles':[{'id':'a','weapon_profiles':[{'id':'verified-gun','fire_rate_rpm':600}]}]})
             (r/'data/manifest.json').write_text(canonical({'engine_catalog':old,'nations':{'a':nation}}))
             bridge_research(r);manifest=read_json(r/'data/manifest.json')
             import gzip
             result=json.loads(gzip.decompress((r/manifest['engine_catalog']['url']).read_bytes()))
             self.assertEqual(result['vehicles'][0]['weapon_profiles'][0]['id'],'verified-gun')
+            self.assertNotIn('air_defence_applicability',result['vehicles'][0])
             self.assertEqual(manifest['projection_repair']['previous_engine_catalog_sha256'],old['sha256'])
 
     def test_corrupt_well_formed_cache_recomputed_and_legacy_migrated(self):

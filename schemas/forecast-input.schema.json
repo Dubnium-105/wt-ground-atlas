@@ -1,0 +1,630 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/wt-atlas/forecast-input.schema.json",
+  "title": "WT Atlas forecast input contracts",
+  "description": "Structural documentation; exact ownership, ordered intervals, version, hash and spatial checks also run in Python. No production values are supplied.",
+  "$defs": {
+    "source": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "game_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "kind",
+        "game_version",
+        "sha256"
+      ],
+      "oneOf": [
+        {
+          "required": [
+            "path"
+          ]
+        },
+        {
+          "required": [
+            "url"
+          ]
+        }
+      ]
+    },
+    "snapshot": {
+      "type": "object",
+      "properties": {
+        "snapshot_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "game_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "datamine_commit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "wiki_collected_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "effective_date": {
+          "type": "string"
+        },
+        "source_status": {
+          "enum": [
+            "released",
+            "announced",
+            "proposed",
+            "hypothetical",
+            "unknown"
+          ]
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "game_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": [
+              "kind",
+              "game_version",
+              "sha256"
+            ],
+            "oneOf": [
+              {
+                "required": [
+                  "path"
+                ]
+              },
+              {
+                "required": [
+                  "url"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "snapshot_id",
+        "game_version",
+        "datamine_commit",
+        "wiki_collected_at",
+        "effective_date",
+        "source_status"
+      ]
+    },
+    "mission": {
+      "type": "object",
+      "properties": {
+        "variant_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_vehicle_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scenario_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "task": {
+          "enum": [
+            "ground",
+            "anti_tank",
+            "ground_control",
+            "recon",
+            "anti_helicopter",
+            "anti_air",
+            "cap",
+            "cas",
+            "sead"
+          ]
+        },
+        "status": {
+          "enum": [
+            "validated",
+            "assumed",
+            "missing",
+            "unvalidated"
+          ]
+        },
+        "lower": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "mean": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "upper": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "evidence": {
+          "type": "object",
+          "properties": {
+            "loadout_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "flight_conditions": {
+              "type": "object"
+            },
+            "radar_conditions": {
+              "type": "object"
+            },
+            "target_countermeasures": {
+              "type": "object"
+            },
+            "source_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "required": [
+            "loadout_id",
+            "flight_conditions",
+            "radar_conditions",
+            "target_countermeasures",
+            "source_sha256"
+          ]
+        }
+      },
+      "required": [
+        "variant_key",
+        "target_vehicle_id",
+        "scenario_id",
+        "task",
+        "lower",
+        "mean",
+        "upper",
+        "source_version",
+        "source",
+        "status"
+      ]
+    },
+    "effect": {
+      "type": "object",
+      "properties": {
+        "map_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "map_array_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "assumed",
+            "validated"
+          ]
+        },
+        "array_file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "array_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "constant": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      },
+      "required": [
+        "map_id",
+        "map_array_sha256",
+        "source",
+        "source_version",
+        "status"
+      ],
+      "oneOf": [
+        {
+          "required": [
+            "array_file",
+            "array_sha256"
+          ]
+        },
+        {
+          "required": [
+            "constant"
+          ],
+          "properties": {
+            "status": {
+              "const": "assumed"
+            }
+          }
+        }
+      ]
+    },
+    "statistics": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sampling_window": {
+          "type": "string",
+          "minLength": 1
+        },
+        "game_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "deduplication": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bias_notes": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authorization": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mode": {
+          "const": "ground_rb"
+        },
+        "sample_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "endpoint": {
+          "enum": [
+            "penetration",
+            "damage",
+            "mission"
+          ]
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "observation_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "player_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "match_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "stratum": {
+                "type": "string",
+                "minLength": 1
+              },
+              "game_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "prediction": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "outcome": {
+                "enum": [
+                  0,
+                  1
+                ]
+              }
+            },
+            "required": [
+              "observation_id",
+              "player_id",
+              "match_id",
+              "stratum",
+              "game_version",
+              "timestamp",
+              "prediction",
+              "outcome"
+            ]
+          }
+        }
+      },
+      "required": [
+        "source",
+        "sampling_window",
+        "game_version",
+        "mode",
+        "sample_count",
+        "deduplication",
+        "bias_notes",
+        "authorization",
+        "endpoint",
+        "observations"
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/snapshot"
+    },
+    {
+      "$ref": "#/$defs/statistics"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "missions"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "variant_key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "target_vehicle_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "scenario_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1
+              },
+              "task": {
+                "enum": [
+                  "ground",
+                  "anti_tank",
+                  "ground_control",
+                  "recon",
+                  "anti_helicopter",
+                  "anti_air",
+                  "cap",
+                  "cas",
+                  "sead"
+                ]
+              },
+              "status": {
+                "enum": [
+                  "validated",
+                  "assumed",
+                  "missing",
+                  "unvalidated"
+                ]
+              },
+              "lower": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "mean": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "upper": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "evidence": {
+                "type": "object",
+                "properties": {
+                  "loadout_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "flight_conditions": {
+                    "type": "object"
+                  },
+                  "radar_conditions": {
+                    "type": "object"
+                  },
+                  "target_countermeasures": {
+                    "type": "object"
+                  },
+                  "source_sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                },
+                "required": [
+                  "loadout_id",
+                  "flight_conditions",
+                  "radar_conditions",
+                  "target_countermeasures",
+                  "source_sha256"
+                ]
+              }
+            },
+            "required": [
+              "variant_key",
+              "target_vehicle_id",
+              "scenario_id",
+              "task",
+              "lower",
+              "mean",
+              "upper",
+              "source_version",
+              "source",
+              "status"
+            ]
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "records"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "effects"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "map_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "map_array_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "enum": [
+                  "assumed",
+                  "validated"
+                ]
+              },
+              "array_file": {
+                "type": "string",
+                "minLength": 1
+              },
+              "array_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "constant": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
+            },
+            "required": [
+              "map_id",
+              "map_array_sha256",
+              "source",
+              "source_version",
+              "status"
+            ],
+            "oneOf": [
+              {
+                "required": [
+                  "array_file",
+                  "array_sha256"
+                ]
+              },
+              {
+                "required": [
+                  "constant"
+                ],
+                "properties": {
+                  "status": {
+                    "const": "assumed"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "records"
+      ]
+    }
+  ]
+}

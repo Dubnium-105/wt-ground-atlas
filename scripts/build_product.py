@@ -108,7 +108,7 @@ def compose(forecast,output,research=None):
             html.write_text(text,encoding='utf-8')
         (stage/'.wt-atlas-site').write_text('Unified V3 predictor and legacy research\n',encoding='utf-8')
         manifest={'schema_version':'2.0.0','kind':'unified_forecast_site','forecast':'index.json','research':index['research'],
-                  'build_key':index['build_key'],'deployment':{'probability_mode':'external' if research else 'disabled'}}
+                  'build_key':index['build_key'],'deployment':{'probability_mode':read_json(stage/'research/data/manifest.json').get('deployment',{}).get('probability_mode','disabled') if research else 'disabled'}}
         (stage/'data/manifest.json').write_text(canonical(manifest),encoding='utf-8')
         report=validate_site(stage,deployment_settings(ROOT)['budgets'])
         previous=output.with_name(output.name+'.previous')
