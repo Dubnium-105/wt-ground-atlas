@@ -4,6 +4,7 @@ import argparse
 import json
 import gzip
 import hashlib
+import html as html_module
 import os
 from pathlib import Path
 import shutil
@@ -104,7 +105,10 @@ def compose(forecast,output,research=None):
             (directory/'index.json').write_text(canonical(ci),encoding='utf-8')
         if research:
             html=stage/'research/index.html';text=html.read_text(encoding='utf-8')
-            text=text.replace('<body>','<body><a href="../index.html" class="predictor-return">← 自动队列预测</a>')
+            research_manifest=read_json(stage/'research/data/manifest.json')
+            model=html_module.escape(str(research_manifest.get('model_version','unknown')))
+            banner=f'<aside class="model-note" aria-label="研究模型说明">研究模型 {model} · 条件分析分数；V3 正式推荐及数据准入状态见自动预测首页。</aside>'
+            text=text.replace('<body>','<body><a href="../index.html" class="predictor-return">← 自动队列预测</a>'+banner)
             html.write_text(text,encoding='utf-8')
         (stage/'.wt-atlas-site').write_text('Unified V3 predictor and legacy research\n',encoding='utf-8')
         manifest={'schema_version':'2.0.0','kind':'unified_forecast_site','forecast':'index.json','research':index['research'],
