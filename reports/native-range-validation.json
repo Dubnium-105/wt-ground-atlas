@@ -1,0 +1,442 @@
+{
+  "schema_version": "1.0.0",
+  "data_kind": "real_source_recalculation_in_two_vehicle_subset",
+  "probability_endpoint": "conditional_penetration",
+  "method": "fresh source-range KE calculation from independently bound ordered geometry; not rescaled 10m maps",
+  "range_reference": "first_armor_intersection",
+  "game_probability_validated": false,
+  "source_npz_probability_maps_read": 0,
+  "maps": [
+    {
+      "ammo_id": "ammo_142080b25cbc824f0c00_range_1000_0bd2b163",
+      "ammo_profile_sha256": "5444080ec94247cb5e4cb017fd12972ff4920359ad258ecaf3f2a8fa828dfb70",
+      "array_file": "arrays/23cba09ea6a8af8ae0bb0f01d803dc349ba2893783cb4335dd824e07132a5887.npz",
+      "array_sha256": "6b6abbd1a3f23ed1bd8d1bb8e97cd78eeb4b9e26bd210710d85898e44f2c84fc",
+      "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+      "map_id": "23cba09ea6a8af8ae0bb0f01d803dc349ba2893783cb4335dd824e07132a5887",
+      "model": {
+        "adapter_sha256": "6189008ce04068b66a4d324cfbc9ddfa214e8fae13da290cd19a3df66f23af94",
+        "cpu_code_sha256": "29729aad137faf7cfceb0af6403d487e84aa418063523d97e458610c64505c4b",
+        "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+        "model": "layered-v2-cpu-first-armor-range-1",
+        "numerics_sha256": "6b8ce4710061d13c26fd0de76d338957732e76d0d20309911a9cda57eca6a20f",
+        "version": "2.59.0.92"
+      },
+      "physical_distance_m": 1000.0,
+      "range_reference": "first_armor_intersection",
+      "source_version": "2.59.0.92",
+      "status_counts": {
+        "0": 433138,
+        "1": 226346,
+        "2": 0,
+        "3": 166356
+      },
+      "target_id": "ussr_bmp_2m",
+      "target_sha256": "567f57edc3963ccf61c4e0f71445a39d197ae00ab9802633712d92206cee298c"
+    },
+    {
+      "ammo_id": "ammo_30166cc90bd7c43e5753_range_1000_a5e7ec95",
+      "ammo_profile_sha256": "5cd10dbe2a8f4de23438e3e00b029ec7729bcf9e11335df0399d0f43c185ff30",
+      "array_file": "arrays/384dee6a91d2c3e716e89f1fce8bda8355eff5245831d256927026d099a37c53.npz",
+      "array_sha256": "6e952ccd6afcff0f9e599a0412b8b1101c9ac6d84e4145d27d9f18a8c4bc9af9",
+      "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+      "map_id": "384dee6a91d2c3e716e89f1fce8bda8355eff5245831d256927026d099a37c53",
+      "model": {
+        "adapter_sha256": "6189008ce04068b66a4d324cfbc9ddfa214e8fae13da290cd19a3df66f23af94",
+        "cpu_code_sha256": "29729aad137faf7cfceb0af6403d487e84aa418063523d97e458610c64505c4b",
+        "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+        "model": "layered-v2-cpu-first-armor-range-1",
+        "numerics_sha256": "6b8ce4710061d13c26fd0de76d338957732e76d0d20309911a9cda57eca6a20f",
+        "version": "2.59.0.92"
+      },
+      "physical_distance_m": 1000.0,
+      "range_reference": "first_armor_intersection",
+      "source_version": "2.59.0.92",
+      "status_counts": {
+        "0": 1014093,
+        "1": 384683,
+        "2": 0,
+        "3": 222088
+      },
+      "target_id": "uk_khalid",
+      "target_sha256": "09b2fa386bfcb7cd89d13f9585183a281bae9411c5cf8437c87c66051698beba"
+    },
+    {
+      "ammo_id": "ammo_30166cc90bd7c43e5753_range_100_a5e7ec95",
+      "ammo_profile_sha256": "fe76a53b69f4237b0062558f205b7bcb1ecb59211f3fffcc5410b11bac32f685",
+      "array_file": "arrays/3b48c9fa98615c7c9eba194f6445309d15ca9be70aa402be8c45e8967c65c5d5.npz",
+      "array_sha256": "d152c60d82c50cf9d49cb379f5f6dd9b0f9d77b0c52a341a4964a6a49266548d",
+      "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+      "map_id": "3b48c9fa98615c7c9eba194f6445309d15ca9be70aa402be8c45e8967c65c5d5",
+      "model": {
+        "adapter_sha256": "6189008ce04068b66a4d324cfbc9ddfa214e8fae13da290cd19a3df66f23af94",
+        "cpu_code_sha256": "29729aad137faf7cfceb0af6403d487e84aa418063523d97e458610c64505c4b",
+        "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+        "model": "layered-v2-cpu-first-armor-range-1",
+        "numerics_sha256": "6b8ce4710061d13c26fd0de76d338957732e76d0d20309911a9cda57eca6a20f",
+        "version": "2.59.0.92"
+      },
+      "physical_distance_m": 100.0,
+      "range_reference": "first_armor_intersection",
+      "source_version": "2.59.0.92",
+      "status_counts": {
+        "0": 1014093,
+        "1": 384683,
+        "2": 0,
+        "3": 222088
+      },
+      "target_id": "uk_khalid",
+      "target_sha256": "09b2fa386bfcb7cd89d13f9585183a281bae9411c5cf8437c87c66051698beba"
+    },
+    {
+      "ammo_id": "ammo_142080b25cbc824f0c00_range_500_0bd2b163",
+      "ammo_profile_sha256": "a02d26b80d1b20a6beb7defeff6f53dbc3fdbd531ae0aa19e31a5701f22e63cb",
+      "array_file": "arrays/63273b78d6503fcc5060498a1e49c3367d03c722b2047731eb74e914abe6d758.npz",
+      "array_sha256": "6b6abbd1a3f23ed1bd8d1bb8e97cd78eeb4b9e26bd210710d85898e44f2c84fc",
+      "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+      "map_id": "63273b78d6503fcc5060498a1e49c3367d03c722b2047731eb74e914abe6d758",
+      "model": {
+        "adapter_sha256": "6189008ce04068b66a4d324cfbc9ddfa214e8fae13da290cd19a3df66f23af94",
+        "cpu_code_sha256": "29729aad137faf7cfceb0af6403d487e84aa418063523d97e458610c64505c4b",
+        "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+        "model": "layered-v2-cpu-first-armor-range-1",
+        "numerics_sha256": "6b8ce4710061d13c26fd0de76d338957732e76d0d20309911a9cda57eca6a20f",
+        "version": "2.59.0.92"
+      },
+      "physical_distance_m": 500.0,
+      "range_reference": "first_armor_intersection",
+      "source_version": "2.59.0.92",
+      "status_counts": {
+        "0": 433138,
+        "1": 226346,
+        "2": 0,
+        "3": 166356
+      },
+      "target_id": "ussr_bmp_2m",
+      "target_sha256": "567f57edc3963ccf61c4e0f71445a39d197ae00ab9802633712d92206cee298c"
+    },
+    {
+      "ammo_id": "ammo_30166cc90bd7c43e5753_range_500_a5e7ec95",
+      "ammo_profile_sha256": "3172f7a4fe33fcd2e90a910d8a46ec7cb80a2998fe9e0f2e37de4a81ba817e34",
+      "array_file": "arrays/9aa319022f0af28ba7cdc10a0b5805e8370fdbea353c2f84b1159302fa8ff10c.npz",
+      "array_sha256": "1676fa3592a086ba4ba2a8bdd16cd53ec9683b471af4caa6d5abcc3e4b187635",
+      "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+      "map_id": "9aa319022f0af28ba7cdc10a0b5805e8370fdbea353c2f84b1159302fa8ff10c",
+      "model": {
+        "adapter_sha256": "6189008ce04068b66a4d324cfbc9ddfa214e8fae13da290cd19a3df66f23af94",
+        "cpu_code_sha256": "29729aad137faf7cfceb0af6403d487e84aa418063523d97e458610c64505c4b",
+        "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+        "model": "layered-v2-cpu-first-armor-range-1",
+        "numerics_sha256": "6b8ce4710061d13c26fd0de76d338957732e76d0d20309911a9cda57eca6a20f",
+        "version": "2.59.0.92"
+      },
+      "physical_distance_m": 500.0,
+      "range_reference": "first_armor_intersection",
+      "source_version": "2.59.0.92",
+      "status_counts": {
+        "0": 1014093,
+        "1": 384683,
+        "2": 0,
+        "3": 222088
+      },
+      "target_id": "uk_khalid",
+      "target_sha256": "09b2fa386bfcb7cd89d13f9585183a281bae9411c5cf8437c87c66051698beba"
+    },
+    {
+      "ammo_id": "ammo_142080b25cbc824f0c00_range_100_0bd2b163",
+      "ammo_profile_sha256": "3253196efdffa960655fbf1ee8693aa0067e30ce41e3bcd8ef84dc8a414b8991",
+      "array_file": "arrays/aaa6c11a2111878fcfa77ee9defebdf5e13ae4d7d74edf5639701ce45beb6d82.npz",
+      "array_sha256": "6b6abbd1a3f23ed1bd8d1bb8e97cd78eeb4b9e26bd210710d85898e44f2c84fc",
+      "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+      "map_id": "aaa6c11a2111878fcfa77ee9defebdf5e13ae4d7d74edf5639701ce45beb6d82",
+      "model": {
+        "adapter_sha256": "6189008ce04068b66a4d324cfbc9ddfa214e8fae13da290cd19a3df66f23af94",
+        "cpu_code_sha256": "29729aad137faf7cfceb0af6403d487e84aa418063523d97e458610c64505c4b",
+        "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+        "model": "layered-v2-cpu-first-armor-range-1",
+        "numerics_sha256": "6b8ce4710061d13c26fd0de76d338957732e76d0d20309911a9cda57eca6a20f",
+        "version": "2.59.0.92"
+      },
+      "physical_distance_m": 100.0,
+      "range_reference": "first_armor_intersection",
+      "source_version": "2.59.0.92",
+      "status_counts": {
+        "0": 433138,
+        "1": 226346,
+        "2": 0,
+        "3": 166356
+      },
+      "target_id": "ussr_bmp_2m",
+      "target_sha256": "567f57edc3963ccf61c4e0f71445a39d197ae00ab9802633712d92206cee298c"
+    }
+  ],
+  "coverage": {
+    "ammunition_profiles": 6,
+    "blockers": [
+      "sample_subset"
+    ],
+    "catalog_vehicles": 2,
+    "counts": {
+      "available_bidirectional_pairs": 6,
+      "available_forward_pairs": 6,
+      "required_directed_pairs": 6
+    },
+    "groups": [
+      {
+        "br": 9.3,
+        "class": "medium_tank",
+        "count": 1,
+        "domain": "ground",
+        "nation": "britain"
+      },
+      {
+        "br": 10.3,
+        "class": "light_tank",
+        "count": 1,
+        "domain": "ground",
+        "nation": "ussr"
+      }
+    ],
+    "inventory": {
+      "ambiguous_maps": 0,
+      "content_sha256": "dc9563bb9155f74486b8f29c7dfcbb7c1445e905760e39810f26778eabb6b0de",
+      "metadata_objects": 6,
+      "metrics": {
+        "array_seconds": 0.0013053000438958406,
+        "arrays_checked": 0,
+        "incremental_hits": 6,
+        "memory_budget_bytes": 536870912,
+        "metadata_cpu_seconds": 0.015625,
+        "metadata_seconds": 0.2295207999413833,
+        "workers": 2
+      },
+      "rejections": {},
+      "selected_array_bytes": 1389279,
+      "selected_maps": 6,
+      "status_counts": {
+        "verified": 6
+      },
+      "verified_arrays": 6
+    },
+    "matrix": [
+      {
+        "available_bidirectional_pairs": 3,
+        "available_forward_pairs": 3,
+        "br": 9.3,
+        "nation": "britain",
+        "required_directed_pairs": 3,
+        "vehicle_id": "uk_khalid"
+      },
+      {
+        "available_bidirectional_pairs": 3,
+        "available_forward_pairs": 3,
+        "br": 10.3,
+        "nation": "ussr",
+        "required_directed_pairs": 3,
+        "vehicle_id": "ussr_bmp_2m"
+      }
+    ],
+    "pair_count_semantics": "vehicle directions per configured scenario; any exact owned supported round; only exact verified or explicitly declared yaw slices count; any missing angle metadata is unavailable",
+    "physical_distances_m": [
+      100.0,
+      500.0,
+      1000.0
+    ],
+    "sample_subset": true,
+    "schema_version": "1.0.0"
+  },
+  "build": {
+    "build_key": "f0d9a4a7377aa9600f46cd63ed93aac6131f4ed2c113b6e1d2d264557a8f8ae4",
+    "catalog_vehicles": 2,
+    "maps": 6,
+    "diagnostic_rows": 432,
+    "cache_hits": 486,
+    "cache_misses": 18,
+    "npz_loads": 23,
+    "ranked_counts": {
+      "current": 0
+    },
+    "evaluations": {
+      "current": 2
+    },
+    "search_execution": {
+      "current": {
+        "restored_tables": 0,
+        "computed_tables": 4,
+        "new_evaluations": 2,
+        "restored_evaluations": 0
+      }
+    },
+    "research_counts": {
+      "current": 0
+    },
+    "duration_seconds": 2.837656300049275,
+    "resources": {
+      "peak_rss_bytes": 137248768,
+      "cpu_seconds": 1.4375,
+      "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
+    },
+    "publication": "sample_diagnostics_only"
+  },
+  "generation": [
+    {
+      "schema_version": "1.0.0",
+      "model": "layered-v2-cpu-first-armor-range-1",
+      "identity": {
+        "version": "2.59.0.92",
+        "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+        "model": "layered-v2-cpu-first-armor-range-1",
+        "cpu_code_sha256": "29729aad137faf7cfceb0af6403d487e84aa418063523d97e458610c64505c4b",
+        "adapter_sha256": "6189008ce04068b66a4d324cfbc9ddfa214e8fae13da290cd19a3df66f23af94",
+        "numerics_sha256": "6b8ce4710061d13c26fd0de76d338957732e76d0d20309911a9cda57eca6a20f"
+      },
+      "status": "completed",
+      "planned_maps": 3,
+      "computed_maps": 3,
+      "reused_maps": 0,
+      "binding_errors": [],
+      "profile_rejections": {},
+      "errors": [],
+      "source_npz_probability_maps_read": 0,
+      "raw_geometry_changed": false,
+      "game_probability_validated": false,
+      "pending_maps": 0,
+      "duration_seconds": 11.178416699985974,
+      "resources": {
+        "peak_rss_bytes": 534900736,
+        "cpu_seconds": 11.34375,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
+      },
+      "ammunition_sha256": "706682e5b774d8456559a5db96a88b83b298fda3603c3146786130bc25c71e45",
+      "catalog_sha256": "6a6c3f0a56b06e96f9275e7db9158624251235eaa84b23f6f5f46c38f518dd04",
+      "source_ammunition_sha256": "43f5c96215fce06a75f9fbbb900e597db466e4cbfd9319bcba27a83e4b0a02c8"
+    },
+    {
+      "schema_version": "1.0.0",
+      "model": "layered-v2-cpu-first-armor-range-1",
+      "identity": {
+        "version": "2.59.0.92",
+        "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+        "model": "layered-v2-cpu-first-armor-range-1",
+        "cpu_code_sha256": "29729aad137faf7cfceb0af6403d487e84aa418063523d97e458610c64505c4b",
+        "adapter_sha256": "6189008ce04068b66a4d324cfbc9ddfa214e8fae13da290cd19a3df66f23af94",
+        "numerics_sha256": "6b8ce4710061d13c26fd0de76d338957732e76d0d20309911a9cda57eca6a20f"
+      },
+      "status": "completed",
+      "planned_maps": 3,
+      "computed_maps": 3,
+      "reused_maps": 0,
+      "binding_errors": [],
+      "profile_rejections": {},
+      "errors": [],
+      "source_npz_probability_maps_read": 0,
+      "raw_geometry_changed": false,
+      "game_probability_validated": false,
+      "pending_maps": 0,
+      "duration_seconds": 7.5959825000027195,
+      "resources": {
+        "peak_rss_bytes": 448991232,
+        "cpu_seconds": 7.703125,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
+      },
+      "ammunition_sha256": "5fbbc7e80a2f0f649bf3d0255433c723542b3f5c07539690bcadec789a426f3b",
+      "catalog_sha256": "6a6c3f0a56b06e96f9275e7db9158624251235eaa84b23f6f5f46c38f518dd04",
+      "source_ammunition_sha256": "43f5c96215fce06a75f9fbbb900e597db466e4cbfd9319bcba27a83e4b0a02c8"
+    }
+  ],
+  "sensitivity": {
+    "current": {
+      "cases": [
+        {
+          "baseline_truncated": 0,
+          "boards": [],
+          "case": "aim_narrower",
+          "changed_truncated": 0,
+          "config_sha256": "e6acd0130642e6afd747dd2d8b249934f46580ff036feb9966ae302b17963ae6",
+          "evaluations": 2,
+          "execution": {
+            "computed_tables": 4,
+            "new_evaluations": 2,
+            "restored_evaluations": 0,
+            "restored_tables": 0
+          },
+          "passed": false
+        },
+        {
+          "baseline_truncated": 0,
+          "boards": [],
+          "case": "aim_wider",
+          "changed_truncated": 0,
+          "config_sha256": "146458590c47f997e4f4595ab4ba8978eb95248470dc345ae6b8455673f4e473",
+          "evaluations": 2,
+          "execution": {
+            "computed_tables": 4,
+            "new_evaluations": 2,
+            "restored_evaluations": 0,
+            "restored_tables": 0
+          },
+          "passed": false
+        },
+        {
+          "baseline_truncated": 0,
+          "boards": [],
+          "case": "opponent_skill_higher",
+          "changed_truncated": 0,
+          "config_sha256": "dca7134fead42f1e260f77825beac24306168704f12a2273eb9c64b791663578",
+          "evaluations": 2,
+          "execution": {
+            "computed_tables": 4,
+            "new_evaluations": 2,
+            "restored_evaluations": 0,
+            "restored_tables": 0
+          },
+          "passed": false
+        },
+        {
+          "baseline_truncated": 0,
+          "boards": [],
+          "case": "double_search_budget",
+          "changed_truncated": 0,
+          "config_sha256": "1174863320fe4b016ca87c2ab806c27339afe6a04b78e8116dfc0f26b38b5802",
+          "evaluations": 2,
+          "execution": {
+            "computed_tables": 4,
+            "new_evaluations": 2,
+            "restored_evaluations": 0,
+            "restored_tables": 0
+          },
+          "passed": false
+        },
+        {
+          "baseline_truncated": 0,
+          "boards": [],
+          "case": "alternate_queue_seed",
+          "changed_truncated": 0,
+          "config_sha256": "2ed48e08f7c057cfc664cbcde298b5e30ba24677c644253fec8d0c5ce3a44467",
+          "evaluations": 2,
+          "execution": {
+            "computed_tables": 4,
+            "new_evaluations": 2,
+            "restored_evaluations": 0,
+            "restored_tables": 0
+          },
+          "passed": false
+        }
+      ],
+      "catalog_sha256": "ad3c467589006c7e1b6ebe5359c027274d9597181a51c1d85f1a00330304f67b",
+      "config_sha256": "8014efa997b82d93a07ab945d1c802fed4638bd0109c9ab4fe85e90b5645a5d9",
+      "duration_seconds": 1.625156300025992,
+      "empirical_validation": false,
+      "inputs_sha256": "17fdd76830f3049c404e358137dd01e0723a45c39856964f8cc67a2c1cd86f06",
+      "kind": "measured_model_search_sensitivity",
+      "passed": false,
+      "schema_version": "1.0.0",
+      "sha256": "1f9aab6a2282058a51f36357dfbe4d806d0808463911272150cdd135ea4d8c45",
+      "thresholds": {
+        "maximum_score_delta": 10.0,
+        "minimum_overlap": 0.5
+      }
+    }
+  },
+  "global_coverage_claimed": false
+}

@@ -19197,5 +19197,18 @@
     "root_environment_variable": "WT_ATLAS_DATA_ROOT",
     "physical_client_version": "2.59.0.92",
     "catalog_game_version": null
+  },
+  "supplemental_native_range": {
+    "separate_atlas": true,
+    "global_counts_unchanged": true,
+    "maps": 6,
+    "vehicles": 2,
+    "distances_m": [
+      100,
+      500,
+      1000
+    ],
+    "diagnostics": 432,
+    "receipt": "reports/native-range-validation.json"
   }
 }

@@ -1,6 +1,6 @@
 {
   "ammunition_profiles": 404,
-  "build_key": "d4814526e594d7e6b730075bc71f546c1b75b2964e04f6de386debcf7e492187",
+  "build_key": "3a389aaae149267783b68b9246fc5af627999429c2233ce19baf9cc311d6a42f",
   "calibration_status": "uncalibrated",
   "catalog_vehicles": 2679,
   "client_versions": [
@@ -52,18 +52,19 @@
     "code": {
       "__init__.py": "9ab0ca0cef5ce48f3bffa5a9d946307d945cb837e75ab00c0d8fb5550c1551c1",
       "aim.py": "6390ffb7793120f6ba6e9142e0e6dafd18ef63b5941daaa1c8a7432bca18bf25",
-      "build.py": "85d68939cfa5af4c8a32204e693f966e19af606a386344bd76f68f13fd262bdb",
+      "build.py": "2d198a8095e0b0a1c83042a4fecb5355106fea2725b2389e64afdd741bfab3f4",
       "calibrate.py": "999756edfbea39011e23b53a3fbd89938c4b7ef2686d33a8194616e4b8e4a4d5",
       "capabilities.py": "15261bc98b819c820ce318a95209e7aa8277231d6b92184f95bd0ff2ddb3a6f5",
       "combat.py": "26e95706884e58fbba23d8e00bdb1ebf81bdba66df3152594189d28898d3967f",
       "data.py": "699f8a3c1f23ecceede5fccfc2287fc3515d011af6f3690ed2ebb7203eefdf47",
-      "engine.py": "aa63ce8de3467ba59138e23aa889b40e91b4d12c3a310e9f2f22182a911b8dc2",
+      "engine.py": "5d0d12e889eb4cd84f4f2941fef574da80ebc3c084cf31fc0fa37a2e8a5b7225",
       "inventory.py": "aa0a14c2b94f6ec8e32c416ee6d35432ff65839c3a795c297f2e1510b7f142f5",
       "resources.py": "f38f6c7d98a7b64856d068a8e4aa3860deece515db017eaa5ebbf063f8c9adcc",
-      "search.py": "e316c7e46d272cf07de45c04d3be0924143deb83e65cab167f4316933f57f02e",
+      "search.py": "8aa57a6fe7f6cbedd0d6592d30ea36c7248d9a6b3933af67d7d6e6bd41662266",
+      "sensitivity.py": "aea56248e403c4a42118e0c6b0673b556496e406e0cccdbe8de0f2c81103f8e5",
       "statistics.py": "5bc3e4ab733a5ca6bbb312b1d56282e2f2c786c04d274c49136f957483bf1d8b",
       "updates.py": "b0b52ad6e3e3599670540a7aff5fc06d41b6489476252aef446c1991f4cd1527",
-      "versions.py": "2a7ba6b05ffc78661232dbf5d760c8f44678fab2bbb4737eb888568166e963c8"
+      "versions.py": "f782f2f57f320a1f8076b3cdb06dc89adf2beabe67fb86a18a1b46c09465e160"
     },
     "config": "9fd05e3cb48024fc0dd9aa2e581e6490b9f578ec23ede56d55fcf7233c8baf99",
     "effects": null,
@@ -308,6 +309,9 @@
   "scenario_audit": [],
   "scenario_status": "not_provided",
   "schema_version": "1.1.0",
+  "sensitivity": {
+    "current": null
+  },
   "skill_profile": null,
   "snapshots": {
     "current": {
@@ -375,164 +379,81 @@
   "task_preference": null,
   "why_rebuilt": [],
   "acceptance": {
-    "observed_at": "2026-10-30T08:25:15.987191+00:00",
-    "source_commit": "1beb5612534cecd51aced34744a5897f1ed2266e",
+    "observed_at": "2026-10-30T12:05:14.842103+00:00",
+    "source_commit": "9331d2e75c56aa5cf90dad99d0091677b0407fc6",
     "python": "3.14.4",
     "node": "v22.19.0",
     "tests": {
       "python": {
-        "command": "npm test (test:python)",
-        "passed": 116
+        "total": 132,
+        "passed": 131,
+        "skipped": 1,
+        "skip_reason": "Windows filesystem symlink creation unavailable",
+        "seconds": 38.773
       },
       "node": {
-        "command": "npm test (test:js)",
         "passed": 51
       },
+      "research_source_node": {
+        "passed": 55,
+        "scope": "supplied uncommitted legacy research source, copied without modifying original"
+      },
       "forecast": {
-        "command": "python -m unittest discover -s tests -p test_forecast*.py -v",
-        "passed": 63,
-        "subset_of_python_suite": true
+        "passed": 79,
+        "subset_of_python": true
       },
       "smoke": {
-        "command": "npm run test:smoke",
         "passed": 4
       },
       "forecast_browser": {
-        "command": "node tests/forecast.e2e.mjs",
-        "result": {
-          "status": "passed",
-          "automatic_ranking": true,
-          "version_switch": true,
-          "nation_filter": true,
-          "subpath": true,
-          "mobile": true,
-          "cohort_switch": true,
-          "unified_research": true,
-          "hash_error_retry": true,
-          "raw_physics_initial_requests": 0,
-          "page_errors": []
-        }
-      },
-      "research_browser": {
-        "command": "node scripts/qa_research_http.mjs <original-repository> dist/site/research",
-        "passed": 11,
-        "details": [
-          {
-            "name": "AT12: static boot with external services unavailable",
-            "status": "passed",
-            "elapsed_ms": 853.1291
-          },
-          {
-            "name": "Primary navigation, scoped version filters and pagination",
-            "status": "passed",
-            "elapsed_ms": 1361.5988
-          },
-          {
-            "name": "Flag controls, custom-only BR cap and nation-wide top three",
-            "status": "passed",
-            "elapsed_ms": 798.1442999999999
-          },
-          {
-            "name": "New-version adoption and split review keep their own version and members",
-            "status": "passed",
-            "elapsed_ms": 25766.998300000003
-          },
-          {
-            "name": "Manual lineup uses actual member BR and independent bidirectional pairs",
-            "status": "passed",
-            "elapsed_ms": 807.6686999999984
-          },
-          {
-            "name": "Matrix drilldown retains ammunition, uncertainty and reverse direction",
-            "status": "passed",
-            "elapsed_ms": 249.57920000000013
-          },
-          {
-            "name": "AT01/AT11: imported scenario changes fixed member cost and retains baseline",
-            "status": "passed",
-            "elapsed_ms": 64828.2504
-          },
-          {
-            "name": "Changed engagement conditions invalidate both lineup and version results",
-            "status": "passed",
-            "elapsed_ms": 166.21459999999206
-          },
-          {
-            "name": "AT08/AT09/AT10: lazy heatmap, full probability mass, unchanged physical shot data",
-            "status": "passed",
-            "elapsed_ms": 420.60680000000866
-          },
-          {
-            "name": "Tree source fields and responsive mobile navigation",
-            "status": "passed",
-            "elapsed_ms": 1195.514599999995
-          },
-          {
-            "name": "No browser runtime exceptions or missing local assets",
-            "status": "passed",
-            "elapsed_ms": 0.11989999999059364
-          }
-        ]
+        "status": "passed",
+        "automatic_ranking": true,
+        "version_switch": true,
+        "nation_filter": true,
+        "subpath": true,
+        "mobile": true,
+        "cohort_switch": true,
+        "unified_research": true,
+        "hash_error_retry": true,
+        "raw_physics_initial_requests": 0,
+        "page_errors": []
       },
       "real_product_browser": {
-        "command": "node tests/product_runtime.e2e.mjs dist/site",
         "passed": 5
       },
-      "dependencies": {
-        "commands": [
-          "python -m pip install -r requirements.txt",
-          "npm ci"
-        ],
-        "status": "passed"
-      },
-      "baseline": {
-        "commit": "465317f6ce0a7d3efb06297f1cb1cfac588ad905",
-        "python_total": 88,
-        "python_errors": 4,
-        "python_seconds": 23.37,
-        "python_peak_rss_bytes": null,
-        "node_passed": 51,
-        "forecast_passed": 35,
-        "failure_cause": "Windows implicit GBK decoding of UTF-8 JSON/subprocess output; fixed explicitly"
-      },
-      "no_input_build": {
-        "command": "npm run build -- --output dist/no-input-site --forecast-output dist/no-input-forecast --reports reports/no-input",
-        "status": "passed",
-        "static_bytes": 566304,
-        "rankings": 0
+      "real_research_browser": {
+        "passed": 11,
+        "browser": "151.0.7922.34"
       }
     },
     "native_sample": {
-      "ammunition_profiles": 404,
-      "angles": 24,
-      "derived_local_sample_manifest_files": 4,
       "diagnostics": 72,
-      "formal_rankings": 0,
-      "historical_diagnostic_comparisons": 6,
-      "maps": 1,
-      "maximum_absolute_difference": 0.0,
-      "original_expected_files": 32,
-      "original_zip_status": "blocked_not_found",
-      "physical_distance_m": 10,
-      "reverse_direction_present": false,
-      "vehicles": 2,
-      "actual_input_kind": "derived_native_regression_subset_not_original_archive",
-      "manifest_sha256": "a1a1915ff217a98980d6dde20d1e280f583953c8a7365413d5b3ed089c70494f",
-      "copied_source_hashes_unchanged": true
+      "historical_checkpoints": 6,
+      "maximum_delta": 0.0,
+      "source_hashes_unchanged": true,
+      "original_32_file_archive_available": false
     },
     "sample_build": {
-      "build_key": "d34d57b41eec8564a2477a4cea686c9916e08c9db1108cd899aec42b30aa6dd9",
+      "build_key": "fd2a03b3b0ea26431951a6a0429829544e6448e94b76b3e957fb5cd1463363be",
       "catalog_vehicles": 2,
       "maps": 1,
       "diagnostic_rows": 72,
-      "cache_hits": 180,
-      "cache_misses": 0,
+      "cache_hits": 99,
+      "cache_misses": 81,
       "npz_loads": 1,
       "ranked_counts": {
         "current": 0
       },
       "evaluations": {
         "current": 3
+      },
+      "search_execution": {
+        "current": {
+          "restored_tables": 0,
+          "computed_tables": 4,
+          "new_evaluations": 3,
+          "restored_evaluations": 0
+        }
       },
       "research_counts": {
         "current": 0
@@ -549,6 +470,7 @@
             "source_version_timeline_incomplete",
             "snapshot_physics_version_mismatch",
             "independent_target_geometry_not_verified",
+            "physical_arrays_not_fully_verified",
             "no_candidates_meet_bidirectional_coverage",
             "scope_is_limited_ground_research",
             "full_mode_mission_evidence_missing",
@@ -590,16 +512,16 @@
           "research_candidates": 0
         }
       },
-      "duration_seconds": 1.0252564999973401,
+      "duration_seconds": 0.7970169000327587,
       "resources": {
-        "peak_rss_bytes": 119308288,
-        "cpu_seconds": 0.5625,
+        "peak_rss_bytes": 119042048,
+        "cpu_seconds": 1.203125,
         "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
       },
       "publication": "sample_diagnostics_only"
     },
     "real_build": {
-      "build_key": "d4814526e594d7e6b730075bc71f546c1b75b2964e04f6de386debcf7e492187",
+      "build_key": "3a389aaae149267783b68b9246fc5af627999429c2233ce19baf9cc311d6a42f",
       "catalog_vehicles": 2679,
       "maps": 97421,
       "diagnostic_rows": 0,
@@ -611,6 +533,14 @@
       },
       "evaluations": {
         "current": 1410
+      },
+      "search_execution": {
+        "current": {
+          "restored_tables": 716,
+          "computed_tables": 0,
+          "new_evaluations": 0,
+          "restored_evaluations": 1410
+        }
       },
       "research_counts": {
         "current": 0
@@ -668,15 +598,14 @@
           "research_candidates": 0
         }
       },
-      "duration_seconds": 1442.9516759000253,
+      "duration_seconds": 1790.5400995999807,
       "resources": {
-        "peak_rss_bytes": 756023296,
-        "cpu_seconds": 281.046875,
+        "peak_rss_bytes": 755965952,
+        "cpu_seconds": 376.984375,
         "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
       },
       "publication": "conditional_research_only",
-      "evaluation_semantics": "Final resume restored complete search tables after source validation. evaluations=1410 describes saved tables, not 1410 new evaluations this run; shot hits/misses/array decodes are zero.",
-      "restored_search_tables": 716
+      "measurement_context": "ran concurrently with full legacy research recommendation regeneration; not an isolated throughput comparison"
     },
     "source_update": {
       "local_pinned_capture_verified": true,
@@ -686,6 +615,24 @@
       "status": "uncalibrated",
       "blocked": "data/private/authorized-statistics.json not supplied"
     },
-    "historical_original_sample_archive_verified_this_run": false
+    "historical_original_sample_archive_verified_this_run": false,
+    "native_range_receipt": "reports/native-range-validation.json",
+    "output_recovery": {
+      "old_publication_access": "denied by current filesystem permissions",
+      "old_directories_changed": false,
+      "final_site": "dist/site-83c6faa",
+      "research_rebuilt_from_copied_source": true,
+      "source_receipt": "reports/research-rebuild-inputs.json",
+      "legacy_recommendations_seconds": 1041.3400216,
+      "legacy_static_build_seconds": 28.899374400032684
+    },
+    "remote": {
+      "pr": 5,
+      "confirmed_head": "09e431ab24ee8f80b93314b661d0357c59643af4",
+      "new_commits_uploaded": false,
+      "git_push": "network connection refused",
+      "connector_write": "requires approval; approval policy is never",
+      "new_remote_ci": "not_run"
+    }
   }
 }
