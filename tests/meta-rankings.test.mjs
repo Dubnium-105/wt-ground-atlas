@@ -5,7 +5,7 @@ import {buildMetaRankings,compositionKey} from '../shared/meta-rankings.mjs';
 const options = {
   global_limit:100,per_nation_br_limit:3,per_br_limit:10,per_nation_limit:25,
   mover_limit:50,coverage_review_threshold:0.5,interval_review_threshold:0.35,
-  diversity_max_jaccard:0.8,
+  diversity_max_jaccard:0.65,
 };
 const candidate = (ids,br,score,extra={}) => ({
   lineup_ids:ids, actual_br:br, candidate_cap:br,score,lower:score-0.08,
