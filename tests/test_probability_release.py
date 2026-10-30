@@ -106,7 +106,7 @@ class PublicationContracts(unittest.TestCase):
             self.assertIn(preview, names)
             self.assertNotIn('old-shard.bin', names)
             self.assertEqual(names[-2:], ['index.json.gz', 'index.json'])
-            self.assertEqual(listing.read_text().splitlines(), names)
+            self.assertEqual(listing.read_text(encoding="utf-8").splitlines(), names)
             self.assertEqual(read_json(report_path), result)
             self.assertEqual(result['total_bytes'], sum((output / name).stat().st_size for name in names))
 

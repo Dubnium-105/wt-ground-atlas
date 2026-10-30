@@ -293,5 +293,15 @@
   "ownership": {
     "require_unlocked": false,
     "unlocked_modifications_by_vehicle": {}
+  },
+  "statistics": {
+    "minimum_samples": 100,
+    "train_fraction": 0.6,
+    "validation_fraction": 0.2,
+    "shrinkage": 0.1,
+    "max_iterations": 100,
+    "bins": 10,
+    "bootstrap_draws": 100,
+    "seed": 105
   }
 }

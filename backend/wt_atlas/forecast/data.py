@@ -134,12 +134,26 @@ def validate_config(c: dict) -> None:
     for s in scenarios:
         for key in ("weight", "physical_distance_m", "aiming_distance_m", "horizon_s", "approach_m", "cover_distance_m", "hull_offset_deg"):
             if not number(s[key]) or s[key] < 0: raise ValueError("Invalid scenario " + key)
-        if s["horizon_s"] <= 0 or not 0 <= s["yaw_deg"] < 360: raise ValueError("Invalid scenario bounds")
+        if s["horizon_s"] <= 0 or not number(s['yaw_deg']) or not 0 <= s["yaw_deg"] < 360: raise ValueError("Invalid scenario bounds")
         for key in ("target_velocity_xy_m_s", "own_velocity_xy_m_s", "target_angular_velocity_xy_rad_s"):
             if len(s[key]) != 2 or not all(number(v) for v in s[key]): raise ValueError("Invalid motion vector")
         if c["publication"]["require_consistent_distance"] and s["physical_distance_m"] != s["aiming_distance_m"]:
             raise ValueError("Ranking cannot substitute aiming distance for physical distance")
     if not math.isclose(sum(s["weight"] for s in scenarios), 1): raise ValueError("Scenario weights must sum to one")
+    def positive_int(value):
+        return isinstance(value,int) and not isinstance(value,bool) and value>0
+    for profile in [*c.get('skill_profiles',{}).values(),c.get('opponent_population',p)]:
+        if profile.get('distribution')!='normal_assumption' or not number(profile.get('mean')) or not number(profile.get('sd')) or profile['sd']<0 or not positive_int(profile.get('nodes')) or profile['nodes']>15:raise ValueError('Invalid skill profile')
+    sampler=rules.get('lineup_sampler',{})
+    if sampler and (not isinstance(sampler.get('enabled'),bool) or not positive_int(sampler.get('samples')) or not positive_int(sampler.get('slots')) or sampler['slots']>10 or not isinstance(sampler.get('seed'),int)):raise ValueError('Invalid lineup sampler')
+    for profile in c.get('task_profiles',{}).values():
+        weights=profile.get('phase_weights',[])
+        if not weights or len(weights)!=len(profile.get('phases',[])) or any(not number(w) or w<0 for w in weights) or not math.isclose(sum(weights),1):raise ValueError('Invalid task profile')
+    if any(not positive_int(v) for v in c['publication'].get('budgets',{}).values()):raise ValueError('Invalid publication budget')
+    stats=c.get('statistics')
+    if stats:
+        if any(not positive_int(stats[k]) for k in ('minimum_samples','max_iterations','bins','bootstrap_draws')) or any(not number(stats[k]) or not 0<stats[k]<1 for k in ('train_fraction','validation_fraction')) or stats['train_fraction']+stats['validation_fraction']>=1 or not number(stats['shrinkage']) or stats['shrinkage']<0:raise ValueError('Invalid statistics settings')
+    if search.get('br_range') and (len(search['br_range'])!=2 or any(not number(x) for x in search['br_range']) or search['br_range'][0]>search['br_range'][1]):raise ValueError('Invalid BR range')
 
 
 def taxonomy(v: dict) -> dict:

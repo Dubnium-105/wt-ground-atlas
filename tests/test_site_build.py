@@ -85,7 +85,7 @@ class SiteBuildContracts(unittest.TestCase):
 
     def test_embedded_mode_copies_only_index_references(self):
         export = self.root / 'data/exports/probability'
-        index = json.loads((export / 'index.json').read_text())
+        index = json.loads((export / 'index.json').read_text(encoding="utf-8"))
         orphan = export / 'shards/unreferenced.bin'
         orphan.write_bytes(b'unreferenced previous release')
         self.build(probability_mode='embedded')
@@ -111,7 +111,7 @@ class SiteBuildContracts(unittest.TestCase):
         self.build()
         before = hashes(self.site)
         catalog_path = self.root / 'data/snapshots/catalog.json'
-        catalog = json.loads(catalog_path.read_text())
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
         catalog['vehicles'][0]['name'] += ' changed after computation'
         write_json(catalog_path, catalog)
         with self.assertRaises(ValueError):
@@ -125,7 +125,7 @@ class SiteBuildContracts(unittest.TestCase):
         for budgets in ({'site_bytes': 1024, 'file_bytes': 26214400},
                         {'site_bytes': 104857600, 'file_bytes': 1024}):
             with self.subTest(budgets=budgets):
-                settings = json.loads(settings_path.read_text())
+                settings = json.loads(settings_path.read_text(encoding="utf-8"))
                 settings['budgets'] = budgets
                 write_json(settings_path, settings)
                 with self.assertRaises(ValueError):

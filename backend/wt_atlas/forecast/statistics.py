@@ -50,6 +50,8 @@ def metrics(rows,predictions,bins=10):
 
 
 def calibrate(packet,config):
+    import copy
+    packet=copy.deepcopy(packet)
     for field in ('source','sampling_window','game_version','mode','sample_count','deduplication','bias_notes','authorization','endpoint'):
         if not packet.get(field):raise ValueError('Missing statistics provenance: '+field)
     if packet['mode']!='ground_rb' or packet['endpoint'] not in ('penetration','damage','mission'):raise ValueError('Wrong statistics mode/endpoint')
@@ -93,3 +95,16 @@ def calibrate(packet,config):
                  'unseen_test_strata':sorted({r['stratum'] for r in tests}-set(strata))},
         'excluded_cross_window_observations':len(rows)-sum(len(rs) for rs in split.values()),
         'limitations':['Connected groups spanning a time boundary are excluded.','Bootstrap interval covers this sample; physical missing-data bounds remain separate.']}
+
+
+def community_annotations(packet,vehicle_ids):
+    """Qualitative, attributable commentary, intentionally independent of scoring."""
+    required=('source','sampling_window','game_version','mode','sample_count','deduplication','bias_notes','authorization')
+    if any(not packet.get(k) for k in required):raise ValueError('Incomplete community provenance')
+    rows=packet.get('annotations',[])
+    if packet['sample_count']!=len(rows) or packet['mode']!='ground_rb':raise ValueError('Invalid community sample')
+    result=[]
+    for row in rows:
+        if row.get('vehicle_id') not in vehicle_ids or not row.get('source_url') or not isinstance(row.get('labels'),list) or not row.get('disputes'):raise ValueError('Unattributed community annotation')
+        result.append({k:row[k] for k in ('vehicle_id','source_url','labels','disputes')})
+    return {'provenance':{k:packet[k] for k in required},'annotations':result,'used_for_scoring':False,'sha256':digest(packet)}

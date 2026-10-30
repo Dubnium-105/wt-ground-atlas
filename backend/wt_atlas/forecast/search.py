@@ -113,6 +113,8 @@ class Optimizer:
                 costs = [spawn_cost(v,self.config['spawn'],room) for v in lineup]
                 result = sortie_policy(rows, costs, self.config["spawn"], domains=[v['domain'] for v in lineup],
                     cost_function=lambda i,n:spawn_cost(lineup[i],self.config['spawn'],room,n))
+                result['task_evidence']=[sum(a['probability']*(rows[i][a['member_index']]['coverage'] if a['member_index'] is not None else 0.) for a in phase['actions']) for i,phase in enumerate(result['policy'])]
+                result['mission_keys']=[[r.get('mission_key') for r in phase] for phase in rows]
                 result.update(weight=room_weight * scenario["weight"], room_top_step=room, scenario=scenario["id"])
                 cases.append(result)
         risk = self.config["search"]["risk_aversion"]
@@ -138,7 +140,7 @@ class Optimizer:
                 "lineup_key":digest([keys,self.config]),
                 "uncertainty":{"physical_missing_interval":[100*aggregate('lower'),100*aggregate('upper')],
                     "model_error":None,"out_of_sample_confidence_interval":None},
-                "mission_coverage":{task:sum(r['weight']*sum(a['probability']*(a['member_index'] is not None) for a in r['policy'][i]['actions']) for r in cases) for i,task in enumerate(self.config['spawn']['phases'])},
+                "mission_coverage":{task:sum(r['weight']*r['task_evidence'][i] for r in cases) for i,task in enumerate(self.config['spawn']['phases'])},
                 "global_optimum_guaranteed": False}
 
     def pareto(self,pool,cap):
@@ -168,6 +170,27 @@ class Optimizer:
                 if dominated:removed+=1
                 else:kept.append(v)
         return kept,removed
+
+    def explain(self,result):
+        """Remove each member in the SAME rooms; this is conditional reserve value."""
+        lineup=[self.e.by_key[k] for k in result['keys']];contributions=[]
+        for removed,v in enumerate(lineup):
+            without=0.;use=0.
+            for case in result['cases']:
+                rows=[[self.e.mission(k,task,case['room_top_step'],case['scenario']) for k in result['keys']] for task in self.config['spawn']['phases']]
+                costs=[None if i==removed else spawn_cost(x,self.config['spawn'],case['room_top_step']) for i,x in enumerate(lineup)]
+                policy=sortie_policy(rows,costs,self.config['spawn'],domains=[x['domain'] for x in lineup],
+                    cost_function=lambda i,n:None if i==removed else spawn_cost(lineup[i],self.config['spawn'],case['room_top_step'],n))
+                without+=case['weight']*policy['mean']
+                use+=case['weight']*sum(a['probability'] for phase in case['policy'] for a in phase['actions'] if a['member_index']==removed)
+            baseline=sum(c['weight']*c['mean'] for c in result['cases'])
+            contributions.append({'vehicle_id':v['vehicle_id'],'sortie_probability':use,'marginal_expected_utility_same_rooms':100*(baseline-without)})
+        result['reserve_contributions']=contributions
+        result['environment_threats']=sorted([{'room_top_step':c['room_top_step'],'scenario':c['scenario'],'lower':c['lower'],'upper':c['upper'],'coverage':c['coverage']} for c in result['cases']],key=lambda c:c['lower'])
+        result['composition']='ground_only' if all(v['domain']=='ground' for v in lineup) else 'combined_arms'
+        result['uptier_lower_utility']=100*min((c['lower'] for c in result['cases'] if c['room_top_step']>round(result['actual_br']*3)),default=min(c['lower'] for c in result['cases']))
+        self.e.cache.evidence_put(result['lineup_key'],'lineup',result)
+        return result
 
     def _rank(self, keys: tuple[str, ...]):
         result = self.evaluate(keys)
@@ -251,7 +274,7 @@ class Optimizer:
             results.append((parents, result))
             if len(results) == self.config["search"]["per_cap_limit"]: break
         return {"nation": nation, "cap_step": cap, "slots": slots, "acquisition": acquisition,
-                "candidates": [r for _, r in results], "evaluations": len(visited),
+                "candidates": [self.explain(r) for _, r in results], "evaluations": len(visited),
                 "pareto_payloads_removed":pruned,"seed":self.config['search'].get('seed',0),
                 "budget_exhausted": exhausted, "algorithm": "multi_start_beam_and_one_two_slot_exchange",
                 "global_optimum_guaranteed": False}
@@ -266,7 +289,12 @@ class Optimizer:
             for slots in self.config["search"]["slots"]:
                 for acquisition in self.config["search"]["acquisition_profiles"]:
                     for cap in caps:
-                        tables.append(self.discover(nation, cap, slots, acquisition))
+                        key=digest([getattr(self.e,'build_key',None),nation,cap,slots,acquisition,self.config])
+                        cached=self.e.cache.derived_get(key) if getattr(self.e,'resume',False) and getattr(self.e,'build_key',None) else None
+                        if cached is not None:tables.append(cached)
+                        else:
+                            table=self.discover(nation, cap, slots, acquisition);tables.append(table)
+                            if getattr(self.e,'build_key',None):self.e.cache.derived_put(key,table)
         boards = {}
         for slots in self.config["search"]["slots"]:
             for acquisition in self.config["search"]["acquisition_profiles"]:

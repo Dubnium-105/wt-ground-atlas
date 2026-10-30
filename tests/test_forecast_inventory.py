@@ -31,7 +31,7 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(result['rejections']['NPZ checksum failure'],1)
 
     def test_bad_profile_does_not_abort_other_maps(self):
-        profiles=json.loads(self.ammo.read_text());profiles[0]['distance_m']=100
+        profiles=json.loads(self.ammo.read_text(encoding="utf-8"));profiles[0]['distance_m']=100
         self.ammo.write_text(canonical(profiles),encoding='utf-8')
         result=self.index.sync(self.atlas,self.ammo,self.catalog)
         self.assertEqual(result['selected_maps'],12)
@@ -46,14 +46,17 @@ class InventoryTests(unittest.TestCase):
         atlas=Atlas(self.atlas,self.ammo,self.catalog,index=self.index)
         self.assertEqual(atlas.loads,0)
         report=coverage(self.catalog,atlas,settings(),self.index)
+        self.assertEqual(report['counts'].get('available_bidirectional_pairs',0),0)
+        self.index.verify(self.atlas)
+        report=coverage(self.catalog,atlas,settings(),self.index)
         self.assertEqual(report['counts']['available_bidirectional_pairs'],8)
-        self.assertIn('arrays_not_fully_verified',report['blockers'])
+        self.assertNotIn('arrays_not_fully_verified',report['blockers'])
         atlas.load(next(iter(atlas.meta)))
         self.assertEqual(atlas.loads,1)
 
     def test_duplicate_identity_is_quarantined_and_removal_resumes(self):
         path=next((self.atlas/'arrays').glob('*.json'))
-        m=json.loads(path.read_text());m['map_id']='other'
+        m=json.loads(path.read_text(encoding="utf-8"));m['map_id']='other'
         extra=path.with_name('other.json');extra.write_text(canonical(m),encoding='utf-8')
         r=self.index.sync(self.atlas,self.ammo,self.catalog)
         self.assertEqual(r['ambiguous_maps'],2);self.assertEqual(r['selected_maps'],15)

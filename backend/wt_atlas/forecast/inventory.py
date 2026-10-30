@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 import sqlite3
 import time
+import zipfile
 
 from .data import Atlas, canonical, digest, file_hash, number, read_json, safe_file, taxonomy
 
@@ -73,7 +74,7 @@ def verify_array(task):
         return {'id': meta['map_id'], 'status': 'verified', 'angles': data['angles_deg'].tolist(),
                 'shape': list(data['status'].shape), 'error': None,
                 'seconds': time.perf_counter() - started}
-    except (ValueError, OSError, KeyError, ArithmeticError, EOFError) as exc:
+    except (ValueError, OSError, KeyError, ArithmeticError, EOFError,zipfile.BadZipFile) as exc:
         return {'id': meta['map_id'], 'status': 'invalid_array', 'angles': None, 'shape': None,
                 'error': str(exc), 'seconds': time.perf_counter() - started}
 
@@ -111,7 +112,8 @@ class Inventory:
         if len(by_vehicle) != len(catalog['vehicles']): raise ValueError('Duplicate vehicle identity')
         hashes = {k: digest(p) for k, p in by_profile.items()}
         bindings = bindings or {}
-        input_key = digest([str(root), hashes, {k: [v.get('client_collision'), v.get('source_attributes', {}).get('client'), v.get('analysis_target_sha256')] for k,v in by_vehicle.items()}, bindings])
+        base_key=digest([str(root),file_hash(Path(__file__)),file_hash(Path(__file__).with_name('data.py'))])
+        target_keys={k:digest([v.get('client_collision'),v.get('source_attributes',{}).get('client'),v.get('analysis_target_sha256'),bindings.get(k)]) for k,v in by_vehicle.items()}
         generation = time.time_ns()
         counts = Counter()
         self.db.execute('UPDATE maps SET selected=0')
@@ -119,12 +121,15 @@ class Inventory:
             if not entry.name.endswith('.json'): continue
             path = Path(entry.path)
             key = entry.name
+            input_key=base_key
             try:
                 if path.is_symlink(): raise ValueError('Symlink metadata')
                 raw = path.read_bytes()
                 h = hashlib.sha256(raw).hexdigest()
                 old = self.db.execute('SELECT meta_hash,array_stamp,status,input_key,metadata FROM maps WHERE path=?', (key,)).fetchone()
-                m = read_json(path)
+                m = json.loads(raw,parse_constant=lambda x:(_ for _ in ()).throw(ValueError('Non-finite JSON: '+x)))
+                if not isinstance(m,dict):raise ValueError('Metadata must be an object')
+                input_key=digest([base_key,hashes.get(m.get('ammo_id')),target_keys.get(m.get('target_id'))])
                 source = safe_file(root, m['array_file'])
                 current_stamp = stamp(source)
                 if not force and old and (h, current_stamp, input_key) == (old[0], old[1], old[3]) and old[2] in ('metadata_valid', 'verified'):
@@ -192,6 +197,20 @@ class Inventory:
                     verified += 1
                 self.db.commit()
         self.metrics.update(array_seconds=time.perf_counter()-started,arrays_checked=verified,workers=workers,memory_budget_bytes=memory_budget)
+        return self.summary()
+
+    def apply_bindings(self, bindings):
+        """Apply freshly reconstructed geometry evidence without re-reading NPZ files."""
+        for identifier,row in bindings.items():
+            for path,raw in self.db.execute("SELECT path,metadata FROM maps WHERE target=? AND status IN ('metadata_valid','verified')",(identifier,)).fetchall():
+                m=json.loads(raw)
+                if m['target_sha256']!=row['target_sha256']:
+                    self.db.execute("UPDATE maps SET selected=0,status='rejected',error='target_geometry_mismatch' WHERE path=?",(path,))
+                else:
+                    m['target_binding']='independent_geometry_verified'
+                    m['binding_evidence_sha256']=digest(row)
+                    self.db.execute('UPDATE maps SET metadata=? WHERE path=?',(canonical(m),path))
+        self.db.commit()
         return self.summary()
 
     def summary(self):
@@ -267,6 +286,18 @@ def coverage(catalog, atlas, config, index=None):
     bound = {v['id']:atlas.bindings(v) for v in grounds}
     # One index query per map, then bounded set membership in the pair loop.
     available = set(atlas.lookup)
+    angle_sets={}
+    if index:
+        for target,ammo,distance,angles in index.db.execute('SELECT target,ammo,distance,angles FROM maps WHERE selected=1'):
+            angle_sets[(target,ammo,distance)]=set(json.loads(angles)) if angles and angles!='null' else None
+    def has_slice(key,yaw):
+        if key not in available:return False
+        angles=angle_sets.get(key)
+        return angles is not None and yaw in angles
+    if index is None:
+        for key,map_id in atlas.lookup.items():
+            declared=atlas.meta[map_id].get('angles_deg')
+            angle_sets[key]=set(declared) if declared is not None else None
     for v in vehicles:
         key=(v.get('nation'),v.get('br',{}).get('current'),taxonomy(v)['domain'],taxonomy(v)['class'])
         groups[key] = groups.get(key,0)+1
@@ -277,8 +308,8 @@ def coverage(catalog, atlas, config, index=None):
             for scenario in config['scenarios']:
                 item['required_directed_pairs']+=1
                 d=scenario['physical_distance_m']
-                forward=any((b['id'],p,d) in available for p in profiles)
-                reverse=any((a['id'],p['name'],d) in available for _,p in bound[b['id']])
+                forward=any(has_slice((b['id'],p,d),scenario['yaw_deg']) for p in profiles)
+                reverse=any(has_slice((a['id'],p['name'],d),scenario['yaw_deg']) for _,p in bound[b['id']])
                 if not profiles: item['missing_owned_ammunition']+=1
                 if not forward: item['missing_direction_or_distance']+=1
                 if forward: item['available_forward_pairs']+=1
@@ -287,7 +318,7 @@ def coverage(catalog, atlas, config, index=None):
     report={'schema_version':'1.0.0','catalog_vehicles':len(vehicles),'ammunition_profiles':len(atlas.profiles),
         'physical_distances_m':sorted({p['distance_m'] for p in atlas.profiles.values() if number(p.get('distance_m'))}),
         'groups':[{'nation':k[0],'br':k[1],'domain':k[2],'class':k[3],'count':v} for k,v in sorted(groups.items(),key=lambda x:str(x[0]))],
-        'counts':dict(totals),'matrix':rows,'pair_count_semantics':'vehicle directions per configured scenario; any exact owned supported round; metadata availability is not array verification',
+        'counts':dict(totals),'matrix':rows,'pair_count_semantics':'vehicle directions per configured scenario; any exact owned supported round; only exact verified or explicitly declared yaw slices count; any missing angle metadata is unavailable',
         'sample_subset':catalog.get('sample_subset',False),'inventory':index.summary() if index else None}
     report['blockers']=[]
     if catalog.get('sample_subset'): report['blockers'].append('sample_subset')

@@ -85,27 +85,59 @@ class ShotCache:
         path.parent.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(path)
         self.db.execute("CREATE TABLE IF NOT EXISTS shots (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
+        if 'sha256' not in {r[1] for r in self.db.execute('PRAGMA table_info(shots)')}:
+            self.db.execute('ALTER TABLE shots ADD COLUMN sha256 TEXT')
+        self.db.execute('CREATE TABLE IF NOT EXISTS derived (key TEXT PRIMARY KEY, value TEXT NOT NULL, sha256 TEXT NOT NULL)')
+        self.db.execute('CREATE TABLE IF NOT EXISTS evidence (key TEXT PRIMARY KEY, level TEXT NOT NULL, value TEXT NOT NULL, sha256 TEXT NOT NULL)')
         self.db.execute('PRAGMA journal_mode=WAL')
         self.hits, self.misses = 0, 0
 
     def get(self, key: str):
-        record = self.db.execute("SELECT value FROM shots WHERE key=?", (key,)).fetchone()
+        record = self.db.execute("SELECT value,sha256 FROM shots WHERE key=?", (key,)).fetchone()
         if record:
             import json
             try:
                 value = json.loads(record[0], parse_constant=lambda x: (_ for _ in ()).throw(ValueError(x)))
-                if not isinstance(value,dict): raise ValueError('Invalid cache record')
+                if not isinstance(value,dict) or digest(value)!=record[1]: raise ValueError('Invalid cache record')
                 self.hits += 1; return value
             except (ValueError,TypeError):
                 self.db.execute('DELETE FROM shots WHERE key=?',(key,))
         self.misses += 1; return None
 
     def put(self, key: str, value: dict):
-        self.db.execute("INSERT OR REPLACE INTO shots VALUES (?,?)", (key, canonical(value)))
+        self.db.execute("INSERT OR REPLACE INTO shots VALUES (?,?,?)", (key, canonical(value),digest(value)))
         if self.misses % 128 == 0: self.db.commit()
 
     def close(self):
         self.db.commit(); self.db.close()
+
+    def derived_get(self,key):
+        import json
+        row=self.db.execute('SELECT value,sha256 FROM derived WHERE key=?',(key,)).fetchone()
+        if row:
+            try:
+                value=json.loads(row[0])
+                if digest(value)!=row[1]:raise ValueError('Derived cache checksum')
+                return value
+            except (ValueError,TypeError):self.db.execute('DELETE FROM derived WHERE key=?',(key,))
+        return None
+
+    def derived_put(self,key,value):
+        self.db.execute('INSERT OR REPLACE INTO derived VALUES (?,?,?)',(key,canonical(value),digest(value)))
+        self.db.commit()
+
+    def evidence_put(self,key,level,value):
+        self.db.execute('INSERT OR REPLACE INTO evidence VALUES (?,?,?,?)',(key,level,canonical(value),digest(value)))
+
+    def evidence_get(self,key):
+        import json
+        row=self.db.execute('SELECT level,value,sha256 FROM evidence WHERE key=?',(key,)).fetchone()
+        if row:
+            value=json.loads(row[1])
+            if digest(value)!=row[2]:raise ValueError('Evidence checksum failure')
+            return {'level':row[0],'value':value}
+        value=self.get(key)
+        return {'level':'shot','value':value} if value else None
 
 
 class Forecast:
@@ -122,6 +154,9 @@ class Forecast:
         if effects_path:
             for row in read_json(effects_path)["records"]:
                 if row["map_id"] in self.effects: raise ValueError("Duplicate effect kernel")
+                if row['map_id'] not in atlas.meta:raise ValueError('Unknown effect map')
+                if 'array_file' in row and file_hash(safe_file(effects_path.parent,row['array_file']))!=row['array_sha256']:
+                    raise ValueError('Effect array checksum')
                 self.effects[row["map_id"]] = row
         self.missions = {}
         if missions_path:
@@ -244,10 +279,12 @@ class Forecast:
                 unknown_b = pb["lethality"]["unknown_mass"] if endpoint == "damage" else pb["unknown_mass"]
                 totals["coverage"] += weight * min(1 - unknown_a, 1 - unknown_b)
                 totals["first_fire"] += weight * outcome["first_fire_probability"][0]
-        return {**totals, "score": totals["mean"] if totals["coverage"] > 0 else None,
+        result={**totals, "score": totals["mean"] if totals["coverage"] > 0 else None,
                 "endpoint": endpoint, "missing": sorted(missing), "calibrated": False,
-                "shot_keys":sorted(trace), "pair_key":digest([a_key,b_key,scenario,sorted(trace),self.config['timing']]),
+                "shot_keys":sorted(trace), "pair_key":digest([a_key,b_key,scenario,sorted(trace),totals,self.config]),
                 "estimate_kind":"conditional_model_with_declared_unknown_prior", "observed_mean":None}
+        self.cache.evidence_put(result['pair_key'],'pair',{**result,'attacker_key':a_key,'target_key':b_key,'scenario':scenario})
+        return result
 
     def rooms(self, nation: str, cap: int) -> list[tuple[int, float]]:
         spread = self.config["matchmaking"]["spread_steps"]
@@ -319,14 +356,20 @@ class Forecast:
         if task == "ground" and v["domain"] != "ground": return {"mean": 0., "lower": 0., "upper": 0., "coverage": 1., "usable": False}
         domain = "air" if task in ("anti_air","anti_helicopter","cap") else "ground"
         enemies = self.opponents(v["nation"], room_top, domain)
+        trace=[]
         totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "usable": True}
         if not enemies: return {**totals, "mean": .5, "upper": 1.}
         for enemy, weight in enemies:
             if task == "ground":
                 row = self.pair(key, enemy, scenario_id)
+                trace.append(row['pair_key'])
             else:
                 external = self.missions.get((key, self.by_key[enemy]["vehicle_id"], scenario_id, task))
+                if external:trace.append(external['evidence_sha256']);self.cache.evidence_put(external['evidence_sha256'],'external_mission',external)
                 row = {**external, "coverage": 1. if external['status']=='validated' else 0.} if external else {"mean": .5, "lower": 0., "upper": 1., "coverage": 0.}
             for name in ("mean", "lower", "upper", "coverage"):
                 totals[name] += weight * row[name]
+        totals['mission_key']=digest([key,task,room_top,scenario_id,trace,totals])
+        totals['evidence_trace']={'pair_keys':trace,'external_evidence':task!='ground'}
+        self.cache.evidence_put(totals['mission_key'],'mission',{**totals,'variant_key':key,'task':task,'room_top':room_top,'scenario':scenario_id})
         return totals

@@ -70,9 +70,19 @@ def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensi
     if world['truncated_searches']:blockers.append('search_budget_truncated')
     if not any(world['boards'].values()):blockers.append('no_candidates_meet_bidirectional_coverage')
     if config['publication']['scope']!='full_ground_rb':blockers.append('scope_is_limited_ground_research')
-    if not missions:blockers.append('full_mode_mission_evidence_missing')
+    tasks=config['publication'].get('required_tasks',['ground_control','anti_tank','recon','anti_helicopter','anti_air','cap','cas','sead'])
+    evidence_tasks={r.get('task') for r in (missions or {}).values() if r.get('production_validated')}
+    if not set(tasks)<=evidence_tasks:blockers.append('full_mode_mission_evidence_missing')
     if config['spawn'].get('status')!='official_verified':blockers.append('spawn_rules_assumed')
-    if sensitivity is None or sensitivity.get('passed') is not True:blockers.append('sensitivity_not_verified')
+    if config['spawn'].get('status')=='official_verified':
+        for v in catalog['vehicles']:
+            rule=v.get('spawn_rule',{})
+            if rule.get('status')!='official_verified' or rule.get('source_version')!=info['game_version'] or not rule.get('source'):
+                blockers.append('vehicle_spawn_provenance_incomplete');break
+    for v in catalog['vehicles']:
+        if any(l.get('source_version')!=info['game_version'] or l.get('source_status')!='official_verified' or not l.get('source') for l in v.get('loadouts',[])):
+            blockers.append('loadout_source_unverified');break
+    if sensitivity is None or sensitivity.get('passed') is not True or sensitivity.get('catalog_sha256')!=digest(catalog) or sensitivity.get('config_sha256')!=digest(config):blockers.append('sensitivity_not_verified')
     if config.get('endpoint')=='damage' and config.get('damage_status')!='validated':blockers.append('damage_evidence_unvalidated')
     if config.get('calibration_status')=='validated' and not config.get('calibration',{}).get('independent_report_sha256'):
         blockers.append('unsupported_calibration_claim')

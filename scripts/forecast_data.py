@@ -41,11 +41,15 @@ def main(argv=None):
         if a.command=='bind':
             if not all((a.catalog,a.jobs,a.repository)):raise ValueError('bind requires --catalog --jobs --repository')
             bound,errors=bind_geometry(a.repository,a.jobs,read_json(a.catalog))
-            report.update(bindings=bound,errors=errors,status='verified' if not errors else 'partial')
+            report.update(bindings=bound,errors=errors,repository=str(a.repository.resolve()),jobs=str(a.jobs.resolve()),status='verified' if not errors else 'partial')
         elif a.command!='doctor':
             if not all((a.catalog,a.ammunition,a.atlas)):raise ValueError('Select exact --catalog --ammunition --atlas; discovery never guesses matching versions')
             catalog=read_json(a.catalog)
-            bindings=read_json(a.bindings).get('bindings',{}) if a.bindings else {}
+            bindings={}
+            if a.bindings:
+                binding_report=read_json(a.bindings)
+                bindings,binding_errors=bind_geometry(Path(binding_report['repository']),Path(binding_report['jobs']),catalog)
+                report['binding_errors']=binding_errors
             index=Inventory(a.index)
             report['inventory']=index.sync(a.atlas,a.ammunition,catalog,bindings=bindings,force=a.force)
             if a.command=='preflight':
