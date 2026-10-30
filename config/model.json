@@ -356,6 +356,6 @@
     "mover_limit": 50,
     "coverage_review_threshold": 0.5,
     "interval_review_threshold": 0.35,
-    "diversity_max_jaccard": 0.8
+    "diversity_max_jaccard": 0.65
   }
 }
