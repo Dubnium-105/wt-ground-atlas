@@ -42,8 +42,8 @@
     "decimal_places": 3
   },
   "matching": {
-    "max_br_spread": 1.0,
-    "epsilon": 1e-06,
+    "max_br_spread": 1,
+    "epsilon": 0.000001,
     "rule_status": "configurable_rule",
     "rule_source": "https://wiki.warthunder.com/mechanics/matchmaking",
     "lower_vehicle_carry_note": "低于主力匹配区间的载具仍可被高 BR 队列携带；离开主力区间不代表绝不会遇见。",
@@ -222,7 +222,7 @@
     "worst_quantile": 0.1,
     "availability_unknown_prior": 0.35,
     "duel_model": "relative_pressure_odds",
-    "duel_epsilon": 1e-06
+    "duel_epsilon": 0.000001
   },
   "air": {
     "weights": {
@@ -347,5 +347,15 @@
       "validation_report"
     ],
     "result_status": "offline_parameters_imported_requires_validation"
+  },
+  "meta": {
+    "global_limit": 100,
+    "per_nation_br_limit": 3,
+    "per_br_limit": 10,
+    "per_nation_limit": 25,
+    "mover_limit": 50,
+    "coverage_review_threshold": 0.5,
+    "interval_review_threshold": 0.35,
+    "diversity_max_jaccard": 0.65
   }
 }

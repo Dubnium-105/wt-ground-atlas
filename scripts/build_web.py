@@ -109,6 +109,22 @@ def _assemble(root: Path, web: Path, mode: str, base_url: str, settings: dict):
             rec=load(web/url)
             best=rec.get('best')
             manifest['national_recommendations'].append({'nation':file['nation'],'version':file['version'],'br_caps':len(file['caps']),'best':{key:best.get(key) for key in ('actual_br','br','candidate_cap','lineup_ids','score','lower','upper','coverage','metrics')} if best else None})
+        # A small, precomputed world-scale meta board: no browser combinatorial search.
+        if rec_index.get('meta_rankings'):
+            meta=rec_index['meta_rankings']
+            meta_source=local_file(rec_source,meta['url'])
+            if file_hash(meta_source)!=meta['sha256'] or meta_source.stat().st_size!=meta['bytes']:
+                raise ValueError('Meta ranking shard hash/size mismatch')
+            meta_url='data/recommendations/'+meta['url']
+            meta_target=web/meta_url
+            meta_target.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copy2(meta_source,meta_target)
+            meta_gzip=gzip.compress(meta_source.read_bytes(),mtime=0)
+            meta_target.with_name(meta_target.name+'.gz').write_bytes(meta_gzip)
+            manifest['meta_rankings']={
+                'url':meta_url,'gzip_url':meta_url+'.gz',
+                'sha256':meta['sha256'],'bytes':meta['bytes'],'gzip_bytes':len(meta_gzip),
+            }
         manifest['impact']=write_json(web,'data/impact/index.json',{'impact':rec_index['impact'],'audit':rec_index['audit'],'build_key':rec_index['build_key']})
         decision_report=load(rec_source/'build-report.json')
         stable_decision_report={key:value for key,value in decision_report.items() if key not in ('elapsed_ms','cache_invalidated_by','prior_build_key')}
