@@ -192,7 +192,10 @@ export function validateLoadout(vehicle, loadout, context = {}, config) {
   const capacity = loadout.max_payload_kg ?? vehicle.max_payload_kg ?? vehicle.payload_limits?.total_mass_kg;
   if (finite(capacity) && allMassKnown && totalMass > capacity) errors.push('payload_overweight');
   if (!allMassKnown) warnings.push('payload_mass_incomplete');
-  return {valid: !errors.length, errors: unique(errors), warnings: unique(warnings), active_weapons, preset_id: loadout.id, mixed_preset: false};
+  return {valid: !errors.length, errors: unique(errors), warnings: unique(warnings), active_weapons,
+    preset_id: loadout.id, mixed_preset: false,
+    rating_configuration_id: configured.rating.configuration_id,
+    effective_br: configured.rating.br};
 }
 
 function penetrationAt(ammo, distance, angle, config) {
@@ -524,7 +527,10 @@ export function evaluatePair(attacker, target, suppliedContext = {}, config, pro
   const coverage = sum && raw.mission_capability_known !== false ? evidence / sum : 0;
   const resultScore = coverage >= config.pair.minimum_evidence_fraction && raw.mission_capability_known !== false ? score / sum : null;
   const aggregation_weight = roleOf(attacker, config) === 'aa' && roleOf(target, config) === 'aa' ? config.pair.aa_aa_aggregation_weight : config.pair.default_aggregation_weight;
-  return {...raw, attacker_id: attacker.id, target_id: target.id, score: resultScore, lower: sum ? low / sum : 0, upper: sum ? high / sum : 1, coverage, aggregation_weight, weights, missing: unique(raw.missing), conditions: {version: context.version, attacker_configuration: attacker.configuration_id ?? null, target_configuration: target.configuration_id ?? null, ammo_id: raw.ammo_id, loadout_id: raw.loadout_id, physical_distance_m: context.physical_distance_m, aiming_distance_m: context.distance_m, angle_deg: context.angle_deg, skill: context.skill, performance_state: context.performance_state, crew_state: context.crew_state}, model_version: config.model_version, calibration_status: config.calibration_status, score_semantics: 'decision_utility_not_win_probability'};
+  return {...raw, attacker_id: attacker.id, target_id: target.id, score: resultScore, lower: sum ? low / sum : 0, upper: sum ? high / sum : 1, coverage, aggregation_weight, weights, missing: unique(raw.missing), conditions: {version: context.version, attacker_configuration: attacker.configuration_id ?? null, target_configuration: target.configuration_id ?? null,
+    attacker_rating_configuration_id: context.configuration_by_vehicle?.[attacker.id] ?? null,
+    target_rating_configuration_id: context.configuration_by_vehicle?.[target.id] ?? null,
+    ammo_id: raw.ammo_id, loadout_id: raw.loadout_id, physical_distance_m: context.physical_distance_m, aiming_distance_m: context.distance_m, angle_deg: context.angle_deg, skill: context.skill, performance_state: context.performance_state, crew_state: context.crew_state}, model_version: config.model_version, calibration_status: config.calibration_status, score_semantics: 'decision_utility_not_win_probability'};
 }
 
 function summarizeResponses(pairs, config) {
@@ -626,8 +632,11 @@ export function evaluateLineup(vehicles, lineupIds, suppliedContext = {}, config
   const explanations = ['只使用每辆载具自身可用的弹药；自动模式按敌车分层防护选弹，指定弹药时严格按指定项计算。', '对手频率与升降房占比使用明确先验，不代表真实排队分布。', '效用分数越高越有利；不表示胜率、击毁率或保证收益。'];
   if (metrics.known_pair_fraction < 1) explanations.push('配对资料不完整：缺项保留不确定区间，角色完整度仍可用于初步组队。');
   if (air.aircraft_ids.length) explanations.push('航空价值受到合法挂载、重生点可用性和敌方防空条件约束。');
+  if (lineup.some(v => hasRatingConfigurations(v)))
+    explanations.push('自选 BR 配置由玩家显式选择；高级改装解锁不自动改变 BR，受限挂载仍按实际配置核验。');
   if (lineup.some(v => roleOf(v, config) === 'aa')) explanations.push('防空对防空只在整队汇总降权；防空对航空不使用该降权。');
-  return {lineup_ids: ids, nation: environment.nation, version: context.version, br: environment.actual_br, actual_br: environment.actual_br, valid: !invalid.length, invalid: unique(invalid), score: invalid.length ? null : total.value, lower: weighted(lowerMetrics, config.lineup.weights, config.pair.unknown_interval[0]).value, upper: weighted(upperMetrics, config.lineup.weights, config.pair.unknown_interval[1]).value, coverage: metrics.known_pair_fraction, metrics, environment, matrix, reverse_matrix: reverse, threats, advantages, roles: roleList, ammo_choices: ammoChoices, ammo_matchups:Object.fromEntries([...usedAmmo].map(([id,counts])=>[id,Object.fromEntries(counts)])), loadout_choices: loadoutChoices, air, missing: [...missing].sort(), explanations, model_version: config.model_version, calibration_status: config.calibration_status, conditions: {skill: context.skill, distance_m: context.distance_m, physical_distance_m: context.physical_distance_m, angle_deg: context.angle_deg, slots: context.slots, includeSpecial: context.includeSpecial}, scenario_prior: config.lineup.scenario_prior, score_semantics: 'decision_utility_not_win_probability'};
+  return {lineup_ids: ids, nation: environment.nation, version: context.version, br: environment.actual_br, actual_br: environment.actual_br, valid: !invalid.length, invalid: unique(invalid), score: invalid.length ? null : total.value, lower: weighted(lowerMetrics, config.lineup.weights, config.pair.unknown_interval[0]).value, upper: weighted(upperMetrics, config.lineup.weights, config.pair.unknown_interval[1]).value, coverage: metrics.known_pair_fraction, metrics, environment, matrix, reverse_matrix: reverse, threats, advantages, roles: roleList, selected_rating_configurations: environment.selected_rating_configurations,
+    ammo_choices: ammoChoices, ammo_matchups:Object.fromEntries([...usedAmmo].map(([id,counts])=>[id,Object.fromEntries(counts)])), loadout_choices: loadoutChoices, air, missing: [...missing].sort(), explanations, model_version: config.model_version, calibration_status: config.calibration_status, conditions: {skill: context.skill, distance_m: context.distance_m, physical_distance_m: context.physical_distance_m, angle_deg: context.angle_deg, slots: context.slots, includeSpecial: context.includeSpecial}, scenario_prior: config.lineup.scenario_prior, score_semantics: 'decision_utility_not_win_probability'};
 }
 
 function staticVehicleMerit(vehicle, cap, context, config) {
@@ -655,7 +664,7 @@ export function recommendNation(vehicles, nation, suppliedContext = {}, config, 
   // Explicitly selected configurations only. Variant enumeration in the
   // recommendation search requires a later, source-backed opponent prior.
   const unselected_rating_configurations = all.filter(v => v.nation === nation
-    && hasRatingConfigurations(v) && !context.configuration_by_vehicle?.[v.id]).map(v => v.id);
+    && hasRatingConfigurations(v) && !finite(getBR(v, context.version, context))).map(v => v.id);
   const roleCandidateLimit=Math.max(config.search.candidates_per_role,context.slots);
   const evaluator = (a, b) => {
     const key = `${a.id}|${b.id}`;
