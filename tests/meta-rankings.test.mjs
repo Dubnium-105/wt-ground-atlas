@@ -73,7 +73,7 @@ test('META05: patch movements compare carried SAME lineup, not a hypothetical ra
   assert.equal(result.movements.rising[0].classification,'indirect_matchmaking_change');
   assert.equal(result.movements.rising[0].original_ids[0],'d');
   assert.equal(result.movements.new_caps.length,1);
-  assert.equal(result.movements.recoveries[0].adaptation_gain,0.23);
+  assert.ok(Math.abs(result.movements.recoveries[0].adaptation_gain-0.23)<1e-9);
 });
 
 test('META06: low evidence is flagged, not silently invented or counted as zero',()=>{
