@@ -34,3 +34,10 @@ export function filterMovements(moves, {nation, br, board, version, direction='a
     return direction === 'falling' ? av-bv : bv-av;
   });
 }
+
+export function migrationSummaries(index) {
+  if (Array.isArray(index)) return index; // Read a previously built snapshot.
+  if (index.kind !== 'migration_index') throw new Error('不支持的版本对照索引');
+  return index.tables.flatMap(({summaries, nation, slots, acquisition, ...detail}) =>
+    summaries.map((summary, detail_index) => ({...summary, nation, slots, acquisition, detail, detail_index})));
+}

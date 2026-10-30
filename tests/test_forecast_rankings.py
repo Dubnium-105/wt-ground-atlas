@@ -19,6 +19,25 @@ from build_product import compose
 
 
 class RankingViewTests(unittest.TestCase):
+    def test_large_migrations_use_small_index_and_validated_detail_shards(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary)
+            # Transport stress fixture only; these rows make no ranking claim.
+            moves=[{'nation':f'n{i}', 'slots':5, 'acquisition':'all',
+                    'before':{'actual_br':9.3,'members':[{'vehicle_id':'fixture','loadout':{'evidence':'x'*10000}}]},
+                    'after_fixed':{'actual_br':9.7},'fixed_lineup_delta':-1.,'status':'comparable'} for i in range(40)]
+            package_site(root/'forecast',{'build_key':'fixture'}, {}, moves, ROOT)
+            index=json.loads((root/'forecast/index.json').read_text())
+            descriptor=index['migrations']
+            self.assertLess(descriptor['bytes'],20000)
+            payload=json.loads((root/'forecast'/descriptor['url']).read_text())
+            self.assertEqual(len(payload['tables']),40)
+            self.assertNotIn('members',payload['tables'][0]['summaries'][0]['before'])
+            compose(root/'forecast',root/'site')
+            (root/'forecast'/payload['tables'][0]['url']).write_text('[]')
+            with self.assertRaisesRegex(ValueError,'checksum'):
+                compose(root/'forecast',root/'site')
+
     def test_ranked_lineups_fill_slots_and_insufficient_rosters_are_explicit(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);cat,atlas,ammo=fixture(root)

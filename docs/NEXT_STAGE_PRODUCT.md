@@ -150,3 +150,5 @@ python scripts/rebuild_range_maps.py --repository "$WT_ATLAS_DATA_ROOT" --catalo
 敏感性报告保存完整政策及有效配置哈希。修改阈值、扰动或数据后，旧报告不能继续放行；政策声明为 `assumed_robustness_policy`，不代表实战校准。旧配置缺少该节时仍可构建资料诊断，但 `--run-sensitivity` 要求先显式补充政策，不使用代码中的隐含默认阈值。
 
 槽位数现在约束完整入榜队列：选择 N 槽时，候选必须包含 N 个不同父载具/多车系统。部分队列只用于搜索扩展；未使用的替补保留真实成员身份和零边际值，不虚构出击收益。合法独立成员不足时返回 `insufficient_distinct_members` 和 `available_parent_groups`，国家/BR 页面展示无法组成该槽位队列的具体原因。
+
+版本对照的 `migrations` 清单只携带国家/槽位/获取范围、前后 BR、变化值和完整记录描述符；成员与归因按国家及原 BR 分片。浏览器仅下载当前页引用的记录，翻页或筛选会取消旧请求。统一发布验证同时校验这些分片的原始/压缩大小与哈希，坏分片不能替换已有站点。

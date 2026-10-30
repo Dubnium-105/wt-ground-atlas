@@ -54,8 +54,24 @@ def package_site(out: Path, report: dict, worlds: dict, migrations: list, root: 
             path.with_suffix(path.suffix + ".gz").write_bytes(compressed)
             return {"url": "data/" + filename, "sha256": checksum, "bytes": len(raw),
                     "gzip_url":"data/"+filename+'.gz',"gzip_bytes":len(compressed)}
+        migration_groups = {}
+        for migration in migrations:
+            group = (migration['nation'], migration['slots'], migration['acquisition'], migration['before']['actual_br'])
+            migration_groups.setdefault(group, []).append(migration)
+        migration_tables = []
+        for group, rows in sorted(migration_groups.items()):
+            summaries = []
+            for row in rows:
+                summary = {k: row[k] for k in ('status', 'fixed_lineup_delta', 'adaptation_gain_same_new_BR') if k in row}
+                for state in ('before', 'after_fixed'):
+                    if row.get(state):
+                        summary[state] = {'actual_br': row[state]['actual_br']}
+                summaries.append(summary)
+            migration_tables.append({'nation': group[0], 'slots': group[1], 'acquisition': group[2],
+                                     'summaries': summaries, **write_json('migration.' + digest(group)[:16], rows)})
         index = {"schema_version": "1.0.0", "report": write_json("report", report), "worlds": {},
-                 "migrations": write_json("migrations", migrations), "build_key": report["build_key"]}
+                 "migrations": write_json("migrations", {'schema_version': '1.0.0', 'kind': 'migration_index', 'tables': migration_tables}),
+                 "build_key": report["build_key"]}
         for version, world in worlds.items():
             descriptors = [];details = {}
             for table in world["tables"]:
