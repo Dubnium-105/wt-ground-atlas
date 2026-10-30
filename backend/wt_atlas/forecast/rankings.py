@@ -58,7 +58,7 @@ def build_views(tables, config):
         for acquisition in config['search']['acquisition_profiles']:
             selected = [t for t in tables if t['slots'] == slots and t['acquisition'] == acquisition and not t['budget_exhausted']]
             for view in VIEWS:
-                rows = [r for t in selected for r in table_candidates(t, view)]
+                rows = [r for t in selected for r in table_candidates(t, view) if len(r["members"]) == slots]
                 limit = None if view in ('br', 'nation') else config['search']['global_limit']
                 views[view][f'{slots}/{acquisition}'] = [
                     {**r, 'rank': i + 1} for i, r in enumerate(select(rows, view, limit=limit))]

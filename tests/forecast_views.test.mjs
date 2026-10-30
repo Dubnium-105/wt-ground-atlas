@@ -14,7 +14,7 @@ test('BR and nation groups are selected before parent de-duplication',()=>{
 test('category alternatives and uptier utility are independent of the ordinary shortlist',()=>{
   const ordinary=row('ordinary','a',9.3,90,{composition:'combined_arms',uptier_lower_utility:10});
   const reserve=row('reserve','a',9.3,50,{composition:'ground_only',uptier_lower_utility:45});
-  const table={candidates:[ordinary],category_candidates:{uptier:[reserve],ground_only:[reserve]}};
+  const table={slots:1,candidates:[ordinary],category_candidates:{uptier:[reserve],ground_only:[reserve]}};
   assert.deepEqual(tableRows(table,'uptier'),[reserve]);
   assert.equal(selectRows([ordinary,reserve],'uptier')[0].lineup_key,'reserve');
   assert.deepEqual(selectRows([ordinary,reserve],'ground_only'),[reserve]);

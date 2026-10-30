@@ -135,7 +135,7 @@ class Optimizer:
                      loadout=v.get('loadout'),ammo_profile_sha256=digest(v['profile']) if v.get('profile') else None,
                      ammo_profiles_by_distance=[{'distance_m':p['distance_m'],'profile_id':p['name'],'sha256':digest(p)} for p in v.get('profiles',())],
                      source=v['vehicle'].get('source_url'),taxonomy_original={'kind':v['vehicle'].get('kind'),'role':v['vehicle'].get('role')})
-        return {"keys": list(keys), "members": members, "nation": nation,
+        return {"keys": list(keys), "members": members, "lineup_size": len(members), "nation": nation,
                 "actual_br": round(cap / self.config["matchmaking"]["br_step_denominator"], 1),
                 "score": 100 * estimate if eligible else None, "estimate": 100 * estimate,
                 "lower": 100 * aggregate("lower"), "upper": 100 * aggregate("upper"),
@@ -201,13 +201,22 @@ class Optimizer:
 
     def _rank(self, keys: tuple[str, ...]):
         result = self.evaluate(keys)
-        return (-int(result["rankable"]), -result["estimate"], -result["evidence_coverage"], len(keys), keys)
+        return (-int(result["rankable"]), -result["estimate"], -result["evidence_coverage"], -len(keys), keys)
 
     def discover(self, nation: str, cap: int, slots: int, acquisition: str) -> dict:
         if acquisition not in ("researchable", "all"): raise ValueError("Unknown acquisition profile")
         pool = [v for v in self.e.variants if v["nation"] == nation and v["br_step"] <= cap and
                 (acquisition == "all" or (v["vehicle"].get("special") is not True and v["vehicle"].get("acquisition", {}).get("researchable") is not False))]
         pool,pruned=self.pareto(pool,cap)
+        available = len({('system', v['system_id']) if v.get('system_id') else ('vehicle', v['vehicle_id']) for v in pool})
+        if available < slots:
+            return {"nation": nation, "cap_step": cap, "slots": slots, "acquisition": acquisition,
+                    "candidates": [], "category_candidates": {}, "evaluations": 0,
+                    "available_parent_groups": available, "candidate_status": "insufficient_distinct_members",
+                    "pareto_payloads_removed": pruned, "seed": self.config['search'].get('seed', 0),
+                    "budget_exhausted": False, "algorithm": "multi_start_beam_and_one_two_slot_exchange",
+                    "global_optimum_guaranteed": False}
+
         by_key = {v["key"]: v for v in pool}
         all_keys = sorted(by_key,key=lambda k:digest([self.config['search'].get('seed',0),k]))
         ground = [v for v in pool if v["domain"] == "ground"]
@@ -273,7 +282,7 @@ class Optimizer:
             beam = next_beam
         # Retain category alternatives before the ordinary per-cap shortlist.
         # All selections are actual evaluated lineups, never assembled member scores.
-        evaluated = [self.evaluate(keys) for keys in visited]
+        evaluated = [self.evaluate(keys) for keys in visited if len(keys) == slots]
         choices = {view: select(evaluated, view, limit=self.config['search']['per_cap_limit'],
                                diversity=self.config['search']['diversity_overlap'], rankable_only=False)
                    for view in ('global', 'ground_only', 'combined_arms', 'uptier')}
@@ -284,7 +293,8 @@ class Optimizer:
                     explained[row['lineup_key']] = self.explain(row)
         return {"nation": nation, "cap_step": cap, "slots": slots, "acquisition": acquisition,
                 "candidates": choices["global"], "category_candidates": {k: v for k, v in choices.items() if k != "global"},
-                "evaluations": len(visited),
+                "evaluations": len(visited), "available_parent_groups": available,
+                "candidate_status": "search_truncated" if exhausted else "complete_lineups" if evaluated else "no_feasible_complete_lineup",
                 "pareto_payloads_removed":pruned,"seed":self.config['search'].get('seed',0),
                 "budget_exhausted": exhausted, "algorithm": "multi_start_beam_and_one_two_slot_exchange",
                 "global_optimum_guaranteed": False}

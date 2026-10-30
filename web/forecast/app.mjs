@@ -46,7 +46,7 @@ function statusPanel(){
 }
 async function render(){
   const request=++sequence;controller?.abort();controller=new AbortController();const signal=controller.signal;$('rankings').setAttribute('aria-busy','true');const version=$('version').value,world=worlds[version],board=$('board').value,nation=$('nation').value,br=$('br').value;const gate=report.release_readiness?.[version],formal=gate?.publishable===true;let rows=(formal?world.boards:world.research_boards)?.[board]||[];
-  const view=$('view').value;
+  const view=$('view').value;let tableMessages=[];
   if(nation||br||(!world.views?.[view]?.[board]&&view!=='global')){
     const [slots,acquisition]=board.split('/');
     const files=world.tables.filter(t=>t.slots===Number(slots)&&t.acquisition===acquisition&&(!nation||t.nation===nation)&&(!br||String(t.br)===br));
@@ -54,12 +54,13 @@ async function render(){
     for(let i=0;i<files.length;i+=4)data.push(...await Promise.all(files.slice(i,i+4).map(d=>read(d,signal))));
     if(request!==sequence)return;
     rows=data.flatMap(t=>tableRows(t,view));
+    tableMessages=data.filter(t=>t.candidate_status==='insufficient_distinct_members').map(t=>`${t.nation} · BR ${Math.round(t.cap_step/3*10)/10}：需要 ${t.slots} 辆，只存在 ${t.available_parent_groups} 个可独立入队的载具/系统。`);
   }else if(view!=='global'){
     rows=await read(world.views[view][board],signal);
     if(request!==sequence)return;
   }
   rows=selectRows(formal||report.research_rankings?rows:[],view);
-  $('rankings').replaceChildren(el('h2',`${version==='current'?'当前':'预测情景'} · ${formal?'合格候选':'限定研究候选'} (${rows.length})`));if(!rows.length){const box=el('div','','notice');box.append(el('strong','当前没有满足条件的队列'),el('p','请查看覆盖缺口与版本状态。资料不足时保留空榜，不用未知数据凑满 Top 100。'));$('rankings').append(box);}page=Math.min(page,Math.max(0,Math.ceil(rows.length/pageSize)-1));rows.slice(page*pageSize,(page+1)*pageSize).forEach((r,i)=>$('rankings').append(card(r,page*pageSize+i)));
+  $('rankings').replaceChildren(el('h2',`${version==='current'?'当前':'预测情景'} · ${formal?'合格候选':'限定研究候选'} (${rows.length})`));if(!rows.length){const box=el('div','','notice');box.append(el('strong','当前没有满足条件的队列'),el('p','请查看覆盖缺口与版本状态。资料不足时保留空榜，不用未知数据凑满 Top 100。'));for(const message of tableMessages)box.append(el('p',message));$('rankings').append(box);}page=Math.min(page,Math.max(0,Math.ceil(rows.length/pageSize)-1));rows.slice(page*pageSize,(page+1)*pageSize).forEach((r,i)=>$('rankings').append(card(r,page*pageSize+i)));
   if(rows.length>pageSize){const pager=el('div','','pager');for(const [label,delta]of [['上一页',-1],['下一页',1]]){const b=el('button',label);b.disabled=page+delta<0||(page+delta)*pageSize>=rows.length;b.onclick=()=>{page+=delta;render().catch(fail);};pager.append(b);}pager.append(el('span',`${page+1} / ${Math.ceil(rows.length/pageSize)}`));$('rankings').append(pager);}
   renderMovements();statusPanel();coveragePanel();$('rankings').setAttribute('aria-busy','false');
 }

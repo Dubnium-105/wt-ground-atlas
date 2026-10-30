@@ -19,6 +19,32 @@ from build_product import compose
 
 
 class RankingViewTests(unittest.TestCase):
+    def test_ranked_lineups_fill_slots_and_insufficient_rosters_are_explicit(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);cat,atlas,ammo=fixture(root)
+            cat['vehicles'].append({'id':'synthetic_reserve_plane','nation':'a','kind':'aircraft',
+                'role':'fighter','br':{'current':9.3},'loadouts':[{'id':'clean','legal':True,'weapons':[]}]})
+            config=settings();config['search']['slots']=[3]
+            cache=ShotCache(root/'cache.sqlite')
+            try:
+                engine=Forecast(cat,Atlas(atlas,ammo,cat),config,cache)
+                world=Optimizer(engine).world()
+                for table in world['tables']:
+                    if table['nation']=='a':
+                        self.assertTrue(table['candidates'])
+                        self.assertTrue(all(len(r['members'])==3 for r in table['candidates']))
+                        self.assertEqual(table['candidate_status'],'complete_lineups')
+                        # The unused reserve remains a real named roster member;
+                        # it receives no fabricated sortie contribution.
+                        contribution=next(c for c in table['candidates'][0]['reserve_contributions'] if c['vehicle_id']=='synthetic_reserve_plane')
+                        self.assertEqual(contribution['sortie_probability'],0.)
+                    else:
+                        self.assertEqual(table['candidates'],[])
+                        self.assertEqual(table['candidate_status'],'insufficient_distinct_members')
+                        self.assertEqual(table['available_parent_groups'],2)
+                self.assertTrue(all(len(r['members'])==3 for rows in world['boards'].values() for r in rows))
+            finally:cache.close()
+
     def test_every_br_and_nation_survives_global_limit_and_shared_parents(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

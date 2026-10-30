@@ -1,7 +1,7 @@
 // Selection uses complete offline view shards or the requested search tables.
 // The global representative limit must never become an input to another view.
 export function tableRows(table, view) {
-  return table.budget_exhausted ? [] : (table.category_candidates?.[view] || table.candidates);
+  return table.budget_exhausted ? [] : (table.category_candidates?.[view] || table.candidates).filter(r=>r.members.length===table.slots);
 }
 
 export function selectRows(rows, view) {
