@@ -1,7 +1,7 @@
 """Auditable snapshot states and layer-specific invalidation decisions."""
 from __future__ import annotations
 from datetime import datetime
-from .data import digest, patch_catalog
+from .data import digest, patch_catalog, number
 
 STATUSES={'released','announced','proposed','hypothetical','unknown'}
 
@@ -75,6 +75,14 @@ def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensi
     tasks=config['publication'].get('required_tasks',['ground_control','anti_tank','recon','anti_helicopter','anti_air','cap','cas','sead'])
     evidence_tasks={r.get('task') for r in (missions or {}).values() if r.get('production_validated')}
     if not set(tasks)<=evidence_tasks:blockers.append('full_mode_mission_evidence_missing')
+    if config['publication']['scope']=='full_ground_rb':
+        modeled={task for task,weight in zip(config['spawn']['phases'],config['spawn']['phase_weights']) if weight>0}
+        if not set(tasks)<=modeled:blockers.append('required_tasks_not_modeled')
+        threshold=config['search']['minimum_pair_coverage']
+        if any(not number(row.get('production_mission_coverage',{}).get(task)) or
+               not threshold<=row['production_mission_coverage'][task]<=1
+               for rows in world['boards'].values() for row in rows for task in tasks):
+            blockers.append('ranked_lineup_mission_evidence_incomplete')
     if config['spawn'].get('status')!='official_verified':blockers.append('spawn_rules_assumed')
     if config['spawn'].get('status')=='official_verified':
         for v in catalog['vehicles']:

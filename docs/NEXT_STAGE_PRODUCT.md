@@ -110,3 +110,11 @@ release-readiness 独立列 algorithm_ready、data_ready、publishable。正式�
 | PR #3 `meta-rankings.mjs` | 国家/BR 自动发现、实际队列 BR、固定成员版本迁移、去重、多样性、前后重组对照 | 旧线性打分榜不进入生产；没有数据的预设全服排名和固定国家加分未采用 |
 
 旧研究功能保留自己的模型标签，原工作目录的未提交改动不被修改，也没有无条件并入当前开发分支。
+
+## 逐队列发布证据（后续审计修正）
+
+等待出击具有已知的零收益，但不产生任务观测。出击策略分别返回 model_state_coverage 对应的状态覆盖和 evidence_coverage 对应的实际任务证据；队列准入使用后者。production_mission_coverage 进一步按成员、敌方分布、房间和场景汇总携带配置绑定的来源证据，只有 validated 且提供 delivery evidence 的任务记录计入生产覆盖。全局存在某类任务记录不能替代入榜队列自己的证据。
+
+完整模式配置必须明确设置 publication.scope=full_ground_rb、publication.required_tasks，并把所有所需任务放进正权重的 spawn.phases；默认配置维持原生距离地面研究身份。完整模式对每个入榜队列逐任务检查 minimum_pair_coverage；假设性或未配置的任务不放行。缺少官方 SP/BR、版本身份等其他门禁仍独立阻止发布。
+
+构建命令的 search_execution 是实际本次执行记录：computed_tables / restored_tables / new_evaluations / restored_evaluations。原 evaluations 字段表示产物内搜索表所记录的总评估数，恢复时不能将其当成本轮计算量。执行耗时和命中计数不参与发布内容哈希。

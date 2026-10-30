@@ -63,7 +63,7 @@ def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict,
         return best
     value = solve(0, 0, config["initial_points"])
     # Policy occupancy is marginalized over the declared SP transitions.
-    active={(0,config['initial_points']):1.};actions=[]
+    active={(0,config['initial_points']):1.};actions=[];evidence_coverage=0.
     for phase in range(len(rows)):
         following={};occupancy={}
         for (used,points),mass in active.items():
@@ -71,6 +71,7 @@ def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict,
             occupancy[chosen]=occupancy.get(chosen,0.)+mass
             if chosen is None:
                 following[(used,points)]=following.get((used,points),0.)+mass;continue
+            evidence_coverage+=mass*weights[phase]*rows[phase][chosen]['coverage']
             cost=costs[chosen]
             if cost_function:
                 previous=sum(bool(used & (1<<j)) for j in range(len(costs)) if domains[j]==domains[chosen])
@@ -81,7 +82,8 @@ def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict,
         actions.append({'phase':phase,'actions':[{'member_index':i,'probability':p} for i,p in occupancy.items()]})
         active=following
     return dict(zip(("mean", "lower", "upper", "coverage", "first_action"), value), states=visits,
-                status=config["status"], probability_model="declared_exogenous_point_gains",policy=actions)
+                status=config["status"], probability_model="declared_exogenous_point_gains",policy=actions,
+                evidence_coverage=evidence_coverage)
 
 
 def feasible(lineup: tuple[dict, ...], slots: int) -> bool:
@@ -115,6 +117,7 @@ class Optimizer:
                     cost_function=lambda i,n:spawn_cost(lineup[i],self.config['spawn'],room,n))
                 result['task_evidence']=[sum(a['probability']*(rows[i][a['member_index']]['coverage'] if a['member_index'] is not None else 0.) for a in phase['actions']) for i,phase in enumerate(result['policy'])]
                 result['mission_keys']=[[r.get('mission_key') for r in phase] for phase in rows]
+                result['production_mission_coverage']={task:min(r.get('production_coverage',0.) for r in rows[i]) for i,task in enumerate(phases)}
                 result.update(weight=room_weight * scenario["weight"], room_top_step=room, scenario=scenario["id"])
                 cases.append(result)
         risk = self.config["search"]["risk_aversion"]
@@ -122,7 +125,7 @@ class Optimizer:
             expected = sum(r["weight"] * r[key] for r in cases)
             tail = lower_tail([(r[key], r["weight"]) for r in cases], self.config["search"]["tail_mass"])
             return (1 - risk) * expected + risk * tail
-        coverage = sum(r["weight"] * r["coverage"] for r in cases)
+        coverage = sum(r["weight"] * r["evidence_coverage"] for r in cases)
         eligible = coverage >= self.config["search"]["minimum_pair_coverage"]
         estimate = aggregate("mean")
         members = [{k: v[k] for k in ("vehicle_id", "rating_configuration_id", "ammo_id", "loadout_id", "key", "br", "classification")} for v in lineup]
@@ -135,6 +138,8 @@ class Optimizer:
                 "score": 100 * estimate if eligible else None, "estimate": 100 * estimate,
                 "lower": 100 * aggregate("lower"), "upper": 100 * aggregate("upper"),
                 "evidence_coverage": coverage, "rankable": eligible,
+                "model_state_coverage":sum(r["weight"]*r["coverage"] for r in cases),
+                "production_mission_coverage":{task:sum(r["weight"]*r["production_mission_coverage"][task] for r in cases) for task in set(self.config["spawn"]["phases"])},
                 "status": "uncalibrated_conditional_prediction" if eligible else "insufficient_paired_evidence",
                 "cases": cases, "endpoint": self.config.get("endpoint", "penetration"),
                 "lineup_key":digest([getattr(self.e,'build_key',None),keys,self.config,cases]),
@@ -280,7 +285,7 @@ class Optimizer:
                 "global_optimum_guaranteed": False}
 
     def world(self) -> dict:
-        tables = []
+        tables = [];restored_tables=0;new_evaluations=0
         for nation in sorted({v["nation"] for v in self.e.variants}):
             if self.config['search'].get('nations') and nation not in self.config['search']['nations']:continue
             caps = sorted({v["br_step"] for v in self.e.variants if v["nation"] == nation})
@@ -291,9 +296,11 @@ class Optimizer:
                     for cap in caps:
                         key=digest([getattr(self.e,'build_key',None),nation,cap,slots,acquisition,self.config])
                         cached=self.e.cache.derived_get(key) if getattr(self.e,'resume',False) and getattr(self.e,'build_key',None) else None
-                        if cached is not None:tables.append(cached)
+                        if cached is not None:
+                            tables.append(cached);restored_tables+=1
                         else:
                             table=self.discover(nation, cap, slots, acquisition);tables.append(table)
+                            new_evaluations+=table["evaluations"]
                             if getattr(self.e,'build_key',None):self.e.cache.derived_put(key,table)
         boards = {}
         for slots in self.config["search"]["slots"]:
@@ -308,4 +315,5 @@ class Optimizer:
                 rows=unique
                 boards[f"{slots}/{acquisition}"] = [{**r, "rank": i + 1} for i, r in enumerate(rows[:self.config["search"]["global_limit"]])]
         return {"boards": boards, "tables": tables, "evaluations": sum(t["evaluations"] for t in tables),
+                "execution":{"restored_tables":restored_tables,"computed_tables":len(tables)-restored_tables,"new_evaluations":new_evaluations,"restored_evaluations":sum(t["evaluations"] for t in tables)-new_evaluations},
                 "truncated_searches": sum(t["budget_exhausted"] for t in tables), "global_optimum_guaranteed": False}

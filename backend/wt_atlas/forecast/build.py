@@ -278,6 +278,7 @@ def build(args, root: Path) -> dict:
                 "cache_misses": cache.misses, "npz_loads": atlas.loads,
                 "ranked_counts": {v: sum(len(r) for r in w["boards"].values()) for v, w in worlds.items()},
                 "evaluations": {v: w["evaluations"] for v, w in worlds.items()},
+                "search_execution":{v:w["execution"] for v,w in worlds.items()},
                 "research_counts":{v:sum(len(r) for r in w['research_boards'].values()) for v,w in worlds.items()},
                 "release_readiness":gates,"duration_seconds":time.perf_counter()-started,"resources":usage(),
                 "publication": "sample_diagnostics_only" if sample_only else 'conditional_research_only' if not report['published_rankings'] else "conditional_model_predictions"}

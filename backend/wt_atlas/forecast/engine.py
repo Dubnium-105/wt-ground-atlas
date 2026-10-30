@@ -354,11 +354,11 @@ class Forecast:
     @lru_cache(maxsize=50000)
     def mission(self, key: str, task: str, room_top: int, scenario_id: str) -> dict:
         v = self.by_key[key]
-        if task == "ground" and v["domain"] != "ground": return {"mean": 0., "lower": 0., "upper": 0., "coverage": 1., "usable": False}
+        if task == "ground" and v["domain"] != "ground": return {"mean": 0., "lower": 0., "upper": 0., "coverage": 1., "production_coverage":1., "usable": False}
         domain = "air" if task in ("anti_air","anti_helicopter","cap") else "ground"
         enemies = self.opponents(v["nation"], room_top, domain)
         trace=[]
-        totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "usable": True}
+        totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "production_coverage":0., "usable": True}
         if not enemies: return {**totals, "mean": .5, "upper": 1.}
         for enemy, weight in enemies:
             if task == "ground":
@@ -368,6 +368,7 @@ class Forecast:
                 external = self.missions.get((key, self.by_key[enemy]["vehicle_id"], scenario_id, task))
                 if external:trace.append(external['evidence_sha256']);self.cache.evidence_put(external['evidence_sha256'],'external_mission',external)
                 row = {**external, "coverage": 1. if external['status']=='validated' else 0.} if external else {"mean": .5, "lower": 0., "upper": 1., "coverage": 0.}
+            totals["production_coverage"]+=weight*(row["coverage"] if task=="ground" else float(bool(external and external.get("production_validated"))))
             for name in ("mean", "lower", "upper", "coverage"):
                 totals[name] += weight * row[name]
         totals['mission_key']=digest([key,task,room_top,scenario_id,trace,totals])
