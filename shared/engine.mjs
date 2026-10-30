@@ -650,7 +650,7 @@ function slimEvaluation(result, config) {
  * and greedy marginal opponent coverage; no global-optimum claim is made. */
 export function recommendNation(vehicles, nation, suppliedContext = {}, config, probabilities = {}) {
   const context = contextOf(suppliedContext, config), all = list(vehicles);
-  const eligible = all.filter(v => v.nation === nation && finite(getBR(v, context.version)) && (context.includeSpecial || v.special !== true) && (!context.availableIds || context.availableIds.includes(v.id)));
+  const eligible = all.filter(v => v.nation === nation && finite(getBR(v, context.version, context)) && (context.includeSpecial || v.special !== true) && (!context.availableIds || context.availableIds.includes(v.id)));
   const caps = getBRs(eligible, nation, context.version, context), candidates = [], pairs = new Map();
   // Explicitly selected configurations only. Variant enumeration in the
   // recommendation search requires a later, source-backed opponent prior.
@@ -668,14 +668,14 @@ export function recommendNation(vehicles, nation, suppliedContext = {}, config, 
   const cachedContext = {...context, _pairEvaluator: evaluator, includeMatrix: false};
   let tested = 0, pruned = 0;
   for (const cap of caps) {
-    const near = eligible.filter(v => getBR(v, context.version) <= cap + config.matching.epsilon && getBR(v, context.version) >= cap - config.search.lookback_br - config.matching.epsilon);
+    const near = eligible.filter(v => getBR(v, context.version, context) <= cap + config.matching.epsilon && getBR(v, context.version, context) >= cap - config.search.lookback_br - config.matching.epsilon);
     let anchors = near.filter(v => v.kind === 'ground');
     if (!anchors.length) {
-      anchors = eligible.filter(v => v.kind === 'ground' && getBR(v, context.version) <= cap + config.matching.epsilon);
-      const fallback = anchors.slice().sort((a, b) => getBR(b, context.version) - getBR(a, context.version) || a.id.localeCompare(b.id)).slice(0, config.search.candidates_per_role);
+      anchors = eligible.filter(v => v.kind === 'ground' && getBR(v, context.version, context) <= cap + config.matching.epsilon);
+      const fallback = anchors.slice().sort((a, b) => getBR(b, context.version, context) - getBR(a, context.version, context) || a.id.localeCompare(b.id)).slice(0, config.search.candidates_per_role);
       near.push(...fallback);
     }
-    anchors.sort((a, b) => getBR(b, context.version) - getBR(a, context.version) || staticVehicleMerit(b, cap, context, config) - staticVehicleMerit(a, cap, context, config) || a.id.localeCompare(b.id));
+    anchors.sort((a, b) => getBR(b, context.version, context) - getBR(a, context.version, context) || staticVehicleMerit(b, cap, context, config) - staticVehicleMerit(a, cap, context, config) || a.id.localeCompare(b.id));
     if (!anchors.length) continue;
     const byRole = Object.fromEntries(Object.keys(config.roles).map(role => {
       const pool = near.filter(v => roleOf(v, config) === role).sort((a, b) => staticVehicleMerit(b, cap, context, config) - staticVehicleMerit(a, cap, context, config) || a.id.localeCompare(b.id));
@@ -703,7 +703,7 @@ export function recommendNation(vehicles, nation, suppliedContext = {}, config, 
             value += marginal * weight * p.aggregation_weight; mass += weight;
           }
           const role = Number(!selected.some(v => roleOf(v, config) === roleOf(candidate, config)));
-          const proximity = clamp(1 - (cap - getBR(candidate, context.version)) / config.search.lookback_br);
+          const proximity = clamp(1 - (cap - getBR(candidate, context.version, context)) / config.search.lookback_br);
           return weighted({coverage: mass ? value / mass : null, role, br_proximity: proximity}, config.search.selection_weights, config.pair.unknown_prior).value;
         };
         const next = pool.map(v => ({v, score: scoreCandidate(v)})).sort((a, b) => b.score - a.score || staticVehicleMerit(b.v, cap, context, config) - staticVehicleMerit(a.v, cap, context, config) || a.v.id.localeCompare(b.v.id))[0].v;
