@@ -12,12 +12,17 @@ import numpy as np
 from . import MODEL_VERSION
 from .aim import integrate, regions, skill_nodes
 from .combat import duel, weapon_timing
+from .capabilities import loadout_errors, validate_mission
 from .data import Atlas, br_step, canonical, digest, file_hash, number, read_json, safe_file, taxonomy
 
 
-def enumerate_variants(catalog: dict, atlas: Atlas) -> tuple[list[dict], list[dict]]:
+def enumerate_variants(catalog: dict, atlas: Atlas, config: dict | None = None) -> tuple[list[dict], list[dict]]:
     variants, rejected = [], []
+    config = config or {}
+    version = catalog.get('snapshot', {}).get('game_version', catalog.get('snapshot', {}).get('client_source', {}).get('version', 'unknown'))
     for vehicle in sorted(catalog["vehicles"], key=lambda v: v["id"]):
+        if vehicle.get('system_role') == 'component':
+            rejected.append({'vehicle_id':vehicle['id'],'reason':'multi_vehicle_system_component'}); continue
         domain = "ground" if vehicle["kind"] == "ground" else "air"
         block = vehicle.get("rating_configurations", {}).get("ground_rb")
         if block is not None:
@@ -31,6 +36,10 @@ def enumerate_variants(catalog: dict, atlas: Atlas) -> tuple[list[dict], list[di
             options = [{"id": None, "br": {"current": vehicle.get("br", {}).get("current")}}]
         bindings = atlas.bindings(vehicle) if domain == "ground" else []
         for option in options:
+            ownership = config.get('ownership', {})
+            unlocked = ownership.get('unlocked_modifications_by_vehicle', {}).get(vehicle['id'])
+            if ownership.get('require_unlocked') and (unlocked is None or not set(option.get('required_modification_ids', [])) <= set(unlocked)):
+                rejected.append({'vehicle_id':vehicle['id'],'reason':'modifications_unavailable','rating_configuration_id':option['id']}); continue
             br = option.get("br", {}).get("current")
             if not number(br):
                 rejected.append({"vehicle_id": vehicle["id"], "reason": "unknown_ground_rb"}); continue
@@ -38,6 +47,9 @@ def enumerate_variants(catalog: dict, atlas: Atlas) -> tuple[list[dict], list[di
             payloads = [(ammo, p, None) for ammo, p in bindings] if domain == "ground" else []
             if domain == "air":
                 for loadout in vehicle.get("loadouts", []):
+                    errors = loadout_errors(loadout, vehicle, option, unlocked=unlocked, require_unlocked=ownership.get('require_unlocked',False))
+                    if errors:
+                        rejected.append({'vehicle_id':vehicle['id'],'loadout_id':loadout.get('id'),'reasons':errors}); continue
                     if loadout.get("legal") is not True: continue
                     weapons = loadout.get("weapons", [])
                     stations = [w["station"] for w in weapons if w.get("station") is not None]
@@ -59,7 +71,7 @@ def enumerate_variants(catalog: dict, atlas: Atlas) -> tuple[list[dict], list[di
                     if "allowed_loadout_ids" in option and (loadout is None or loadout["id"] not in option["allowed_loadout_ids"]): continue
                     if "allowed_weapon_ids" in option and (loadout is None or any(w["id"] not in option["allowed_weapon_ids"] for w in loadout["weapons"])): continue
                     if "allowed_ammo_ids" in option and (ammo is None or ammo["id"] not in option["allowed_ammo_ids"]): continue
-                identity = {"vehicle_id": vehicle["id"], "rating_configuration_id": option["id"],
+                identity = {"vehicle_id": vehicle["id"], "mode": "ground_rb", "version": version, "rating_configuration_id": option["id"],
                             "ammo_id": ammo["id"] if ammo else None, "loadout_id": loadout["id"] if loadout else None}
                 variants.append({**identity, "key": digest(identity), "vehicle": vehicle, "ammo": ammo,
                                  "profile": profile, "loadout": loadout, "nation": vehicle["nation"],
@@ -73,17 +85,24 @@ class ShotCache:
         path.parent.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(path)
         self.db.execute("CREATE TABLE IF NOT EXISTS shots (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
+        self.db.execute('PRAGMA journal_mode=WAL')
         self.hits, self.misses = 0, 0
 
     def get(self, key: str):
         record = self.db.execute("SELECT value FROM shots WHERE key=?", (key,)).fetchone()
         if record:
             import json
-            self.hits += 1; return json.loads(record[0])
+            try:
+                value = json.loads(record[0], parse_constant=lambda x: (_ for _ in ()).throw(ValueError(x)))
+                if not isinstance(value,dict): raise ValueError('Invalid cache record')
+                self.hits += 1; return value
+            except (ValueError,TypeError):
+                self.db.execute('DELETE FROM shots WHERE key=?',(key,))
         self.misses += 1; return None
 
     def put(self, key: str, value: dict):
         self.db.execute("INSERT OR REPLACE INTO shots VALUES (?,?)", (key, canonical(value)))
+        if self.misses % 128 == 0: self.db.commit()
 
     def close(self):
         self.db.commit(); self.db.close()
@@ -93,7 +112,7 @@ class Forecast:
     def __init__(self, catalog: dict, atlas: Atlas, config: dict, cache: ShotCache,
                  effects_path: Path | None = None, missions_path: Path | None = None):
         self.catalog, self.atlas, self.config, self.cache = catalog, atlas, config, cache
-        self.variants, self.rejected = enumerate_variants(catalog, atlas)
+        self.variants, self.rejected = enumerate_variants(catalog, atlas, config)
         self.by_key = {v["key"]: v for v in self.variants}
         self.skills = skill_nodes(config["population"])
         self.enemy_skills = skill_nodes(config.get("opponent_population", config["population"]))
@@ -107,10 +126,7 @@ class Forecast:
         self.missions = {}
         if missions_path:
             for row in read_json(missions_path)["records"]:
-                if row.get("status") != "validated" or not row.get("source") or row.get("source_version") != catalog.get("snapshot", {}).get("client_source", {}).get("version"):
-                    raise ValueError("Unverified/external mission evidence version")
-                if not all(number(row.get(k)) and 0 <= row[k] <= 1 for k in ("lower", "mean", "upper")) or not row["lower"] <= row["mean"] <= row["upper"]:
-                    raise ValueError("Invalid mission evidence interval")
+                row=validate_mission(row,catalog.get('snapshot',{}).get('game_version',catalog.get('snapshot',{}).get('client_source',{}).get('version')),self.by_key,{s['id'] for s in config['scenarios']})
                 key = (row["variant_key"], row["target_vehicle_id"], row["scenario_id"], row["task"])
                 if key in self.missions: raise ValueError("Duplicate mission evidence")
                 self.missions[key] = row
@@ -122,13 +138,16 @@ class Forecast:
         if row is None: return None, None
         if row.get("status") not in ("assumed", "validated") or not row.get("source") or row.get("map_array_sha256") != self.atlas.meta[map_id]["array_sha256"]:
             raise ValueError("Effect kernel physical identity missing/mismatched")
+        if row.get('status')=='validated' and row.get('source_version')!=self.atlas.meta[map_id]['source_version']:
+            raise ValueError('Effect kernel source version mismatch')
         if "constant" in row:
+            if row.get('status')!='assumed':raise ValueError('Constant damage kernel must remain assumed')
             q = np.array(row["constant"], dtype=float)
             if q.shape != (3,): raise ValueError("Invalid effect vector")
             return np.broadcast_to(q, shape + (3,)), digest(row)
+        source = safe_file(self.effects_path.parent, row["array_file"])
+        if file_hash(source) != row["array_sha256"]: raise ValueError("Effect array checksum")
         if self.effect_array[0] != map_id:
-            source = safe_file(self.effects_path.parent, row["array_file"])
-            if file_hash(source) != row["array_sha256"]: raise ValueError("Effect array checksum")
             with np.load(source, allow_pickle=False) as data:
                 array = data["conditional_outcomes"].copy()
             self.effect_array = (map_id, array)
@@ -155,6 +174,10 @@ class Forecast:
                     "effect_rewards": self.config.get("effect_rewards")}
         key = digest(identity)
         self.atlas.verify(map_id)  # A warm aim cache must not mask a corrupted source NPZ.
+        if map_id in self.effects:
+            row=self.effects[map_id]
+            if 'array_file' in row and file_hash(safe_file(self.effects_path.parent,row['array_file']))!=row['array_sha256']:
+                raise ValueError('Effect array checksum')
         cached = self.cache.get(key)
         if cached is not None: return cached
         arrays = self.atlas.load(map_id)
@@ -186,7 +209,7 @@ class Forecast:
         scenario = next(s for s in self.config["scenarios"] if s["id"] == scenario_id)
         endpoint = self.config.get("endpoint", "penetration")
         totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "first_fire": 0.}
-        missing = set()
+        missing = set(); trace = set()
         for sa, wa in self.skills:
             for sb, wb in self.enemy_skills:
                 weight = wa * wb
@@ -197,6 +220,7 @@ class Forecast:
                     missing.add("one_or_both_directions_or_timing_missing")
                     totals["mean"] += weight * .5; totals["upper"] += weight
                     continue
+                trace.update((pa['aim_cache_key'],pb['aim_cache_key']))
                 missing.update(ta["missing"] + tb["missing"])
                 if endpoint == "damage":
                     if pa["lethality"] is None or pb["lethality"] is None:
@@ -209,8 +233,11 @@ class Forecast:
                     lower, upper = (0., 1.) if uncertain > 1e-12 else (outcome["score"], outcome["score"])
                 else:
                     outcome = duel(ta, tb, [0, 0, pa["mean"]], [0, 0, pb["mean"]], scenario["horizon_s"], self.config["timing"])
-                    lower = duel(ta, tb, [0, 0, pa["lower"]], [0, 0, pb["upper"]], scenario["horizon_s"], self.config["timing"])["score"]
-                    upper = duel(ta, tb, [0, 0, pa["upper"]], [0, 0, pb["lower"]], scenario["horizon_s"], self.config["timing"])["score"]
+                    if pa['unknown_mass']==0 and pb['unknown_mass']==0:
+                        lower=upper=outcome['score']
+                    else:
+                        lower = duel(ta, tb, [0, 0, pa["lower"]], [0, 0, pb["upper"]], scenario["horizon_s"], self.config["timing"])["score"]
+                        upper = duel(ta, tb, [0, 0, pa["upper"]], [0, 0, pb["lower"]], scenario["horizon_s"], self.config["timing"])["score"]
                 totals["mean"] += weight * outcome["score"]
                 totals["lower"] += weight * lower; totals["upper"] += weight * upper
                 unknown_a = pa["lethality"]["unknown_mass"] if endpoint == "damage" else pa["unknown_mass"]
@@ -218,7 +245,9 @@ class Forecast:
                 totals["coverage"] += weight * min(1 - unknown_a, 1 - unknown_b)
                 totals["first_fire"] += weight * outcome["first_fire_probability"][0]
         return {**totals, "score": totals["mean"] if totals["coverage"] > 0 else None,
-                "endpoint": endpoint, "missing": sorted(missing), "calibrated": False}
+                "endpoint": endpoint, "missing": sorted(missing), "calibrated": False,
+                "shot_keys":sorted(trace), "pair_key":digest([a_key,b_key,scenario,sorted(trace),self.config['timing']]),
+                "estimate_kind":"conditional_model_with_declared_unknown_prior", "observed_mean":None}
 
     def rooms(self, nation: str, cap: int) -> list[tuple[int, float]]:
         spread = self.config["matchmaking"]["spread_steps"]
@@ -228,6 +257,15 @@ class Forecast:
 
     @lru_cache(maxsize=1024)
     def opponents(self, nation: str, room_top: int, domain: str) -> tuple:
+        sampler=self.config['matchmaking'].get('lineup_sampler',{})
+        if sampler.get('enabled'):
+            mass=defaultdict(float)
+            for lineup,weight in self.opponent_lineups(nation,room_top):
+                members=[k for k in lineup if self.by_key[k]['domain']==domain]
+                if members:
+                    for k in members:mass[k]+=weight/len(members)
+            total=sum(mass.values())
+            return tuple((k,v/total) for k,v in sorted(mass.items())) if total else ()
         rules = self.config["matchmaking"]
         rows = [v for v in self.variants if (rules["same_nation_enemies"] or v["nation"] != nation) and v["domain"] == domain]
         main = [v for v in rows if room_top - rules["spread_steps"] <= v["br_step"] <= room_top]
@@ -248,11 +286,38 @@ class Forecast:
         if not a and b: fraction = 1.
         return tuple([(key, w * (1 - fraction)) for key, w in a] + [(key, w * fraction) for key, w in b])
 
+    @lru_cache(maxsize=1024)
+    def opponent_lineups(self,nation,room_top):
+        """Seeded legal queue prior. No directory frequency is interpreted as telemetry."""
+        import random
+        rules=self.config['matchmaking'];c=rules['lineup_sampler']
+        rng=random.Random(digest([c['seed'],nation,room_top]))
+        nations=defaultdict(lambda:defaultdict(lambda:defaultdict(list)))
+        for v in self.variants:
+            if (not rules['same_nation_enemies'] and v['nation']==nation) or not room_top-rules['spread_steps']<=v['br_step']<=room_top:continue
+            group=v['vehicle'].get('equivalence_group') if v['vehicle'].get('equivalence_verified') else v['vehicle_id']
+            nations[v['nation']][group][v['vehicle_id']].append(v)
+        result=defaultdict(int)
+        eligible=[n for n in sorted(nations) if any(v['domain']=='ground' for group in nations[n].values() for variants in group.values() for v in variants)]
+        if not eligible:return ()
+        for _ in range(c['samples']):
+            groups=nations[rng.choice(eligible)];names=sorted(groups);rng.shuffle(names)
+            lineup=[];systems=set()
+            for group in names:
+                parent=rng.choice(sorted(groups[group]));v=rng.choice(sorted(groups[group][parent],key=lambda x:x['key']))
+                if v.get('system_id') and v['system_id'] in systems:continue
+                lineup.append(v);systems.add(v.get('system_id'))
+                if len(lineup)==c['slots']:break
+            if not any(v['domain']=='ground' for v in lineup):continue
+            result[tuple(sorted(v['key'] for v in lineup))]+=1
+        count=sum(result.values())
+        return tuple((k,v/count) for k,v in sorted(result.items())) if count else ()
+
     @lru_cache(maxsize=50000)
     def mission(self, key: str, task: str, room_top: int, scenario_id: str) -> dict:
         v = self.by_key[key]
         if task == "ground" and v["domain"] != "ground": return {"mean": 0., "lower": 0., "upper": 0., "coverage": 1., "usable": False}
-        domain = "air" if task == "anti_air" else "ground"
+        domain = "air" if task in ("anti_air","anti_helicopter","cap") else "ground"
         enemies = self.opponents(v["nation"], room_top, domain)
         totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "usable": True}
         if not enemies: return {**totals, "mean": .5, "upper": 1.}
@@ -261,7 +326,7 @@ class Forecast:
                 row = self.pair(key, enemy, scenario_id)
             else:
                 external = self.missions.get((key, self.by_key[enemy]["vehicle_id"], scenario_id, task))
-                row = {**external, "coverage": 1.} if external else {"mean": .5, "lower": 0., "upper": 1., "coverage": 0.}
+                row = {**external, "coverage": 1. if external['status']=='validated' else 0.} if external else {"mean": .5, "lower": 0., "upper": 1., "coverage": 0.}
             for name in ("mean", "lower", "upper", "coverage"):
                 totals[name] += weight * row[name]
         return totals

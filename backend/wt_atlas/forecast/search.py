@@ -6,6 +6,8 @@ import math
 from functools import lru_cache
 
 from .data import number
+from .data import digest, canonical
+from .capabilities import spawn_cost
 
 
 def lower_tail(values: list[tuple[float, float]], mass: float) -> float:
@@ -22,7 +24,7 @@ def lower_tail(values: list[tuple[float, float]], mass: float) -> float:
     return result / mass
 
 
-def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict) -> dict:
+def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict, *, domains=None, cost_function=None) -> dict:
     """Optimize expected phase rewards under point gains, one sortie per vehicle.
 
     The point transition is exogenous and labelled in config; utility is never
@@ -46,6 +48,9 @@ def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict)
         best = (tail[0], tail[1], tail[2], tail[3] + weights[phase], None)
         for i, cost in enumerate(costs):
             item = rows[phase][i]
+            if cost_function:
+                previous=sum(bool(used & (1<<j)) for j in range(len(costs)) if domains[j]==domains[i])
+                cost=cost_function(i,previous)
             if used & (1 << i) or cost is None or cost > points or not item.get("usable", True): continue
             expected = [weights[phase] * item[k] for k in ("mean", "lower", "upper", "coverage")]
             for gain in gains:
@@ -57,8 +62,26 @@ def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict)
                 best = choice
         return best
     value = solve(0, 0, config["initial_points"])
+    # Policy occupancy is marginalized over the declared SP transitions.
+    active={(0,config['initial_points']):1.};actions=[]
+    for phase in range(len(rows)):
+        following={};occupancy={}
+        for (used,points),mass in active.items():
+            chosen=solve(phase,used,points)[4]
+            occupancy[chosen]=occupancy.get(chosen,0.)+mass
+            if chosen is None:
+                following[(used,points)]=following.get((used,points),0.)+mass;continue
+            cost=costs[chosen]
+            if cost_function:
+                previous=sum(bool(used & (1<<j)) for j in range(len(costs)) if domains[j]==domains[chosen])
+                cost=cost_function(chosen,previous)
+            for gain in gains:
+                state=(used | (1<<chosen),min(config['max_points'],points-cost+gain['points']))
+                following[state]=following.get(state,0.)+mass*gain['probability']
+        actions.append({'phase':phase,'actions':[{'member_index':i,'probability':p} for i,p in occupancy.items()]})
+        active=following
     return dict(zip(("mean", "lower", "upper", "coverage", "first_action"), value), states=visits,
-                status=config["status"], probability_model="declared_exogenous_point_gains")
+                status=config["status"], probability_model="declared_exogenous_point_gains",policy=actions)
 
 
 def feasible(lineup: tuple[dict, ...], slots: int) -> bool:
@@ -87,15 +110,9 @@ class Optimizer:
             for scenario in self.config["scenarios"]:
                 phases = self.config["spawn"]["phases"]
                 rows = [[self.e.mission(v["key"], task, room, scenario["id"]) for v in lineup] for task in phases]
-                costs = []
-                for v in lineup:
-                    explicit = (v.get("loadout") or {}).get("spawn_cost", v["vehicle"].get("spawn_cost"))
-                    if explicit is None:
-                        explicit = self.config["spawn"]["ground_cost" if v["domain"] == "ground" else "air_cost"]
-                    if explicit is not None and (not number(explicit) or explicit < 0 or int(explicit) != explicit):
-                        raise ValueError("Invalid sourced spawn cost")
-                    costs.append(None if explicit is None else int(explicit))
-                result = sortie_policy(rows, costs, self.config["spawn"])
+                costs = [spawn_cost(v,self.config['spawn'],room) for v in lineup]
+                result = sortie_policy(rows, costs, self.config["spawn"], domains=[v['domain'] for v in lineup],
+                    cost_function=lambda i,n:spawn_cost(lineup[i],self.config['spawn'],room,n))
                 result.update(weight=room_weight * scenario["weight"], room_top_step=room, scenario=scenario["id"])
                 cases.append(result)
         risk = self.config["search"]["risk_aversion"]
@@ -107,6 +124,10 @@ class Optimizer:
         eligible = coverage >= self.config["search"]["minimum_pair_coverage"]
         estimate = aggregate("mean")
         members = [{k: v[k] for k in ("vehicle_id", "rating_configuration_id", "ammo_id", "loadout_id", "key", "br", "classification")} for v in lineup]
+        for m,v in zip(members,lineup):
+            m.update(name=v['vehicle'].get('name',v['vehicle_id']),mode='ground_rb',version=v.get('version'),
+                     loadout=v.get('loadout'),ammo_profile_sha256=digest(v['profile']) if v.get('profile') else None,
+                     source=v['vehicle'].get('source_url'),taxonomy_original={'kind':v['vehicle'].get('kind'),'role':v['vehicle'].get('role')})
         return {"keys": list(keys), "members": members, "nation": nation,
                 "actual_br": round(cap / self.config["matchmaking"]["br_step_denominator"], 1),
                 "score": 100 * estimate if eligible else None, "estimate": 100 * estimate,
@@ -114,7 +135,39 @@ class Optimizer:
                 "evidence_coverage": coverage, "rankable": eligible,
                 "status": "uncalibrated_conditional_prediction" if eligible else "insufficient_paired_evidence",
                 "cases": cases, "endpoint": self.config.get("endpoint", "penetration"),
+                "lineup_key":digest([keys,self.config]),
+                "uncertainty":{"physical_missing_interval":[100*aggregate('lower'),100*aggregate('upper')],
+                    "model_error":None,"out_of_sample_confidence_interval":None},
+                "mission_coverage":{task:sum(r['weight']*sum(a['probability']*(a['member_index'] is not None) for a in r['policy'][i]['actions']) for r in cases) for i,task in enumerate(self.config['spawn']['phases'])},
                 "global_optimum_guaranteed": False}
+
+    def pareto(self,pool,cap):
+        """Prune dominated payloads of ONE parent only; never remove backup vehicles.
+
+        A dominance decision needs complete evidence for every task/context. Missing
+        intervals and unknown costs cannot justify pruning an alternative.
+        """
+        if not self.config['search'].get('pareto',False):return pool,0
+        groups={}
+        for v in pool:groups.setdefault((v['vehicle_id'],v['br_step']),[]).append(v)
+        kept=[];removed=0
+        for group in groups.values():
+            if len(group)==1:kept+=group;continue
+            vectors={};costs={}
+            for v in group:
+                rows=[self.e.mission(v['key'],task,room,s['id']) for room,_ in self.e.rooms(v['nation'],cap) for s in self.config['scenarios'] for task in set(self.config['spawn']['phases'])]
+                vectors[v['key']]=[r['mean'] for r in rows] if all(r['coverage']>=1-1e-12 for r in rows) else None
+                costs[v['key']]=spawn_cost(v,self.config['spawn'],cap)
+            for v in group:
+                x=vectors[v['key']];cost=costs[v['key']]
+                dominated=False
+                if x is not None and cost is not None:
+                    for other in group:
+                        y=vectors[other['key']];oc=costs[other['key']]
+                        if y is not None and oc is not None and oc<=cost and all(b>=a for a,b in zip(x,y)) and (any(b>a for a,b in zip(x,y)) or oc<cost):dominated=True;break
+                if dominated:removed+=1
+                else:kept.append(v)
+        return kept,removed
 
     def _rank(self, keys: tuple[str, ...]):
         result = self.evaluate(keys)
@@ -124,8 +177,9 @@ class Optimizer:
         if acquisition not in ("researchable", "all"): raise ValueError("Unknown acquisition profile")
         pool = [v for v in self.e.variants if v["nation"] == nation and v["br_step"] <= cap and
                 (acquisition == "all" or (v["vehicle"].get("special") is not True and v["vehicle"].get("acquisition", {}).get("researchable") is not False))]
+        pool,pruned=self.pareto(pool,cap)
         by_key = {v["key"]: v for v in pool}
-        all_keys = sorted(by_key)
+        all_keys = sorted(by_key,key=lambda k:digest([self.config['search'].get('seed',0),k]))
         ground = [v for v in pool if v["domain"] == "ground"]
         anchors = [v for v in pool if v["br_step"] == cap]
         budget, visited, exhausted = self.config["search"]["max_evaluations"], set(), False
@@ -198,13 +252,17 @@ class Optimizer:
             if len(results) == self.config["search"]["per_cap_limit"]: break
         return {"nation": nation, "cap_step": cap, "slots": slots, "acquisition": acquisition,
                 "candidates": [r for _, r in results], "evaluations": len(visited),
+                "pareto_payloads_removed":pruned,"seed":self.config['search'].get('seed',0),
                 "budget_exhausted": exhausted, "algorithm": "multi_start_beam_and_one_two_slot_exchange",
                 "global_optimum_guaranteed": False}
 
     def world(self) -> dict:
         tables = []
         for nation in sorted({v["nation"] for v in self.e.variants}):
+            if self.config['search'].get('nations') and nation not in self.config['search']['nations']:continue
             caps = sorted({v["br_step"] for v in self.e.variants if v["nation"] == nation})
+            limits=self.config['search'].get('br_range')
+            if limits:caps=[c for c in caps if limits[0]<=round(c/3,1)<=limits[1]]
             for slots in self.config["search"]["slots"]:
                 for acquisition in self.config["search"]["acquisition_profiles"]:
                     for cap in caps:
@@ -212,8 +270,14 @@ class Optimizer:
         boards = {}
         for slots in self.config["search"]["slots"]:
             for acquisition in self.config["search"]["acquisition_profiles"]:
-                rows = [r for t in tables if t["slots"] == slots and t["acquisition"] == acquisition for r in t["candidates"] if r["rankable"]]
+                rows = [r for t in tables if t["slots"] == slots and t["acquisition"] == acquisition and not t['budget_exhausted'] for r in t["candidates"] if r["rankable"]]
                 rows.sort(key=lambda r: (-r["score"], -r["evidence_coverage"], r["keys"]))
+                seen=set();unique=[]
+                for row in rows:
+                    signature=tuple(sorted(m['vehicle_id'] for m in row['members']))
+                    if signature in seen:continue
+                    seen.add(signature);unique.append(row)
+                rows=unique
                 boards[f"{slots}/{acquisition}"] = [{**r, "rank": i + 1} for i, r in enumerate(rows[:self.config["search"]["global_limit"]])]
         return {"boards": boards, "tables": tables, "evaluations": sum(t["evaluations"] for t in tables),
                 "truncated_searches": sum(t["budget_exhausted"] for t in tables), "global_optimum_guaranteed": False}

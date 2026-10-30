@@ -99,6 +99,28 @@ def duel(a: dict, b: dict, qa: list[float], qb: list[float], horizon: float, c: 
         if count > c["max_events"]: raise ValueError("Event budget exceeded; do not silently cap automatic fire")
         events.extend((t["first_s"] + k * t["cycle_s"], side) for k in range(count))
     events.sort()
+    if endpoint == 'penetration' and qa[:2] == [0,0] and qb[:2] == [0,0]:
+        # Absorbing first-event model: vectorized survival has the same simultaneous
+        # semantics as the joint-state propagation, at O(events) rather than 25
+        # matrix transitions per event. Damage still uses the full state model.
+        groups=[];i=0
+        while i<len(events):
+            t=events[i][0];sides=set()
+            while i<len(events) and abs(events[i][0]-t)<=c['simultaneous_tolerance_s']:
+                sides.add(events[i][1]);i+=1
+            if t<=a['exposure_end_s'] and t<=b['exposure_end_s']:groups.append((0 in sides,1 in sides))
+        fire=np.asarray(groups,dtype=float).reshape((-1,2))
+        pa=fire[:,0]*qa[2];pb=fire[:,1]*qb[2]
+        survival=(1-pa)*(1-pb)
+        prior=np.concatenate(([1.],np.cumprod(survival)))
+        wins=float(np.sum(prior[:-1]*pa*(1-pb)));losses=float(np.sum(prior[:-1]*pb*(1-pa)))
+        ties=float(np.sum(prior[:-1]*pa*pb));pending=float(prior[-1])
+        state=np.zeros((5,5));state[0,4]=wins;state[4,0]=losses;state[4,4]=ties;state[0,0]=pending
+        first=(fire[0]/fire[0].sum()).tolist() if len(fire) else [0.,0.]
+        return {'score':wins+.5*(ties+pending),'a_only':wins,'b_only':losses,'both':ties,'unresolved':pending,
+            'expected_shots':(prior[:-1,None]*fire).sum(axis=0).tolist(),'first_fire_probability':first,
+            'state_mass':state.tolist(),'endpoint':endpoint,'kill_probability':None,
+            'assumptions':['conditional independent shots','fixed per-shot map while firing','no repair during horizon']}
     state = np.zeros((5, 5)); state[0, 0] = 1.0
     shots = [0.0, 0.0]
     i = 0
