@@ -136,3 +136,5 @@ python scripts/rebuild_range_maps.py --repository "$WT_ATLAS_DATA_ROOT" --catalo
 `build_forecast.py --run-sensitivity` 在基线搜索后实际重跑五组条件：横纵瞄准误差各缩小/扩大 20%、敌方技能均值增加 0.5、搜索预算翻倍、队列采样种子切换。报告保存在 forecast validation 的 `sensitivity` 字段，含每次评估/恢复次数、候选重合度和最大效用变化。
 
 当前明确的稳健性政策为每榜候选重合度至少 0.5、共有候选效用变化不超过 10 分，且不能有空榜或截断搜索；这不是实测误差或统计置信度。失败不会阻止诊断站构建，只阻止正式榜发布。外部 `--sensitivity` 必须提供同结构的完整测量报告，绑定目录、有效配置、物理图、任务/毁伤与代码输入及内容校验和；仅 `passed: true` 不再通过。使用 `--run-sensitivity` 可在离线本机生成该报告，不依赖外部授权数据。
+
+真实研究站验收可使用 `node scripts/qa_research_http.mjs <与推荐缓存一致的源码/数据根> <研究站目录> <独立概率导出目录>`。第三个参数可选，默认使用数据根下的 `data/exports/probability`。这样可以在隔离副本中重新生成旧研究推荐并核对 Worker 结果，同时只读原有大型概率导出；临时 HTTP 清单仅用于验收，不会写回站点或宣称已配置生产 CDN。

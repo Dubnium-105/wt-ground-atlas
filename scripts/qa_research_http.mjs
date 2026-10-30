@@ -8,7 +8,9 @@ import {createHash} from 'node:crypto';
 import {gzipSync} from 'node:zlib';
 import {spawn} from 'node:child_process';
 const dataRoot=path.resolve(process.argv[2]||'.'),site=path.resolve(process.argv[3]||path.join(dataRoot,'dist/site'));
-const physical=path.join(dataRoot,'data/exports/probability');
+// Optional separate probability root lets QA use freshly rebuilt recommendations
+// without copying multi-gigabyte physical exports into the isolated source tree.
+const physical=path.resolve(process.argv[4]||path.join(dataRoot,'data/exports/probability'));
 const manifest=JSON.parse(await fs.readFile(path.join(site,'data/manifest.json'),'utf8'));
 const bytes=await fs.readFile(path.join(physical,'index.json'));
 manifest.probability={url:'/probability/index.json',gzip_url:'/probability/index.json.gz',bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')};
