@@ -1,0 +1,111 @@
+{
+  "client_versions": [
+    "2.59.0.92"
+  ],
+  "physical_distances_m": [
+    10.0
+  ],
+  "metadata_count": 1,
+  "catalog_vehicles": 2,
+  "ammunition_profiles": 404,
+  "integrity": {
+    "files": 32,
+    "sha256": "d73ae7383a78cc778696916e91871c6468040d6e591f0dccd98a0523745c1d9c",
+    "status": "verified"
+  },
+  "sample_subset": true,
+  "source_bindings": {
+    "source_declared_id_version_only": 1
+  },
+  "calibration_status": "uncalibrated",
+  "ranking_scope": "native_distance_ground_engagement",
+  "input_zip_sha256": "5a5dc1b5e4254f54491599505cbdb15a1292562c1dfc148849dcf270ce10b463",
+  "local_python_tests": {
+    "passed": 35,
+    "failed": 0,
+    "fixture": "synthetic except separately exercised supplied sample"
+  },
+  "browser_local_status": "HTTP navigation blocked by container administrator; full HTTP test is in GitHub Actions",
+  "diagnostic_rows": 72,
+  "published_ranking_count": 0,
+  "selected_diagnostics": [
+    {
+      "target_id": "uk_khalid",
+      "catalog_ammo_id": "ussr_bmp_2m::30 mm APDS-FS",
+      "physical_distance_m": 10.0,
+      "yaw_deg": 0.0,
+      "skill": -1,
+      "mean": 0.11474514072984951,
+      "unknown_mass": 0.0,
+      "no_protected_target_mass": 0.05408473298808903,
+      "miss_mass": 0.00011339277233691102,
+      "semantics": "protected_target_penetration",
+      "lethality": null
+    },
+    {
+      "target_id": "uk_khalid",
+      "catalog_ammo_id": "ussr_bmp_2m::30 mm APDS-FS",
+      "physical_distance_m": 10.0,
+      "yaw_deg": 0.0,
+      "skill": 0,
+      "mean": 0.210610663277188,
+      "unknown_mass": 0.0,
+      "no_protected_target_mass": 0.06212764213760667,
+      "miss_mass": 1.3236294155945813e-06,
+      "semantics": "protected_target_penetration",
+      "lethality": null
+    },
+    {
+      "target_id": "uk_khalid",
+      "catalog_ammo_id": "ussr_bmp_2m::30 mm APDS-FS",
+      "physical_distance_m": 10.0,
+      "yaw_deg": 0.0,
+      "skill": 1,
+      "mean": 0.3557566539705078,
+      "unknown_mass": 0.0,
+      "no_protected_target_mass": 0.06103621828885848,
+      "miss_mass": 1.3230812526026708e-10,
+      "semantics": "protected_target_penetration",
+      "lethality": null
+    },
+    {
+      "target_id": "uk_khalid",
+      "catalog_ammo_id": "ussr_bmp_2m::30 mm APDS-FS",
+      "physical_distance_m": 10.0,
+      "yaw_deg": 90.0,
+      "skill": -1,
+      "mean": 0.9528800580109713,
+      "unknown_mass": 0.0,
+      "no_protected_target_mass": 0.041019631491817435,
+      "miss_mass": 1.136917608041761e-16,
+      "semantics": "protected_target_penetration",
+      "lethality": null
+    },
+    {
+      "target_id": "uk_khalid",
+      "catalog_ammo_id": "ussr_bmp_2m::30 mm APDS-FS",
+      "physical_distance_m": 10.0,
+      "yaw_deg": 90.0,
+      "skill": 0,
+      "mean": 0.9864154224226255,
+      "unknown_mass": 0.0,
+      "no_protected_target_mass": 0.01049001482613116,
+      "miss_mass": 7.571644024085896e-33,
+      "semantics": "protected_target_penetration",
+      "lethality": null
+    },
+    {
+      "target_id": "uk_khalid",
+      "catalog_ammo_id": "ussr_bmp_2m::30 mm APDS-FS",
+      "physical_distance_m": 10.0,
+      "yaw_deg": 90.0,
+      "skill": 1,
+      "mean": 0.9977235052427386,
+      "unknown_mass": 0.0,
+      "no_protected_target_mass": 0.0016472887526358779,
+      "miss_mass": 7.801638055345204e-62,
+      "semantics": "protected_target_penetration",
+      "lethality": null
+    }
+  ]
+}
