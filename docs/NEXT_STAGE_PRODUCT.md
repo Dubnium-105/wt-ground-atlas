@@ -152,3 +152,15 @@ python scripts/rebuild_range_maps.py --repository "$WT_ATLAS_DATA_ROOT" --catalo
 槽位数现在约束完整入榜队列：选择 N 槽时，候选必须包含 N 个不同父载具/多车系统。部分队列只用于搜索扩展；未使用的替补保留真实成员身份和零边际值，不虚构出击收益。合法独立成员不足时返回 `insufficient_distinct_members` 和 `available_parent_groups`，国家/BR 页面展示无法组成该槽位队列的具体原因。
 
 版本对照的 `migrations` 清单只携带国家/槽位/获取范围、前后 BR、变化值和完整记录描述符；成员与归因按国家及原 BR 分片。浏览器仅下载当前页引用的记录，翻页或筛选会取消旧请求。统一发布验证同时校验这些分片的原始/压缩大小与哈希，坏分片不能替换已有站点。
+
+## 自动刷新当前 Wiki 目录
+
+```sh
+python scripts/update_forecast.py --refresh-wiki --before /data/wt/data/snapshots/catalog.json --catalog-output data/snapshots/catalog.current-wiki.json --cache data/cache/current-wiki --out reports/current-wiki-refresh.json
+```
+
+该命令实际获取地面、固定翼和直升机三个目录，校验并缓存内容哈希，再按精确载具 ID 生成独立的新目录。固定翼只使用 Ground RB `trb`。当前 BR 与已采集的树位置、获取范围一起更新，原 `planned` 值重置为当前捕获值，不把已经生效的调整继续当下一版。新增载具保留缺少物理/弹药数据的状态；目录消失的 ID 标为本次未观测，不能因此断言它已从游戏删除。
+
+旧目录及原始 GRP/NPZ 不被覆盖。相同 ID 的弹药、几何、物理构型和客户端来源只按原记录保留；国家/平台冲突直接拒绝。目录页不能证明旧航空预设、自选 BR 规则和 SP 仍然合法，因此旧规则保留为审计证据并暂停进入当前搜索，等待当前版本的完整挂载/规则来源重新验证。未知配置仍以未知状态保留在对手环境中。
+
+Wiki 不提供游戏版本标记，刷新成功仍为 `source_status=unknown`，不会填入本地客户端版本或打开正式榜。`--offline` 使用上次完整且哈希校验通过的捕获，保留原采集时间；`--dry-run` 只核对缓存并输出差异，不改写目录。任意一个目录抓取失败时，旧完整捕获清单与输出目录保持原样。`config/sources.json` 的 `wiki.catalog_max_bytes` 控制单目录响应上限。

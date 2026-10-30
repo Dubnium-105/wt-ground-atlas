@@ -55,7 +55,8 @@
     "user_agent": "WT-Ground-Atlas/1.0 (public offline snapshot builder; conditional cache)",
     "regular_status_code": 0,
     "modification_state": "reference",
-    "crew_state": "aces"
+    "crew_state": "aces",
+    "catalog_max_bytes": 8388608
   },
   "datamine": {
     "repository": "https://github.com/gszabi99/War-Thunder-Datamine",
