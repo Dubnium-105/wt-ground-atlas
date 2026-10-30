@@ -15,12 +15,15 @@ import sys,json
 from pathlib import Path
 sys.path.insert(0, str(Path('tests').resolve()))
 from test_forecast import fixture, settings
+from site_fixture import create_fixture,build_recommendations,load_script
 p=Path(sys.argv[1]);fixture(p)
-(p/'config.json').write_text(json.dumps(settings()))
+c=settings();c['skill_profiles']={k:{**v,'nodes':1,'sd':0} for k,v in c['skill_profiles'].items()}
+(p/'config.json').write_text(json.dumps(c))
+research=create_fixture(p/'research-project');build_recommendations(research);load_script('build_web').build(research)
 (p/'patch.json').write_text(json.dumps({'id':'synthetic-patch','status':'proposed','entries':[{'vehicle_id':'synthetic_a_0','field':'br','old':9.3,'new':9.7}]}))
 `,work],{cwd:root,encoding:'utf8'});
 assert.equal(setup.status,0,setup.stderr);
-const build=spawnSync(python,['scripts/build_forecast.py','--catalog',path.join(work,'catalog.json'),'--ammunition',path.join(work,'ammo.json'),'--atlas',path.join(work,'v2'),'--config',path.join(work,'config.json'),'--scenario',path.join(work,'patch.json'),'--cache',path.join(work,'cache.sqlite'),'--out',path.join(work,'site')],{cwd:root,encoding:'utf8'});
+const build=spawnSync(python,['build.py','--forecast','--all-profiles','--research-site',path.join(work,'research-project/dist/site'),'--catalog',path.join(work,'catalog.json'),'--ammunition',path.join(work,'ammo.json'),'--atlas',path.join(work,'v2'),'--config',path.join(work,'config.json'),'--scenario',path.join(work,'patch.json'),'--cache',path.join(work,'cache.sqlite'),'--index',path.join(work,'index.sqlite'),'--forecast-output',path.join(work,'forecast'),'--output',path.join(work,'site')],{cwd:root,encoding:'utf8'});
 assert.equal(build.status,0,build.stderr);
 const site=path.join(work,'site');
 const server=http.createServer(async(req,res)=>{
@@ -36,7 +39,7 @@ const server=http.createServer(async(req,res)=>{
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{})});
 try{
-  const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[];
+  const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[],requests=[];page.on('request',r=>requests.push(r.url()));
   page.on('pageerror',error=>errors.push(error.message));
   await page.goto(`http://127.0.0.1:${server.address().port}/sub/index.html`);
   await page.waitForSelector('html[data-ready="true"]');
@@ -48,9 +51,15 @@ try{
   await page.waitForFunction(()=>document.querySelector('#rankings h2').textContent.startsWith('当前'));
   await page.setViewportSize({width:390,height:844});
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),'mobile horizontal overflow');
+  assert.equal(requests.some(url=>/\.(npz|grp)(?:$|\?)/.test(url)),false);
+  await Promise.all([page.waitForURL('**/profiles/expert-ground/index.html**'),page.locator('#skill').selectOption('expert')]);await page.waitForSelector('html[data-ready="true"]');assert.equal(await page.locator('#skill').inputValue(),'expert');
+  await Promise.all([page.waitForURL('**/profiles/expert-balanced/index.html**'),page.locator('#preference').selectOption('balanced')]);await page.waitForSelector('html[data-ready="true"]');assert.equal(await page.locator('#preference').inputValue(),'balanced');
+  await page.locator('#research-nav a').first().click();await page.waitForFunction(()=>window.__GROUNDOPS__?.ready);assert.equal(await page.evaluate(()=>window.__GROUNDOPS__.getState().view),'tree');
+  await page.locator('.predictor-return').click();await page.waitForSelector('html[data-ready="true"]');
+  const broken=await browser.newPage();await broken.route('**/data/report.*.json',r=>r.fulfill({contentType:'application/json',body:'{}'}));await broken.goto(`http://127.0.0.1:${server.address().port}/sub/index.html`);await broken.getByRole('button',{name:'重试加载'}).waitFor();await broken.unroute('**/data/report.*.json');await broken.getByRole('button',{name:'重试加载'}).click();await broken.waitForSelector('html[data-ready="true"]');await broken.close();
   assert.deepEqual(errors,[]);
   if(process.env.FORECAST_SCREENSHOT)await page.screenshot({path:process.env.FORECAST_SCREENSHOT,fullPage:true});
-  console.log(JSON.stringify({status:'passed',automatic_ranking:true,version_switch:true,nation_filter:true,subpath:true,mobile:true,page_errors:errors}));
+  console.log(JSON.stringify({status:'passed',automatic_ranking:true,version_switch:true,nation_filter:true,subpath:true,mobile:true,cohort_switch:true,unified_research:true,hash_error_retry:true,raw_physics_initial_requests:0,page_errors:errors}));
 }finally{
   await browser.close();await new Promise(resolve=>server.close(resolve));await fs.rm(work,{recursive:true,force:true});
 }

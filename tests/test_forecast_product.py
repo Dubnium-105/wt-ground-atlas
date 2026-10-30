@@ -84,7 +84,7 @@ class ProductTests(unittest.TestCase):
     def test_mission_max_range_not_hit_rate_and_bound_payload(self):
         e=self.engine();v=e.variants[0]
         r={'variant_key':v['key'],'target_vehicle_id':'target','scenario_id':self.c['scenarios'][0]['id'],'task':'cas','lower':.1,'mean':.2,'upper':.3,'source_version':'synthetic-only','source':'synthetic','status':'validated',
-           'evidence':{'loadout_id':None,'flight_conditions':{},'radar_conditions':{},'target_countermeasures':{},'source_sha256':'synthetic','measurement':'maximum_range'}}
+           'evidence':{'loadout_id':None,'flight_conditions':{},'radar_conditions':{},'target_countermeasures':{},'source_sha256':'0'*64,'measurement':'maximum_range'}}
         with self.assertRaises(ValueError):validate_mission(r,'synthetic-only',e.by_key,{r['scenario_id']})
         r['evidence']['measurement']='controlled_task_observation'
         self.assertTrue(validate_mission(r,'synthetic-only',e.by_key,{r['scenario_id']})['production_validated'])

@@ -138,11 +138,32 @@ def copy_probability(source: Path, destination: Path, index: dict) -> None:
 
 def validate_site(site: Path, budgets: dict | None = None) -> dict:
     """Check a bounded deploy tree without inspecting any compute directory."""
-    required = ('index.html', 'app.mjs', 'worker.mjs', 'data-client.mjs',
+    initial_manifest=read_json(site/'data/manifest.json') if (site/'data/manifest.json').exists() else {}
+    unified=initial_manifest.get('kind')=='unified_forecast_site'
+    required = ('index.html','app.mjs','index.json','research/index.html') if unified else ('index.html', 'app.mjs', 'worker.mjs', 'data-client.mjs',
                 'shared/engine.mjs', 'shared/probability-codec.mjs', 'data/manifest.json')
     for name in required:
         local_file(site, name)
     manifest = read_json(site / 'data/manifest.json')
+    if unified:
+        index=read_json(local_file(site,'index.json'))
+        def forecast_descriptor(d,directory):
+            source=local_file(directory,d['url'])
+            if source.stat().st_size!=d['bytes'] or file_hash(source)!=d['sha256']:raise ValueError('Forecast descriptor checksum failure')
+            if d.get('gzip_url'):
+                compressed=local_file(directory,d['gzip_url'])
+                with gzip.open(compressed,'rb') as stream:expanded=stream.read(d['bytes']+1)
+                if compressed.stat().st_size!=d['gzip_bytes'] or expanded!=source.read_bytes():raise ValueError('Forecast gzip mismatch')
+            return read_json(source)
+        directories={site}
+        for cohort in index.get('cohorts',[]):directories.add(local_file(site,cohort['directory']+'index.json').parent)
+        for directory in directories:
+            ci=read_json(local_file(directory,'index.json'))
+            forecast_descriptor(ci['report'],directory);forecast_descriptor(ci['migrations'],directory)
+            for d in ci['worlds'].values():
+                world=forecast_descriptor(d,directory)
+                for shard in world['tables']:forecast_descriptor(shard,directory)
+        if index['research']['status']=='available':validate_site(site/'research',budgets)
     mode = manifest.get('deployment', {}).get('probability_mode', 'disabled')
     paths = []
     for directory, directories, filenames in os.walk(site, followlinks=False):

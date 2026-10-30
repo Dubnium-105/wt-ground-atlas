@@ -1,22 +1,29 @@
 {
-  "name":"groundops-war-thunder-rb-atlas",
-  "version":"1.0.0",
-  "private":true,
-  "type":"module",
-  "description":"Data-driven offline build backend and static Ground RB decision workbench. No npm runtime dependencies.",
-  "scripts":{
-    "build":"python build.py",
-    "build:decisions":"node scripts/build_decisions.mjs",
-    "test":"npm run test:js && npm run test:python",
-    "test:js":"node --test tests/engine.test.mjs tests/probability_summaries.test.mjs tests/data_client.test.mjs",
-    "test:python":"python tests/run_python_tests.py",
-    "test:site":"python tests/run_python_tests.py --pattern test_site_build.py",
-    "test:engine":"node tests/engine.test.mjs",
-    "test:probabilities":"node tests/probability_summaries.test.mjs",
-    "test:browser":"node tests/browser.e2e.mjs",
-    "test:smoke":"node tests/site.smoke.mjs",
-    "serve":"python scripts/serve.py --no-browser"
+  "name": "groundops-war-thunder-rb-atlas",
+  "version": "3.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Data-driven offline build backend and static Ground RB decision workbench. No npm runtime dependencies.",
+  "scripts": {
+    "build": "python build.py --forecast",
+    "build:decisions": "node scripts/build_decisions.mjs",
+    "test": "npm run test:js && npm run test:python",
+    "test:js": "node --test tests/engine.test.mjs tests/probability_summaries.test.mjs tests/data_client.test.mjs",
+    "test:python": "python tests/run_python_tests.py",
+    "test:site": "python tests/run_python_tests.py --pattern test_site_build.py",
+    "test:engine": "node tests/engine.test.mjs",
+    "test:probabilities": "node tests/probability_summaries.test.mjs",
+    "test:browser": "node tests/browser.e2e.mjs",
+    "test:smoke": "node tests/site.smoke.mjs",
+    "serve": "python scripts/serve.py --no-browser",
+    "build:research": "python build.py",
+    "test:forecast": "python -m unittest discover -s tests -p \"test_forecast*.py\" -v",
+    "test:forecast-browser": "node tests/forecast.e2e.mjs"
   },
-  "devDependencies":{"playwright":"1.62.1"},
-  "engines":{"node":">=20"}
+  "devDependencies": {
+    "playwright": "1.62.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
 }

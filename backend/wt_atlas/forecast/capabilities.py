@@ -1,5 +1,6 @@
 """Evidence for independent tasks, complete carried payloads and sortie costs."""
 from .data import digest, number
+import re
 
 TASKS={'ground','anti_tank','ground_control','recon','anti_helicopter','anti_air','cap','cas','sead'}
 
@@ -16,6 +17,8 @@ def validate_mission(row,version,variants,scenarios):
         for k in ('loadout_id','flight_conditions','radar_conditions','target_countermeasures','source_sha256'):
             if k not in evidence:raise ValueError('Incomplete mission delivery evidence: '+k)
         if evidence['loadout_id']!=variants[row['variant_key']].get('loadout_id'):raise ValueError('Mission carried payload mismatch')
+        if not isinstance(evidence['source_sha256'],str) or not re.fullmatch('[0-9a-f]{64}',evidence['source_sha256']):raise ValueError('Mission source hash required')
+        if any(not isinstance(evidence[k],dict) for k in ('flight_conditions','radar_conditions','target_countermeasures')):raise ValueError('Mission conditions must be objects')
         if evidence.get('measurement')=='maximum_range':raise ValueError('Maximum range is not observed mission effectiveness')
     return {**row,'evidence_sha256':digest(row),'production_validated':row['status']=='validated' and evidence is not None}
 
@@ -47,6 +50,7 @@ def spawn_cost(variant,spawn,room_top,respawns=0):
     source=(variant.get('loadout') or {}).get('spawn_rule',variant['vehicle'].get('spawn_rule'))
     if source:
         if source.get('status') not in ('official_verified','assumed') or not source.get('source'):raise ValueError('Unsourced spawn rule')
+        if source['status']=='official_verified' and source.get('source_version')!=variant.get('version'):raise ValueError('Spawn source version mismatch')
         cost=source.get('base_points')
         room_steps=room_top-variant['br_step']
         cost=source.get('room_costs',{}).get(str(room_steps),cost)

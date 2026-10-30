@@ -9,6 +9,7 @@ from .data import number
 
 def weapon_timing(vehicle: dict, ammo: dict, skill: float, scenario: dict, c: dict) -> dict:
     """Durations, not attribute-score bonuses; missing timing evidence remains visible."""
+    if not number(skill) or any(not number(scenario[k]) or scenario[k]<0 for k in ('approach_m','hull_offset_deg','cover_distance_m','horizon_s')):raise ValueError('Invalid timing input')
     if vehicle.get("forecast_timing_unverified"):
         return {"valid": False, "missing": ["ambiguous_patched_weapon_timing"]}
     weapon = ammo.get("weapon_profile") or vehicle.get("firepower", {})
@@ -88,11 +89,14 @@ def duel(a: dict, b: dict, qa: list[float], qb: list[float], horizon: float, c: 
     Simultaneous shots use pre-event shooter states, avoiding order advantage.
     """
     if endpoint not in ("penetration", "damage"): raise ValueError("Unsupported endpoint")
+    if not number(horizon) or horizon<=0:raise ValueError('Invalid horizon')
     if not a.get("valid") or not b.get("valid"):
         return {"score": None, "reason": "missing_weapon_timing"}
     ma, mb = _matrix(qa, endpoint), _matrix(qb, endpoint)
     events = []
     for side, t in enumerate((a, b)):
+        if any(not number(t[k]) or t[k]<0 for k in ('cycle_s','first_s','exposure_end_s')):raise ValueError('Invalid event timing')
+        if t['ready_capacity'] is not None and (not isinstance(t['ready_capacity'],int) or isinstance(t['ready_capacity'],bool) or t['ready_capacity']<1):raise ValueError('Invalid ammunition capacity')
         if t["cycle_s"] <= 0: raise ValueError("Invalid cadence")
         count = max(0, math.floor((horizon - t["first_s"]) / t["cycle_s"]) + 1)
         if t["ready_capacity"] is not None: count = min(count, t["ready_capacity"])

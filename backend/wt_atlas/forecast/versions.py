@@ -65,6 +65,8 @@ def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensi
     if info['source_status']!='released':blockers.append('baseline_release_status_unverified')
     if not info['datamine_commit'] or not info['wiki_collected_at'] or not info['effective_date']:blockers.append('source_version_timeline_incomplete')
     bindings={m.get('target_binding') for m in atlas.meta.values()}
+    versions={(m.get('source_version'),m.get('datamine_commit')) for m in atlas.meta.values()}
+    if versions!={(info['game_version'],info['datamine_commit'])}:blockers.append('snapshot_physics_version_mismatch')
     if not bindings or bindings!={'independent_geometry_verified'}:blockers.append('independent_target_geometry_not_verified')
     if inventory is None or inventory['verified_arrays']!=inventory['selected_maps'] or not inventory['selected_maps']:blockers.append('physical_arrays_not_fully_verified')
     if world['truncated_searches']:blockers.append('search_budget_truncated')
@@ -91,6 +93,9 @@ def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensi
         br_source=v.get('br_provenance',{})
         if br_source.get('source_version')!=info['game_version'] or not br_source.get('source'):
             blockers.append('rating_version_provenance_incomplete');break
+        block=v.get('rating_configurations',{}).get('ground_rb')
+        if block and block.get('source_version')!=info['game_version']:
+            blockers.append('rating_configuration_version_unverified');break
     return {'algorithm_ready':True,'data_ready':not any(b for b in blockers if b not in ('search_budget_truncated','sensitivity_not_verified')),
             'publishable':not blockers,'why_not_publishable':blockers,'snapshot':info,
             'calibration_status':config['calibration_status'],'empirical_win_rate_validated':False,

@@ -13,6 +13,10 @@ from build_web import build, check_inputs
 
 
 def main():
+    if '--forecast' in sys.argv:
+        from build_product import main as product_main
+        product_main([x for x in sys.argv[1:] if x!='--forecast'])
+        return
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--force', action='store_true', help='Recalculate recommendations even when input hashes match.')
     parser.add_argument('--skip-decisions', action='store_true', help='Assemble existing recommendations; reject stale inputs.')
