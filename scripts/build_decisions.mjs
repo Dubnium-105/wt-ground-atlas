@@ -6,6 +6,7 @@ import crypto from 'node:crypto';
 import zlib from 'node:zlib';
 import {fileURLToPath} from 'node:url';
 import {applyScenario, recommendNation, getBR, evaluateLineup, validateModelConfig, buildVersionOverview} from '../shared/engine.mjs';
+import {buildMetaRankings} from '../shared/meta-rankings.mjs';
 
 const args = Object.fromEntries(process.argv.slice(2).reduce((pairs, item, index, all) => item.startsWith('--') ? [...pairs, [item.slice(2), all[index + 1]?.startsWith('--') ? true : all[index + 1] ?? true]] : pairs, []));
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -32,7 +33,7 @@ for(const target of probabilities.target_layers.targets)target.views=target.view
 if (!Array.isArray(probabilities.records)) throw new Error('Probability summary bundle requires a records array');
 const digest = data => crypto.createHash('sha256').update(data).digest('hex');
 const inputHash = digest(catalogText + scenarioText + configText + probabilitiesText + layersText);
-const identity = {target_layers_sha256: digest(layersText), catalog_sha256: digest(catalogText), scenario_sha256: digest(scenarioText), config_sha256: digest(configText), probability_summaries_sha256: digest(probabilitiesText), engine_sha256: digest(await fs.readFile(path.join(root, 'shared/engine.mjs'))), snapshot_id: catalog.snapshot.id, model_version: config.model_version, requested_nations: typeof args.nations === 'string' ? args.nations.split(',').sort().join(',') : 'all'};
+const identity = {target_layers_sha256: digest(layersText), catalog_sha256: digest(catalogText), scenario_sha256: digest(scenarioText), config_sha256: digest(configText), probability_summaries_sha256: digest(probabilitiesText), engine_sha256: digest(await fs.readFile(path.join(root, 'shared/engine.mjs'))), meta_engine_sha256: digest(await fs.readFile(path.join(root, 'shared/meta-rankings.mjs'))), snapshot_id: catalog.snapshot.id, model_version: config.model_version, requested_nations: typeof args.nations === 'string' ? args.nations.split(',').sort().join(',') : 'all'};
 const buildKey = digest(JSON.stringify(identity));
 await fs.mkdir(paths.out, {recursive: true});
 let prior = null;
@@ -54,9 +55,12 @@ async function writeFile(relative, payload) {
   await fs.writeFile(path.join(paths.out, relative), bytes);
   return {url: filename, alias: relative, sha256: hash, bytes: bytes.length, gzip_bytes: gzip.length};
 }
+const allNationResults = {current: [], planned: []};
 for (const nation of nations) {
   const current = recommendNation(catalog.vehicles, nation.id, {version: 'current', includeMatrix: false}, config, probabilities);
   const planned = recommendNation(applied.vehicles, nation.id, {version: 'planned', includeMatrix: false}, config, probabilities);
+  allNationResults.current.push(current);
+  allNationResults.planned.push(planned);
   planned.version_overview=buildVersionOverview(catalog.vehicles,nation.id,scenario,{},config,probabilities,{current,planned});
   for (const result of [current, planned]) {
     const file = await writeFile(`${nation.id}.${result.version}.json`, {...result, build_key: buildKey, snapshot: catalog.snapshot, data_provenance: identity, simulated: result.version === 'planned', scenario_status: scenario.status});
@@ -74,11 +78,25 @@ for (const nation of nations) {
   for (const candidate of planned.candidates.filter(candidate => !previousCaps.has(candidate.candidate_cap))) index.impact.push({nation: nation.id, br: candidate.candidate_cap, previous_actual_br: null, carried_actual_br: null, previous_score: null, carried_score: null, optimized_score: candidate.score, previous_lineup_ids: [], optimized_lineup_ids: candidate.lineup_ids, entered: [], left: [], member_changes: applied.applied.filter(change => candidate.lineup_ids.includes(change.vehicle_id)), carried_air_window: null, previous_air_window: null, optimized_air_window: candidate.metrics.air_window, newly_valid_cap: true, simulated: true});
   console.log(JSON.stringify({nation: nation.id, current_caps: current.candidates.length, planned_caps: planned.candidates.length, elapsed_s: (performance.now() - started) / 1000}));
 }
+const globalMeta = buildMetaRankings({
+  current: allNationResults.current, planned: allNationResults.planned,
+  impacts: index.impact, model_version: config.model_version,
+  calibration_status: config.calibration_status,
+  snapshot_id: catalog.snapshot.id,scenario_status: scenario.status,
+  options: config.meta,
+});
+const metaFile = await writeFile('meta-rankings.json', globalMeta);
+index.meta_rankings = metaFile;
 await fs.writeFile(path.join(paths.out, 'index.json'), JSON.stringify(index));
 // Only remove superseded generated recommendation shards in this output
 // directory. Raw snapshots and previously archived builds remain untouched.
-const published = new Set(index.files.flatMap(file => [file.url, `${file.url}.gz`, file.alias]));
-for (const name of await fs.readdir(paths.out)) if (/^[a-z_]+\.(?:current|planned)\.[a-f0-9]+\.json(?:\.gz)?$/.test(name) && !published.has(name)) await fs.unlink(path.join(paths.out, name));
-const report = {status: 'built', build_key: buildKey, elapsed_ms: performance.now() - started, nation_count: nations.length, file_count: index.files.length, uncompressed_bytes: index.files.reduce((sum, file) => sum + file.bytes, 0), gzip_bytes: index.files.reduce((sum, file) => sum + file.gzip_bytes, 0), version_environment_count: index.impact.length, deterministic_payloads: true, full_matrices_materialized: false, cache_invalidated_by: !prior ? ['initial_build'] : Object.keys(identity).filter(key => prior[key] !== identity[key]), prior_build_key: prior?.build_key ?? null};
+const published = new Set([...index.files.flatMap(file => [file.url, `${file.url}.gz`, file.alias]),
+  index.meta_rankings.url, index.meta_rankings.url + '.gz', index.meta_rankings.alias]);
+for (const name of await fs.readdir(paths.out)) if ((/^[a-z_]+\.(?:current|planned)\.[a-f0-9]+\.json(?:\.gz)?$/.test(name)
+  || /^meta-rankings\.[a-f0-9]{16}\.json(?:\.gz)?$/.test(name)) && !published.has(name)) await fs.unlink(path.join(paths.out, name));
+const report = {status: 'built', build_key: buildKey, elapsed_ms: performance.now() - started, nation_count: nations.length, file_count: index.files.length, uncompressed_bytes: index.files.reduce((sum, file) => sum + file.bytes, 0), gzip_bytes: index.files.reduce((sum, file) => sum + file.gzip_bytes, 0), version_environment_count: index.impact.length,
+  meta_rankings: {current: globalMeta.current.candidate_count, planned: globalMeta.planned.candidate_count,
+    global_top: globalMeta.planned.global.length, url: metaFile.url},
+  deterministic_payloads: true, full_matrices_materialized: false, cache_invalidated_by: !prior ? ['initial_build'] : Object.keys(identity).filter(key => prior[key] !== identity[key]), prior_build_key: prior?.build_key ?? null};
 await fs.writeFile(path.join(paths.out, 'build-report.json'), JSON.stringify(report, null, 2));
 console.log(JSON.stringify(report));
