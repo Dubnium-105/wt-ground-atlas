@@ -12,11 +12,24 @@ from wt_atlas.forecast.engine import ShotCache
 from wt_atlas.forecast.inventory import Inventory
 from wt_atlas.forecast.statistics import community_annotations
 sys.path.insert(0,str(ROOT/'scripts'))
-from build_product import compose
+from build_product import compose,bridge_research
+from build_web import write_json
 from site_lib import validate_site
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_research_weapon_profile_projection_repair_preserves_snapshot(self):
+        with tempfile.TemporaryDirectory() as t:
+            r=Path(t);(r/'app.mjs').write_text("async function navigate(){\n  const hash=decodeURIComponent(location.hash.slice(1)),[view,id]=hash.split('/');\n}")
+            old=write_json(r,'data/catalog/engine.json',{'vehicles':[{'id':'a'}]})
+            nation=write_json(r,'data/nations/a.json',{'vehicles':[{'id':'a','weapon_profiles':[{'id':'verified-gun','fire_rate_rpm':600}]}]})
+            (r/'data/manifest.json').write_text(canonical({'engine_catalog':old,'nations':{'a':nation}}))
+            bridge_research(r);manifest=read_json(r/'data/manifest.json')
+            import gzip
+            result=json.loads(gzip.decompress((r/manifest['engine_catalog']['url']).read_bytes()))
+            self.assertEqual(result['vehicles'][0]['weapon_profiles'][0]['id'],'verified-gun')
+            self.assertEqual(manifest['projection_repair']['previous_engine_catalog_sha256'],old['sha256'])
+
     def test_corrupt_well_formed_cache_recomputed_and_legacy_migrated(self):
         with tempfile.TemporaryDirectory() as t:
             c=ShotCache(Path(t)/'cache.sqlite');c.put('key',{'score':.5})
