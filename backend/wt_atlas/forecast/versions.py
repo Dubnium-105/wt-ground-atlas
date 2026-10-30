@@ -2,6 +2,7 @@
 from __future__ import annotations
 from datetime import datetime
 from .data import digest, patch_catalog, number
+from .rankings import table_candidates
 
 STATUSES={'released','announced','proposed','hypothetical','unknown'}
 
@@ -75,13 +76,16 @@ def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensi
     tasks=config['publication'].get('required_tasks',['ground_control','anti_tank','recon','anti_helicopter','anti_air','cap','cas','sead'])
     evidence_tasks={r.get('task') for r in (missions or {}).values() if r.get('production_validated')}
     if not set(tasks)<=evidence_tasks:blockers.append('full_mode_mission_evidence_missing')
+    ranked_rows = [r for rows in world['boards'].values() for r in rows]
+    ranked_rows += [r for t in world.get('tables', []) if not t['budget_exhausted']
+                    for r in table_candidates(t) if r.get('rankable')]
     if config['publication']['scope']=='full_ground_rb':
         modeled={task for task,weight in zip(config['spawn']['phases'],config['spawn']['phase_weights']) if weight>0}
         if not set(tasks)<=modeled:blockers.append('required_tasks_not_modeled')
         threshold=config['search']['minimum_pair_coverage']
         if any(not number(row.get('production_mission_coverage',{}).get(task)) or
                not threshold<=row['production_mission_coverage'][task]<=1
-               for rows in world['boards'].values() for row in rows for task in tasks):
+               for row in ranked_rows for task in tasks):
             blockers.append('ranked_lineup_mission_evidence_incomplete')
     if config['spawn'].get('status')!='official_verified':blockers.append('spawn_rules_assumed')
     if config['spawn'].get('status')=='official_verified':
@@ -93,7 +97,7 @@ def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensi
         if any(l.get('source_version')!=info['game_version'] or l.get('source_status')!='official_verified' or not l.get('source') for l in v.get('loadouts',[])):
             blockers.append('loadout_source_unverified');break
     from .sensitivity import valid
-    if not valid(sensitivity,catalog,config,sensitivity_inputs):blockers.append('sensitivity_not_verified')
+    if not valid(sensitivity,catalog,config,sensitivity_inputs,world=world):blockers.append('sensitivity_not_verified')
     if config.get('endpoint')=='damage' and config.get('damage_status')!='validated':blockers.append('damage_evidence_unvalidated')
     if config.get('calibration_status')=='validated' and not config.get('calibration',{}).get('independent_report_sha256'):
         blockers.append('unsupported_calibration_claim')

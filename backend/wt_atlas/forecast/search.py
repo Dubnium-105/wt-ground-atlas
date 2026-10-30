@@ -8,6 +8,7 @@ from functools import lru_cache
 from .data import number
 from .data import digest, canonical
 from .capabilities import spawn_cost
+from .rankings import build_views, select
 
 
 def lower_tail(values: list[tuple[float, float]], mass: float) -> float:
@@ -143,6 +144,8 @@ class Optimizer:
                 "production_mission_coverage":{task:sum(r["weight"]*r["production_mission_coverage"][task] for r in cases) for task in set(self.config["spawn"]["phases"])},
                 "status": "uncalibrated_conditional_prediction" if eligible else "insufficient_paired_evidence",
                 "cases": cases, "endpoint": self.config.get("endpoint", "penetration"),
+                "composition": "ground_only" if all(v["domain"] == "ground" for v in lineup) else "combined_arms",
+                "uptier_lower_utility": 100 * min((c["lower"] for c in cases if c["room_top_step"] > cap), default=min(c["lower"] for c in cases)),
                 "lineup_key":digest([getattr(self.e,'build_key',None),keys,self.config,cases]),
                 "uncertainty":{"physical_missing_interval":[100*aggregate('lower'),100*aggregate('upper')],
                     "model_error":None,"out_of_sample_confidence_interval":None},
@@ -193,8 +196,6 @@ class Optimizer:
             contributions.append({'vehicle_id':v['vehicle_id'],'sortie_probability':use,'marginal_expected_utility_same_rooms':100*(baseline-without)})
         result['reserve_contributions']=contributions
         result['environment_threats']=sorted([{'room_top_step':c['room_top_step'],'scenario':c['scenario'],'lower':c['lower'],'upper':c['upper'],'coverage':c['coverage']} for c in result['cases']],key=lambda c:c['lower'])
-        result['composition']='ground_only' if all(v['domain']=='ground' for v in lineup) else 'combined_arms'
-        result['uptier_lower_utility']=100*min((c['lower'] for c in result['cases'] if c['room_top_step']>round(result['actual_br']*3)),default=min(c['lower'] for c in result['cases']))
         self.e.cache.evidence_put(result['lineup_key'],'lineup',result)
         return result
 
@@ -270,17 +271,20 @@ class Optimizer:
             next_beam = sorted(expanded, key=self._rank)[:self.config["search"]["beam_width"]]
             if next_beam == beam or exhausted: break
             beam = next_beam
-        results = []
-        # Include valid visited sets; a local-search step must not discard a better seed.
-        for keys in sorted(visited, key=self._rank):
-            if max(by_key[k]["br_step"] for k in keys) != cap: continue
-            result = self.evaluate(keys)
-            parents = {m["vehicle_id"] for m in result["members"]}
-            if any(len(parents & prior) / len(parents | prior) >= self.config["search"]["diversity_overlap"] for prior, _ in results): continue
-            results.append((parents, result))
-            if len(results) == self.config["search"]["per_cap_limit"]: break
+        # Retain category alternatives before the ordinary per-cap shortlist.
+        # All selections are actual evaluated lineups, never assembled member scores.
+        evaluated = [self.evaluate(keys) for keys in visited]
+        choices = {view: select(evaluated, view, limit=self.config['search']['per_cap_limit'],
+                               diversity=self.config['search']['diversity_overlap'], rankable_only=False)
+                   for view in ('global', 'ground_only', 'combined_arms', 'uptier')}
+        explained = {}
+        for rows in choices.values():
+            for row in rows:
+                if row['lineup_key'] not in explained:
+                    explained[row['lineup_key']] = self.explain(row)
         return {"nation": nation, "cap_step": cap, "slots": slots, "acquisition": acquisition,
-                "candidates": [self.explain(r) for _, r in results], "evaluations": len(visited),
+                "candidates": choices["global"], "category_candidates": {k: v for k, v in choices.items() if k != "global"},
+                "evaluations": len(visited),
                 "pareto_payloads_removed":pruned,"seed":self.config['search'].get('seed',0),
                 "budget_exhausted": exhausted, "algorithm": "multi_start_beam_and_one_two_slot_exchange",
                 "global_optimum_guaranteed": False}
@@ -303,18 +307,7 @@ class Optimizer:
                             table=self.discover(nation, cap, slots, acquisition);tables.append(table)
                             new_evaluations+=table["evaluations"]
                             if getattr(self.e,'build_key',None):self.e.cache.derived_put(key,table)
-        boards = {}
-        for slots in self.config["search"]["slots"]:
-            for acquisition in self.config["search"]["acquisition_profiles"]:
-                rows = [r for t in tables if t["slots"] == slots and t["acquisition"] == acquisition and not t['budget_exhausted'] for r in t["candidates"] if r["rankable"]]
-                rows.sort(key=lambda r: (-r["score"], -r["evidence_coverage"], r["keys"]))
-                seen=set();unique=[]
-                for row in rows:
-                    signature=tuple(sorted(m['vehicle_id'] for m in row['members']))
-                    if signature in seen:continue
-                    seen.add(signature);unique.append(row)
-                rows=unique
-                boards[f"{slots}/{acquisition}"] = [{**r, "rank": i + 1} for i, r in enumerate(rows[:self.config["search"]["global_limit"]])]
-        return {"boards": boards, "tables": tables, "evaluations": sum(t["evaluations"] for t in tables),
+        views = build_views(tables, self.config)
+        return {"boards": views["global"], "views": views, "tables": tables, "evaluations": sum(t["evaluations"] for t in tables),
                 "execution":{"restored_tables":restored_tables,"computed_tables":len(tables)-restored_tables,"new_evaluations":new_evaluations,"restored_evaluations":sum(t["evaluations"] for t in tables)-new_evaluations},
                 "truncated_searches": sum(t["budget_exhausted"] for t in tables), "global_optimum_guaranteed": False}

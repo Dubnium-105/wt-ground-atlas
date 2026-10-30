@@ -9,11 +9,15 @@ from .search import Optimizer
 CASES = ('aim_narrower','aim_wider','opponent_skill_higher','double_search_budget','alternate_queue_seed')
 
 
+def comparison_boards(world):
+    groups = {f'{view}/{name}': rows for view, boards in world.get('views', {}).items()
+              for name, rows in boards.items()} or world['boards']
+    return {name: {tuple(sorted(row['keys'])): row['score'] for row in rows}
+            for name, rows in groups.items() if rows}
+
+
 def compare(baseline, changed, minimum_overlap=.5, maximum_score_delta=10.):
-    def boards(world):
-        return {name:{tuple(sorted(row['keys'])):row['score'] for row in rows}
-                for name,rows in world['boards'].items() if rows}
-    before,after=boards(baseline),boards(changed);records=[]
+    before,after=comparison_boards(baseline),comparison_boards(changed);records=[]
     for name,rows in before.items():
         candidates=after.get(name,{})
         common=rows.keys() & candidates.keys()
@@ -58,7 +62,7 @@ def run(engine, baseline, *, inputs_sha256):
     return report
 
 
-def valid(report, catalog, config, inputs_sha256=None):
+def valid(report, catalog, config, inputs_sha256=None, *, world=None):
     if not isinstance(report,dict):return False
     try:
         return (report.get('kind')=='measured_model_search_sensitivity' and report.get('passed') is True and
@@ -66,7 +70,8 @@ def valid(report, catalog, config, inputs_sha256=None):
                 (inputs_sha256 is None or report.get('inputs_sha256')==inputs_sha256) and
                 report.get('sha256')==digest({k:v for k,v in report.items() if k!='sha256'}) and
                 {r['case'] for r in report['cases']}==set(CASES) and len(report['cases'])==len(CASES) and
-                all(r['passed'] is True and r['boards'] and not r['baseline_truncated'] and not r['changed_truncated']
+                all((not world or not world.get('views') or set(comparison_boards(world)) <= {b.get('board') for b in r['boards']})
+                    and r['passed'] is True and r['boards'] and not r['baseline_truncated'] and not r['changed_truncated']
                     and all(b['overlap']>=.5 and b['maximum_score_delta'] is not None and 0<=b['maximum_score_delta']<=10 for b in r['boards'])
                     for r in report['cases']))
     except (KeyError,TypeError,ValueError):return False

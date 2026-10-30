@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path('tests').resolve()))
 from test_forecast import fixture, settings
 from site_fixture import create_fixture,build_recommendations,load_script
 p=Path(sys.argv[1]);fixture(p)
-c=settings();c['skill_profiles']={k:{**v,'nodes':1,'sd':0} for k,v in c['skill_profiles'].items()}
+c=settings();c['search']['global_limit']=1;c['skill_profiles']={k:{**v,'nodes':1,'sd':0} for k,v in c['skill_profiles'].items()}
 (p/'config.json').write_text(json.dumps(c))
 research=create_fixture(p/'research-project');build_recommendations(research);load_script('build_web').build(research)
 (p/'patch.json').write_text(json.dumps({'id':'synthetic-patch','status':'proposed','entries':[{'vehicle_id':'synthetic_a_0','field':'br','old':9.3,'new':9.7}]}))
@@ -45,6 +45,15 @@ try{
   await page.waitForSelector('html[data-ready="true"]');
   assert.equal(await page.locator('#version').inputValue(),'planned');
   assert.ok(await page.locator('.card').count()>0,'automatic recommendations require no manual lineup');
+  assert.equal(await page.locator('.card:not(.movement)').count(),1,'global limit is applied only to representatives');
+  assert.equal(requests.some(url=>url.includes('.view.')),false,'independent views load on demand');
+  await page.locator('#view').selectOption('br');
+  await page.waitForFunction(()=>document.querySelectorAll('#rankings .card').length===2);
+  assert.deepEqual(new Set(await page.locator('#rankings .eyebrow').allTextContents().then(x=>x.map(s=>s.split('BR ')[1]))),new Set(['9.3','9.7']));
+  await page.locator('#view').selectOption('nation');
+  await page.waitForFunction(()=>document.querySelectorAll('#rankings .card').length===2&&[...document.querySelectorAll('#rankings .eyebrow')].some(x=>x.textContent.includes(' · b · ')));
+  await page.locator('#view').selectOption('global');
+  await page.waitForFunction(()=>document.querySelectorAll('#rankings .card').length===1);
   await page.locator('#nation').selectOption('a');
   await page.waitForFunction(()=>[...document.querySelectorAll('.card .eyebrow')].every(x=>x.textContent.includes(' · a · ')));
   await page.locator('#version').selectOption('current');
@@ -59,7 +68,7 @@ try{
   const broken=await browser.newPage();await broken.route('**/data/report.*.json',r=>r.fulfill({contentType:'application/json',body:'{}'}));await broken.goto(`http://127.0.0.1:${server.address().port}/sub/index.html`);await broken.getByRole('button',{name:'重试加载'}).waitFor();await broken.unroute('**/data/report.*.json');await broken.getByRole('button',{name:'重试加载'}).click();await broken.waitForSelector('html[data-ready="true"]');await broken.close();
   assert.deepEqual(errors,[]);
   if(process.env.FORECAST_SCREENSHOT)await page.screenshot({path:process.env.FORECAST_SCREENSHOT,fullPage:true});
-  console.log(JSON.stringify({status:'passed',automatic_ranking:true,version_switch:true,nation_filter:true,subpath:true,mobile:true,cohort_switch:true,unified_research:true,hash_error_retry:true,raw_physics_initial_requests:0,page_errors:errors}));
+  console.log(JSON.stringify({status:'passed',automatic_ranking:true,independent_br_and_nation_views:true,lazy_view_shards:true,version_switch:true,nation_filter:true,subpath:true,mobile:true,cohort_switch:true,unified_research:true,hash_error_retry:true,raw_physics_initial_requests:0,page_errors:errors}));
 }finally{
   await browser.close();await new Promise(resolve=>server.close(resolve));await fs.rm(work,{recursive:true,force:true});
 }

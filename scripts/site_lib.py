@@ -163,6 +163,8 @@ def validate_site(site: Path, budgets: dict | None = None) -> dict:
             for d in ci['worlds'].values():
                 world=forecast_descriptor(d,directory)
                 for shard in world['tables']:forecast_descriptor(shard,directory)
+                for boards in world.get('views',{}).values():
+                    for descriptor in boards.values():forecast_descriptor(descriptor,directory)
         if index['research']['status']=='available':validate_site(site/'research',budgets)
     mode = manifest.get('deployment', {}).get('probability_mode', 'disabled')
     paths = []

@@ -16,6 +16,7 @@ from .aim import skill_nodes
 from .data import Atlas, canonical, digest, file_hash, patch_catalog, read_json, validate_config, verify_manifest
 from .engine import variant_profiles, Forecast, ShotCache
 from .search import Optimizer
+from .rankings import table_candidates
 from .inventory import Inventory, coverage, discover, bind_geometry
 from .versions import apply_version, invalidation, release_gate, selection_identity, snapshot
 from .resources import usage
@@ -39,7 +40,7 @@ def package_site(out: Path, report: dict, worlds: dict, migrations: list, root: 
     backup = out.with_name(out.name + ".previous")
     try:
         source = root / "web" / "forecast"
-        for name in ("index.html", "app.mjs", "styles.css"):
+        for name in ("index.html", "app.mjs", "views.mjs", "styles.css"):
             shutil.copyfile(source / name, stage / name)
         (stage / ".wt-forecast-site").write_text(MODEL_VERSION)
         def write_json(name, data):
@@ -62,10 +63,20 @@ def package_site(out: Path, report: dict, worlds: dict, migrations: list, root: 
                 descriptors.append({"nation": table["nation"], "slots": table["slots"],
                                     "acquisition": table["acquisition"], "br": round(table["cap_step"] / 3, 1),
                                     **write_json(identity, table)})
-                for row in table["candidates"]:details[row["lineup_key"]]=descriptors[-1]
+                for row in table_candidates(table):details[row["lineup_key"]]=descriptors[-1]
+            view_files = {}
+            for view, boards in world.get('views', {}).items():
+                if view == 'global':
+                    continue
+                view_files[view] = {}
+                for board, rows in boards.items():
+                    eligible = [] if report.get('sample_subset') else rows
+                    view_files[view][board] = write_json(
+                        f'{version}.view.{view}.{board.replace("/", ".")}',
+                        [{**compact(r), 'detail': details.get(r['lineup_key'])} for r in eligible])
             overview = {"boards": {k: [{**compact(r),'detail':details.get(r['lineup_key'])} for r in rows] for k, rows in world["boards"].items()},
                         "research_boards":{k:[{**compact(r),'detail':details.get(r['lineup_key'])} for r in rows] for k,rows in world.get('research_boards',{}).items()},
-                        "tables": descriptors, "evaluations": world["evaluations"],
+                        "views": view_files, "tables": descriptors, "evaluations": world["evaluations"],
                         "truncated_searches": world["truncated_searches"], "global_optimum_guaranteed": False}
             index["worlds"][version] = write_json(version + ".overview", overview)
         (stage / "index.json").write_text(canonical(index), encoding="utf-8")
@@ -212,13 +223,14 @@ def build(args, root: Path) -> dict:
                     after_selections={selection_identity(v):v['key'] for v in engines['planned'].variants}
                     mapped=[after_selections.get(selection_identity(engines['current'].by_key[k])) for k in old['keys']]
                     if not all(mapped):
-                        migrations.append({"nation": old["nation"], "members": old["members"], "status": "configuration_removed_or_illegal"}); continue
+                        migrations.append({"nation": old["nation"], "slots": table["slots"], "acquisition": table["acquisition"], "before": compact(old), "members": old["members"], "status": "configuration_removed_or_illegal"}); continue
                     fixed = after.evaluate(tuple(sorted(mapped)))
-                    next_rows = [r for t in worlds["planned"]["tables"] if t["nation"] == old["nation"] and t["slots"] == table["slots"] and t["acquisition"] == table["acquisition"] for r in t["candidates"] if r["actual_br"] == fixed["actual_br"] and r["score"] is not None]
+                    next_rows = [r for t in worlds["planned"]["tables"] if not t["budget_exhausted"] if t["nation"] == old["nation"] and t["slots"] == table["slots"] and t["acquisition"] == table["acquisition"] for r in t["candidates"] if r["actual_br"] == fixed["actual_br"] and r["score"] is not None]
                     best = max(next_rows, key=lambda r: r["score"], default=None)
-                    delta = fixed["score"] - old["score"] if fixed["score"] is not None and old["score"] is not None else None
-                    gain = best["score"] - fixed["score"] if best and fixed["score"] is not None else None
+                    delta = fixed["score"] - old["score"] if not table["budget_exhausted"] and fixed["score"] is not None and old["score"] is not None else None
+                    gain = best["score"] - fixed["score"] if delta is not None and best and fixed["score"] is not None else None
                     migrations.append({"nation": old["nation"], "slots": table["slots"], "acquisition": table["acquisition"],
+                                       "status": "search_truncated" if table["budget_exhausted"] else "comparable" if delta is not None else "insufficient_evidence",
                                        "before": compact(old), "after_fixed": compact(fixed), "after_optimized": compact(best) if best else None,
                                        "fixed_lineup_delta": delta, "adaptation_gain_same_new_BR": gain})
                     migrations[-1]['attribution']={'direct_changes':[r for r in audit if r.get('vehicle_id') in {m['vehicle_id'] for m in old['members']}],
