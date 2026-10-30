@@ -9,6 +9,8 @@ from .data import number
 
 def weapon_timing(vehicle: dict, ammo: dict, skill: float, scenario: dict, c: dict) -> dict:
     """Durations, not attribute-score bonuses; missing timing evidence remains visible."""
+    if vehicle.get("forecast_timing_unverified"):
+        return {"valid": False, "missing": ["ambiguous_patched_weapon_timing"]}
     weapon = ammo.get("weapon_profile") or vehicle.get("firepower", {})
     missing = []
     typ = weapon.get("reload_type")

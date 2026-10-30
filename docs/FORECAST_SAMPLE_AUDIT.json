@@ -21,7 +21,7 @@
   "ranking_scope": "native_distance_ground_engagement",
   "input_zip_sha256": "5a5dc1b5e4254f54491599505cbdb15a1292562c1dfc148849dcf270ce10b463",
   "local_python_tests": {
-    "passed": 32,
+    "passed": 35,
     "failed": 0,
     "fixture": "synthetic except separately exercised supplied sample"
   },

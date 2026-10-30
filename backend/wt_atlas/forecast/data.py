@@ -197,6 +197,18 @@ def patch_catalog(catalog: dict, patch: dict | None) -> tuple[dict, list[dict]]:
                 if not isinstance(destination.get(part), dict): raise ValueError("Patch path is not an object")
                 destination = destination[part]
             if canonical(destination.get(parts[-1])) != canonical(row["old"]): raise ValueError("Patch old-value conflict")
+            if parts[0] == "firepower":
+                # Catalog summaries and per-ammunition weapon profiles are distinct
+                # JSON objects. A summary-only edit must not leave event timing stale.
+                primary = v.get("firepower", {}).get("primary_weapon_id")
+                profiles = [a["weapon_profile"] for a in v.get("ammo", []) if a.get("weapon_profile")]
+                matching = [w for w in profiles if primary and w.get("id") == primary]
+                if len(parts) != 2 or not matching or parts[-1] == "primary_weapon_id":
+                    if profiles: v["forecast_timing_unverified"] = True
+                else:
+                    if any(canonical(w.get(parts[-1])) != canonical(row["old"]) for w in matching):
+                        raise ValueError("Weapon-specific patch old-value conflict")
+                    for w in matching: w[parts[-1]] = copy.deepcopy(row["new"])
             destination[parts[-1]] = copy.deepcopy(row["new"])
             if parts[0] in ("ammo", "protection"):
                 v["forecast_physics_invalidated"] = True
@@ -215,6 +227,10 @@ class Atlas:
         if not isinstance(raw, list): raise ValueError("Ammunition must be an array")
         self.profiles = {a["name"]: a for a in raw}
         if len(self.profiles) != len(raw): raise ValueError("Duplicate ammunition identity")
+        for v in catalog["vehicles"]:
+            nation = v.get("nation")
+            if not isinstance(nation, str) or not nation or any(ch not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-" for ch in nation):
+                raise ValueError("Unsafe nation/shard identity")
         self.catalog = {v["id"]: v for v in catalog["vehicles"]}
         if len(self.catalog) != len(catalog["vehicles"]): raise ValueError("Duplicate catalog vehicle")
         self.meta = {}
