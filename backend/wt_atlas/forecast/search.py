@@ -105,6 +105,7 @@ class Optimizer:
     @lru_cache(maxsize=50000)
     def evaluate(self, keys: tuple[str, ...]) -> dict:
         lineup = tuple(self.e.by_key[k] for k in keys)
+        if any(not v.get('selection_ready',True) for v in lineup):raise ValueError('Unknown owned configuration cannot be selected')
         if not feasible(lineup, max(self.config["search"]["slots"])): raise ValueError("Illegal lineup")
         cap = max(v["br_step"] for v in lineup)
         nation = lineup[0]["nation"]
@@ -205,7 +206,7 @@ class Optimizer:
 
     def discover(self, nation: str, cap: int, slots: int, acquisition: str) -> dict:
         if acquisition not in ("researchable", "all"): raise ValueError("Unknown acquisition profile")
-        pool = [v for v in self.e.variants if v["nation"] == nation and v["br_step"] <= cap and
+        pool = [v for v in self.e.variants if v.get('selection_ready',True) and v["nation"] == nation and v["br_step"] <= cap and
                 (acquisition == "all" or (v["vehicle"].get("special") is not True and v["vehicle"].get("acquisition", {}).get("researchable") is not False))]
         pool,pruned=self.pareto(pool,cap)
         available = len({('system', v['system_id']) if v.get('system_id') else ('vehicle', v['vehicle_id']) for v in pool})

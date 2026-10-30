@@ -76,6 +76,12 @@ client_version, datamine_commit, plan
 
 社区 packet 使用同样的来源字段和 `annotations[]`，每条 `vehicle_id/source_url/labels/disputes`；赞数不会作为效用权重，资料展示和排序隔离。
 
+### 配置缺失与有界数组读取
+
+缺少精确自有弹药绑定或合法实际航空挂载的载具仍保留在敌方未知总体中，但不能被搜索器选入己方队列补齐槽位。拒绝记录分别标注 `unknown_owned_ammunition_configuration` / `no_verified_legal_carried_loadout`，并注明 `opponent_population_retained=true`。完整队列的所有成员必须有可选配置。
+
+物理图与空间毁伤核共用 NPZ 读取器：在 NumPy 分配前检查 ZIP 展开大小、重复成员、NPY 头声明的形状与实际数据长度，拒绝对象数组和超预算输入。毁伤核检查全部角度的形状、浮点类型、有限非负互斥概率质量，而非仅检查本次访问的切片。读取器、物理适配和毁伤代码哈希进入索引、单发及构建身份，旧缓存不能掩盖校验规则变化。
+
 ## 缓存、更新与发布
 
 SQLite 分开存元数据、单发、完整搜索表和证据节点。元数据按目标/弹药输入内容哈希失效；BR 改动保留物理图，几何、材料或弹药变化只影响相关身份。NPZ 按需读一个图，预检使用有限批次 ProcessPool。单发/派生缓存有内容校验和，坏缓存删除重算。恢复完整表前重验源文件与毁伤文件，不能跳过来源检查。

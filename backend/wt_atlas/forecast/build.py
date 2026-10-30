@@ -185,6 +185,7 @@ def build(args, root: Path) -> dict:
     effects = Path(args.effects).resolve() if args.effects else None
     missions = Path(args.missions).resolve() if args.missions else None
     code_hashes = {p.name: file_hash(p) for p in sorted(Path(__file__).parent.glob("*.py"))}
+    code_hashes['../npz_io.py'] = file_hash(Path(__file__).parents[1]/'npz_io.py')
     inputs = {"catalog": file_hash(catalog_path), "ammunition": file_hash(ammo_path), "config": file_hash(config_path),
               "patch": digest(patch), "maps": digest(sorted((k, m["metadata_sha256"]) for k, m in atlas.meta.items())),
               "effects": file_hash(effects) if effects else None, "missions": file_hash(missions) if missions else None,
@@ -236,7 +237,7 @@ def build(args, root: Path) -> dict:
                     key = (tuple(old["keys"]), table["slots"], table["acquisition"])
                     if key in seen: continue
                     seen.add(key)
-                    after_selections={selection_identity(v):v['key'] for v in engines['planned'].variants}
+                    after_selections={selection_identity(v):v['key'] for v in engines['planned'].variants if v.get('selection_ready',True)}
                     mapped=[after_selections.get(selection_identity(engines['current'].by_key[k])) for k in old['keys']]
                     if not all(mapped):
                         migrations.append({"nation": old["nation"], "slots": table["slots"], "acquisition": table["acquisition"], "before": compact(old), "members": old["members"], "status": "configuration_removed_or_illegal"}); continue

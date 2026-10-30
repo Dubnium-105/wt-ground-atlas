@@ -112,7 +112,7 @@ class Inventory:
         if len(by_vehicle) != len(catalog['vehicles']): raise ValueError('Duplicate vehicle identity')
         hashes = {k: digest(p) for k, p in by_profile.items()}
         bindings = bindings or {}
-        base_key=digest([str(root),file_hash(Path(__file__)),file_hash(Path(__file__).with_name('data.py'))])
+        base_key=digest([str(root),file_hash(Path(__file__)),file_hash(Path(__file__).with_name('data.py')),file_hash(Path(__file__).parents[1]/'npz_io.py')])
         target_keys={k:digest([v.get('client_collision'),v.get('source_attributes',{}).get('client'),v.get('analysis_target_sha256'),bindings.get(k)]) for k,v in by_vehicle.items()}
         generation = time.time_ns()
         counts = Counter()

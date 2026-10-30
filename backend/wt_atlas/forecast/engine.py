@@ -14,6 +14,7 @@ from .aim import integrate, regions, skill_nodes
 from .combat import duel, weapon_timing
 from .capabilities import loadout_errors, validate_mission
 from .data import Atlas, br_step, canonical, digest, file_hash, number, read_json, safe_file, taxonomy
+from ..npz_io import load_npz_bounded
 
 
 def variant_profiles(variant: dict) -> tuple:
@@ -82,7 +83,11 @@ def enumerate_variants(catalog: dict, atlas: Atlas, config: dict | None = None) 
                     if mass_known and number(capacity) and sum(w["mass_kg"] * w["count"] for w in weapons) > capacity: continue
                     payloads.append((None, None, loadout))
             # Keep unknown configurations in the opponent population rather than erase them.
-            if not payloads: payloads = [(None, None, None)]
+            if not payloads:
+                payloads = [(None, None, None)]
+                rejected.append({'vehicle_id':vehicle['id'],'rating_configuration_id':option['id'],
+                    'reason':'unknown_owned_ammunition_configuration' if domain=='ground' else 'no_verified_legal_carried_loadout',
+                    'scope':'own_selection','opponent_population_retained':True})
             for ammo, profiles, loadout in payloads:
                 profiles = profiles or ()
                 profile = profiles[0] if profiles else None
@@ -97,6 +102,7 @@ def enumerate_variants(catalog: dict, atlas: Atlas, config: dict | None = None) 
                 variants.append({**identity, "key": digest(identity), "vehicle": vehicle, "ammo": ammo,
                                  "profile": profile, "profiles": profiles, "loadout": loadout, "nation": vehicle["nation"],
                                  "br": br, "br_step": br_step(br), "domain": domain,
+                                 "selection_ready": bool(ammo and profiles) if domain=='ground' else loadout is not None,
                                  "classification": taxonomy(vehicle), "system_id": vehicle.get("system_id")})
     return sorted(variants, key=lambda v: v["key"]), rejected
 
@@ -169,7 +175,8 @@ class Forecast:
         self.by_key = {v["key"]: v for v in self.variants}
         self.skills = skill_nodes(config["population"])
         self.enemy_skills = skill_nodes(config.get("opponent_population", config["population"]))
-        self.aim_code_hash = file_hash(Path(__file__).with_name("aim.py"))
+        self.aim_code_hash = digest({name:file_hash(Path(__file__).parent/name)
+                                    for name in ('aim.py','data.py','engine.py','../npz_io.py')})
         self.effects_path, self.effects = effects_path, {}
         self.effect_array = (None, None)
         if effects_path:
@@ -201,13 +208,20 @@ class Forecast:
             if row.get('status')!='assumed':raise ValueError('Constant damage kernel must remain assumed')
             q = np.array(row["constant"], dtype=float)
             if q.shape != (3,): raise ValueError("Invalid effect vector")
+            if not np.all(np.isfinite(q)) or np.any(q < 0) or q.sum() > 1+1e-8:
+                raise ValueError('Invalid effect probability mass')
             return np.broadcast_to(q, shape + (3,)), digest(row)
         source = safe_file(self.effects_path.parent, row["array_file"])
         if file_hash(source) != row["array_sha256"]: raise ValueError("Effect array checksum")
-        if self.effect_array[0] != map_id:
-            with np.load(source, allow_pickle=False) as data:
-                array = data["conditional_outcomes"].copy()
-            self.effect_array = (map_id, array)
+        identity = (map_id, row['array_sha256'])
+        if self.effect_array[0] != identity:
+            array = load_npz_bounded(source, ('conditional_outcomes',), self.atlas.memory_budget)['conditional_outcomes']
+            physical_shape = self.atlas.load(map_id)['penetration_probability'].shape
+            if array.shape != physical_shape+(3,) or array.dtype.kind != 'f' or physical_shape[1:] != shape:
+                raise ValueError('Invalid effect array layout')
+            if not np.all(np.isfinite(array)) or np.any(array < 0) or np.any(array.sum(axis=-1) > 1+1e-8):
+                raise ValueError('Invalid effect probability mass')
+            self.effect_array = (identity, array)
         return self.effect_array[1][angle_index], digest(row)
 
     def shot(self, attacker: dict, target: dict, scenario: dict, skill: float) -> dict | None:

@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+from ..npz_io import load_npz_bounded
 
 
 def canonical(value: Any) -> str:
@@ -336,13 +337,8 @@ class Atlas:
         source = self.verify(map_id)
         if self._loaded_id == map_id: return self._loaded
         m = self.meta[map_id]
-        with zipfile.ZipFile(source) as archive:
-            names = archive.namelist()
-            if len(names) != len(set(names)) or sum(i.file_size for i in archive.infolist()) > self.memory_budget:
-                raise ValueError("NPZ duplicate member or expanded memory budget exceeded")
-        with np.load(source, allow_pickle=False) as packet:
-            data = {k: packet[k] for k in ("penetration_probability", "status", "material_response_flags",
-                    "angles_deg", "pixel_pitch_m", "top_y_m", "bottom_y_m", "world_width_m")}
+        data = load_npz_bounded(source, ("penetration_probability", "status", "material_response_flags",
+                    "angles_deg", "pixel_pitch_m", "top_y_m", "bottom_y_m", "world_width_m"), self.memory_budget)
         p, s, f = (data[k] for k in ("penetration_probability", "status", "material_response_flags"))
         if p.dtype != np.float32 or s.dtype != np.uint8 or f.dtype != np.uint8 or p.ndim != 3 or p.shape != s.shape or p.shape != f.shape:
             raise ValueError("Invalid NPZ array layout/dtypes")
