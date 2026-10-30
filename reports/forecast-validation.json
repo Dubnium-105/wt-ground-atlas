@@ -1,0 +1,691 @@
+{
+  "ammunition_profiles": 404,
+  "build_key": "d4814526e594d7e6b730075bc71f546c1b75b2964e04f6de386debcf7e492187",
+  "calibration_status": "uncalibrated",
+  "catalog_vehicles": 2679,
+  "client_versions": [
+    "2.59.0.92"
+  ],
+  "community": null,
+  "coverage": {
+    "ammunition_profiles": 404,
+    "blockers": [
+      "incomplete_bidirectional_native_coverage"
+    ],
+    "catalog_vehicles": 2679,
+    "counts": {
+      "available_bidirectional_pairs": 129056,
+      "available_forward_pairs": 177129,
+      "missing_direction_or_distance": 67053,
+      "missing_owned_ammunition": 55248,
+      "required_directed_pairs": 244182
+    },
+    "inventory": {
+      "ambiguous_maps": 0,
+      "content_sha256": "4d55a4a246e5df20d1d3cf5fb7f9f36f3325f5d849b03211fa7ce1626bd61732",
+      "metadata_objects": 220202,
+      "rejections": {
+        "distance_missing": 19395,
+        "profile_hash_mismatch": 103263,
+        "profile_missing": 123
+      },
+      "selected_array_bytes": 16853831074,
+      "selected_maps": 97421,
+      "status_counts": {
+        "rejected": 122781,
+        "verified": 97421
+      },
+      "verified_arrays": 97421
+    },
+    "pair_count_semantics": "vehicle directions per configured scenario; any exact owned supported round; only exact verified or explicitly declared yaw slices count; any missing angle metadata is unavailable",
+    "physical_distances_m": [
+      10.0
+    ],
+    "sample_subset": false,
+    "schema_version": "1.0.0"
+  },
+  "diagnostics": [],
+  "endpoint": "penetration",
+  "inputs": {
+    "ammunition": "43f5c96215fce06a75f9fbbb900e597db466e4cbfd9319bcba27a83e4b0a02c8",
+    "catalog": "6a6c3f0a56b06e96f9275e7db9158624251235eaa84b23f6f5f46c38f518dd04",
+    "code": {
+      "__init__.py": "9ab0ca0cef5ce48f3bffa5a9d946307d945cb837e75ab00c0d8fb5550c1551c1",
+      "aim.py": "6390ffb7793120f6ba6e9142e0e6dafd18ef63b5941daaa1c8a7432bca18bf25",
+      "build.py": "85d68939cfa5af4c8a32204e693f966e19af606a386344bd76f68f13fd262bdb",
+      "calibrate.py": "999756edfbea39011e23b53a3fbd89938c4b7ef2686d33a8194616e4b8e4a4d5",
+      "capabilities.py": "15261bc98b819c820ce318a95209e7aa8277231d6b92184f95bd0ff2ddb3a6f5",
+      "combat.py": "26e95706884e58fbba23d8e00bdb1ebf81bdba66df3152594189d28898d3967f",
+      "data.py": "699f8a3c1f23ecceede5fccfc2287fc3515d011af6f3690ed2ebb7203eefdf47",
+      "engine.py": "aa63ce8de3467ba59138e23aa889b40e91b4d12c3a310e9f2f22182a911b8dc2",
+      "inventory.py": "aa0a14c2b94f6ec8e32c416ee6d35432ff65839c3a795c297f2e1510b7f142f5",
+      "resources.py": "f38f6c7d98a7b64856d068a8e4aa3860deece515db017eaa5ebbf063f8c9adcc",
+      "search.py": "e316c7e46d272cf07de45c04d3be0924143deb83e65cab167f4316933f57f02e",
+      "statistics.py": "5bc3e4ab733a5ca6bbb312b1d56282e2f2c786c04d274c49136f957483bf1d8b",
+      "updates.py": "b0b52ad6e3e3599670540a7aff5fc06d41b6489476252aef446c1991f4cd1527",
+      "versions.py": "2a7ba6b05ffc78661232dbf5d760c8f44678fab2bbb4737eb888568166e963c8"
+    },
+    "config": "9fd05e3cb48024fc0dd9aa2e581e6490b9f578ec23ede56d55fcf7233c8baf99",
+    "effects": null,
+    "maps": "39b2609ce249ec5342c6875ec1d8145dd7e6da7dc25d49ef7d8153cb0da8495c",
+    "missions": null,
+    "patch": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+    "planned_ammunition": null,
+    "planned_catalog": null,
+    "planned_effects": null,
+    "planned_maps": null,
+    "planned_missions": null,
+    "planned_status": null,
+    "runtime_config": "4161df337011e6bd1d333161b5bc3593348f6cf5803c6ef51ed8a4a3e6c139fc"
+  },
+  "integrity": {
+    "files": null,
+    "status": "per_map_hashes"
+  },
+  "limitations": [
+    "Conditional source-model estimates, not actual kills or win rates.",
+    "Only supplied physical distances and yaw slices are used; no range rescaling from required-charge maps.",
+    "No-reference-slice substitution. Every attack direction needs its own owned-ammunition map.",
+    "Catalog geometry equivalence is not inferred from target_sha256; binding strength is reported.",
+    "Air/AA/recon tasks require versioned mission evidence; absent evidence is not zero or free capability.",
+    "Beam/exchange search has an explicit work budget, not a global optimality guarantee.",
+    "Intervals bound missing map effects, not statistical confidence or all model error."
+  ],
+  "map_validation": {
+    "baseline_arrays_verified": 97421,
+    "planned_arrays_verified": 0
+  },
+  "matchmaking": {
+    "br_step_denominator": 3,
+    "empirical": false,
+    "lineup_sampler": {
+      "enabled": true,
+      "samples": 8,
+      "seed": 105,
+      "slots": 5,
+      "status": "assumed_not_queue_telemetry"
+    },
+    "lower_carried_mass": 0.0,
+    "mode": "ground_rb",
+    "opponent_prior": "equal_verified_configuration_group_then_vehicle_then_variant",
+    "room_prior": "uniform_legal_room_maxima_assumption",
+    "same_nation_enemies": false,
+    "spread_steps": 3
+  },
+  "metadata_count": 97421,
+  "model_version": "engagement-forecast-3.1.0-bounded-audit",
+  "physical_distances_m": [
+    10.0
+  ],
+  "population": {
+    "distribution": "normal_assumption",
+    "mean": 0.0,
+    "nodes": 1,
+    "sd": 1.0
+  },
+  "publication_budgets": {
+    "file_bytes": 8388608,
+    "gzip_file_bytes": 2097152,
+    "site_bytes": 104857600
+  },
+  "published_rankings": false,
+  "ranking_scope": "native_distance_ground_engagement",
+  "rejected_variants": [
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "aichi_e13a"
+    },
+    {
+      "loadout_id": "BlenheimMKIV_nobombs",
+      "reasons": [
+        "invalid_weapon_count"
+      ],
+      "vehicle_id": "blenheim_mkiv"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "e7k2"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "e8n2"
+    },
+    {
+      "reason": "multi_vehicle_system_component",
+      "vehicle_id": "fr_samp_t_launcher"
+    },
+    {
+      "reason": "multi_vehicle_system_component",
+      "vehicle_id": "germ_iris_slm_launcher"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "gl_832"
+    },
+    {
+      "loadout_id": "He_111H2_nobombs",
+      "reasons": [
+        "invalid_weapon_count"
+      ],
+      "vehicle_id": "he-111h-2"
+    },
+    {
+      "reason": "multi_vehicle_system_component",
+      "vehicle_id": "it_samp_t_launcher"
+    },
+    {
+      "reason": "multi_vehicle_system_component",
+      "vehicle_id": "jp_type_03_chusam_launcher"
+    },
+    {
+      "reason": "multi_vehicle_system_component",
+      "vehicle_id": "jp_type_81_tansam_launcher"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "kor_1"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "kor_2"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "loire_130"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "o3u_1"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "osprey_mk4"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "ro_43"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "sc_1"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "soc_1"
+    },
+    {
+      "reason": "multi_vehicle_system_component",
+      "vehicle_id": "sw_nasams_launcher"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "ucav_mq_1_predator"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "ucav_orion"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "ucav_wing_loong_i"
+    },
+    {
+      "reason": "multi_vehicle_system_component",
+      "vehicle_id": "uk_sky_sabre_launcher"
+    },
+    {
+      "reason": "multi_vehicle_system_component",
+      "vehicle_id": "us_nasams_launcher"
+    },
+    {
+      "reason": "multi_vehicle_system_component",
+      "vehicle_id": "us_sl_amraam_launcher"
+    },
+    {
+      "reason": "multi_vehicle_system_component",
+      "vehicle_id": "ussr_buk_m3_launcher"
+    },
+    {
+      "reason": "unknown_ground_rb",
+      "vehicle_id": "walrus_mk1"
+    }
+  ],
+  "release_readiness": {
+    "current": {
+      "algorithm_ready": true,
+      "calibration_status": "uncalibrated",
+      "data_ready": false,
+      "empirical_win_rate_validated": false,
+      "publishable": false,
+      "research_candidates": 0,
+      "snapshot": {
+        "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+        "effective_date": null,
+        "game_version": null,
+        "sha256": "f1738dae0a13689edd1a985b8ef31a8f5bb328a3223a712da911de9685701884",
+        "snapshot_id": "wiki-d759fcb02ab375b4",
+        "source_status": "unknown",
+        "sources": [
+          {
+            "count": 1226,
+            "kind": "ground",
+            "sha256": "48f16f5a4dd40cc4243530035609689926d9d0809b9cdf69f0e28f22a5f90243",
+            "url": "https://wiki.warthunder.com/ground"
+          },
+          {
+            "count": 1341,
+            "kind": "aircraft",
+            "sha256": "fdac34358e9626485d27352a7f21c5e2fcab9c6147345a32fadc819d49c86963",
+            "url": "https://wiki.warthunder.com/aviation"
+          },
+          {
+            "count": 112,
+            "kind": "helicopter",
+            "sha256": "d2caa3307d468a25290085dd8292ce4cf4dd41c6fc58eede53aa1121c8d623b9",
+            "url": "https://wiki.warthunder.com/helicopters"
+          }
+        ],
+        "wiki_collected_at": "2026-10-29T01:19:11.129331+00:00"
+      },
+      "why_not_publishable": [
+        "snapshot_identity_missing",
+        "baseline_release_status_unverified",
+        "source_version_timeline_incomplete",
+        "snapshot_physics_version_mismatch",
+        "search_budget_truncated",
+        "no_candidates_meet_bidirectional_coverage",
+        "scope_is_limited_ground_research",
+        "full_mode_mission_evidence_missing",
+        "spawn_rules_assumed",
+        "loadout_source_unverified",
+        "sensitivity_not_verified",
+        "rating_version_provenance_incomplete"
+      ]
+    }
+  },
+  "research_rankings": true,
+  "sample_subset": false,
+  "scenario_audit": [],
+  "scenario_status": "not_provided",
+  "schema_version": "1.1.0",
+  "skill_profile": null,
+  "snapshots": {
+    "current": {
+      "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+      "effective_date": null,
+      "game_version": null,
+      "sha256": "f1738dae0a13689edd1a985b8ef31a8f5bb328a3223a712da911de9685701884",
+      "snapshot_id": "wiki-d759fcb02ab375b4",
+      "source_status": "unknown",
+      "sources": [
+        {
+          "count": 1226,
+          "kind": "ground",
+          "sha256": "48f16f5a4dd40cc4243530035609689926d9d0809b9cdf69f0e28f22a5f90243",
+          "url": "https://wiki.warthunder.com/ground"
+        },
+        {
+          "count": 1341,
+          "kind": "aircraft",
+          "sha256": "fdac34358e9626485d27352a7f21c5e2fcab9c6147345a32fadc819d49c86963",
+          "url": "https://wiki.warthunder.com/aviation"
+        },
+        {
+          "count": 112,
+          "kind": "helicopter",
+          "sha256": "d2caa3307d468a25290085dd8292ce4cf4dd41c6fc58eede53aa1121c8d623b9",
+          "url": "https://wiki.warthunder.com/helicopters"
+        }
+      ],
+      "wiki_collected_at": "2026-10-29T01:19:11.129331+00:00"
+    }
+  },
+  "source_bindings": {
+    "independent_geometry_verified": 97421
+  },
+  "spawn_assumptions": {
+    "air_cost": null,
+    "ground_cost": 150,
+    "initial_points": 450,
+    "max_points": 1500,
+    "max_states": 200000,
+    "phase_weights": [
+      0.5,
+      0.3,
+      0.2
+    ],
+    "phases": [
+      "ground",
+      "ground",
+      "ground"
+    ],
+    "point_gains": [
+      {
+        "points": 0,
+        "probability": 0.5
+      },
+      {
+        "points": 150,
+        "probability": 0.5
+      }
+    ],
+    "status": "assumed_not_official_rules"
+  },
+  "synthetic_fixture": false,
+  "task_preference": null,
+  "why_rebuilt": [],
+  "acceptance": {
+    "observed_at": "2026-10-30T08:25:15.987191+00:00",
+    "source_commit": "1beb5612534cecd51aced34744a5897f1ed2266e",
+    "python": "3.14.4",
+    "node": "v22.19.0",
+    "tests": {
+      "python": {
+        "command": "npm test (test:python)",
+        "passed": 116
+      },
+      "node": {
+        "command": "npm test (test:js)",
+        "passed": 51
+      },
+      "forecast": {
+        "command": "python -m unittest discover -s tests -p test_forecast*.py -v",
+        "passed": 63,
+        "subset_of_python_suite": true
+      },
+      "smoke": {
+        "command": "npm run test:smoke",
+        "passed": 4
+      },
+      "forecast_browser": {
+        "command": "node tests/forecast.e2e.mjs",
+        "result": {
+          "status": "passed",
+          "automatic_ranking": true,
+          "version_switch": true,
+          "nation_filter": true,
+          "subpath": true,
+          "mobile": true,
+          "cohort_switch": true,
+          "unified_research": true,
+          "hash_error_retry": true,
+          "raw_physics_initial_requests": 0,
+          "page_errors": []
+        }
+      },
+      "research_browser": {
+        "command": "node scripts/qa_research_http.mjs <original-repository> dist/site/research",
+        "passed": 11,
+        "details": [
+          {
+            "name": "AT12: static boot with external services unavailable",
+            "status": "passed",
+            "elapsed_ms": 853.1291
+          },
+          {
+            "name": "Primary navigation, scoped version filters and pagination",
+            "status": "passed",
+            "elapsed_ms": 1361.5988
+          },
+          {
+            "name": "Flag controls, custom-only BR cap and nation-wide top three",
+            "status": "passed",
+            "elapsed_ms": 798.1442999999999
+          },
+          {
+            "name": "New-version adoption and split review keep their own version and members",
+            "status": "passed",
+            "elapsed_ms": 25766.998300000003
+          },
+          {
+            "name": "Manual lineup uses actual member BR and independent bidirectional pairs",
+            "status": "passed",
+            "elapsed_ms": 807.6686999999984
+          },
+          {
+            "name": "Matrix drilldown retains ammunition, uncertainty and reverse direction",
+            "status": "passed",
+            "elapsed_ms": 249.57920000000013
+          },
+          {
+            "name": "AT01/AT11: imported scenario changes fixed member cost and retains baseline",
+            "status": "passed",
+            "elapsed_ms": 64828.2504
+          },
+          {
+            "name": "Changed engagement conditions invalidate both lineup and version results",
+            "status": "passed",
+            "elapsed_ms": 166.21459999999206
+          },
+          {
+            "name": "AT08/AT09/AT10: lazy heatmap, full probability mass, unchanged physical shot data",
+            "status": "passed",
+            "elapsed_ms": 420.60680000000866
+          },
+          {
+            "name": "Tree source fields and responsive mobile navigation",
+            "status": "passed",
+            "elapsed_ms": 1195.514599999995
+          },
+          {
+            "name": "No browser runtime exceptions or missing local assets",
+            "status": "passed",
+            "elapsed_ms": 0.11989999999059364
+          }
+        ]
+      },
+      "real_product_browser": {
+        "command": "node tests/product_runtime.e2e.mjs dist/site",
+        "passed": 5
+      },
+      "dependencies": {
+        "commands": [
+          "python -m pip install -r requirements.txt",
+          "npm ci"
+        ],
+        "status": "passed"
+      },
+      "baseline": {
+        "commit": "465317f6ce0a7d3efb06297f1cb1cfac588ad905",
+        "python_total": 88,
+        "python_errors": 4,
+        "python_seconds": 23.37,
+        "python_peak_rss_bytes": null,
+        "node_passed": 51,
+        "forecast_passed": 35,
+        "failure_cause": "Windows implicit GBK decoding of UTF-8 JSON/subprocess output; fixed explicitly"
+      },
+      "no_input_build": {
+        "command": "npm run build -- --output dist/no-input-site --forecast-output dist/no-input-forecast --reports reports/no-input",
+        "status": "passed",
+        "static_bytes": 566304,
+        "rankings": 0
+      }
+    },
+    "native_sample": {
+      "ammunition_profiles": 404,
+      "angles": 24,
+      "derived_local_sample_manifest_files": 4,
+      "diagnostics": 72,
+      "formal_rankings": 0,
+      "historical_diagnostic_comparisons": 6,
+      "maps": 1,
+      "maximum_absolute_difference": 0.0,
+      "original_expected_files": 32,
+      "original_zip_status": "blocked_not_found",
+      "physical_distance_m": 10,
+      "reverse_direction_present": false,
+      "vehicles": 2,
+      "actual_input_kind": "derived_native_regression_subset_not_original_archive",
+      "manifest_sha256": "a1a1915ff217a98980d6dde20d1e280f583953c8a7365413d5b3ed089c70494f",
+      "copied_source_hashes_unchanged": true
+    },
+    "sample_build": {
+      "build_key": "d34d57b41eec8564a2477a4cea686c9916e08c9db1108cd899aec42b30aa6dd9",
+      "catalog_vehicles": 2,
+      "maps": 1,
+      "diagnostic_rows": 72,
+      "cache_hits": 180,
+      "cache_misses": 0,
+      "npz_loads": 1,
+      "ranked_counts": {
+        "current": 0
+      },
+      "evaluations": {
+        "current": 3
+      },
+      "research_counts": {
+        "current": 0
+      },
+      "release_readiness": {
+        "current": {
+          "algorithm_ready": true,
+          "data_ready": false,
+          "publishable": false,
+          "why_not_publishable": [
+            "sample_subset",
+            "snapshot_identity_missing",
+            "baseline_release_status_unverified",
+            "source_version_timeline_incomplete",
+            "snapshot_physics_version_mismatch",
+            "independent_target_geometry_not_verified",
+            "no_candidates_meet_bidirectional_coverage",
+            "scope_is_limited_ground_research",
+            "full_mode_mission_evidence_missing",
+            "spawn_rules_assumed",
+            "sensitivity_not_verified",
+            "rating_version_provenance_incomplete"
+          ],
+          "snapshot": {
+            "snapshot_id": "wiki-d759fcb02ab375b4",
+            "game_version": null,
+            "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+            "wiki_collected_at": "2026-10-29T01:19:11.129331+00:00",
+            "effective_date": null,
+            "source_status": "unknown",
+            "sources": [
+              {
+                "count": 1226,
+                "kind": "ground",
+                "sha256": "48f16f5a4dd40cc4243530035609689926d9d0809b9cdf69f0e28f22a5f90243",
+                "url": "https://wiki.warthunder.com/ground"
+              },
+              {
+                "count": 1341,
+                "kind": "aircraft",
+                "sha256": "fdac34358e9626485d27352a7f21c5e2fcab9c6147345a32fadc819d49c86963",
+                "url": "https://wiki.warthunder.com/aviation"
+              },
+              {
+                "count": 112,
+                "kind": "helicopter",
+                "sha256": "d2caa3307d468a25290085dd8292ce4cf4dd41c6fc58eede53aa1121c8d623b9",
+                "url": "https://wiki.warthunder.com/helicopters"
+              }
+            ],
+            "sha256": "f1738dae0a13689edd1a985b8ef31a8f5bb328a3223a712da911de9685701884"
+          },
+          "calibration_status": "uncalibrated",
+          "empirical_win_rate_validated": false,
+          "research_candidates": 0
+        }
+      },
+      "duration_seconds": 1.0252564999973401,
+      "resources": {
+        "peak_rss_bytes": 119308288,
+        "cpu_seconds": 0.5625,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
+      },
+      "publication": "sample_diagnostics_only"
+    },
+    "real_build": {
+      "build_key": "d4814526e594d7e6b730075bc71f546c1b75b2964e04f6de386debcf7e492187",
+      "catalog_vehicles": 2679,
+      "maps": 97421,
+      "diagnostic_rows": 0,
+      "cache_hits": 0,
+      "cache_misses": 0,
+      "npz_loads": 0,
+      "ranked_counts": {
+        "current": 0
+      },
+      "evaluations": {
+        "current": 1410
+      },
+      "research_counts": {
+        "current": 0
+      },
+      "release_readiness": {
+        "current": {
+          "algorithm_ready": true,
+          "data_ready": false,
+          "publishable": false,
+          "why_not_publishable": [
+            "snapshot_identity_missing",
+            "baseline_release_status_unverified",
+            "source_version_timeline_incomplete",
+            "snapshot_physics_version_mismatch",
+            "search_budget_truncated",
+            "no_candidates_meet_bidirectional_coverage",
+            "scope_is_limited_ground_research",
+            "full_mode_mission_evidence_missing",
+            "spawn_rules_assumed",
+            "loadout_source_unverified",
+            "sensitivity_not_verified",
+            "rating_version_provenance_incomplete"
+          ],
+          "snapshot": {
+            "snapshot_id": "wiki-d759fcb02ab375b4",
+            "game_version": null,
+            "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+            "wiki_collected_at": "2026-10-29T01:19:11.129331+00:00",
+            "effective_date": null,
+            "source_status": "unknown",
+            "sources": [
+              {
+                "count": 1226,
+                "kind": "ground",
+                "sha256": "48f16f5a4dd40cc4243530035609689926d9d0809b9cdf69f0e28f22a5f90243",
+                "url": "https://wiki.warthunder.com/ground"
+              },
+              {
+                "count": 1341,
+                "kind": "aircraft",
+                "sha256": "fdac34358e9626485d27352a7f21c5e2fcab9c6147345a32fadc819d49c86963",
+                "url": "https://wiki.warthunder.com/aviation"
+              },
+              {
+                "count": 112,
+                "kind": "helicopter",
+                "sha256": "d2caa3307d468a25290085dd8292ce4cf4dd41c6fc58eede53aa1121c8d623b9",
+                "url": "https://wiki.warthunder.com/helicopters"
+              }
+            ],
+            "sha256": "f1738dae0a13689edd1a985b8ef31a8f5bb328a3223a712da911de9685701884"
+          },
+          "calibration_status": "uncalibrated",
+          "empirical_win_rate_validated": false,
+          "research_candidates": 0
+        }
+      },
+      "duration_seconds": 1442.9516759000253,
+      "resources": {
+        "peak_rss_bytes": 756023296,
+        "cpu_seconds": 281.046875,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
+      },
+      "publication": "conditional_research_only",
+      "evaluation_semantics": "Final resume restored complete search tables after source validation. evaluations=1410 describes saved tables, not 1410 new evaluations this run; shot hits/misses/array decodes are zero.",
+      "restored_search_tables": 716
+    },
+    "source_update": {
+      "local_pinned_capture_verified": true,
+      "official_network_refresh_performed": false
+    },
+    "statistics": {
+      "status": "uncalibrated",
+      "blocked": "data/private/authorized-statistics.json not supplied"
+    },
+    "historical_original_sample_archive_verified_this_run": false
+  }
+}

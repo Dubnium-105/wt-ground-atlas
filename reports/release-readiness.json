@@ -1,0 +1,277 @@
+{
+  "current": {
+    "algorithm_ready": true,
+    "calibration_status": "uncalibrated",
+    "data_ready": false,
+    "empirical_win_rate_validated": false,
+    "publishable": false,
+    "research_candidates": 0,
+    "snapshot": {
+      "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+      "effective_date": null,
+      "game_version": null,
+      "sha256": "f1738dae0a13689edd1a985b8ef31a8f5bb328a3223a712da911de9685701884",
+      "snapshot_id": "wiki-d759fcb02ab375b4",
+      "source_status": "unknown",
+      "sources": [
+        {
+          "count": 1226,
+          "kind": "ground",
+          "sha256": "48f16f5a4dd40cc4243530035609689926d9d0809b9cdf69f0e28f22a5f90243",
+          "url": "https://wiki.warthunder.com/ground"
+        },
+        {
+          "count": 1341,
+          "kind": "aircraft",
+          "sha256": "fdac34358e9626485d27352a7f21c5e2fcab9c6147345a32fadc819d49c86963",
+          "url": "https://wiki.warthunder.com/aviation"
+        },
+        {
+          "count": 112,
+          "kind": "helicopter",
+          "sha256": "d2caa3307d468a25290085dd8292ce4cf4dd41c6fc58eede53aa1121c8d623b9",
+          "url": "https://wiki.warthunder.com/helicopters"
+        }
+      ],
+      "wiki_collected_at": "2026-10-29T01:19:11.129331+00:00"
+    },
+    "why_not_publishable": [
+      "snapshot_identity_missing",
+      "baseline_release_status_unverified",
+      "source_version_timeline_incomplete",
+      "snapshot_physics_version_mismatch",
+      "search_budget_truncated",
+      "no_candidates_meet_bidirectional_coverage",
+      "scope_is_limited_ground_research",
+      "full_mode_mission_evidence_missing",
+      "spawn_rules_assumed",
+      "loadout_source_unverified",
+      "sensitivity_not_verified",
+      "rating_version_provenance_incomplete"
+    ]
+  },
+  "schema_version": "1.0.0",
+  "build_key": "d4814526e594d7e6b730075bc71f546c1b75b2964e04f6de386debcf7e492187",
+  "static_artifact": {
+    "build": "passed",
+    "package": {
+      "bytes": 66528818,
+      "sha256": "2909923df89461a290d821959c24b9d3f94d80327a058f318b46764f486d7768",
+      "entries": 5447,
+      "uncompressed_bytes": 75988359,
+      "probability_mode": "disabled",
+      "crc_validation": "all_entries_passed",
+      "checksum_manifest": "FILE_INTEGRITY.sha256",
+      "scope": "deployable_static_site_only"
+    },
+    "verification": {
+      "checked": 5446,
+      "failures": [],
+      "site": {
+        "static_total_bytes": 76686759,
+        "static_published_file_count": 5447,
+        "probability_mode": "disabled",
+        "budgets": {
+          "site_bytes": 104857600,
+          "file_bytes": 26214400
+        }
+      }
+    },
+    "public_deployment": "blocked_target_not_configured",
+    "probability_mode": "disabled",
+    "raw_probability_data_included": false
+  },
+  "required_external_inputs": [
+    {
+      "id": "original_sample",
+      "path": "analysis-sample-2.59.0.92.zip",
+      "needed": "Original 32-file manifest archive (expected historical ZIP SHA256 5a5dc1b5e4254f54491599505cbdb15a1292562c1dfc148849dcf270ce10b463); the derived 4-file local sample does not replace this acceptance."
+    },
+    {
+      "id": "snapshot_identity",
+      "path": "data/raw/next-stage/snapshot-info.json",
+      "needed": "snapshot_id, game_version, datamine_commit, wiki_collected_at, effective_date, source_status and sources URL/hash; independently establish release status and Wiki/client version alignment. Do not fill unknown fields by assumption."
+    },
+    {
+      "id": "physical_coverage",
+      "path": "data/derived/grp_probability_v2/<version>/<atlas>/arrays/",
+      "needed": "Missing forward/reverse owned-ammunition JSON+NPZ, exact ammo_profile_sha256, target_sha256 and independently bound GRP/profile/layer inputs, source_version/datamine_commit, array SHA/bytes, native distance and yaw. Native 100/500/1000 m maps are absent; 10 m cannot substitute."
+    },
+    {
+      "id": "official_configuration",
+      "path": "data/snapshots/catalog.json",
+      "needed": "Per-vehicle br_provenance.source/source_version; rating_configurations.ground_rb with official_verified source/version/options/allowlists; legal loadouts with source/source_version/source_status; spawn_rule.status/source/source_version/base_points/room_costs/respawn_multiplier."
+    },
+    {
+      "id": "missions",
+      "path": "data/raw/next-stage/missions.json",
+      "needed": "records: variant_key,target_vehicle_id,scenario_id,task,lower,mean,upper,source_version,source,status; validated evidence includes loadout_id,flight_conditions,radar_conditions,target_countermeasures,source_sha256. No maximum-range-to-hit-rate conversion."
+    },
+    {
+      "id": "damage",
+      "path": "data/raw/next-stage/effects.json and referenced NPZ",
+      "needed": "records: map_id,map_array_sha256,source,source_version,status,array_file,array_sha256. conditional_outcomes[angle,height,width,3] for firepower,mobility,termination; finite nonnegative mutually exclusive mass <=1. Required only to switch the endpoint to damage."
+    },
+    {
+      "id": "sensitivity",
+      "path": "data/raw/next-stage/sensitivity.json",
+      "needed": "Object with passed=true, catalog_sha256=digest(catalog), config_sha256=digest(effective runtime config), plus the measured sensitivity evidence. Digests use canonical JSON; the Boolean is accepted only with exact current input hashes."
+    },
+    {
+      "id": "statistics",
+      "path": "data/private/authorized-statistics.json",
+      "needed": "Authorized packet: source,sampling_window,game_version,mode,sample_count,deduplication,bias_notes,authorization,endpoint,observations; observations have observation_id,player_id,match_id,timestamp,stratum,game_version,prediction,outcome. Optional empirical calibration; missing keeps uncalibrated."
+    },
+    {
+      "id": "planned_version",
+      "path": "data/raw/next-stage/scenario.json or a complete --planned-* snapshot",
+      "needed": "Official announced/proposed next-version changes with sources and version identity, or explicitly hypothetical labels; no next-version source was supplied."
+    },
+    {
+      "id": "hosting",
+      "path": "deployment target and versioned probability CDN URL",
+      "needed": "No authorized public deployment target/CDN configured. Static ZIP is verified locally; remote live deployment is not performed."
+    }
+  ],
+  "search_scope": {
+    "config": "config/forecast.audit.json",
+    "nations": "all collected",
+    "br": "all valid discovered",
+    "slots": [
+      5
+    ],
+    "acquisition": [
+      "researchable",
+      "all"
+    ],
+    "budget_per_table": 2,
+    "opponent_samples": 8,
+    "skill_nodes": 1,
+    "physical_distance_m": 10,
+    "exhaustive_real_search": false,
+    "synthetic_nine_profile_build_verified": true
+  },
+  "tests": {
+    "python": {
+      "command": "npm test (test:python)",
+      "passed": 116
+    },
+    "node": {
+      "command": "npm test (test:js)",
+      "passed": 51
+    },
+    "forecast": {
+      "command": "python -m unittest discover -s tests -p test_forecast*.py -v",
+      "passed": 63,
+      "subset_of_python_suite": true
+    },
+    "smoke": {
+      "command": "npm run test:smoke",
+      "passed": 4
+    },
+    "forecast_browser": {
+      "command": "node tests/forecast.e2e.mjs",
+      "result": {
+        "status": "passed",
+        "automatic_ranking": true,
+        "version_switch": true,
+        "nation_filter": true,
+        "subpath": true,
+        "mobile": true,
+        "cohort_switch": true,
+        "unified_research": true,
+        "hash_error_retry": true,
+        "raw_physics_initial_requests": 0,
+        "page_errors": []
+      }
+    },
+    "research_browser": {
+      "command": "node scripts/qa_research_http.mjs <original-repository> dist/site/research",
+      "passed": 11,
+      "details": [
+        {
+          "name": "AT12: static boot with external services unavailable",
+          "status": "passed",
+          "elapsed_ms": 853.1291
+        },
+        {
+          "name": "Primary navigation, scoped version filters and pagination",
+          "status": "passed",
+          "elapsed_ms": 1361.5988
+        },
+        {
+          "name": "Flag controls, custom-only BR cap and nation-wide top three",
+          "status": "passed",
+          "elapsed_ms": 798.1442999999999
+        },
+        {
+          "name": "New-version adoption and split review keep their own version and members",
+          "status": "passed",
+          "elapsed_ms": 25766.998300000003
+        },
+        {
+          "name": "Manual lineup uses actual member BR and independent bidirectional pairs",
+          "status": "passed",
+          "elapsed_ms": 807.6686999999984
+        },
+        {
+          "name": "Matrix drilldown retains ammunition, uncertainty and reverse direction",
+          "status": "passed",
+          "elapsed_ms": 249.57920000000013
+        },
+        {
+          "name": "AT01/AT11: imported scenario changes fixed member cost and retains baseline",
+          "status": "passed",
+          "elapsed_ms": 64828.2504
+        },
+        {
+          "name": "Changed engagement conditions invalidate both lineup and version results",
+          "status": "passed",
+          "elapsed_ms": 166.21459999999206
+        },
+        {
+          "name": "AT08/AT09/AT10: lazy heatmap, full probability mass, unchanged physical shot data",
+          "status": "passed",
+          "elapsed_ms": 420.60680000000866
+        },
+        {
+          "name": "Tree source fields and responsive mobile navigation",
+          "status": "passed",
+          "elapsed_ms": 1195.514599999995
+        },
+        {
+          "name": "No browser runtime exceptions or missing local assets",
+          "status": "passed",
+          "elapsed_ms": 0.11989999999059364
+        }
+      ]
+    },
+    "real_product_browser": {
+      "command": "node tests/product_runtime.e2e.mjs dist/site",
+      "passed": 5
+    },
+    "dependencies": {
+      "commands": [
+        "python -m pip install -r requirements.txt",
+        "npm ci"
+      ],
+      "status": "passed"
+    },
+    "baseline": {
+      "commit": "465317f6ce0a7d3efb06297f1cb1cfac588ad905",
+      "python_total": 88,
+      "python_errors": 4,
+      "python_seconds": 23.37,
+      "python_peak_rss_bytes": null,
+      "node_passed": 51,
+      "forecast_passed": 35,
+      "failure_cause": "Windows implicit GBK decoding of UTF-8 JSON/subprocess output; fixed explicitly"
+    },
+    "no_input_build": {
+      "command": "npm run build -- --output dist/no-input-site --forecast-output dist/no-input-forecast --reports reports/no-input",
+      "status": "passed",
+      "static_bytes": 566304,
+      "rankings": 0
+    }
+  }
+}

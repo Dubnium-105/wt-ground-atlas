@@ -6,6 +6,7 @@ data/raw/
 data/work/
 data/cache/
 data/snapshots/
+data/private/
 reports/
 web/data/
 web/shared/
