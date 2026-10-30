@@ -62,7 +62,7 @@ class SiteBuildContracts(unittest.TestCase):
         shutil.rmtree(self.root / 'data/exports')
         source_before = hashes(self.root / 'web')
         self.build()
-        manifest = json.loads((self.site / 'data/manifest.json').read_text())
+        manifest = json.loads((self.site / 'data/manifest.json').read_text(encoding='utf-8'))
         self.assertNotIn('probability', manifest)
         self.assertTrue((self.site / 'index.html').is_file())
         self.assertEqual((self.site / 'shared/engine.mjs').read_bytes(), (self.root / 'shared/engine.mjs').read_bytes())
@@ -77,7 +77,7 @@ class SiteBuildContracts(unittest.TestCase):
         with archive.open('wb') as handle:
             handle.truncate(11 * 1024**3)
         self.build(probability_mode='external', probability_base_url='https://data.example.test/releases/fixture')
-        manifest = json.loads((self.site / 'data/manifest.json').read_text())
+        manifest = json.loads((self.site / 'data/manifest.json').read_text(encoding='utf-8'))
         self.assertEqual(manifest['probability']['url'], 'https://data.example.test/releases/fixture/index.json')
         self.assertFalse((self.site / 'data/probability').exists())
         self.assertLess(sum(p.stat().st_size for p in self.site.rglob('*') if p.is_file()), 2 * 1024**2)
@@ -89,7 +89,7 @@ class SiteBuildContracts(unittest.TestCase):
         orphan = export / 'shards/unreferenced.bin'
         orphan.write_bytes(b'unreferenced previous release')
         self.build(probability_mode='embedded')
-        manifest = json.loads((self.site / 'data/manifest.json').read_text())
+        manifest = json.loads((self.site / 'data/manifest.json').read_text(encoding='utf-8'))
         self.assertEqual(manifest['probability']['url'], 'data/probability/index.json')
         self.assertFalse((self.site / 'data/probability/shards/unreferenced.bin').exists())
         for entry in index['entries']:
@@ -161,7 +161,7 @@ class SiteBuildContracts(unittest.TestCase):
         }
         write_json(self.root / 'reports/probability-release.json', release)
         manifest = self.build(probability_mode='external', probability_base_url='https://data.example.test/version/')
-        report = json.loads((self.site / manifest['probability_report']['url']).read_text())
+        report = json.loads((self.site / manifest['probability_report']['url']).read_text(encoding='utf-8'))
         self.assertEqual(report['probability-release']['release_id'], release['release_id'])
         self.assertEqual(report['probability-release']['total_bytes'], release['total_bytes'])
         self.assertNotIn('files', report['probability-release'])
