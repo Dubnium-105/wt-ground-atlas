@@ -8,7 +8,7 @@
     "build": "python build.py --forecast",
     "build:decisions": "node scripts/build_decisions.mjs",
     "test": "npm run test:js && npm run test:python",
-    "test:js": "node --test tests/engine.test.mjs tests/probability_summaries.test.mjs tests/data_client.test.mjs tests/forecast_views.test.mjs",
+    "test:js": "node --test tests/engine.test.mjs tests/probability_summaries.test.mjs tests/data_client.test.mjs tests/forecast_views.test.mjs tests/scenario_state.test.mjs",
     "test:python": "python tests/run_python_tests.py",
     "test:site": "python tests/run_python_tests.py --pattern test_site_build.py",
     "test:engine": "node tests/engine.test.mjs",
