@@ -1,0 +1,3320 @@
+{
+  "formal_rankings": 0,
+  "input_sha256": {
+    "catalog": "3a402261ab45bd1812759230470ad8c714a4915045ad89d42de5b0b33a0fd9c1",
+    "gaps_scope": "277bed7d28ea82f30694dd2c175e215c492a6d10b7636a7d6c943abb9e4fcb02",
+    "recovery": "783a0217813c9c23f1410597eca44edb8a25625f2af18575680d17d345505e17",
+    "summary": "ba300f6a3e02d5fd11d32f83ca0f8b503c6577af9992cf263f6e21566faee6ba"
+  },
+  "publishable": false,
+  "reason_vehicle_counts": {
+    "ambiguous_localized_mounted_selection": 3,
+    "chemical_single_jet_type_unsupported": 80,
+    "conditional_ordered_belt_source_revalidation_unavailable": 1,
+    "exact_localized_mounted_selection_missing": 29,
+    "native_generic_kinetic_mechanism_not_verified": 1,
+    "native_response_preset_missing": 1,
+    "ordered_belt_component_counts_missing": 69,
+    "ordered_belt_component_profile_missing": 25,
+    "ordered_belt_unequal_component_counts_require_native_sequence": 4
+  },
+  "schema_version": "1.0.0",
+  "scope": "Vehicles without a supported owned profile in this snapshot. An importer reason is not proof of a missing external file, ground-target capability, or a particular fix. No record does not establish why a vehicle lacks a profile.",
+  "source_version": "2.59.0.92",
+  "unresolved_selection_records": 383,
+  "vehicle_count": 148,
+  "vehicles": [
+    {
+      "name": "Antelope",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [],
+      "vehicle_id": "cn_antelope_tc_1l_ads",
+      "wiki_url": "https://wiki.warthunder.com/unit/cn_antelope_tc_1l_ads"
+    },
+    {
+      "name": "FK-2000",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "cn_fk_2000::30 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "cn_fk_2000::30 mm HEI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "cn_fk_2000::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "cn_fk_2000::FK-2000",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "cn_fk_2000",
+      "wiki_url": "https://wiki.warthunder.com/unit/cn_fk_2000"
+    },
+    {
+      "name": "AFT09",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "cn_hj_9::HJ-9",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "cn_hj_9",
+      "wiki_url": "https://wiki.warthunder.com/unit/cn_hj_9"
+    },
+    {
+      "name": "HQ11",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [],
+      "vehicle_id": "cn_hq_11",
+      "wiki_url": "https://wiki.warthunder.com/unit/cn_hq_11"
+    },
+    {
+      "name": "HQ17",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "cn_hq_17::HQ17",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "cn_hq_17",
+      "wiki_url": "https://wiki.warthunder.com/unit/cn_hq_17"
+    },
+    {
+      "name": "␗M55",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "cn_m55::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "cn_m55::M106",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "cn_m55",
+      "wiki_url": "https://wiki.warthunder.com/unit/cn_m55"
+    },
+    {
+      "name": "CS/SA5",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "cn_pgz_625_fb10::30 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "cn_pgz_625_fb10::30 mm HEI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "cn_pgz_625_fb10::30 mm PTFP",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "cn_pgz_625_fb10::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "cn_pgz_625_fb10",
+      "wiki_url": "https://wiki.warthunder.com/unit/cn_pgz_625_fb10"
+    },
+    {
+      "name": "PLZ83",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "cn_plz_83::BEE7-152",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "cn_plz_83::BEE7-152 (VT)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "cn_plz_83::DDB1/PL66-152",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "cn_plz_83::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "cn_plz_83",
+      "wiki_url": "https://wiki.warthunder.com/unit/cn_plz_83"
+    },
+    {
+      "name": "Tor-M1",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "cn_tor_m1::9M331",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "cn_tor_m1",
+      "wiki_url": "https://wiki.warthunder.com/unit/cn_tor_m1"
+    },
+    {
+      "name": "AMX-10P",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "fr_amx_10p::DM51A1",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "fr_amx_10p::DM63",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "fr_amx_10p::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "fr_amx_10p",
+      "wiki_url": "https://wiki.warthunder.com/unit/fr_amx_10p"
+    },
+    {
+      "name": "AMX-13 DCA 40",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "fr_amx_13_dca_40::40 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "fr_amx_13_dca_40::40 mm HE-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "fr_amx_13_dca_40::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "fr_amx_13_dca_40",
+      "wiki_url": "https://wiki.warthunder.com/unit/fr_amx_13_dca_40"
+    },
+    {
+      "name": "AuF1",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "fr_amx_30_auf_1::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "fr_amx_30_auf_1::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "fr_amx_30_auf_1::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "fr_amx_30_auf_1::OE 155 56",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "fr_amx_30_auf_1",
+      "wiki_url": "https://wiki.warthunder.com/unit/fr_amx_30_auf_1"
+    },
+    {
+      "name": "AMX-30 S DCA",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "fr_amx_30_dca::30x170 APHE-I",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "fr_amx_30_dca::30x170 HE-I-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "fr_amx_30_dca::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "fr_amx_30_dca",
+      "wiki_url": "https://wiki.warthunder.com/unit/fr_amx_30_dca"
+    },
+    {
+      "name": "Roland 1",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "fr_amx_30_roland::Roland 1",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "fr_amx_30_roland::Roland 3",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "fr_amx_30_roland",
+      "wiki_url": "https://wiki.warthunder.com/unit/fr_amx_30_roland"
+    },
+    {
+      "name": "2C bis",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "fr_char_2c_bis::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "fr_char_2c_bis::OA Mle1914",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "fr_char_2c_bis",
+      "wiki_url": "https://wiki.warthunder.com/unit/fr_char_2c_bis"
+    },
+    {
+      "name": "P.7.T AA",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "fr_citroen_kegresse_p4t::13.2 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "fr_citroen_kegresse_p4t",
+      "wiki_url": "https://wiki.warthunder.com/unit/fr_citroen_kegresse_p4t"
+    },
+    {
+      "name": "▄ItO 90M",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "fr_crotale_ng::VT1",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "fr_crotale_ng",
+      "wiki_url": "https://wiki.warthunder.com/unit/fr_crotale_ng"
+    },
+    {
+      "name": "Lorraine 155 Mle.50",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "fr_lorraine_155::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "fr_lorraine_155::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "fr_lorraine_155::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "fr_lorraine_155",
+      "wiki_url": "https://wiki.warthunder.com/unit/fr_lorraine_155"
+    },
+    {
+      "name": "▄M44",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "fr_m44::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "fr_m44::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "fr_m44::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "fr_m44",
+      "wiki_url": "https://wiki.warthunder.com/unit/fr_m44"
+    },
+    {
+      "name": "▄M55",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "fr_m55::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "fr_m55::M106",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "fr_m55",
+      "wiki_url": "https://wiki.warthunder.com/unit/fr_m55"
+    },
+    {
+      "name": "FSAF SAMP/T (Mamba) (TADS)",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": false,
+      "system_members": [
+        {
+          "count": 1,
+          "name": "FSAF SAMP/T (Mamba) (TADS)",
+          "role": "basic",
+          "source_label": "Basic unit",
+          "vehicle_id": "fr_samp_t_fcs"
+        },
+        {
+          "count": 2,
+          "name": "FSAF SAMP/T (Mamba) (TEL)",
+          "role": "component",
+          "source_label": "2 vehicles",
+          "vehicle_id": "fr_samp_t_launcher"
+        }
+      ],
+      "system_role": "basic",
+      "unresolved_selections": [],
+      "vehicle_id": "fr_samp_t_fcs",
+      "wiki_url": "https://wiki.warthunder.com/unit/fr_samp_t_fcs"
+    },
+    {
+      "name": "TPK 6.41",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "fr_tpk_641_vpc::20 mm AP",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "fr_tpk_641_vpc::20 mm HE",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "fr_tpk_641_vpc::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "fr_tpk_641_vpc",
+      "wiki_url": "https://wiki.warthunder.com/unit/fr_tpk_641_vpc"
+    },
+    {
+      "name": "SANTAL",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [],
+      "vehicle_id": "fr_vab_santal",
+      "wiki_url": "https://wiki.warthunder.com/unit/fr_vab_santal"
+    },
+    {
+      "name": "◊Osa-AK",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "germ_9a33bm3::9M33M3",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "germ_9a33bm3",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_9a33bm3"
+    },
+    {
+      "name": "◊Strela-10M",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "germ_9a35_m::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "germ_9a35_m",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_9a35_m"
+    },
+    {
+      "name": "FlaRakPz 1",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "germ_flarakpz_1::Roland 2",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "germ_flarakpz_1::Roland 3",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "germ_flarakpz_1",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_flarakpz_1"
+    },
+    {
+      "name": "FlaRakRad",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "germ_flarakrad::VT1",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "germ_flarakrad",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_flarakrad"
+    },
+    {
+      "name": "Garford-Beute",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "germ_garford_putilov::76 mm Granata",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "germ_garford_putilov::76 mm Shrapnel",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "germ_garford_putilov::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "germ_garford_putilov",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_garford_putilov"
+    },
+    {
+      "name": "IRIS-T SLM (TADS)",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": false,
+      "system_members": [
+        {
+          "count": 1,
+          "name": "IRIS-T SLM (TADS)",
+          "role": "basic",
+          "source_label": "Basic unit",
+          "vehicle_id": "germ_iris_slm_fcs"
+        },
+        {
+          "count": 2,
+          "name": "IRIS-T SLM (TEL)",
+          "role": "component",
+          "source_label": "2 vehicles",
+          "vehicle_id": "germ_iris_slm_launcher"
+        }
+      ],
+      "system_role": "basic",
+      "unresolved_selections": [],
+      "vehicle_id": "germ_iris_slm_fcs",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_iris_slm_fcs"
+    },
+    {
+      "name": "M109G",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "germ_m109g::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "germ_m109g::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "germ_m109g::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "germ_m109g::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "germ_m109g",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_m109g"
+    },
+    {
+      "name": "M44",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "germ_m44::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "germ_m44::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "germ_m44::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "germ_m44",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_m44"
+    },
+    {
+      "name": "◄M55",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "germ_m55::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "germ_m55::M106",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "germ_m55",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_m55"
+    },
+    {
+      "name": "15 cm Pz.W.42",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "germ_panzerwerfer_42::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "germ_panzerwerfer_42::Wgr.41 Spr",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "germ_panzerwerfer_42",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_panzerwerfer_42"
+    },
+    {
+      "name": "PzH 2000",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "germ_pzh_2000::155 mm OE F3",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "germ_pzh_2000::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "germ_pzh_2000::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "germ_pzh_2000::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "germ_pzh_2000::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "germ_pzh_2000",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_pzh_2000"
+    },
+    {
+      "name": "Sd.Kfz.251/21",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "germ_sdkfz_251_21::15 mm AP",
+          "reason": "ambiguous_localized_mounted_selection"
+        },
+        {
+          "ammo_id": "germ_sdkfz_251_21::15 mm APCR",
+          "reason": "ambiguous_localized_mounted_selection"
+        },
+        {
+          "ammo_id": "germ_sdkfz_251_21::15 mm HE",
+          "reason": "ambiguous_localized_mounted_selection"
+        },
+        {
+          "ammo_id": "germ_sdkfz_251_21::Universal",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "germ_sdkfz_251_21",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_sdkfz_251_21"
+    },
+    {
+      "name": "Luchs A2",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "germ_sppz2_luchs_a2::DM43",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "germ_sppz2_luchs_a2::DM51A1",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "germ_sppz2_luchs_a2::DM63",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "germ_sppz2_luchs_a2::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "germ_sppz2_luchs_a2",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_sppz2_luchs_a2"
+    },
+    {
+      "name": "38 cm Sturmmörser",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "germ_sturmmorser_sturmtiger::38 cm R Spgr.4581",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "germ_sturmmorser_sturmtiger::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "germ_sturmmorser_sturmtiger",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_sturmmorser_sturmtiger"
+    },
+    {
+      "name": "Wiesel 1A4",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "germ_wiesel_1_mk20::DM43",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "germ_wiesel_1_mk20::DM51A1",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "germ_wiesel_1_mk20::DM63",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "germ_wiesel_1_mk20::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "germ_wiesel_1_mk20",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_wiesel_1_mk20"
+    },
+    {
+      "name": "Ozelot",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [],
+      "vehicle_id": "germ_wiesel_2_adwc",
+      "wiki_url": "https://wiki.warthunder.com/unit/germ_wiesel_2_adwc"
+    },
+    {
+      "name": "◐Osa-AKM",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "il_9a33bm3::9M33M3",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "il_9a33bm3",
+      "wiki_url": "https://wiki.warthunder.com/unit/il_9a33bm3"
+    },
+    {
+      "name": "M109",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "il_m109::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "il_m109::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "il_m109::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "il_m109::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "il_m109",
+      "wiki_url": "https://wiki.warthunder.com/unit/il_m109"
+    },
+    {
+      "name": "Rochev",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "il_m109a1::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "il_m109a1::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "il_m109a1::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "il_m109a1::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "il_m109a1",
+      "wiki_url": "https://wiki.warthunder.com/unit/il_m109a1"
+    },
+    {
+      "name": "Hovet",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "il_m163_vulcan::20 mm API-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "il_m163_vulcan::20 mm HEFI-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "il_m163_vulcan::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "il_m163_vulcan",
+      "wiki_url": "https://wiki.warthunder.com/unit/il_m163_vulcan"
+    },
+    {
+      "name": "Machbet",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "il_machbet::20 mm API-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "il_machbet::20 mm HEFI-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "il_machbet::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "il_machbet",
+      "wiki_url": "https://wiki.warthunder.com/unit/il_machbet"
+    },
+    {
+      "name": "Imp.Chaparral",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [],
+      "vehicle_id": "il_mim_72_chaparral",
+      "wiki_url": "https://wiki.warthunder.com/unit/il_mim_72_chaparral"
+    },
+    {
+      "name": "Sholef",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "il_sholef::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "il_sholef::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "il_sholef::M401",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "il_sholef::M401 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "il_sholef",
+      "wiki_url": "https://wiki.warthunder.com/unit/il_sholef"
+    },
+    {
+      "name": "SPYDER",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [],
+      "vehicle_id": "il_spyder_aio",
+      "wiki_url": "https://wiki.warthunder.com/unit/il_spyder_aio"
+    },
+    {
+      "name": "◐Tor-M1",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "il_tor_m1::9M331",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "il_tor_m1",
+      "wiki_url": "https://wiki.warthunder.com/unit/il_tor_m1"
+    },
+    {
+      "name": "ZSU-23-4V",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "il_zsu_23_4::23 mm API-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "il_zsu_23_4::23 mm HEFI-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "il_zsu_23_4::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "il_zsu_23_4",
+      "wiki_url": "https://wiki.warthunder.com/unit/il_zsu_23_4"
+    },
+    {
+      "name": "▄Osa-AKM",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "it_9a33bm3::9M33M3",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "it_9a33bm3",
+      "wiki_url": "https://wiki.warthunder.com/unit/it_9a33bm3"
+    },
+    {
+      "name": "◔Strela-10M",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "it_9a35_m::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "it_9a35_m",
+      "wiki_url": "https://wiki.warthunder.com/unit/it_9a35_m"
+    },
+    {
+      "name": "◔BTR-80A",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "it_btr_80a_hungary::30 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "it_btr_80a_hungary::30 mm APDS",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "it_btr_80a_hungary::30 mm HEI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "it_btr_80a_hungary::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "it_btr_80a_hungary",
+      "wiki_url": "https://wiki.warthunder.com/unit/it_btr_80a_hungary"
+    },
+    {
+      "name": "▄M109G",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "it_m109g::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "it_m109g::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "it_m109g::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "it_m109g::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "it_m109g",
+      "wiki_url": "https://wiki.warthunder.com/unit/it_m109g"
+    },
+    {
+      "name": "▄M44",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "it_m44::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "it_m44::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "it_m44::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "it_m44",
+      "wiki_url": "https://wiki.warthunder.com/unit/it_m44"
+    },
+    {
+      "name": "▄M55",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "it_m55::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "it_m55::M106",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "it_m55",
+      "wiki_url": "https://wiki.warthunder.com/unit/it_m55"
+    },
+    {
+      "name": "R3 T20 FA-HS",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "it_oto_r3_t20_fa::20 mm AP",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "it_oto_r3_t20_fa::20 mm HE",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "it_oto_r3_t20_fa::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "it_oto_r3_t20_fa",
+      "wiki_url": "https://wiki.warthunder.com/unit/it_oto_r3_t20_fa"
+    },
+    {
+      "name": "Palmaria",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "it_palmaria::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "it_palmaria::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "it_palmaria::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "it_palmaria::P3",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "it_palmaria::P5",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "it_palmaria",
+      "wiki_url": "https://wiki.warthunder.com/unit/it_palmaria"
+    },
+    {
+      "name": "▄PzH 2000",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "it_pzh_2000::155 mm OE F3",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "it_pzh_2000::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "it_pzh_2000::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "it_pzh_2000::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "it_pzh_2000::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "it_pzh_2000",
+      "wiki_url": "https://wiki.warthunder.com/unit/it_pzh_2000"
+    },
+    {
+      "name": "PzH 2000HU",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "it_pzh_2000_hu::155 mm OE F3",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "it_pzh_2000_hu::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "it_pzh_2000_hu::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "it_pzh_2000_hu::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "it_pzh_2000_hu::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "it_pzh_2000_hu",
+      "wiki_url": "https://wiki.warthunder.com/unit/it_pzh_2000_hu"
+    },
+    {
+      "name": "FSAF SAMP/T (TADS)",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": false,
+      "system_members": [
+        {
+          "count": 1,
+          "name": "FSAF SAMP/T (TADS)",
+          "role": "basic",
+          "source_label": "Basic unit",
+          "vehicle_id": "it_samp_t_fcs"
+        },
+        {
+          "count": 2,
+          "name": "FSAF SAMP/T (TEL)",
+          "role": "component",
+          "source_label": "2 vehicles",
+          "vehicle_id": "it_samp_t_launcher"
+        }
+      ],
+      "system_role": "basic",
+      "unresolved_selections": [],
+      "vehicle_id": "it_samp_t_fcs",
+      "wiki_url": "https://wiki.warthunder.com/unit/it_samp_t_fcs"
+    },
+    {
+      "name": "◔ZSU-23-4V",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "it_zsu_23_4::23 mm API-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "it_zsu_23_4::23 mm HEFI-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "it_zsu_23_4::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "it_zsu_23_4",
+      "wiki_url": "https://wiki.warthunder.com/unit/it_zsu_23_4"
+    },
+    {
+      "name": "BTR-3E1",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "jp_btr_3e1::30 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "jp_btr_3e1::30 mm APDS",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "jp_btr_3e1::30 mm HEI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "jp_btr_3e1::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        },
+        {
+          "ammo_id": "jp_btr_3e1::R2",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "jp_btr_3e1::VOG-30",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "jp_btr_3e1",
+      "wiki_url": "https://wiki.warthunder.com/unit/jp_btr_3e1"
+    },
+    {
+      "name": "▄M163",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "jp_m163_vulcan::20 mm API-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "jp_m163_vulcan::20 mm HEFI-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "jp_m163_vulcan::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "jp_m163_vulcan",
+      "wiki_url": "https://wiki.warthunder.com/unit/jp_m163_vulcan"
+    },
+    {
+      "name": "▅M44",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "jp_m44::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "jp_m44::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "jp_m44::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "jp_m44",
+      "wiki_url": "https://wiki.warthunder.com/unit/jp_m44"
+    },
+    {
+      "name": "SUB-I-II",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "jp_sub_i_ii_20mm::DM43",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "jp_sub_i_ii_20mm::DM51A1",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "jp_sub_i_ii_20mm::DM63",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "jp_sub_i_ii_20mm::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "jp_sub_i_ii_20mm",
+      "wiki_url": "https://wiki.warthunder.com/unit/jp_sub_i_ii_20mm"
+    },
+    {
+      "name": "Type 03 (TADS)",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": false,
+      "system_members": [
+        {
+          "count": 1,
+          "name": "Type 03 (TADS)",
+          "role": "basic",
+          "source_label": "Basic unit",
+          "vehicle_id": "jp_type_03_chusam_fcs"
+        },
+        {
+          "count": 2,
+          "name": "Type 03 (TEL)",
+          "role": "component",
+          "source_label": "2 vehicles",
+          "vehicle_id": "jp_type_03_chusam_launcher"
+        }
+      ],
+      "system_role": "basic",
+      "unresolved_selections": [],
+      "vehicle_id": "jp_type_03_chusam_fcs",
+      "wiki_url": "https://wiki.warthunder.com/unit/jp_type_03_chusam_fcs"
+    },
+    {
+      "name": "Type 75 SPH",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "jp_type_75::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "jp_type_75::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "jp_type_75::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "jp_type_75::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "jp_type_75::Type 75",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "jp_type_75",
+      "wiki_url": "https://wiki.warthunder.com/unit/jp_type_75"
+    },
+    {
+      "name": "Type 75 MLRS",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "jp_type_75_mlrs::130 mm Type 75",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "jp_type_75_mlrs::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "jp_type_75_mlrs",
+      "wiki_url": "https://wiki.warthunder.com/unit/jp_type_75_mlrs"
+    },
+    {
+      "name": "Type 81 (C)",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [],
+      "vehicle_id": "jp_type_81_tansam",
+      "wiki_url": "https://wiki.warthunder.com/unit/jp_type_81_tansam"
+    },
+    {
+      "name": "Tan-SAM Kai (TADS)",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": false,
+      "system_members": [
+        {
+          "count": 1,
+          "name": "Tan-SAM Kai (TADS)",
+          "role": "basic",
+          "source_label": "Basic unit",
+          "vehicle_id": "jp_type_81_tansam_fcs"
+        },
+        {
+          "count": 2,
+          "name": "Tan-SAM Kai (TEL)",
+          "role": "component",
+          "source_label": "2 vehicles",
+          "vehicle_id": "jp_type_81_tansam_launcher"
+        }
+      ],
+      "system_role": "basic",
+      "unresolved_selections": [],
+      "vehicle_id": "jp_type_81_tansam_fcs",
+      "wiki_url": "https://wiki.warthunder.com/unit/jp_type_81_tansam_fcs"
+    },
+    {
+      "name": "Type 87 RCV (P)",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "jp_type_87_rcv_prot::DM43",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "jp_type_87_rcv_prot::DM51A1",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "jp_type_87_rcv_prot::DM63",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "jp_type_87_rcv_prot::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "jp_type_87_rcv_prot",
+      "wiki_url": "https://wiki.warthunder.com/unit/jp_type_87_rcv_prot"
+    },
+    {
+      "name": "Type 93",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [],
+      "vehicle_id": "jp_type_93",
+      "wiki_url": "https://wiki.warthunder.com/unit/jp_type_93"
+    },
+    {
+      "name": "Chi-Ha Short Gun",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "jp_type_97_chi_ha_12cm::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        },
+        {
+          "ammo_id": "jp_type_97_chi_ha_12cm::Short Ordinary HE",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "jp_type_97_chi_ha_12cm",
+      "wiki_url": "https://wiki.warthunder.com/unit/jp_type_97_chi_ha_12cm"
+    },
+    {
+      "name": "Type 99",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "jp_type_99::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "jp_type_99::L15A2",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "jp_type_99::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "jp_type_99::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "jp_type_99::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "jp_type_99",
+      "wiki_url": "https://wiki.warthunder.com/unit/jp_type_99"
+    },
+    {
+      "name": "ASRAD-R",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "sw_asrad_r::BOLIDE",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "sw_asrad_r::RB 70 Mk.2",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "sw_asrad_r",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_asrad_r"
+    },
+    {
+      "name": "Bkan 1C",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "sw_bkan_1c::sgr m/60",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "sw_bkan_1c::sgr m/60 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "sw_bkan_1c",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_bkan_1c"
+    },
+    {
+      "name": "BMP-2MD",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "sw_bmp_2md::30 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "sw_bmp_2md::30 mm APDS",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "sw_bmp_2md::30 mm HEI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "sw_bmp_2md::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "sw_bmp_2md",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_bmp_2md"
+    },
+    {
+      "name": "ItO 90M",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "sw_crotale_ng::VT1",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "sw_crotale_ng",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_crotale_ng"
+    },
+    {
+      "name": "EldE 98",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [],
+      "vehicle_id": "sw_eldenhet_98",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_eldenhet_98"
+    },
+    {
+      "name": "VIDAR",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "sw_k9_vidar::155 mm OE F3",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "sw_k9_vidar::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "sw_k9_vidar::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "sw_k9_vidar::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "sw_k9_vidar::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "sw_k9_vidar",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_k9_vidar"
+    },
+    {
+      "name": "L-62 ANTI II",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "sw_l_62_anti_ii::Default",
+          "reason": "ordered_belt_unequal_component_counts_require_native_sequence"
+        },
+        {
+          "ammo_id": "sw_l_62_anti_ii::slhpgr m/43",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "sw_l_62_anti_ii::slsgr m/36C",
+          "reason": "ordered_belt_unequal_component_counts_require_native_sequence"
+        }
+      ],
+      "vehicle_id": "sw_l_62_anti_ii",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_l_62_anti_ii"
+    },
+    {
+      "name": "U-SH 204 GK",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "sw_landsverk_ush_204_gk::20 mm AP",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "sw_landsverk_ush_204_gk::20 mm HE",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "sw_landsverk_ush_204_gk::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "sw_landsverk_ush_204_gk",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_landsverk_ush_204_gk"
+    },
+    {
+      "name": "Lvkv 42",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "sw_lvkv_42::Default",
+          "reason": "ordered_belt_unequal_component_counts_require_native_sequence"
+        },
+        {
+          "ammo_id": "sw_lvkv_42::slhpgr m/43",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "sw_lvkv_42::slsgr m/36C",
+          "reason": "ordered_belt_unequal_component_counts_require_native_sequence"
+        }
+      ],
+      "vehicle_id": "sw_lvkv_42",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_lvkv_42"
+    },
+    {
+      "name": "Lvrbv 701",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "sw_lvrbv_701::RB 70",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "sw_lvrbv_701::RB 70 Mk.2",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "sw_lvrbv_701",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_lvrbv_701"
+    },
+    {
+      "name": "NASAMS 3 (TADS)",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": false,
+      "system_members": [
+        {
+          "count": 1,
+          "name": "NASAMS 3 (TADS)",
+          "role": "basic",
+          "source_label": "Basic unit",
+          "vehicle_id": "sw_nasams_fcs"
+        },
+        {
+          "count": 2,
+          "name": "NASAMS 3 (TEL)",
+          "role": "component",
+          "source_label": "2 vehicles",
+          "vehicle_id": "sw_nasams_launcher"
+        }
+      ],
+      "system_role": "basic",
+      "unresolved_selections": [],
+      "vehicle_id": "sw_nasams_fcs",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_nasams_fcs"
+    },
+    {
+      "name": "NOMADS",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "sw_nomads::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "sw_nomads",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_nomads"
+    },
+    {
+      "name": "Spj fm/43-44",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "sw_stormpjas_fm43_44::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "sw_stormpjas_fm43_44::sgr m/38",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "sw_stormpjas_fm43_44",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_stormpjas_fm43_44"
+    },
+    {
+      "name": "Lvtdgb m/40",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "sw_tgdgb_m40_lv::Default",
+          "reason": "ordered_belt_unequal_component_counts_require_native_sequence"
+        },
+        {
+          "ammo_id": "sw_tgdgb_m40_lv::slhpgr m/43",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "sw_tgdgb_m40_lv::slsgr m/36C",
+          "reason": "ordered_belt_unequal_component_counts_require_native_sequence"
+        }
+      ],
+      "vehicle_id": "sw_tgdgb_m40_lv",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_tgdgb_m40_lv"
+    },
+    {
+      "name": "VEAK 40",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "sw_veak_40::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "sw_veak_40::slpprj m/42B",
+          "reason": "ordered_belt_unequal_component_counts_require_native_sequence"
+        },
+        {
+          "ammo_id": "sw_veak_40::slsgr m/36C",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "sw_veak_40",
+      "wiki_url": "https://wiki.warthunder.com/unit/sw_veak_40"
+    },
+    {
+      "name": "▄Osa-AK",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_9a33bm2::9M33M3",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "uk_9a33bm2",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_9a33bm2"
+    },
+    {
+      "name": "▄Strela-10M",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_9a35_m::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "uk_9a35_m",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_9a35_m"
+    },
+    {
+      "name": "AS90",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_as_90_mk_2::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "uk_as_90_mk_2::L15A2",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "uk_as_90_mk_2::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "uk_as_90_mk_2::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "uk_as_90_mk_2::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "uk_as_90_mk_2",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_as_90_mk_2"
+    },
+    {
+      "name": "Bosvark",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_bosvark::23 mm API-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "uk_bosvark::23 mm HEFI-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "uk_bosvark::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "uk_bosvark",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_bosvark"
+    },
+    {
+      "name": "Centurion Mk.5 AVRE",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_centurion_mk_5_avre_era::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        },
+        {
+          "ammo_id": "uk_centurion_mk_5_avre_era::L33A1",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "uk_centurion_mk_5_avre_era",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_centurion_mk_5_avre_era"
+    },
+    {
+      "name": "Churchill AVRE Petard",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_churchill_avre::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        },
+        {
+          "ammo_id": "uk_churchill_avre::No.1 Demolition Bomb",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "uk_churchill_avre",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_churchill_avre"
+    },
+    {
+      "name": "Falcon",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_falcon::30x170 APHE-I",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "uk_falcon::30x170 HE-I-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "uk_falcon::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "uk_falcon",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_falcon"
+    },
+    {
+      "name": "FV4005",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_fv4005::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        },
+        {
+          "ammo_id": "uk_fv4005::Shell L1",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "uk_fv4005",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_fv4005"
+    },
+    {
+      "name": "G6",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_g6_spg::G6 Smoke",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "uk_g6_spg::M1",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "uk_g6_spg::M1 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "uk_g6_spg",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_g6_spg"
+    },
+    {
+      "name": "▄M109A1",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_m109a1::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "uk_m109a1::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "uk_m109a1::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "uk_m109a1::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "uk_m109a1",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_m109a1"
+    },
+    {
+      "name": "▄M44",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_m44::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "uk_m44::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "uk_m44::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "uk_m44",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_m44"
+    },
+    {
+      "name": "ZA-35",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_rooikat_za_35::DM11A1",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "uk_rooikat_za_35::DM13",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "uk_rooikat_za_35::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "uk_rooikat_za_35",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_rooikat_za_35"
+    },
+    {
+      "name": "Sky Sabre (TADS)",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": false,
+      "system_members": [
+        {
+          "count": 1,
+          "name": "Sky Sabre (TADS)",
+          "role": "basic",
+          "source_label": "Basic unit",
+          "vehicle_id": "uk_sky_sabre_fcs"
+        },
+        {
+          "count": 2,
+          "name": "Sky Sabre (TEL)",
+          "role": "component",
+          "source_label": "2 vehicles",
+          "vehicle_id": "uk_sky_sabre_launcher"
+        }
+      ],
+      "system_role": "basic",
+      "unresolved_selections": [],
+      "vehicle_id": "uk_sky_sabre_fcs",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_sky_sabre_fcs"
+    },
+    {
+      "name": "Stormer AD",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_stormer_air_defence::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "uk_stormer_air_defence::PGU-20/U",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "uk_stormer_air_defence::PGU-32",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "uk_stormer_air_defence",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_stormer_air_defence"
+    },
+    {
+      "name": "Stormer HVM",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_stormer_hvm::Starstreak HVM",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "uk_stormer_hvm",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_stormer_hvm"
+    },
+    {
+      "name": "Rapier",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_tracked_rapier::Rapier Mk.1E",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "uk_tracked_rapier::Rapier Mk.2",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "uk_tracked_rapier",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_tracked_rapier"
+    },
+    {
+      "name": "GBT 155",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_vickers_gbt_155::L15A2",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "uk_vickers_gbt_155::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "uk_vickers_gbt_155::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "uk_vickers_gbt_155::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "uk_vickers_gbt_155",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_vickers_gbt_155"
+    },
+    {
+      "name": "Light AA Mk I",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_vickers_mk_6_aa_mk_1::7.92 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "uk_vickers_mk_6_aa_mk_1::7.92 mm API-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "uk_vickers_mk_6_aa_mk_1::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "uk_vickers_mk_6_aa_mk_1::Universal",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "uk_vickers_mk_6_aa_mk_1",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_vickers_mk_6_aa_mk_1"
+    },
+    {
+      "name": "Ystervark",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "uk_ystervark_spaa::20 mm AP",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "uk_ystervark_spaa::20 mm HE",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "uk_ystervark_spaa::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "uk_ystervark_spaa",
+      "wiki_url": "https://wiki.warthunder.com/unit/uk_ystervark_spaa"
+    },
+    {
+      "name": "LOSAT",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "us_losat_ccv::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "us_losat_ccv::MGM-166",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "us_losat_ccv",
+      "wiki_url": "https://wiki.warthunder.com/unit/us_losat_ccv"
+    },
+    {
+      "name": "M109A1",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "us_m109a1::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "us_m109a1::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "us_m109a1::M107 (PF)",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "us_m109a1::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "us_m109a1",
+      "wiki_url": "https://wiki.warthunder.com/unit/us_m109a1"
+    },
+    {
+      "name": "M163",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "us_m163_vulcan::20 mm API-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "us_m163_vulcan::20 mm HEFI-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "us_m163_vulcan::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "us_m163_vulcan",
+      "wiki_url": "https://wiki.warthunder.com/unit/us_m163_vulcan"
+    },
+    {
+      "name": "M44",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "us_m44::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "us_m44::M107",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "us_m44::M110",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "us_m44",
+      "wiki_url": "https://wiki.warthunder.com/unit/us_m44"
+    },
+    {
+      "name": "M55",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "us_m55::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "us_m55::M106",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "us_m55",
+      "wiki_url": "https://wiki.warthunder.com/unit/us_m55"
+    },
+    {
+      "name": "M728 CEV",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "us_m728::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        },
+        {
+          "ammo_id": "us_m728::M123",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "us_m728",
+      "wiki_url": "https://wiki.warthunder.com/unit/us_m728"
+    },
+    {
+      "name": "Imp.Chaparral",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [],
+      "vehicle_id": "us_mim_72_chaparral",
+      "wiki_url": "https://wiki.warthunder.com/unit/us_mim_72_chaparral"
+    },
+    {
+      "name": "NASAMS 3 (TADS)",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": false,
+      "system_members": [
+        {
+          "count": 1,
+          "name": "NASAMS 3 (TADS)",
+          "role": "basic",
+          "source_label": "Basic unit",
+          "vehicle_id": "us_nasams_fcs"
+        },
+        {
+          "count": 2,
+          "name": "NASAMS 3 (TEL)",
+          "role": "component",
+          "source_label": "2 vehicles",
+          "vehicle_id": "us_nasams_launcher"
+        }
+      ],
+      "system_role": "basic",
+      "unresolved_selections": [],
+      "vehicle_id": "us_nasams_fcs",
+      "wiki_url": "https://wiki.warthunder.com/unit/us_nasams_fcs"
+    },
+    {
+      "name": "CLAWS (TADS)",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": false,
+      "system_members": [
+        {
+          "count": 1,
+          "name": "CLAWS (TADS)",
+          "role": "basic",
+          "source_label": "Basic unit",
+          "vehicle_id": "us_sl_amraam_fcs"
+        },
+        {
+          "count": 2,
+          "name": "CLAWS (TEL)",
+          "role": "component",
+          "source_label": "2 vehicles",
+          "vehicle_id": "us_sl_amraam_launcher"
+        }
+      ],
+      "system_role": "basic",
+      "unresolved_selections": [],
+      "vehicle_id": "us_sl_amraam_fcs",
+      "wiki_url": "https://wiki.warthunder.com/unit/us_sl_amraam_fcs"
+    },
+    {
+      "name": "XM246",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "us_xm246::DM11A1",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "us_xm246::DM13",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "us_xm246::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "us_xm246",
+      "wiki_url": "https://wiki.warthunder.com/unit/us_xm246"
+    },
+    {
+      "name": "XM975",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "us_xm_975_roland::Roland 1",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "us_xm_975_roland::Roland 3",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "us_xm_975_roland",
+      "wiki_url": "https://wiki.warthunder.com/unit/us_xm_975_roland"
+    },
+    {
+      "name": "Osa-AKM",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_9a33bm3::9M33M3",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "ussr_9a33bm3",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_9a33bm3"
+    },
+    {
+      "name": "Strela-10M2",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_9a35_m2::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "ussr_9a35_m2",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_9a35_m2"
+    },
+    {
+      "name": "Khrizantema-S",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_9p157::9M123",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_9p157::9M123F",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "ussr_9p157",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_9p157"
+    },
+    {
+      "name": "BM-13N",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_bm_13n::M-13",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "ussr_bm_13n",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_bm_13n"
+    },
+    {
+      "name": "BM-31-12",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_bm_31_12::M-31-UK",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "ussr_bm_31_12",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_bm_31_12"
+    },
+    {
+      "name": "BM-8-24",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_bm_8_24::M-8",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "ussr_bm_8_24",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_bm_8_24"
+    },
+    {
+      "name": "BMD-4",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_bmd_4::30 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmd_4::30 mm APDS",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmd_4::30 mm HEI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmd_4::3OF32",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_bmd_4::3OF70",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_bmd_4::9M117M1",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_bmd_4::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "ussr_bmd_4",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_bmd_4"
+    },
+    {
+      "name": "BMD-4M",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_bmd_4m::30 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmd_4m::30 mm APDS",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmd_4m::30 mm HEI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmd_4m::3OF32",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_bmd_4m::3OF70",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_bmd_4m::9M117M1",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_bmd_4m::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "ussr_bmd_4m",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_bmd_4m"
+    },
+    {
+      "name": "BMD-4M2",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_bmd_4m2::30 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmd_4m2::30 mm APDS",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmd_4m2::30 mm HEI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmd_4m2::3OF32",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_bmd_4m2::3OF70",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_bmd_4m2::9M117M1",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_bmd_4m2::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "ussr_bmd_4m2",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_bmd_4m2"
+    },
+    {
+      "name": "BMPT",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_bmpt::30 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmpt::30 mm APDS",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmpt::30 mm HEI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmpt::30 mm HEI-PD",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_bmpt::9M120-1",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_bmpt::9M120-1F",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_bmpt::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        },
+        {
+          "ammo_id": "ussr_bmpt::VOG-30",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "ussr_bmpt",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_bmpt"
+    },
+    {
+      "name": "BMPT-72",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_bmpt_72::30 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmpt_72::30 mm APDS",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmpt_72::30 mm HEI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_bmpt_72::9M120-1",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_bmpt_72::9M120-1F",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_bmpt_72::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "ussr_bmpt_72",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_bmpt_72"
+    },
+    {
+      "name": "BTR-152A",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_btr_152a::14.5 mm API-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_btr_152a::14.5 mm IAI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_btr_152a::Universal",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "ussr_btr_152a",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_btr_152a"
+    },
+    {
+      "name": "BTR-152D",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_btr_152d::14.5 mm API-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_btr_152d::14.5 mm IAI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_btr_152d::Universal",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "ussr_btr_152d",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_btr_152d"
+    },
+    {
+      "name": "BTR-80A",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_btr_80a::30 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_btr_80a::30 mm APDS",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_btr_80a::30 mm HEI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_btr_80a::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "ussr_btr_80a",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_btr_80a"
+    },
+    {
+      "name": "BTR-82AT",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_btr_82at::30 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_btr_82at::30 mm APDS",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_btr_82at::30 mm HEI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_btr_82at::9M133",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_btr_82at::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "ussr_btr_82at",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_btr_82at"
+    },
+    {
+      "name": "BTR-ZD",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_btr_zd::23 mm API-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "ussr_btr_zd::23 mm HEFI-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "ussr_btr_zd::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "ussr_btr_zd",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_btr_zd"
+    },
+    {
+      "name": "9K317M &quot;BUK-M3&quot; (TADS)",
+      "record_status": "no_unresolved_selection_record",
+      "system_capabilities_aggregated": false,
+      "system_members": [
+        {
+          "count": 1,
+          "name": "9K317M \"BUK-M3\" (TADS)",
+          "role": "basic",
+          "source_label": "Basic unit",
+          "vehicle_id": "ussr_buk_m3_fcs"
+        },
+        {
+          "count": 2,
+          "name": "9K317M \"BUK-M3\" (TELAR)",
+          "role": "component",
+          "source_label": "2 vehicles",
+          "vehicle_id": "ussr_buk_m3_launcher"
+        }
+      ],
+      "system_role": "basic",
+      "unresolved_selections": [],
+      "vehicle_id": "ussr_buk_m3_fcs",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_buk_m3_fcs"
+    },
+    {
+      "name": "Garford",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_garford_putilov::76 mm Granata",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_garford_putilov::76 mm Shrapnel",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_garford_putilov::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "ussr_garford_putilov",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_garford_putilov"
+    },
+    {
+      "name": "GAZ-AAA (4M)",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_gaz_4m::7.62 mm API",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_gaz_4m::7.62 mm API-T",
+          "reason": "native_generic_kinetic_mechanism_not_verified"
+        },
+        {
+          "ammo_id": "ussr_gaz_4m::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_gaz_4m::Universal",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "ussr_gaz_4m",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_gaz_4m"
+    },
+    {
+      "name": "GAZ-AAA (DShK)",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_gaz_dshk::.50 AP",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_gaz_dshk::.50 API",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_gaz_dshk::.50 API-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_gaz_dshk::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "ussr_gaz_dshk",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_gaz_dshk"
+    },
+    {
+      "name": "Pantsir-S1",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_pantsyr_s1::30 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_pantsyr_s1::30 mm HEI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_pantsyr_s1::95Ya6",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_pantsyr_s1::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        }
+      ],
+      "vehicle_id": "ussr_pantsyr_s1",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_pantsyr_s1"
+    },
+    {
+      "name": "Pantsir SM-SV",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_pantsyr_sm_sv::30 mm AP-T",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_pantsyr_sm_sv::30 mm HEI",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_pantsyr_sm_sv::95Ya6",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_pantsyr_sm_sv::95Ya6M",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_pantsyr_sm_sv::Default",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_pantsyr_sm_sv::TKB-1055",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "ussr_pantsyr_sm_sv",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_pantsyr_sm_sv"
+    },
+    {
+      "name": "Hanomag (&#039;45)",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_sdkfz_251_21_kit_3rank::15 mm AP",
+          "reason": "ambiguous_localized_mounted_selection"
+        },
+        {
+          "ammo_id": "ussr_sdkfz_251_21_kit_3rank::15 mm HE",
+          "reason": "ambiguous_localized_mounted_selection"
+        },
+        {
+          "ammo_id": "ussr_sdkfz_251_21_kit_3rank::Universal",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "ussr_sdkfz_251_21_kit_3rank",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_sdkfz_251_21_kit_3rank"
+    },
+    {
+      "name": "T-60",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_t_60_1941::20 mm API",
+          "reason": "native_response_preset_missing"
+        },
+        {
+          "ammo_id": "ussr_t_60_1941::20 mm API HV",
+          "reason": "ordered_belt_component_counts_missing"
+        },
+        {
+          "ammo_id": "ussr_t_60_1941::Default",
+          "reason": "exact_localized_mounted_selection_missing"
+        }
+      ],
+      "vehicle_id": "ussr_t_60_1941",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_t_60_1941"
+    },
+    {
+      "name": "Tor-M1",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_tor_m1::9M331",
+          "reason": "chemical_single_jet_type_unsupported"
+        }
+      ],
+      "vehicle_id": "ussr_tor_m1",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_tor_m1"
+    },
+    {
+      "name": "2S6",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_zprk_2s6::30 mm AP-T",
+          "reason": "ambiguous_localized_mounted_selection"
+        },
+        {
+          "ammo_id": "ussr_zprk_2s6::30 mm HEI",
+          "reason": "ambiguous_localized_mounted_selection"
+        },
+        {
+          "ammo_id": "ussr_zprk_2s6::9M311",
+          "reason": "chemical_single_jet_type_unsupported"
+        },
+        {
+          "ammo_id": "ussr_zprk_2s6::Default",
+          "reason": "conditional_ordered_belt_source_revalidation_unavailable"
+        }
+      ],
+      "vehicle_id": "ussr_zprk_2s6",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_zprk_2s6"
+    },
+    {
+      "name": "ZSU-23-4V",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_zsu_23_4::23 mm API-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "ussr_zsu_23_4::23 mm HEFI-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "ussr_zsu_23_4::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "ussr_zsu_23_4",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_zsu_23_4"
+    },
+    {
+      "name": "ZSU-23-4M2",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_zsu_23_4m2::23 mm API-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "ussr_zsu_23_4m2::23 mm HEFI-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "ussr_zsu_23_4m2::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "ussr_zsu_23_4m2",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_zsu_23_4m2"
+    },
+    {
+      "name": "ZSU-23-4M4",
+      "record_status": "unresolved_selections_recorded",
+      "system_capabilities_aggregated": null,
+      "system_members": [],
+      "system_role": null,
+      "unresolved_selections": [
+        {
+          "ammo_id": "ussr_zsu_23_4m4::23 mm API-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "ussr_zsu_23_4m4::23 mm HEFI-T",
+          "reason": "ordered_belt_component_profile_missing"
+        },
+        {
+          "ammo_id": "ussr_zsu_23_4m4::Default",
+          "reason": "ordered_belt_component_profile_missing"
+        }
+      ],
+      "vehicle_id": "ussr_zsu_23_4m4",
+      "wiki_url": "https://wiki.warthunder.com/unit/ussr_zsu_23_4m4"
+    }
+  ],
+  "vehicles_with_unresolved_records": 128,
+  "vehicles_without_unresolved_records": 20
+}
