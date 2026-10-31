@@ -313,7 +313,15 @@
       "source_status": "unknown",
       "wiki_collected_at": "2026-10-30T13:06:38.003583+00:00"
     },
-    "needed": "Bind catalog/BR/payload/physics to one released snapshot, and distinguish later server BR correction from the pinned client source. Announcement date alone does not validate current Wiki details.",
+    "needed": "Verify 2.59.0.94 rule, weapon, payload and geometry compatibility against the 2.59.0.92 client maps per input; resolve changed-source dependencies and current server BR evidence before promoting a release.",
+    "newer_datamine": {
+      "changed_catalog_ratings": 592,
+      "changed_files_in_compare": 67,
+      "commit": "2423f3099e2a5ec3f31efdce87b9f4380ea761ec",
+      "direct_changed_weapon_profile_hits": 12,
+      "source_compatibility": "not established",
+      "version": "2.59.0.94"
+    },
     "official_later_server_update_evidence": {
       "date": "2026-10-30",
       "effect": "Corrections to BR values against the final change table.",
@@ -324,6 +332,16 @@
       "date": "2026-10-29",
       "title": "Update 2.59.0.92",
       "url": "https://warthunder.com/en/game/changelog/current/1913"
+    },
+    "published_table_audit": {
+      "ambiguous_catalog_names": 1,
+      "different_display_name_candidates_092": 372,
+      "duplicate_publication_rows": 6,
+      "identity_scope": "audit candidates only",
+      "matching_display_name_candidates_094": 372,
+      "report": "reports/official-br-progress.json",
+      "sha256": "8c11877bd172e95cf1472ce47f7c81eb1a2696096c5cfd652fd2c552ab5c6014",
+      "unmatched_publication_names": 110
     }
   },
   "schema_version": "1.0.0",
