@@ -279,3 +279,17 @@ python scripts/recover_native_ammunition.py --catalog /data/catalog.payloads.jso
 相同完整弹丸定义与全部物理输入可以合并计算，但每个弹药 ID 的载具、挂载、语言和 Wiki 证明独立保存在 `recovery_bindings`。任意证明变化都会改变档案内容哈希。增量输入包含此前恢复的档案时，先核对其来源；源文件、语言或 Wiki 变更会要求从原始档案重新恢复，不静默沿用旧绑定。输出目录另存，现有原始弹药和正在重算的输入均保持不变。
 
 恢复的档案可直接交给 `prepare_range_profiles.py`、原 V2 读取器和现有原生补算器。该步骤只建立计算输入，不增加已验收图数或正式榜单数。2026-10-31 首次全目录审计恢复 97 辆载具的 114 条弹药绑定，合并为 34 份物理档案，其中 87 辆此前没有合格的自有档案。新增 102 份距离档案后，24 组真实几何 CPU/GPU 对照比较 391,284 条射线，最大概率差约 `1.5795230865478516e-5`。完整输出与缺口见本地 `reports/formal-ammunition-recovery.json`，轻量验收摘要见 `reports/ammunition-recovery-progress.json`。
+
+## 按固定客户端脚本计算挂载 SP 倍率
+
+```sh
+python scripts/import_spawn_components.py --catalog /data/catalog.ammunition.json --rules-root /data/pinned-rules --capture /data/client-capture.json --out-catalog /data/catalog.sp-components.json --report reports/sp-components.json
+```
+
+`forecast/native_spawn.py` 实现固定客户端的参数优先级、质量插值、挂载倍率、弹链附加倍率和按实际武器划分出击类别的逻辑。导入前校验固定 Git blob、资源包版本与哈希，以及 `ranks_common_shared.nut` 和 `std/math.nut` 的已审阅内容。Windows 解包脚本仅允许 CRLF → LF 的字节差异，仍分别保存原始哈希；任何其他代码差异均拒绝。
+
+实现保留客户端的关键区别：普通炸弹、火箭、凝固汽油弹与鱼雷的增量合计受最大上限约束；制导炸弹按总质量乘最高导引方式系数；空空导弹取最高导引方式系数；直升机 ATGM 的射程和近炸附加在导引倍率之后相乘；大火箭判据使用单枚最大 TNT 量。弹链附加值相加，不与武器倍率相乘。空的类别覆盖块会禁用通用规则，而非回退到通用质量加价。自定义挂载必须提供精确武器 ID 与数量。
+
+输出 `spawn_cost_components` 独立于已有 `spawn_rule`。没有所选弹链时，只有所有已声明弹链都无附加值才可确定完整倍率；否则保留 `combined_multiplier=null`。按武器划分类别还依赖任务开关，导入器只提供开关启用条件下的类别，不凭战斗机/攻击机标签推断任务开关已启用。`shop_get_spawn_score` 的基础费用、房间 BR 修正与最终取整仍由原生函数决定，因此 `final_spawn_points=null`，不会升级为 `official_verified` 出击规则，也不自动解除排名门禁。
+
+本次真实导入覆盖 1,150 辆载具的 7,539 套合法挂载，7,327 套取得完整倍率，46 辆载具的 212 套挂载缺少所选内置弹链。详细逐挂载结果保存于本地 `reports/formal-sp-components.json`，轻量摘要见 `reports/sp-component-progress.json`。额外提取的同版 `mis.vromfs.bin` 与 `game.vromfs.bin` 共 6,205 个文件未提供最终原生费用公式；该缺口继续保留。
