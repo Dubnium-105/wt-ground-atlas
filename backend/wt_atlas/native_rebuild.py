@@ -108,7 +108,8 @@ def rebuild(repository,catalog_path,ammunition_path,request_path,output,*,backen
         if name not in validated_ranges and (p.get('impact_distance_m') is not None or provenance.get('range_rebuild')):
             from .range_rebuild import source_range_profile
             parent=source_profiles.get(p.get('provenance',{}).get('range_rebuild',{}).get('source_profile_sha256'))
-            if parent is None or p!=source_range_profile(parent,p['distance_m'],source_root):
+            receipt=p.get('provenance',{}).get('range_rebuild',{}).get('source_evidence')
+            if parent is None or p!=source_range_profile(parent,p['distance_m'],source_root,expected_evidence=receipt):
                 raise ValueError('Derived native-distance profile must match its original source profile')
             validated_ranges.add(name)
         curve=p.get('normalized_distance_curve',[])
@@ -146,6 +147,11 @@ def rebuild(repository,catalog_path,ammunition_path,request_path,output,*,backen
         model['range_profile_code_sha256']=file_hash(Path(__file__).with_name('range_rebuild.py'))
     if any(profiles[n].get('provenance',{}).get('chemical_energy') for _,n in seen):
         model['chemical_profile_code_sha256']=file_hash(Path(__file__).with_name('chemical_projectiles.py'))
+    if any(profiles[n].get('provenance',{}).get('nested_missile_adapter') for _,n in seen):
+        model['nested_missile_profile_code_sha256']=file_hash(Path(__file__).with_name('nested_missile_jet.py'))
+    historical=sorted({profiles[n].get('provenance',{}).get('range_rebuild',{}).get('source_evidence',{}).get('adapter_sha256')
+                       for _,n in seen} - {None,model.get('chemical_profile_code_sha256')})
+    if historical:model['historical_chemical_adapter_sha256']=historical
     identity={'model':model,'versions':[list(v) for v in sorted(versions)],
               'adapter_sha256':file_hash(__file__)}
     if (output/MARKER).exists() and read_json(output/MARKER)!=identity:raise ValueError('Native output model/version changed; use a new directory')

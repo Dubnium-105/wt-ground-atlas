@@ -23,7 +23,7 @@ MODEL = 'layered-v2-cpu-first-armor-range-1'
 MARKER = '.wt-range-rebuild'
 
 
-def ce_source_evidence(profile, source_root):
+def ce_source_evidence(profile, source_root, *, historical_adapter_sha256=None):
     """Verify the exact projectile's constant jet penetration in captured BLK.
 
     A scalar cumulativeDamage.armorPower supports conditional penetration at
@@ -31,9 +31,31 @@ def ce_source_evidence(profile, source_root):
     """
     from .native_binding.ordered_blk import parse_ordered_blk
     provenance = profile.get('provenance', {})
+    if provenance.get('nested_missile_adapter'):
+        if historical_adapter_sha256:raise ValueError('Nested missile evidence cannot use a historical chemical adapter')
+        from .nested_missile_jet import source_evidence
+        return source_evidence(profile, source_root)
     if provenance.get('chemical_energy'):
         from .chemical_projectiles import source_evidence
-        return source_evidence(profile, source_root)
+        current=source_evidence(profile, source_root)
+        if not historical_adapter_sha256 or historical_adapter_sha256==current['adapter_sha256']:
+            return current
+        # These exact frozen source bytes are retained to replay previously
+        # emitted receipts; current validation must also pass before reuse.
+        from importlib import import_module
+        historical={
+            'f89b2db073324f2ed748149f994282768ea37ecd2afa11d3f8cd1aa2ad8ccc0c':'chemical_projectiles_v1',
+            '26f2d0d0d3a551942c2ce2d448d3b13bd9547748058031586a6f3f2a3d836b6e':'chemical_projectiles_v2',
+        }
+        name=historical.get(historical_adapter_sha256)
+        if not name:raise ValueError('Unknown historical chemical adapter')
+        path=Path(__file__).with_name(name+'.py')
+        if file_hash(path)!=historical_adapter_sha256:raise ValueError('Historical chemical adapter checksum mismatch')
+        previous=import_module('.'+name,__package__).source_evidence(profile,source_root)
+        if ({k:v for k,v in previous.items() if k!='adapter_sha256'} !=
+            {k:v for k,v in current.items() if k!='adapter_sha256'}):
+            raise ValueError('Historical chemical evidence differs from current validation')
+        return previous
     path = provenance.get('source_weapon_path')
     if source_root is None or not path or not provenance.get('source_weapon_sha256'):
         raise ValueError('CE range requires the captured source weapon file')
@@ -63,7 +85,7 @@ def ce_source_evidence(profile, source_root):
             'parameter': 'cumulativeDamage.armorPower', 'penetration_mm': profile['penetration_mm']}
 
 
-def source_range_profile(profile, distance, source_root=None):
+def source_range_profile(profile, distance, source_root=None, *, expected_evidence=None):
     if not number(distance) or distance < 0:
         raise ValueError('Invalid physical distance')
     if profile.get('mode') not in ('KE', 'CE') or profile.get('reference_only'):
@@ -77,7 +99,13 @@ def source_range_profile(profile, distance, source_root=None):
         if (not number(profile.get('penetration_mm')) or profile['penetration_mm'] <= 0 or
                 profile.get('normalized_distance_curve')):
             raise ValueError('CE constant source profile is invalid')
-        evidence = ce_source_evidence(profile, source_root)
+        if expected_evidence is not None and not isinstance(expected_evidence,dict):
+            raise ValueError('Invalid expected source evidence')
+        expected_adapter=(expected_evidence or {}).get('adapter_sha256')
+        evidence = ce_source_evidence(profile, source_root,
+            historical_adapter_sha256=expected_adapter if not provenance.get('nested_missile_adapter') else None)
+        if expected_evidence is not None and evidence!=expected_evidence:
+            raise ValueError('Recorded chemical source evidence mismatch')
         result = copy.deepcopy(profile)
         source_hash = content_hash(profile)
         result.update(name=profile['name']+'_range_'+format(distance,'g').replace('.','p')+'_'+source_hash[:8],

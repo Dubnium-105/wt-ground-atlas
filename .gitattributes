@@ -1,0 +1,6 @@
+backend/wt_atlas/chemical_projectiles.py -text
+backend/wt_atlas/chemical_projectiles_v1.py -text
+backend/wt_atlas/chemical_projectiles_v2.py -text
+backend/wt_atlas/nested_missile_jet.py -text
+reports/nested-missile-progress.json -text
+reports/nested-missile-cpu-cuda-crosscheck.json -text

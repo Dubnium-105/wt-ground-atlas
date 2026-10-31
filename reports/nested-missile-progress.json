@@ -1,0 +1,67 @@
+{
+  "catalog_caliber_mm": 135,
+  "cpu_cuda_parity": {
+    "all_include_partial_probabilities": true,
+    "checks": 4,
+    "max_probability_delta": 5.960464477539063e-08,
+    "report": "reports/nested-missile-cpu-cuda-crosscheck.json",
+    "sampled_rays": 65276,
+    "sha256": "86cc8ffad2f7a030dbc66332602a72381b75c78cf92d5a3bcb485aecdc31b004"
+  },
+  "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+  "endpoint": "conditional_penetration_only_flight_and_activation_not_modeled",
+  "formal_rankings": 0,
+  "game_probability_validated": false,
+  "generation": {
+    "array_bytes": 411206424,
+    "computed_maps": 1068,
+    "duration_seconds": 307.7863823999651,
+    "input_ammunition_sha256": "047fedff0a314ef7d85a09162ec394be1be8b7cbe6f62e8e61bcadf947be7068",
+    "input_catalog_sha256": "57f37880087b9cd1abc6c39dd1eeb1e03cf69c3341c230fb2a1d9d6adc0bb777",
+    "model": {
+      "backend": "v2-cuda",
+      "chemical_profile_code_sha256": "5fcd504692d26dd9128607f0f9dc7c612825afb1f29d65ae54deabf88cc6f7d4",
+      "nested_missile_profile_code_sha256": "23e262fc877b99db775a903690c963d5083325def2875551baac94dc17831b10",
+      "range_profile_code_sha256": "64f2319065dd917e5313f02b1b0d920d46996ba4769c01c9245ba40bd34480b0",
+      "tool_code_sha256": "58f1bf518f58f16386ff8ee9851673aa7d588a380545656df643c3cef9e9ad3b",
+      "tool_manifest_sha256": "38b35c2418cd1731fb1fc00c194482d464dedb41e9291ee775ea23866499542c"
+    },
+    "pending_maps": 0,
+    "planned_maps": 1068,
+    "requests_sha256": "8f5a3884fd29eeb09c5cbf3956428209893e782c73d60df48971e0dd5fc5a357",
+    "resources": {
+      "cpu_seconds": 283.046875,
+      "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+      "peak_rss_bytes": 1355079680
+    },
+    "reused_maps": 0
+  },
+  "incremental_catalog_and_ammunition_replay_byte_identical": true,
+  "map_status_at_report": "generation_completed_independent_preflight_running",
+  "new_ground_vehicles_with_source_profile": 1,
+  "new_range_profiles": 4,
+  "new_source_profiles": 1,
+  "outer_bullet_caliber_mm": 125,
+  "planned_maps": 1068,
+  "prior_ce_range_profiles_replayed": 380,
+  "prior_range_profiles_preserved": 2008,
+  "profile": "recovered_23abfd27bab7158788f3a25a",
+  "publishable": false,
+  "schema_version": "1.0.0",
+  "selection": "ussr_bmp_2::9M113",
+  "source_minimum_distance_m": 30,
+  "source_sha256": {
+    "ammunition": "bc514b056bf470a58ef98cd74fa1772887e18a894a726ea4d67ba0f40a64abfb",
+    "catalog": "57f37880087b9cd1abc6c39dd1eeb1e03cf69c3341c230fb2a1d9d6adc0bb777",
+    "range_ammunition": "047fedff0a314ef7d85a09162ec394be1be8b7cbe6f62e8e61bcadf947be7068",
+    "recovery_report": "6add832b9a74410faade8d4b421024cd95c25f33ed0dc3eb7bf3b1ac711a6b7d"
+  },
+  "source_version": "2.59.0.92",
+  "tests": {
+    "node": 64,
+    "playwright": "passed",
+    "python": 424,
+    "sample_diagnostic_build": "passed_zero_rankings",
+    "smoke": 4
+  }
+}

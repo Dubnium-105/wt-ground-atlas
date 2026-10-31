@@ -60,13 +60,15 @@ class Localization:
 
 
 class MountedAmmunition:
-    def __init__(self, root, localization, *, default_rules=None, selector_rules=None, structural_projectiles=False, primary_rules=None, root_rockets=False):
+    def __init__(self, root, localization, *, default_rules=None, selector_rules=None, structural_projectiles=False, primary_rules=None, root_rockets=False, nested_missiles=False):
         self.root = Path(root); self.localization = localization
         self.default_rules = default_rules
         self.selector_rules = selector_rules
         self.primary_rules = primary_rules
         if root_rockets and not default_rules:raise ValueError('Root rocket recovery requires verified weapon localization rules')
+        if nested_missiles and not default_rules:raise ValueError('Nested missile recovery requires verified weapon localization rules')
         self.root_rockets = root_rockets
+        self.nested_missiles = nested_missiles
         self.structural_projectiles = structural_projectiles
         self.cache = OrderedDict(); self.sources = {}; self.rejections = []
 
@@ -149,6 +151,13 @@ class MountedAmmunition:
                 if self.default_rules and selector == '@default':
                     from .default_belts import candidate_fields
                     extra.update(candidate_fields(weapon, weapon_mounts))
+                if (self.nested_missiles and not context and selector=='@default' and len(bullets)==1
+                    and weapon.get('isBulletBelt') is False and weapon.get('useSingleIconForBullet') is True
+                    and weapon.get('notUseDefaultBulletInGui') is True and len(weapon_mounts)==1
+                    and not weapon_mounts[0].get('dummy') and weapon_mounts[0].get('trigger')!='countermeasures'
+                    and bullets[0].get('bulletType')=='atgm_tank' and isinstance(bullets[0].get('rocket'),dict)
+                    and isinstance(bullets[0].get('bulletName'),str) and bullets[0]['bulletName']):
+                    extra['nested_missile_candidate']=True
                 result.append({**extra, **selection_proof, **(context or {}), 'unit_path': path, 'unit_sha256': self.sources[path],
                     'weapon_path': weapon_path, 'weapon_sha256': self.sources[weapon_path],
                     'selector': selector, 'selection_sha256': content_hash(selected),
@@ -178,6 +187,17 @@ class MountedAmmunition:
                 keys += [bullets[0]['bulletName']]
             matched = self.localization.match(keys, ammo['name'])
             extra = {}
+            if not matched and candidate.get('nested_missile_candidate'):
+                key='weapons/'+bullets[0]['bulletName']+'/short'
+                short=self.localization.values.get(key)
+                parent=ammo.get('provenance',{}).get('parent_weapon_name')
+                full=[self.localization.values.get(k) for k in candidate.get('weapon_localization_keys',[])]
+                full=[item for item in full if item and item['value']==parent]
+                if short and short['value']==ammo['name'] and len(full)==1:
+                    matched=[full[0],short]
+                    extra.update(nested_missile_rules=self.default_rules,
+                        nested_missile_label={'ammo_name':ammo['name'],'parent_weapon_name':parent},
+                        display_name_rule='exact_mounted_weapon_and_projectile_short_client_localization')
             if not matched and self.selector_rules:
                 from .ammunition_selectors import named_cannon_label
                 label = named_cannon_label(candidate, self.localization)
@@ -354,6 +374,8 @@ def consolidate(profiles):
             identity['primary_modification_id'] = binding['primary_modification_id']
         if binding.get('projectile_block')=='root_rocket':
             identity['projectile_block']='root_rocket'
+        if binding.get('nested_missile_rules'):
+            identity['nested_missile_adapter']='nested-missile-jet-v1'
         key = content_hash(identity)
         name = 'recovered_' + key[:24]; renamed[profile['name']] = name
         if name not in groups:
@@ -392,8 +414,8 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
         if (provenance.get('client_version'), provenance.get('datamine_commit')) != (version, commit):
             raise ValueError('Existing recovered profile has a different source version')
         if provenance.get('chemical_energy'):
-            from .chemical_projectiles import source_evidence
-            source_evidence(profile, adapter.root)
+            from .range_rebuild import ce_source_evidence
+            ce_source_evidence(profile, adapter.root)
         expected = list(provenance.get('source_hashes', {}).items())
         for binding in bindings.values():
             if binding.get('default_belt_rules') and binding['default_belt_rules'] != adapter.default_rules:
@@ -405,6 +427,8 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
                 raise ValueError('Existing primary armament evidence changed or was not enabled')
             if binding.get('projectile_block')=='root_rocket' and (not adapter.root_rockets or binding.get('root_rocket_rules')!=adapter.default_rules):
                 raise ValueError('Existing root rocket source rules changed or were not enabled')
+            if binding.get('nested_missile_rules') and (not adapter.nested_missiles or binding['nested_missile_rules']!=adapter.default_rules):
+                raise ValueError('Existing nested missile source rules changed or were not enabled')
             if 'projectile_identities' in binding:
                 if not adapter.structural_projectiles:
                     raise ValueError('Existing structural projectile evidence was not enabled')
@@ -434,7 +458,7 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
             checked.add(key)
 
 
-def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False, selector_rules=False, structural_projectiles=False, ordered_belts=False, chemical_energy=False, primary_modifications=False, root_rockets=False):
+def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False, selector_rules=False, structural_projectiles=False, ordered_belts=False, chemical_energy=False, primary_modifications=False, root_rockets=False, nested_missiles=False):
     from .forecast.rule_snapshot import verify_capture
     catalog = read_json(catalog_path); existing = read_json(ammunition_path)
     capture = read_json(capture_path); language = read_json(language_path)
@@ -457,7 +481,8 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
     primary_rules = verified_primary_rules(capture, version) if primary_modifications else None
     localization = Localization(Path(language['extracted']) / 'lang', include_defaults=default_belts)
     adapter = MountedAmmunition(pack['extracted'], localization, default_rules=default_rules, selector_rules=selection_rules,
-                               structural_projectiles=structural_projectiles, primary_rules=primary_rules,root_rockets=root_rockets)
+                               structural_projectiles=structural_projectiles, primary_rules=primary_rules,root_rockets=root_rockets,
+                               nested_missiles=nested_missiles)
     verify_existing_recovery(existing, adapter, localization, wiki_root, version, commit)
     from .ordered_belt_recovery import component_index, recover_belt, verify_existing_belts
     has_belts = any(a.get('ordered_belt') for v in catalog['vehicles'] for a in v.get('ammo', []))
@@ -506,7 +531,10 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
                     records.append(record)
                     continue
                 if chemical_energy and all(not str(b.get('bulletType','')).startswith(('ap','sap')) for b in binding['bullets']):
-                    from .chemical_projectiles import ce_profile
+                    if binding.get('nested_missile_rules'):
+                        from .nested_missile_jet import ce_profile
+                    else:
+                        from .chemical_projectiles import ce_profile
                     profile = ce_profile(ammo, binding, tables, wiki_source, response, version, commit)
                 else:
                     if binding.get('primary_modification_id'):
@@ -545,6 +573,7 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
         'chemical_energy': chemical_energy,
         'primary_armament_rules': primary_rules,
         'root_rockets': root_rockets,
+        'nested_missiles': nested_missiles,
         'legacy_ce_source_rejections': legacy_ce_rejections,
         'source_files': adapter.sources, 'localization_files': localization.sources,
         'counts': {'examined_ammunition': len(records), 'recovered_profiles': len(profiles),

@@ -100,6 +100,25 @@ class ChemicalProjectileTests(unittest.TestCase):
         path=self.root/self.weapon_path;path.write_text(path.read_text()+'\n// changed source\n')
         with self.assertRaisesRegex(ValueError,'hash mismatch'):source_range_profile(p,100,self.root)
 
+    def test_historical_source_receipts_replay_with_current_source_validation(self):
+        from wt_atlas.chemical_projectiles_v1 import source_evidence as old_v1
+        from wt_atlas.chemical_projectiles_v2 import source_evidence as old_v2
+        p=self.profile()
+        for old in (old_v1,old_v2):
+            receipt=old(p,self.root)
+            ranged=source_range_profile(p,100,self.root,expected_evidence=receipt)
+            self.assertEqual(ranged['provenance']['range_rebuild']['source_evidence'],receipt)
+            changed=copy.deepcopy(receipt);changed['penetration_mm']=999.
+            with self.assertRaisesRegex(ValueError,'evidence mismatch'):
+                source_range_profile(p,100,self.root,expected_evidence=changed)
+        unknown=old_v1(p,self.root);unknown['adapter_sha256']='0'*64
+        with self.assertRaisesRegex(ValueError,'Unknown historical'):
+            source_range_profile(p,100,self.root,expected_evidence=unknown)
+        receipt=old_v1(p,self.root)
+        path=self.root/self.weapon_path;path.write_text(path.read_text()+'\n// changed source\n')
+        with self.assertRaisesRegex(ValueError,'hash mismatch'):
+            source_range_profile(p,100,self.root,expected_evidence=receipt)
+
     def test_primary_modification_jet_rechecks_mount_and_prerequisites(self):
         from wt_atlas.primary_armament import REVIEWED_SCRIPTS
         self.put(self.unit_path,{'commonWeapons':{'Weapon':{'blk':'other.blk'}},'modifications':{

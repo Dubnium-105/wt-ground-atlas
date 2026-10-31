@@ -97,12 +97,21 @@
       "ordered_belt_unequal_component_counts_require_native_sequence": 12
     },
     "needed": "Exact vehicle/weapon/selector/projectile ownership, supported mechanism, individual projectile penetration versus distance/angle and source identity. Unresolved imports do not prove external files are absent.",
-    "profile_gap_catalog_scope": "v15 root rocket source recovery; native range maps remain under generation and validation",
+    "nested_missile_recovery": {
+      "additional_ground_vehicles_with_source_profile": 1,
+      "full_maps_status": "generation_completed_independent_preflight_running",
+      "new_owned_selections": 1,
+      "planned_maps": 1068,
+      "report": "reports\\nested-missile-progress.json",
+      "report_sha256": "5fd4d0f81ef85653eae9e652e0cc01e541f222770682bf03ebb91ed2df29056e"
+    },
+    "profile_gap_catalog_scope": "v16 nested missile source recovery; native range maps remain under generation and validation",
     "remaining_breakdown": {
       "counts_overlap": true,
       "distinct_vehicles": 151,
       "report": "reports\\remaining-ammunition-gap-breakdown.json",
-      "report_sha256": "0aa746887f04f82760f0c02b2251925c0cce278d7596e4ad75b4eef2f3d0e6c5"
+      "report_sha256": "0aa746887f04f82760f0c02b2251925c0cce278d7596e4ad75b4eef2f3d0e6c5",
+      "scope": "v15 before nested missile recovery; category counts overlap"
     },
     "root_rocket_recovery": {
       "additional_ground_vehicles_with_source_profile": 4,
@@ -258,7 +267,6 @@
       "ussr_bmd_4",
       "ussr_bmd_4m",
       "ussr_bmd_4m2",
-      "ussr_bmp_2",
       "ussr_bmpt",
       "ussr_bmpt_72",
       "ussr_btr_152a",
@@ -280,13 +288,15 @@
       "ussr_zsu_23_4m2",
       "ussr_zsu_23_4m4"
     ],
-    "without_profile_count": 151
+    "without_profile_count": 150
   },
   "input_sha256": {
     "data/snapshots/ammunition.chemical-projectiles-2.59.0.92.json": "3df4ba0d20023b999e002a3dde48641799800f46461497878f415e9646f1ac50",
+    "data/snapshots/ammunition.nested-missiles-2.59.0.92.json": "bc514b056bf470a58ef98cd74fa1772887e18a894a726ea4d67ba0f40a64abfb",
     "data/snapshots/ammunition.ordered-belts-2.59.0.92.json": "5f49489fa1536f4d1a88ad35971c1bc6e597c98e1f721e7d36a7b4f837ea55f2",
     "data/snapshots/ammunition.root-rockets-2.59.0.92.json": "9f501e5dc55cf634fb4ff7ed51f4e9b3a9bd901ccc3abb98405e9aac24301f18",
     "data/snapshots/catalog.formal-chemical-projectiles-2.59.0.92.v13.json": "5b1108f012725fc8f4313112d4c7a67050cdf9f0113928cbba5647727cbf006b",
+    "data/snapshots/catalog.formal-nested-missiles-2.59.0.92.v16.json": "57f37880087b9cd1abc6c39dd1eeb1e03cf69c3341c230fb2a1d9d6adc0bb777",
     "data/snapshots/catalog.formal-ordered-belts-2.59.0.92.v12.json": "28faf3ace71f1b4e2eba4a3f85f2aed91d9c0ca3231ed620e4d1fb83895d5b1b",
     "data/snapshots/catalog.formal-root-rockets-2.59.0.92.v15.json": "e6541fdef1e2a61472b72c9378a262926a1085bc7f7279e923bd84bfe0ea1325",
     "reports/chemical-projectile-progress.json": "2818035eccf49643db4d6818d622e198aa07e657c88b53444dd186e2e2a32d82",
@@ -304,6 +314,7 @@
     "reports\\federated-original-coverage-progress.json": "242057547296578dc920c4672aba0f005bbddd5dffc66b3a2ebb9f896a67cf90",
     "reports\\federated-seven-batch-progress.json": "9c25eeafdc27d75d7601eae47b14ec20b5a77c090ba2e092e7b9054afd0a81fe",
     "reports\\five-batch-assembly-progress.json": "ef444d27f4d668d5bec10955850e62b6099b8875b34943c83ae01765c3494455",
+    "reports\\nested-missile-progress.json": "5fd4d0f81ef85653eae9e652e0cc01e541f222770682bf03ebb91ed2df29056e",
     "reports\\remaining-ammunition-gap-breakdown.json": "0aa746887f04f82760f0c02b2251925c0cce278d7596e4ad75b4eef2f3d0e6c5",
     "reports\\root-rockets-progress.json": "7ef6f5e7fa8af4ae5b5b095771732194936cd6d4315cc5af4c855287afa6123d"
   },
@@ -334,6 +345,7 @@
     "needed": "Resolve selected internal belts and source presets/mount relations. Quarantined entries include invalid or unavailable configurations and are not all missing data."
   },
   "provisional_federated_coverage": {
+    "catalog_scope": "v15; excludes v16 nested missile source profile and its pending maps",
     "counts": {
       "available_bidirectional_pairs": 18124032,
       "available_forward_pairs": 20600352,
