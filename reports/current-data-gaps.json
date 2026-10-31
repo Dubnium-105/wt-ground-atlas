@@ -91,6 +91,12 @@
     },
     "needed": "Exact vehicle/weapon/selector/projectile ownership, supported mechanism, individual projectile penetration versus distance/angle and source identity. Unresolved imports do not prove external files are absent.",
     "profile_gap_catalog_scope": "v15 root rocket source recovery; native range maps remain under generation and validation",
+    "remaining_breakdown": {
+      "counts_overlap": true,
+      "distinct_vehicles": 151,
+      "report": "reports\\remaining-ammunition-gap-breakdown.json",
+      "report_sha256": "0aa746887f04f82760f0c02b2251925c0cce278d7596e4ad75b4eef2f3d0e6c5"
+    },
     "root_rocket_recovery": {
       "additional_ground_vehicles_with_source_profile": 4,
       "full_maps_status": "generation_completed_independent_preflight_running",
@@ -288,6 +294,7 @@
     "reports/range-rebuild-progress.json": "16d2b5bd74bef13fc1b837689cd5bf6d229f5ec22eb4df9752fad34f66a96ced",
     "reports/root-rockets-progress.json": "d0fa7502587b6e85ed078f86d4e48c0023b99b338ae6946e835b5f9aa57c9139",
     "reports\\federated-original-coverage-progress.json": "242057547296578dc920c4672aba0f005bbddd5dffc66b3a2ebb9f896a67cf90",
+    "reports\\remaining-ammunition-gap-breakdown.json": "0aa746887f04f82760f0c02b2251925c0cce278d7596e4ad75b4eef2f3d0e6c5",
     "reports\\root-rockets-progress.json": "db0e5346ba438e4e06dbafc115fc6e264dc91d4a828cee96316e8e61539c5df6"
   },
   "ongoing_chemical_batch": {
