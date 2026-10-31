@@ -28,13 +28,42 @@ class MountRulesTests(unittest.TestCase):
         self.assertEqual(check([])['errors'],['mount_selection_missing'])
 
     def test_source_shape_cannot_silently_drop_constraints(self):
-        for change in ('unknown','missing_ref','duplicate','boolean_count'):
+        for change in ('unknown','duplicate','boolean_count'):
             u=unit();slots=u['weapons']['custom_presets']['slot']
             if change=='unknown':slots[1]['rockets']['FutureRestriction']={'x':1}
-            if change=='missing_ref':slots[0]['tank_left']['DependentWeaponPreset']={'absent':4}
             if change=='duplicate':slots.append(copy.deepcopy(slots[0]))
             if change=='boolean_count':slots[1]['rockets']['rocket_container']=True
             with self.subTest(change=change),self.assertRaises(ValueError):import_mount_rule(u,SOURCE)
+
+    def test_missing_required_preset_rejects_only_affected_choices(self):
+        u=unit();u['weapons']['custom_presets']['slot'][0]['tank_left']['DependentWeaponPreset']={'absent':4}
+        rule=import_mount_rule(u,SOURCE)
+        self.assertEqual(rule['unresolved_relations'],[{'slot':1,'preset':'tank_left','relation':'requires',
+            'target':{'slot':4,'preset':'absent'},'reason':'referenced_preset_absent'}])
+        self.assertEqual(check_mounts([{'slot':1,'preset':'gun'}],rule)['errors'],[])
+        self.assertEqual(check_mounts([{'slot':1,'preset':'tank_left'},{'slot':4,'preset':'tank_right'}],rule)['errors'],
+                         ['required_mount_preset_missing'])
+        result=check_mounts([{'slot':1,'preset':'tank_left'},{'slot':4,'preset':'absent'}],rule)
+        self.assertIn('mount_preset_not_in_source',result['errors'])
+        self.assertIn('required_mount_preset_missing',result['errors'])
+
+    def test_missing_exclusion_is_retained_without_inventing_a_target(self):
+        u=unit();u['weapons']['custom_presets']['slot'][2]['missile']['BannedWeaponPreset']={'absent':99}
+        rule=import_mount_rule(u,SOURCE)
+        self.assertEqual(rule['unresolved_relations'][0]['relation'],'excludes')
+        self.assertEqual(rule['slots']['3']['missile']['excludes'],[{'slot':99,'preset':'absent'}])
+        self.assertEqual(check_mounts([{'slot':3,'preset':'missile'}],rule)['errors'],[])
+        self.assertIn('mount_preset_not_in_source',check_mounts([{'slot':99,'preset':'absent'}],rule)['errors'])
+
+    def test_actual_missing_selection_is_not_removed_from_the_source_audit(self):
+        u=unit();u['weapons']['custom_presets']['slot'][0]['tank_left']['DependentWeaponPreset']={'absent':4}
+        v={'id':'fixture','loadouts':[{'id':'preset_alpha','legal':False,
+            'mounts':[{'slot':1,'preset':'tank_left'}],'weapons':[]}]}
+        result=audit_vehicle_mounts(v,u,SOURCE)
+        self.assertEqual(result['status'],'constraints_imported')
+        self.assertEqual(v['mount_rule_audit']['unresolved_relations'],result['unresolved_relations'])
+        self.assertEqual(result['loadouts'][0]['errors'],['required_mount_preset_missing'])
+        self.assertFalse(v['loadouts'][0]['legal'])
 
     def test_repeated_preset_references_keep_every_slot(self):
         u=unit();slots=u['weapons']['custom_presets']['slot']

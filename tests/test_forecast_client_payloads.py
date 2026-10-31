@@ -61,10 +61,29 @@ class ClientPayloadTests(unittest.TestCase):
     def test_unsupported_source_relation_stays_an_explicit_rejection(self):
         unit=copy.deepcopy(self.unit)
         unit['weapons']['custom_presets']={'slot':{'index':1,'selected':{
-            'DependentWeaponPreset':{'absent':2},'rocketguns_fixture':1}}}
+            'DependentWeaponPreset':['unknown-grammar'],'rocketguns_fixture':1}}}
         result,report=self.adapter().verify(self.vehicle,unit,SOURCE)
         self.assertEqual(report['verified'],0)
         self.assertIn('unsupported_source_constraints',report['records'][0]['errors'])
+
+    def test_missing_dependency_on_another_preset_does_not_quarantine_the_aircraft(self):
+        weapon=self.selection['Weapon']
+        self.model['WeaponSlots']={'WeaponSlot':{'index':1,'WeaponPreset':[
+            {'name':'safe','Weapon':weapon},{'name':'needs_missing','Weapon':weapon}]}}
+        self.put('gamedata/flightmodels/plane.blk',self.model)
+        self.unit['weapons']['custom_presets']={'slot':{'index':1,
+            'safe':{'rocketguns_fixture':1},'needs_missing':{
+                'rocketguns_fixture':1,'DependentWeaponPreset':{'absent':2}}}}
+        self.put('gamedata/flightmodels/weaponpresets/payload.blk',{'Weapon':{'slot':1,'preset':'safe'}})
+        result,report=self.adapter().verify(self.vehicle,self.unit,SOURCE)
+        self.assertEqual(report['verified'],1)
+        self.assertEqual(len(report['unresolved_mount_relations']),1)
+        self.assertTrue(result['loadouts'][0]['legal'])
+        self.put('gamedata/flightmodels/weaponpresets/payload.blk',{'Weapon':{'slot':1,'preset':'needs_missing'}})
+        result,report=self.adapter().verify(self.vehicle,self.unit,SOURCE)
+        self.assertEqual(report['verified'],0)
+        self.assertIn('required_mount_preset_missing',report['records'][0]['errors'])
+        self.assertNotIn('unsupported_source_constraints',report['records'][0]['errors'])
 
     def test_unsupported_carried_item_cannot_be_silently_omitted(self):
         self.selection['Weapon']=[self.selection['Weapon'],{'blk':'gamedata/weapons/unknown.blk','trigger':'unknown'}]

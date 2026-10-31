@@ -99,6 +99,7 @@ class CapturedPayloads(DatamineLoadouts):
                 raise ValueError('Captured payload source changed during import: '+key)
         return candidate,{'vehicle_id':vehicle['id'],'verified':len(verified),'quarantined':len(previous),
             'records':records,'parser_errors':self.errors[error_start:],
+            'unresolved_mount_relations':audit.get('unresolved_relations',[]),
             'source_files':len(self.used),'source_manifest_sha256':content_hash(candidate['client_payload_sources'])}
 
 

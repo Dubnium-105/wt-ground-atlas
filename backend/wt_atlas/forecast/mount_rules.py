@@ -43,15 +43,21 @@ def import_mount_rule(unit,source):
                 else:raise ValueError('Unsupported source mount weapon/count')
             presets[name]={'weapons':weapons,**relations}
         result[str(index)]=presets
-    for presets in result.values():
-        for entry in presets.values():
+    unresolved=[]
+    for slot,presets in result.items():
+        for preset,entry in presets.items():
             for relation in ('requires','excludes'):
                 for ref in entry.get(relation,[]):
                     if ref['preset'] not in result.get(str(ref['slot']),{}):
-                        raise ValueError('Source mount relation references a missing preset')
+                        # A missing required preset makes this choice impossible;
+                        # it does not invalidate unrelated choices on the aircraft.
+                        # Keep exclusions too: a nonexistent target cannot be
+                        # selected through this rule, and no alias is invented.
+                        unresolved.append({'slot':int(slot),'preset':preset,'relation':relation,
+                                           'target':dict(ref),'reason':'referenced_preset_absent'})
     return {'slots':result,'source':source['wpcost_url'],'source_sha256':source['wpcost_sha256'],
             'source_version':source['version'],'datamine_commit':source['commit'],
-            'status':'pinned_source_constraints_only'}
+            'status':'pinned_source_constraints_only','unresolved_relations':unresolved}
 
 
 def check_mounts(mounts,rule):
@@ -85,7 +91,8 @@ def audit_vehicle_mounts(vehicle,unit,source):
         # A source shape we cannot interpret remains an explicit data gap.
         vehicle['mount_rule_audit']={'status':'unsupported_source_constraints','reason':str(error)}
         return {'vehicle_id':vehicle['id'],'status':'unsupported_source_constraints','reason':str(error),'loadouts':[]}
-    vehicle['mount_rule_audit']={'status':'constraints_imported' if rule is not None else 'no_custom_mount_block'}
+    vehicle['mount_rule_audit']={'status':'constraints_imported' if rule is not None else 'no_custom_mount_block',
+                               'unresolved_relations':rule['unresolved_relations'] if rule is not None else []}
     if rule is not None:vehicle['mount_rule']=rule
     rows=[]
     for loadout in vehicle.get('loadouts',[]):
@@ -99,4 +106,5 @@ def audit_vehicle_mounts(vehicle,unit,source):
         loadout['mount_rule_audit']={**row,'source_version':source['version'],
                                     'source_sha256':source['wpcost_sha256']}
         rows.append(row)
-    return {'vehicle_id':vehicle['id'],'status':'constraints_imported' if rule is not None else 'no_custom_mount_block','loadouts':rows}
+    return {'vehicle_id':vehicle['id'],'status':'constraints_imported' if rule is not None else 'no_custom_mount_block',
+            'unresolved_relations':rule['unresolved_relations'] if rule is not None else [],'loadouts':rows}
