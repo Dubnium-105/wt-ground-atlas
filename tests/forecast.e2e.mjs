@@ -16,11 +16,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path('tests').resolve()))
 from test_forecast import fixture, settings
 from site_fixture import create_fixture,build_recommendations,load_script
-p=Path(sys.argv[1]);fixture(p)
+p=Path(sys.argv[1]);catalog,_,_=fixture(p)
+catalog.update(schema_version='1.0.0',nations=[{'id':n,'label':'Fixture '+n} for n in ('a','b')])
+(p/'catalog.json').write_text(json.dumps(catalog))
 c=settings();c['search']['global_limit']=1;c['skill_profiles']={k:{**v,'nodes':1,'sd':0} for k,v in c['skill_profiles'].items()}
 (p/'config.json').write_text(json.dumps(c))
-research=create_fixture(p/'research-project');build_recommendations(research);load_script('build_web').build(research)
 (p/'patch.json').write_text(json.dumps({'id':'synthetic-patch','status':'proposed','entries':[{'vehicle_id':'synthetic_a_0','field':'br','old':9.3,'new':9.7}]}))
+research=create_fixture(p/'research-project')
+(research/'data/snapshots/catalog.json').write_bytes((p/'catalog.json').read_bytes())
+(research/'data/snapshots/changes.json').write_bytes((p/'patch.json').read_bytes())
+build_recommendations(research);load_script('build_web').build(research)
 `,work],{cwd:root,encoding:'utf8'});
 assert.equal(setup.status,0,setup.stderr);
 const build=spawnSync(python,['build.py','--forecast','--all-profiles','--research-site',path.join(work,'research-project/dist/site'),'--catalog',path.join(work,'catalog.json'),'--ammunition',path.join(work,'ammo.json'),'--atlas',path.join(work,'v2'),'--config',path.join(work,'config.json'),'--scenario',path.join(work,'patch.json'),'--cache',path.join(work,'cache.sqlite'),'--index',path.join(work,'index.sqlite'),'--forecast-output',path.join(work,'forecast'),'--output',path.join(work,'site')],{cwd:root,encoding:'utf8'});

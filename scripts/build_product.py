@@ -18,6 +18,30 @@ from wt_atlas.forecast.data import canonical,file_hash,read_json
 from site_lib import validate_site,copy_sources,deployment_settings,local_file
 
 
+def read_published_json(directory, descriptor):
+    path=local_file(directory,descriptor['url'])
+    opener=gzip.open if path.suffix=='.gz' else open
+    with opener(path,'rb') as stream:raw=stream.read(descriptor['bytes']+1)
+    if len(raw)!=descriptor['bytes'] or hashlib.sha256(raw).hexdigest()!=descriptor['sha256']:
+        raise ValueError('Published source descriptor checksum')
+    return json.loads(raw)
+
+
+def research_catalog_identity(forecast, index, research):
+    """Do not route a current prediction into a different catalog's BR rules."""
+    report=read_published_json(forecast,index['report'])
+    expected=report.get('inputs',{}).get('catalog')
+    manifest=read_json(research/'data/manifest.json')
+    identities={manifest['catalog_sha256']} if manifest.get('catalog_sha256') else set()
+    # Older research sites carry the same source hash in their decision shards.
+    for descriptor in manifest.get('recommendations',{}).values():
+        payload=read_published_json(research,descriptor)
+        identities.add(payload.get('data_provenance',{}).get('catalog_sha256'))
+    if not expected or identities!={expected}:
+        raise ValueError('Research and forecast catalog mismatch; rebuild research with the same --catalog input before composition')
+    return {'status':'verified_same_input_catalog','catalog_sha256':expected}
+
+
 def bridge_research(directory):
     """Keep the supplied research build's engine; add only the shared route contract."""
     path=directory/'app.mjs';code=path.read_text(encoding='utf-8')
@@ -38,10 +62,7 @@ def bridge_research(directory):
     # those fields from this SAME published snapshot, never from a newer catalog.
     manifest=read_json(directory/'data/manifest.json')
     def read_descriptor(d):
-        raw=local_file(directory,d['url']).read_bytes()
-        if raw[:2]==b'\x1f\x8b':raw=gzip.decompress(raw)
-        if len(raw)!=d['bytes'] or hashlib.sha256(raw).hexdigest()!=d['sha256']:raise ValueError('Research source descriptor checksum')
-        return json.loads(raw)
+        return read_published_json(directory,d)
     engine=read_descriptor(manifest['engine_catalog']);by_id={v['id']:v for v in engine['vehicles']};repaired=0
     for descriptor in manifest['nations'].values():
         for v in read_descriptor(descriptor)['vehicles']:
@@ -91,9 +112,10 @@ def compose(forecast,output,research=None):
         index=read_json(stage/'index.json')
         if research:
             research=Path(research).resolve();validate_site(research)
+            alignment=research_catalog_identity(forecast,index,research)
             shutil.copytree(research,stage/'research',ignore=shutil.ignore_patterns('.wt-atlas-site','forecast'))
             bridge_research(stage/'research')
-            index['research']={'url':'research/index.html','status':'available','manifest_sha256':file_hash(stage/'research/data/manifest.json'),'source_manifest_sha256':file_hash(research/'data/manifest.json')}
+            index['research']={'url':'research/index.html','status':'available','catalog_alignment':alignment,'manifest_sha256':file_hash(stage/'research/data/manifest.json'),'source_manifest_sha256':file_hash(research/'data/manifest.json')}
         else:
             copy_sources(ROOT,stage/'research')
             (stage/'research/index.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>研究快照未提供</title><h1>研究快照未提供</h1><p>请使用 --research-site 组合已构建并通过校验的研究站点。</p><a href="../index.html">返回自动预测</a></html>',encoding='utf-8')

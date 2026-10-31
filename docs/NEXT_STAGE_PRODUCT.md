@@ -117,6 +117,10 @@ release-readiness 独立列 algorithm_ready、data_ready、publishable。正式�
 
 旧研究功能保留自己的模型标签，原工作目录的未提交改动不被修改，也没有无条件并入当前开发分支。
 
+## 统一站点的目录一致性
+
+组合 `--research-site` 时，研究站必须由与预测 `--catalog` 完全相同的目录文件构建。发布器核对预测报告、研究清单和每个推荐分片的目录 SHA-256；只要有一个不同，就拒绝替换已有站点。旧研究清单没有目录哈希时，可从已校验的推荐分片恢复该身份。此校验记录为 `research.catalog_alignment`，不改变两个模型各自的含义。更新 BR 目录后，应先重新生成研究推荐与静态站，再组合；不能把旧目录的页面接到新 BR 推荐后面。
+
 ## 逐队列发布证据（后续审计修正）
 
 等待出击具有已知的零收益，但不产生任务观测。出击策略分别返回 model_state_coverage 对应的状态覆盖和 evidence_coverage 对应的实际任务证据；队列准入使用后者。production_mission_coverage 进一步按成员、敌方分布、房间和场景汇总携带配置绑定的来源证据，只有 validated 且提供 delivery evidence 的任务记录计入生产覆盖。全局存在某类任务记录不能替代入榜队列自己的证据。
