@@ -11,8 +11,32 @@
   "endpoint": "conditional_penetration_only_flight_activation_and_fragmentation_not_modeled",
   "formal_rankings": 0,
   "game_probability_validated": false,
+  "generation": {
+    "array_bytes": 383358292,
+    "computed_maps": 680,
+    "duration_seconds": 283.3493375000544,
+    "input_ammunition_sha256": "2f4dbb4f7788e0225771988752a98b70dc7477212215b4ed1625150914ddb22b",
+    "input_catalog_sha256": "3a402261ab45bd1812759230470ad8c714a4915045ad89d42de5b0b33a0fd9c1",
+    "model": {
+      "backend": "v2-cuda",
+      "chemical_profile_code_sha256": "5fcd504692d26dd9128607f0f9dc7c612825afb1f29d65ae54deabf88cc6f7d4",
+      "dual_use_missile_profile_code_sha256": "609288bc7a11c86d50f43e5cc3250b9e2aa50037ace02cb5c4f20390e9f08469",
+      "range_profile_code_sha256": "9193d164442679f47326eb5fcb47cb3bad20c41ef5fbc5cd1d8f3938683dc5c5",
+      "tool_code_sha256": "58f1bf518f58f16386ff8ee9851673aa7d588a380545656df643c3cef9e9ad3b",
+      "tool_manifest_sha256": "38b35c2418cd1731fb1fc00c194482d464dedb41e9291ee775ea23866499542c"
+    },
+    "pending_maps": 0,
+    "planned_maps": 680,
+    "requests_sha256": "a7ec89dfe96ace3d5710f21bd1644e41ee3ae8b6a576c6c3ba8591073b3386ad",
+    "resources": {
+      "cpu_seconds": 268.90625,
+      "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+      "peak_rss_bytes": 1478455296
+    },
+    "reused_maps": 0
+  },
   "incremental_catalog_and_ammunition_replay_byte_identical": true,
-  "map_status_at_report": "generation_running_independent_preflight_queued",
+  "map_status_at_report": "generation_completed_independent_preflight_running",
   "new_ground_vehicles_with_source_profile": 2,
   "new_range_profiles": 4,
   "new_source_profiles": 1,
