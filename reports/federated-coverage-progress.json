@@ -1,0 +1,135 @@
+{
+  "blockers": [
+    "incomplete_bidirectional_native_coverage"
+  ],
+  "code_sha256": {
+    "backend/wt_atlas/forecast/federated_coverage.py": "ef842d926d9e9dc1b634276cc96d4d0e6865a7690e2b121e7508cb6318b13ffa",
+    "scripts/audit_federated_coverage.py": "b58b7dda083557fd4908bc2dfef2402a5ac3e576173d2f0dc509139d1adefabd"
+  },
+  "collected_at": "2026-10-31T11:26:03.302252+00:00",
+  "count_semantics": "vehicle directions per configured scenario; any exact owned supported selection with every ordered component present; only exact verified or explicitly declared yaw slices count; any missing angle metadata is unavailable",
+  "counts": {
+    "available_bidirectional_pairs": 13688832,
+    "available_forward_pairs": 16492176,
+    "missing_direction_or_distance": 6949296,
+    "missing_owned_ammunition": 2941536,
+    "required_directed_pairs": 23441472
+  },
+  "detailed_report_sha256": "be120d3a3c22162dae0afc0596a3519124056ca2e14562469df95858a6aeef32",
+  "formal_rankings": 0,
+  "input_sha256": {
+    "ammunition": "67d8143453499533326fc9a82c6dd7926b9c382947bac6378d24726412e6e085",
+    "catalog": "03ba435d1410d82f966341b07b8b26c9f487e4950b2f62e8cd99083f52b1a588",
+    "config": "fb6c9a2c39db7e1597796eee65d2a8fbb1d558137d15442bac5c64f5b9448de6"
+  },
+  "largest_missing_owned_examples": [
+    {
+      "br": 8.7,
+      "missing_directed_scenarios": 26592,
+      "vehicle_id": "sw_bmp_2md"
+    },
+    {
+      "br": 8.3,
+      "missing_directed_scenarios": 26400,
+      "vehicle_id": "it_m113a1_tow"
+    },
+    {
+      "br": 8.7,
+      "missing_directed_scenarios": 26208,
+      "vehicle_id": "fr_amx_30_dca"
+    },
+    {
+      "br": 8.7,
+      "missing_directed_scenarios": 26112,
+      "vehicle_id": "us_xm246"
+    },
+    {
+      "br": 8.7,
+      "missing_directed_scenarios": 25728,
+      "vehicle_id": "uk_rooikat_za_35"
+    },
+    {
+      "br": 8.7,
+      "missing_directed_scenarios": 25632,
+      "vehicle_id": "ussr_bmp_2"
+    },
+    {
+      "br": 8.3,
+      "missing_directed_scenarios": 25536,
+      "vehicle_id": "cn_m113a1_tow"
+    },
+    {
+      "br": 8.3,
+      "missing_directed_scenarios": 25440,
+      "vehicle_id": "il_m113a1_tow"
+    },
+    {
+      "br": 9.0,
+      "missing_directed_scenarios": 25152,
+      "vehicle_id": "jp_btr_3e1"
+    },
+    {
+      "br": 7.0,
+      "missing_directed_scenarios": 25152,
+      "vehicle_id": "jp_type_75_mlrs"
+    },
+    {
+      "br": 7.7,
+      "missing_directed_scenarios": 25152,
+      "vehicle_id": "jp_type_87_rcv_prot"
+    },
+    {
+      "br": 8.3,
+      "missing_directed_scenarios": 25056,
+      "vehicle_id": "uk_falcon"
+    }
+  ],
+  "publishable": false,
+  "repeat_counts_and_matrix_identical": true,
+  "schema_version": "1.0.0",
+  "scope": "Provisional coverage planning from previously verified index snapshots; source arrays and assembled atlas are not rechecked here. The matrix uses base catalog BR and does not establish unlocked or dynamic-mount eligibility.",
+  "source_arrays_rechecked": false,
+  "source_indexes": [
+    {
+      "index_sha256": "4f0ad1a498e92413548daf00b7de562576c02f84a1ac871b6272b1653989f086",
+      "verified_selections": 351403
+    },
+    {
+      "index_sha256": "6be35541542dfe047edaee8d7aacd59610e0caf809cd076890b5eaf760bdbee7",
+      "verified_selections": 40928
+    },
+    {
+      "index_sha256": "78a0356a110b12c43f90314951b46c72f900b49eba6d7a5f4042295b98df3dba",
+      "verified_selections": 1664
+    },
+    {
+      "index_sha256": "b5aea4437164cd9bd1e28a689e50c589f5b8d1fefcfe98473a070a0aacd5143a",
+      "verified_selections": 38664
+    },
+    {
+      "index_sha256": "d4317ffc32f76fc343bcbde11498d5fda5828ab414bc51c6c136556486d72ee7",
+      "verified_selections": 776
+    }
+  ],
+  "source_version": [
+    "2.59.0.92",
+    "af0cce561a73704e30c1df66eff06209bcc3f035"
+  ],
+  "tests": {
+    "diagnostic_build": "passed",
+    "log_sha256": {
+      "build.log": "44e88bac49fb20e84986a240981e13aafcd4c3b1c2746b769e96b6cdb8940fd1",
+      "node-tests.log": "ca52ccb30ec31152ca3eb30438f79b1ddb338156267d16f631f192a74b970ec9",
+      "playwright.log": "9fdbc64b5e733a79f49235eb4b544dfc2c8ef024b8e510d6f24a828d6fbc83fd",
+      "smoke.log": "217db804e638534317f383c898c71bebffba665cfb6fe3c61f65617de1b56b88"
+    },
+    "module_passed": 7,
+    "node_passed": 64,
+    "playwright": "passed",
+    "python_log_sha256": "f08965d4167361a6f303628dcec4a098ea4b6d4a7d0053b203106acbbb634c03",
+    "python_passed": 415,
+    "smoke_passed": 4
+  },
+  "vehicles_with_any_missing_forward_direction": 1007,
+  "vehicles_without_owned_ranged_profile": 155
+}

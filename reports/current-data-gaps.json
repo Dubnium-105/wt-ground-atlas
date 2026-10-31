@@ -51,7 +51,7 @@
     ],
     "total_scope": "Five generated and independently checked batches; 432659-map combined preflight and 433435-map updated assembly are running. Final combined acceptance remains pending."
   },
-  "collected_at": "2026-10-31T11:07:13.420387+00:00",
+  "collected_at": "2026-10-31T11:26:03.310791+00:00",
   "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
   "formal_rankings": 0,
   "ground_ammunition": {
@@ -302,6 +302,20 @@
       "with_verified_payloads": 1454
     },
     "needed": "Resolve selected internal belts and source presets/mount relations. Quarantined entries include invalid or unavailable configurations and are not all missing data."
+  },
+  "provisional_federated_coverage": {
+    "counts": {
+      "available_bidirectional_pairs": 13688832,
+      "available_forward_pairs": 16492176,
+      "missing_direction_or_distance": 6949296,
+      "missing_owned_ammunition": 2941536,
+      "required_directed_pairs": 23441472
+    },
+    "independent_arrays_rechecked": false,
+    "publishable": false,
+    "report": "reports/federated-coverage-progress.json",
+    "scope": "Provisional coverage planning from previously verified index snapshots; source arrays and assembled atlas are not rechecked here. The matrix uses base catalog BR and does not establish unlocked or dynamic-mount eligibility.",
+    "sha256": "1cac568fa66ba94508e7bb9ec243c73ad538a912cd265447241c144632abed75"
   },
   "publishable": false,
   "range_profile_source_conflicts": {
