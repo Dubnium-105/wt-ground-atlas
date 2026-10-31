@@ -161,7 +161,7 @@ def main(argv=None):
         remaining=['--config',str(ROOT/'config/forecast.full-ground-rb.json'),*remaining]
     command=[sys.executable,str(ROOT/'scripts/build_forecast.py'),*remaining,'--out',str(a.forecast_output)]
     subprocess.run(command,check=True)
-    if '--dry-run' in remaining:return
+    if any(option in remaining for option in ('--dry-run','--help','-h')):return
     result=compose(a.forecast_output,a.output,a.research_site)
     print(json.dumps(result,ensure_ascii=False,indent=2))
 

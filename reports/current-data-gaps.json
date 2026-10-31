@@ -44,7 +44,7 @@
     ],
     "total_scope": "Four generated and independently checked batches; combined atlas validation and global coverage remain pending."
   },
-  "collected_at": "2026-10-31T10:27:54.669184+00:00",
+  "collected_at": "2026-10-31T10:36:29.371761+00:00",
   "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
   "formal_rankings": 0,
   "ground_ammunition": {
@@ -345,6 +345,18 @@
       "effect": "Corrections to BR values against the final change table.",
       "title": "Server Update 30.10.2026",
       "url": "https://warthunder.com/en/game/changelog/"
+    },
+    "official_production_client_manifest": {
+      "collected_at": "2026-10-31T10:30:44.146967+00:00",
+      "installed_manifest_matches": true,
+      "inventory_version_matches": true,
+      "manifest_sha256": "9c100a150d735dad8f411fccb48cec7c5a78b410c4ff09e1af9b03d7f0e575aa",
+      "matched_unique_grps": 938,
+      "report": "reports/production-manifest-progress.json",
+      "report_sha256": "8a3cf66332b9847ab56c4d456d99d223dee5e20a2561da600af06dc083aa7ae5",
+      "scope": "Manifest byte identity for cached GRPs; active resource and geometry bindings require their independent proofs",
+      "vehicles_matching_manifest": 1226,
+      "version": "2.59.0.92"
     },
     "official_release_evidence": {
       "date": "2026-10-29",
