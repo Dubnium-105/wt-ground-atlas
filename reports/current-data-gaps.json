@@ -61,6 +61,13 @@
     "status": "assembled_requires_fresh_preflight"
   },
   "formal_rankings": 0,
+  "four_batch_combined_preflight": {
+    "report": "reports\\four-batch-combined-preflight-summary.json",
+    "report_sha256": "5bb75507a0d03ea84751892b6457b13e7269b605b3bdeef4872cd83a05c35899",
+    "scope": "Four generated batches only; fresh full-array validation passed, bidirectional coverage is incomplete.",
+    "status": "blocked",
+    "verified_arrays": 432659
+  },
   "ground_ammunition": {
     "conditional_primary_recovery": {
       "additional_ground_vehicles_with_profile": 0,
@@ -328,6 +335,7 @@
     "reports\\federated-original-coverage-progress.json": "242057547296578dc920c4672aba0f005bbddd5dffc66b3a2ebb9f896a67cf90",
     "reports\\federated-seven-batch-progress.json": "9c25eeafdc27d75d7601eae47b14ec20b5a77c090ba2e092e7b9054afd0a81fe",
     "reports\\five-batch-assembly-progress.json": "ef444d27f4d668d5bec10955850e62b6099b8875b34943c83ae01765c3494455",
+    "reports\\four-batch-combined-preflight-summary.json": "5bb75507a0d03ea84751892b6457b13e7269b605b3bdeef4872cd83a05c35899",
     "reports\\nested-missile-progress.json": "775a6f4635840d3d339aa70da88db4f92bf642cf6ed714178a08fcbcacffa659",
     "reports\\remaining-ammunition-gap-breakdown.json": "0aa746887f04f82760f0c02b2251925c0cce278d7596e4ad75b4eef2f3d0e6c5",
     "reports\\remaining-ammunition-gap-v17.json": "ba300f6a3e02d5fd11d32f83ca0f8b503c6577af9992cf263f6e21566faee6ba",
