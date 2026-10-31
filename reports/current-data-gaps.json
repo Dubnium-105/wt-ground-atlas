@@ -27,8 +27,8 @@
       }
     },
     "live_main_preflight_status_counts": {
-      "metadata_valid": 290931,
-      "verified": 60472
+      "metadata_valid": 164835,
+      "verified": 186568
     },
     "main_preflight_complete_report_exists": false,
     "remaining_processing": [
@@ -39,7 +39,7 @@
     ],
     "total_scope": "Three generated batches; not deduplicated global coverage and not verified final ranking input."
   },
-  "collected_at": "2026-10-31T09:33:46.222345+00:00",
+  "collected_at": "2026-10-31T09:52:45.328986+00:00",
   "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
   "formal_rankings": 0,
   "ground_ammunition": {
@@ -235,13 +235,14 @@
     "reports/formal-ordered-belt-recovery.json": "1fcb213eb3eb6953ab4e464099f7b57a61507f0370440fa667ccebdd256f023d",
     "reports/formal-sp-components-v9.json": "01723940ff5f40fe31719bfa871c0a4e05c223a5b01cbad94a691f91b419a238",
     "reports/main-range-generation-completion.json": "39da184536ff790dd9ac00b8e09352b8db57e4a5a9af328aec5b627639ee903f",
+    "reports/native-sp-final-arithmetic.json": "6284a12b5dfaff73c8714e55f4c6250c2ed47ac75ed8b5363ce5227f42571692",
     "reports/ordered-belt-progress.json": "48afe13e315612fa41dbaf18525aa24d0103fc04e869b323a198bd2699c75b85",
     "reports/range-rebuild-progress.json": "16d2b5bd74bef13fc1b837689cd5bf6d229f5ec22eb4df9752fad34f66a96ced"
   },
   "ongoing_chemical_batch": {
-    "array_bytes": 1647177080,
-    "computed_maps": 3600,
-    "pending_maps": 34064,
+    "array_bytes": 8662763444,
+    "computed_maps": 22000,
+    "pending_maps": 15664,
     "planned_maps": 38664,
     "reused_maps": 1000,
     "status": "running"
@@ -330,8 +331,15 @@
   "source_version": "2.59.0.92",
   "spawn_points": {
     "complete_component_multipliers": 11378,
+    "final_arithmetic_evidence": {
+      "live_native_outputs_observed": 0,
+      "report": "reports/native-sp-final-arithmetic.json",
+      "scope": "ordinary final multiplication and truncation; runtime base and persistent override remain unresolved",
+      "sha256": "6284a12b5dfaff73c8714e55f4c6250c2ed47ac75ed8b5363ce5227f42571692",
+      "source_executable_sha256": "17b75d78a20d657b96c9027ac06af211203b94327fbf747813e5367d12e60807"
+    },
     "native_function": "shop_get_spawn_score",
-    "needed": "Same-version native final SP outputs or verified complete formula, including battle BR context, base costs, selected ammunition/payload, respawn multipliers and rounding. Current source components alone are insufficient.",
+    "needed": "Same-version battle base-cost table/callback inputs or observed final costs, actual room BR and mission overrides, selected ammunition/payload and respawn history. Final normal-path arithmetic is now statically verified; complete battle formula and returned script multiplier precision are not.",
     "unknown_belt_selections": 334,
     "verified_component_records": 11712,
     "verified_final_costs": 0

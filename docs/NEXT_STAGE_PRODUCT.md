@@ -395,3 +395,13 @@ BR 选项可通过 `allowed_source_preset_ids` 和 `allowed_primary_armament_ids
 2026-10-31 的 v13 导入新增 73 个弹药选项、35 个档案，覆盖 67 辆载具，无自有参数的独立地面载具由 180 降至 155。438 个旧原始档案及三个旧距离参数包全部保持一致，增量导入回放逐字节一致。73 个新选项均进入候选枚举，具有 10/100/500/1000 m 参数；38,664 张补图已启动，首批 50 张独立验证通过。M908、Pl-3 和 I-TOW 在真实 M1A1 几何上的四距离 CPU/CUDA 交叉检查覆盖 196,128 条采样射线，12 组均含部分穿透概率，最大差为 5.96×10⁻⁸；这验证实现一致性，不是游戏实测概率。358 项 Python、64 项 Node.js、Playwright 和四项静态站烟测通过。完整物理覆盖、SP、版本身份与全量搜索验收尚未完成；实际进度以 `reports/chemical-projectile-progress.json` 为准。
 
 实际 Windows 补算曾因读者短暂占用 `progress.json` 而在原子替换时报错，已写入的 1,000 张图保留。`atomic_write` 对 Windows 5/32/33 文件占用错误只重试替换动作，最多六次、累计等待 0.31 秒；始终保留上一版可见文件，不回退到截断写入。持续锁定或其他权限错误仍抛出异常。断点恢复重新校验并复用这 1,000 张图后继续计算，单元测试覆盖暂时占用、持续占用及非 Windows 错误。
+
+## 原生 SP 最终算术的静态核验
+
+`python scripts/audit_native_spawn.py --client-exe '<客户端>/win64/aces.exe' --game-version 2.59.0.92 --out reports/native-sp-final-arithmetic.json` 只读取客户端文件。程序核验已审阅可执行文件的完整 SHA-256、大小、四段调用函数及两个常量区间的哈希；其他文件或版本不会自动套用这些偏移。无需启动游戏、注入进程或安装反汇编运行时，报告不包含客户端二进制内容。
+
+已定位 `shop_get_spawn_score` 注册、包装函数、参数适配和最终费用函数。普通合成路径先把原生整数基础费用转为 float64，依次乘上脚本返回的武器倍率和类别／重复出击倍率，最后加入带符号的 `0x1.fffffffffffffp-2` 偏置并向零截断为 int32。偏置是 0.5 的前一个浮点值；不能替换为 Python 的银行家取整，也不能在两次乘法之间先取整。`native_spawn_final.compose_final_stage` 实现这一受限步骤，测试覆盖半整数、紧邻半整数的下界、乘法顺序、整数范围和非法输入。
+
+这**没有**恢复完整战局费用：基础费用可来自运行时费用表或 `get_unit_spawn_score` 回调，正的 `persistent_weapon_costs` 覆盖还可提前返回。实际任务状态、弹链、配置和重复出击历史仍须核验。现有 Python 倍率端口也不自动冒充 Squirrel 原生 float32 运算返回值。报告保持 `complete_base_formula_verified=false`、`generated_verified_final_costs=0`、`publishable=false`，不改变既有出击规则和排名门禁。
+
+可选 `--replay <输入.json>` 接收数组，每条恰含 `base_cost`、`weapon_multiplier`、`type_multiplier` 三个数值，生成可复现算术结果和输入哈希。所有回放均标为 `supplied_inputs_not_verified_battle_cost`，不能把人为输入的基础费用升格为真实 SP。若后续提供游戏内成本采样，应同时保留版本、模式、房间最高 BR、载具／配置、实际挂载／弹链、先前同类别出击次数、任务覆盖项及来源；单独一张费用截图不足以覆盖全部状态。
