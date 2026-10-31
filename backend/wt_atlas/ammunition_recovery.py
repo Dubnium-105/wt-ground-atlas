@@ -25,9 +25,11 @@ def array(value):
 
 
 class Localization:
-    def __init__(self, root):
+    def __init__(self, root, *, include_defaults=False):
         self.values = {}; self.sources = {}
-        for name in ('units_modifications.csv', 'units_weaponry.csv'):
+        names = ('units_modifications.csv', 'units_weaponry.csv')
+        if include_defaults: names += ('menu_options.csv',)
+        for name in names:
             path = safe_file(Path(root), name)
             self.sources[name] = file_hash(path)
             with path.open(encoding='utf-8-sig', newline='') as stream:
@@ -47,8 +49,9 @@ class Localization:
 
 
 class MountedAmmunition:
-    def __init__(self, root, localization):
+    def __init__(self, root, localization, *, default_rules=None):
         self.root = Path(root); self.localization = localization
+        self.default_rules = default_rules
         self.cache = OrderedDict(); self.sources = {}; self.rejections = []
 
     def read(self, path):
@@ -72,6 +75,7 @@ class MountedAmmunition:
         result = []
         for weapon_path in sorted({m['blk'].replace('\\', '/').lower() for m in mounts if m.get('blk')}):
             weapon = self.read(weapon_path)
+            weapon_mounts = [m for m in mounts if m.get('blk', '').replace('\\', '/').lower() == weapon_path]
             selections = [('@default', weapon)] + [(k, v) for k, v in weapon.items()
                           if k in modifications and isinstance(v, dict) and 'bullet' in v]
             for selector, selected in selections:
@@ -81,12 +85,16 @@ class MountedAmmunition:
                     self.rejections.append({'unit_path': path, 'weapon_path': weapon_path,
                         'selector': selector, 'reason': 'projectile_identity_missing_or_repeated'})
                     continue
-                result.append({'unit_path': path, 'unit_sha256': self.sources[path],
+                extra = {}
+                if self.default_rules and selector == '@default':
+                    from .default_belts import candidate_fields
+                    extra = candidate_fields(weapon, weapon_mounts)
+                result.append({**extra, 'unit_path': path, 'unit_sha256': self.sources[path],
                     'weapon_path': weapon_path, 'weapon_sha256': self.sources[weapon_path],
                     'selector': selector, 'selection_sha256': content_hash(selected),
                     'bullets': bullets, 'is_belt': weapon.get('isBulletBelt') is True,
                     'mounts': [{k: m[k] for k in ('trigger', 'triggerGroup', 'emitter') if k in m}
-                               for m in mounts if m.get('blk', '').replace('\\', '/').lower() == weapon_path]})
+                               for m in weapon_mounts]})
         return result
 
     def bind(self, candidates, ammo):
@@ -99,7 +107,12 @@ class MountedAmmunition:
             if len({content_hash(b) for b in bullets}) == 1:
                 keys += [bullets[0]['bulletName']]
             matched = self.localization.match(keys, ammo['name'])
-            if matched: matches.append({**candidate, 'localization': matched})
+            extra = {}
+            if not matched and self.default_rules:
+                from .default_belts import match_default
+                matched = match_default(candidate, ammo, self.localization)
+                if matched: extra['default_belt_rules'] = self.default_rules
+            if matched: matches.append({**candidate, **extra, 'localization': matched})
         if not matches: raise ValueError('exact_localized_mounted_selection_missing')
         # The default and a named selector may contain exactly the same rounds.
         # They are equivalent only within the same mounted weapon source.
@@ -273,6 +286,21 @@ def consolidate(profiles):
     return [groups[k] for k in sorted(groups)], renamed
 
 
+def merge_recovered(existing, additions):
+    """Attach new ownership proofs to an existing identical physical profile."""
+    result = copy.deepcopy(existing); indices = {p['name']: i for i, p in enumerate(result)}
+    for profile in additions:
+        if profile['name'] not in indices:
+            indices[profile['name']] = len(result); result.append(profile)
+            continue
+        index = indices[profile['name']]
+        merged, _ = consolidate([result[index], profile])
+        if len(merged) != 1 or merged[0]['name'] != profile['name']:
+            raise ValueError('Recovered profile name conflicts with existing physical identity')
+        result[index] = merged[0]
+    return result
+
+
 def verify_existing_recovery(profiles, adapter, localization, wiki_root, version, commit):
     """An incremental import must not preserve stale previously recovered data."""
     checked = set()
@@ -283,6 +311,8 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
             raise ValueError('Existing recovered profile has a different source version')
         expected = list(provenance.get('source_hashes', {}).items())
         for binding in bindings.values():
+            if binding.get('default_belt_rules') and binding['default_belt_rules'] != adapter.default_rules:
+                raise ValueError('Existing default-belt GUI evidence changed or was not enabled')
             expected += [(binding['unit_path'], binding['unit_sha256']),
                          (binding['weapon_path'], binding['weapon_sha256'])]
             for loc in binding['localization']:
@@ -303,7 +333,7 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
             checked.add(key)
 
 
-def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None):
+def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False):
     from .forecast.rule_snapshot import verify_capture
     catalog = read_json(catalog_path); existing = read_json(ammunition_path)
     capture = read_json(capture_path); language = read_json(language_path)
@@ -318,8 +348,10 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
         raise ValueError('Pinned Datamine version differs from the captured client')
     if file_hash(pack['saved']) != pack['sha256'] or file_hash(language['saved']) != language['source_sha256']:
         raise ValueError('Captured source pack checksum mismatch')
-    localization = Localization(Path(language['extracted']) / 'lang')
-    adapter = MountedAmmunition(pack['extracted'], localization)
+    from .default_belts import verified_rules
+    default_rules = verified_rules(capture, version) if default_belts else None
+    localization = Localization(Path(language['extracted']) / 'lang', include_defaults=default_belts)
+    adapter = MountedAmmunition(pack['extracted'], localization, default_rules=default_rules)
     verify_existing_recovery(existing, adapter, localization, wiki_root, version, commit)
     root = 'gamedata/damage_model/'
     response = {'slope': adapter.read(root + 'slope_effect.blk'),
@@ -359,19 +391,24 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
                 record.update(status='unresolved', reason=str(error))
             records.append(record)
     adapter.verify_unchanged()
+    if default_belts and verified_rules(capture, version) != default_rules:
+        raise ValueError('Default-belt GUI source changed during recovery')
     for name, sha in localization.sources.items():
         if file_hash(Path(language['extracted']) / 'lang' / name) != sha:
             raise ValueError('Localization changed during recovery')
     recovered_ammunition = len(profiles)
     profiles, renamed = consolidate(profiles)
+    combined = merge_recovered(existing, profiles)
     for record in records:
         if record['status'] == 'profile_recovered': record['profile'] = renamed[record['profile']]
     report = {'schema_version': '1.0.0', 'source_version': version, 'datamine_commit': commit,
         'input_catalog_sha256': file_hash(catalog_path), 'input_ammunition_sha256': file_hash(ammunition_path),
         'client_capture_sha256': file_hash(capture_path), 'language_capture_sha256': file_hash(language_path),
         'rules_capture_sha256': file_hash(rules_root / 'capture.json'),
+        'default_belt_rules': default_rules,
         'source_files': adapter.sources, 'localization_files': localization.sources,
         'counts': {'examined_ammunition': len(records), 'recovered_profiles': len(profiles),
+            'new_profiles': len(combined) - len(existing),
             'recovered_ammunition': recovered_ammunition,
             'recovered_vehicles': len({r['vehicle_id'] for r in records if r['status'] == 'profile_recovered'}),
             'exactly_bound_selections': sum('binding' in r for r in records)},
@@ -379,4 +416,4 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
         'records': records, 'vehicle_errors': vehicle_errors, 'source_rejections': adapter.rejections,
         'computed_maps': 0, 'formal_rankings': 0,
         'scope': 'Source-backed homogeneous KE profiles; ordered mixed belts retained without treating maximum penetration as every shot.'}
-    return catalog, existing + profiles, report
+    return catalog, combined, report

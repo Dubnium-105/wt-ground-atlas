@@ -7,11 +7,13 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]; sys.path.insert(0, str(ROOT / 'backend'))
 from wt_atlas.ammunition_recovery import (Localization, MountedAmmunition, ke_profile, consolidate,
-    recover, source_rows, verify_wiki, wiki_tables)
-from wt_atlas.common import file_hash, write_json
+    merge_recovered, recover, source_rows, verify_wiki, wiki_tables)
+from wt_atlas.common import file_hash, write_json, read_json
+from wt_atlas.default_belts import REVIEWED_SCRIPTS, verified_rules
 
 
 def blk(data, indent=''):
@@ -145,6 +147,16 @@ class AmmunitionRecoveryTests(unittest.TestCase):
         b['provenance']['recovery_bindings']['other::API-T']['projectile_sha256'] = '0' * 64
         self.assertEqual(len(consolidate([a, b])[0]), 2)
 
+    def test_incremental_new_ownership_merges_without_duplicate_physical_profiles(self):
+        old, _ = consolidate([self.profile()]); before = copy.deepcopy(old)
+        new, _ = consolidate([self.profile(ammo={**self.ammo, 'id': 'other::default'})])
+        merged = merge_recovered(old, new)
+        self.assertEqual(len(merged), 1); self.assertEqual(old, before)
+        self.assertEqual(set(merged[0]['provenance']['recovery_bindings']), {self.ammo['id'], 'other::default'})
+        self.assertEqual(merge_recovered(merged, new), merged)
+        new[0]['penetration_mm'] += 1
+        with self.assertRaisesRegex(ValueError, 'conflicts with existing'): merge_recovered(old, new)
+
     def test_source_and_localization_conflicts_are_rejected(self):
         adapter = self.adapter(); adapter.candidates({'id': 'vehicle'})
         self.put('gamedata/weapons/gun.blk', {'bullet': self.bullet})
@@ -225,6 +237,108 @@ class AmmunitionRecoveryTests(unittest.TestCase):
     def test_pinned_datamine_file_tampering_is_rejected(self):
         args = self.integration_inputs(); (args[-1] / 'version').write_text('other', encoding='utf-8')
         with self.assertRaisesRegex(ValueError, 'checksum or URL mismatch'): recover(*args)
+
+    def default_adapter(self):
+        with (self.lang / 'menu_options.csv').open('w', encoding='utf-8-sig', newline='') as stream:
+            writer = csv.writer(stream, delimiter=';'); writer.writerow(['<ID|readonly|noverify>', '<English>'])
+            writer.writerow(['modification/default_bullets', 'Default'])
+        with (self.lang / 'units_weaponry.csv').open('a', encoding='utf-8') as stream:
+            stream.write('weapons/gun;Test gun\n')
+        return MountedAmmunition(self.root, Localization(self.lang, include_defaults=True),
+                                default_rules={'source_version': 'test', 'scripts': {}})
+
+    def default_ammo(self):
+        return {**self.ammo, 'name': 'Default', 'provenance': {'parent_weapon_name': '2 x Test gun'}}
+
+    def test_default_belt_requires_exact_parent_weapon_and_mount_count(self):
+        adapter = self.default_adapter(); candidates = adapter.candidates({'id': 'vehicle'})
+        match = adapter.bind(candidates, self.default_ammo())
+        self.assertEqual(match['selector'], '@default'); self.assertEqual(match['mounted_weapon_count'], 2)
+        self.assertEqual([l['key'] for l in match['localization']], ['modification/default_bullets', 'weapons/gun'])
+        for parent in ('Test gun', '3 x Test gun', '2 x test gun', '2 x Other gun'):
+            ammo = {**self.default_ammo(), 'provenance': {'parent_weapon_name': parent}}
+            with self.assertRaisesRegex(ValueError, 'selection_missing'): adapter.bind(candidates, ammo)
+
+    def test_default_label_never_selects_named_or_hidden_ammunition(self):
+        for field, value in [('notUseDefaultBulletInGui', True), ('useSingleIconForBullet', True), ('isBulletBelt', False)]:
+            with self.subTest(field=field):
+                weapon = {**self.weapon, field: value}; self.put('gamedata/weapons/gun.blk', weapon)
+                adapter = self.default_adapter()
+                with self.assertRaisesRegex(ValueError, 'selection_missing'):
+                    adapter.bind(adapter.candidates({'id': 'vehicle'}), self.default_ammo())
+        self.weapon.pop('bullet'); self.put('gamedata/weapons/gun.blk', self.weapon)
+        adapter = self.default_adapter()
+        with self.assertRaisesRegex(ValueError, 'selection_missing'):
+            adapter.bind(adapter.candidates({'id': 'vehicle'}), self.default_ammo())
+
+    def test_cartridge_belt_uses_gui_predicate_even_when_physical_belt_flag_is_false(self):
+        self.weapon.update(isBulletBelt=False, bulletsCartridge=8)
+        self.put('gamedata/weapons/gun.blk', self.weapon); adapter = self.default_adapter()
+        binding = adapter.bind(adapter.candidates({'id': 'vehicle'}), self.default_ammo())
+        self.assertTrue(binding['default_belt_eligible']); self.assertFalse(binding['is_belt'])
+
+    def test_default_belt_never_uses_dummy_or_countermeasure_mounts(self):
+        for field, value in [('dummy', True), ('trigger', 'countermeasures')]:
+            unit = copy.deepcopy(self.unit)
+            for mount in unit['commonWeapons']['Weapon']: mount[field] = value
+            self.put('gamedata/units/tankmodels/vehicle.blk', unit); adapter = self.default_adapter()
+            with self.assertRaisesRegex(ValueError, 'selection_missing'):
+                adapter.bind(adapter.candidates({'id': 'vehicle'}), self.default_ammo())
+
+    def test_default_belt_uses_case_preserved_source_weapon_basename(self):
+        for mount in self.unit['commonWeapons']['Weapon']: mount['blk'] = 'gameData/Weapons/Gun.blk'
+        self.put('gamedata/units/tankmodels/vehicle.blk', self.unit); adapter = self.default_adapter()
+        with self.assertRaisesRegex(ValueError, 'selection_missing'):
+            adapter.bind(adapter.candidates({'id': 'vehicle'}), self.default_ammo())
+        with (self.lang / 'units_weaponry.csv').open('a', encoding='utf-8') as stream:
+            stream.write('weapons/Gun;Test gun\n')
+        adapter = self.default_adapter()
+        self.assertEqual(adapter.bind(adapter.candidates({'id': 'vehicle'}), self.default_ammo())['weapon_localization_keys'], ['weapons/Gun'])
+
+    def test_bound_default_mixture_still_requires_individual_projectile_tables(self):
+        self.weapon['bullet'] = self.weapon['mixed']['bullet']; self.put('gamedata/weapons/gun.blk', self.weapon)
+        adapter = self.default_adapter(); binding = adapter.bind(adapter.candidates({'id': 'vehicle'}), self.default_ammo())
+        with self.assertRaisesRegex(ValueError, 'mixed_belt'): self.profile(binding=binding, ammo=self.default_ammo())
+
+    def gui_capture(self):
+        reviewed = {}
+        for name in REVIEWED_SCRIPTS:
+            path = self.root / 'gui' / name; path.parent.mkdir(parents=True, exist_ok=True)
+            raw = b'synthetic test script\r\n'; path.write_bytes(raw)
+            reviewed[name] = hashlib.sha256(raw.replace(b'\r\n', b'\n')).hexdigest()
+        pack = self.root / 'gui.pack'; pack.write_bytes(b'synthetic GUI pack')
+        return {'version': 'test', 'saved': str(pack), 'sha256': file_hash(pack), 'extracted': str(self.root / 'gui')}, reviewed
+
+    def test_default_gui_evidence_requires_pack_version_and_reviewed_script_hashes(self):
+        pack, reviewed = self.gui_capture(); capture = {'packs': {'gui.vromfs.bin': pack}}
+        with patch.dict(REVIEWED_SCRIPTS, reviewed, clear=True):
+            rules = verified_rules(capture, 'test'); self.assertEqual(len(rules['scripts']), 4)
+            with self.assertRaisesRegex(ValueError, 'version mismatch'): verified_rules(capture, 'other')
+            script = self.root / 'gui' / next(iter(reviewed)); script.write_bytes(b'changed')
+            with self.assertRaisesRegex(ValueError, 'not reviewed'): verified_rules(capture, 'test')
+            Path(pack['saved']).write_bytes(b'changed')
+            with self.assertRaisesRegex(ValueError, 'checksum mismatch'): verified_rules(capture, 'test')
+
+    def test_default_recovery_pipeline_and_incremental_gui_validation(self):
+        args = self.integration_inputs(); self.default_adapter()
+        catalog = read_json(args[0]); catalog['vehicles'][0]['ammo'] = [self.default_ammo()]
+        raw = self.raw_wiki().replace(b'.50 API-T', b'Default').replace(b'Test gun', b'2 x Test gun')
+        (self.root / 'unit_vehicle.html.gz').write_bytes(gzip.compress(raw))
+        catalog['vehicles'][0]['provenance'][0]['sha256'] = hashlib.sha256(raw).hexdigest()
+        write_json(args[0], catalog)
+        capture = read_json(args[2]); pack, reviewed = self.gui_capture()
+        capture['packs']['gui.vromfs.bin'] = pack; write_json(args[2], capture)
+        with patch.dict(REVIEWED_SCRIPTS, reviewed, clear=True):
+            out, profiles, report = recover(*args, default_belts=True)
+            self.assertEqual(report['counts']['recovered_profiles'], 1)
+            binding = profiles[0]['provenance']['recovery_bindings'][self.ammo['id']]
+            self.assertEqual(binding['default_belt_rules'], report['default_belt_rules'])
+            write_json(args[0], out); write_json(args[1], profiles)
+            _, again, replay = recover(*args, default_belts=True)
+            self.assertEqual(again, profiles); self.assertEqual(replay['counts']['recovered_profiles'], 0)
+            with self.assertRaisesRegex(ValueError, 'GUI evidence changed or was not enabled'): recover(*args)
+            path = self.root / 'gui' / next(iter(reviewed)); path.write_bytes(b'changed')
+            with self.assertRaisesRegex(ValueError, 'not reviewed'): recover(*args, default_belts=True)
 
 
 if __name__ == '__main__': unittest.main()

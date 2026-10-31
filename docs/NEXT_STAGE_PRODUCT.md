@@ -293,3 +293,11 @@ python scripts/import_spawn_components.py --catalog /data/catalog.ammunition.jso
 输出 `spawn_cost_components` 独立于已有 `spawn_rule`。没有所选弹链时，只有所有已声明弹链都无附加值才可确定完整倍率；否则保留 `combined_multiplier=null`。按武器划分类别还依赖任务开关，导入器只提供开关启用条件下的类别，不凭战斗机/攻击机标签推断任务开关已启用。`shop_get_spawn_score` 的基础费用、房间 BR 修正与最终取整仍由原生函数决定，因此 `final_spawn_points=null`，不会升级为 `official_verified` 出击规则，也不自动解除排名门禁。
 
 本次真实导入覆盖 1,150 辆载具的 7,539 套合法挂载，7,327 套取得完整倍率，46 辆载具的 212 套挂载缺少所选内置弹链。详细逐挂载结果保存于本地 `reports/formal-sp-components.json`，轻量摘要见 `reports/sp-component-progress.json`。额外提取的同版 `mis.vromfs.bin` 与 `game.vromfs.bin` 共 6,205 个文件未提供最终原生费用公式；该缺口继续保留。
+
+## 默认弹链与具体挂载武器的绑定
+
+给 `recover_native_ammunition.py` 加上 `--default-belts`，可从同版 GUI 资源包和 `menu_options.csv` 接入默认弹链。导入器校验四份已审阅客户端脚本及资源包哈希，按客户端条件判断弹链：包含弹匣多发条件、单图标覆盖和隐藏默认弹药标记；随后要求 Wiki 父武器名称与客户端原始大小写的武器本地化键、实际挂载数量精确相符。只有名称为 Default 而没有父武器证明的记录仍不绑定。
+
+GUI、默认标签、父武器名称和原始弹链顺序全部保留在来源证据中；增量导入重新校验这些证据。新发现的所有者如果使用相同弹丸和物理参数，会合并到已有档案并保留每条绑定，不产生重名物理档案。混合弹链继续要求逐弹穿深曲线，不能使用 Wiki 的最大穿深代表每一发。
+
+2026-10-31 对剩余 2,871 条弹药记录重新审计，新增精确绑定 144 条默认弹链；全部为混合弹链，没有新增可计算物理档案或覆盖。需要逐弹数据的记录由 76 条明确到 220 条，未找到精确选择器的记录由 1,231 条降为 1,087 条；此前无合格自有档案的载具仍为 181 辆。详见本地 `reports/formal-default-belt-recovery.json` 与轻量摘要 `reports/default-belt-progress.json`。
