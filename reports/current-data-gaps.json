@@ -106,13 +106,14 @@
     },
     "root_rocket_recovery": {
       "additional_ground_vehicles_with_source_profile": 4,
-      "full_maps_status": "generation_completed_independent_preflight_running",
+      "full_maps_status": "completed_and_standalone_arrays_verified",
       "new_owned_selections": 14,
       "new_profiles": 8,
       "planned_maps": 8584,
       "report": "reports/root-rockets-progress.json",
-      "report_sha256": "db0e5346ba438e4e06dbafc115fc6e264dc91d4a828cee96316e8e61539c5df6",
-      "sample_independently_verified_arrays": 32
+      "report_sha256": "7ef6f5e7fa8af4ae5b5b095771732194936cd6d4315cc5af4c855287afa6123d",
+      "sample_independently_verified_arrays": 32,
+      "verified_arrays": 8584
     },
     "scope_note": "Having one exact profile does not establish complete ammunition choices, native distance maps or bidirectional coverage.",
     "unresolved_reasons": {
@@ -303,7 +304,7 @@
     "reports\\federated-original-coverage-progress.json": "242057547296578dc920c4672aba0f005bbddd5dffc66b3a2ebb9f896a67cf90",
     "reports\\five-batch-assembly-progress.json": "ef444d27f4d668d5bec10955850e62b6099b8875b34943c83ae01765c3494455",
     "reports\\remaining-ammunition-gap-breakdown.json": "0aa746887f04f82760f0c02b2251925c0cce278d7596e4ad75b4eef2f3d0e6c5",
-    "reports\\root-rockets-progress.json": "db0e5346ba438e4e06dbafc115fc6e264dc91d4a828cee96316e8e61539c5df6"
+    "reports\\root-rockets-progress.json": "7ef6f5e7fa8af4ae5b5b095771732194936cd6d4315cc5af4c855287afa6123d"
   },
   "ongoing_chemical_batch": {
     "array_bytes": 15165992092,

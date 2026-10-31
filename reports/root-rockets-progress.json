@@ -17,7 +17,41 @@
     "verified_arrays": 32
   },
   "formal_rankings": false,
-  "full_batch_status_at_report": "generation_completed_independent_preflight_running",
+  "full_batch_status_at_report": "generation_completed_and_standalone_arrays_verified",
+  "full_preflight": {
+    "binding_error_count": 0,
+    "blockers": [
+      "incomplete_bidirectional_native_coverage"
+    ],
+    "duration_seconds": 254.2681031000102,
+    "inventory": {
+      "ambiguous_maps": 0,
+      "annotation_reconciled_maps": 0,
+      "content_sha256": "49ca61984bf9b7586605f6c5a69e31879617ff18e0165ab2b4d06c1395d5ba26",
+      "historical_duplicate_maps": 0,
+      "metadata_objects": 8584,
+      "metrics": {
+        "array_seconds": 99.3622483999934,
+        "arrays_checked": 8552,
+        "incremental_hits": 32,
+        "memory_budget_bytes": 536870912,
+        "metadata_cpu_seconds": 9.953125,
+        "metadata_rebuilt": 8552,
+        "metadata_seconds": 47.7911437000148,
+        "workers": 2
+      },
+      "rejections": {},
+      "selected_array_bytes": 3130787728,
+      "selected_maps": 8584,
+      "status_counts": {
+        "verified": 8584
+      },
+      "verified_arrays": 8584
+    },
+    "report_sha256": "037c561d0aa5b98b0a3404eb5aec031ed09b1dd3daab531cd4ebe109b48e20c1",
+    "report_status": "blocked",
+    "scope": "Standalone rocket batch; full bidirectional coverage requires the other batches and a new assembled-atlas preflight."
+  },
   "game_probability_validated": false,
   "generation": {
     "array_bytes": 3130787728,
