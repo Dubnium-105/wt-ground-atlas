@@ -1,4 +1,40 @@
-# 当前完整产品验收（代码 52d5902）
+# 当前完整产品验收（2026-10-31，代码 0f50df1）
+
+最终站点：`dist/site-native-0f50df1`；发布包：`dist/ground-atlas-native-0f50df1.zip`。自动预测首页与研究页使用相同目录，2,680 辆载具的 ID、国家、类别和 BR 已逐项比对。PR 为 [#6](https://github.com/Dubnium-105/wt-ground-atlas/pull/6)。原工作区仍保留 30 个修改文件及 11 个未跟踪文件。
+
+软件测试、静态构建和发布包验证通过；**正式排名 0，研究排名 0，生产数据准入未通过**。尚缺同版本完整来源、部分精确弹药/距离、完整任务与 SP/挂载证据。全服运行采用有界审计配置，550 个基线搜索表截断，五组敏感性未通过；不能解释为已经取得完整空地排名或实战校准。
+
+| 实际运行 | 结果 |
+|---|---|
+| `npm test` | 197 Python（40.226s）及 58 Node 通过 |
+| `python -m unittest discover -s tests -p 'test_forecast*.py' -v` | 144 通过（Python 总数的子集，22.554s） |
+| `npm run test:smoke`、`node tests/forecast.e2e.mjs` | 4 HTTP 检查及完整预测浏览器流程通过 |
+| 最终真实网站 Playwright | 5 项产品、11 项研究检查通过 |
+| 原始样例 | 32 个清单文件 SHA 不变，72 条诊断，6 个历史检查点差异为 0 |
+| 原始物理目录 | 220,202 个元数据；97,421 个有效当前图；49,215 个历史重复单独记录；73,566 个拒绝 |
+| 原生缺图补算与合并 | CUDA 新算 358 图，143.572s；恢复复用 358 图、重新计算 0 图；合并后 97,779 图全部验证，16,927,346,056 字节 |
+| CPU/CUDA 交叉检查 | 358 图、115,925 条射线；状态/标记一致；最大概率绝对差 6.52e-6。仅验证模型实现一致性 |
+| 全服基线及五组敏感性 | 4,548 搜索表、7,700 次评估；5,786.660s；预测进程峰值 RSS 1,091,227,648 字节 |
+| 局部真实预算检查 | 法国 BR 1.0、研发 5 槽：基线 146 次评估，预算未截断，3 个完整队列；覆盖 72.45% 低于 80%，0 条排名 |
+| 最终站点与 ZIP | 69,036,327 / 66,086,091 字节；全部 ZIP CRC、5,553 个解压文件 SHA 通过 |
+| 本机首屏 | 88.998ms，1,719,239 字节；0 次原始 NPZ 请求。不是跨设备性能保证 |
+| 当前代码 CI | `41160867096`、`41160867126` 均成功 |
+
+发布包 SHA-256：`0f88eb61de470a2098f2bb33febaa780a4adec79ab580af3e46c1225335fcf8f`。尚未配置公共托管和概率 CDN；本次交付为已验证的本地静态发布包。
+
+原生 10m、正面角度下，236,848 个理论有向对抗中，172,012 个可单向计算，125,548 个具备双向覆盖。新增图增加 309 个单向方向与 390 个具备双向覆盖的有向配对；重新规划剩余可本地补算请求为 0。另有 64,836 个方向缺精确原生档案：268 辆无精确自有档案（53,149 个方向），52 辆已有档案却缺所需距离（11,687 个方向）。逐车清单在本地 `reports/native-profile-gaps.json`，摘要在 `reports/native-data-progress.json`。不能把目录中的未知弹型、相似名称或口径当作精确绑定。
+
+最终详细结果位于 `reports/data-coverage.json`、`reports/forecast-validation.json`、`reports/search-benchmark.json`、`reports/release-readiness.json` 和本地 `reports/native-combined-product/`。其中 release-readiness 列出各外部文件路径、所需字段及可选输入。原生远距子集、原始样例和历史构建保留独立报告，不与本次覆盖相加。
+
+复现统一构建（`WT_ATLAS_DATA_ROOT` 指向保留的离线数据仓库；研究站须先用同一目录及其原有研究构建链生成）：
+
+```powershell
+python build.py --forecast --catalog data/snapshots/catalog.rules-2.59.0.94.json --ammunition "$env:WT_ATLAS_DATA_ROOT/data/derived/grp_probability_v2/2.59.0.92/ammunition/all_resolved_profiles_final_with_apcr_gun_caliber.json" --atlas data/derived/native-combined-dd56552 --bindings reports/formal-geometry-bindings.json --config config/forecast.audit.json --index data/cache/native-combined-inventory.sqlite --cache data/cache/current-audit-shots.sqlite --reports reports/native-combined-product --preflight --resume --max-workers 4 --memory-budget 2048 --run-sensitivity --research-site dist/research-native-0f50df1 --forecast-output dist/real-forecast-native-2bcf8e7 --output dist/site-native-0f50df1
+```
+
+以下为历史构建记录，数值不代表上述最新产物。
+
+# 历史验收（代码 52d5902）
 
 PR [#6](https://github.com/Dubnium-105/wt-ground-atlas/pull/6)，分支 `feature/atlas-complete-product`，基于 PR #5 合并后的 main `57c6859`。原用户工作区的 30 个已修改文件和 11 个未跟踪文件保留在原位。PR #4 的 V3 物理来源与版本隔离继续有效。
 

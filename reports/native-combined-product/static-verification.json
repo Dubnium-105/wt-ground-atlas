@@ -1,0 +1,49 @@
+{
+  "build_key": "b9b45f5879986b7299084103aef625141f2f479ac7d3de5ecf69131588628e51",
+  "package": {
+    "file": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\ground-atlas-native-0f50df1.zip",
+    "bytes": 66086091,
+    "sha256": "0f88eb61de470a2098f2bb33febaa780a4adec79ab580af3e46c1225335fcf8f",
+    "entries": 5554,
+    "uncompressed_bytes": 69036327,
+    "probability_mode": "disabled",
+    "crc_validation": "all_entries_passed",
+    "checksum_manifest": "FILE_INTEGRITY.sha256",
+    "scope": "deployable_static_site_only"
+  },
+  "extracted_integrity": {
+    "checked": 5553,
+    "failures": []
+  },
+  "extracted_site": {
+    "static_total_bytes": 69747828,
+    "static_published_file_count": 5554,
+    "probability_mode": "disabled",
+    "budgets": {
+      "site_bytes": 104857600,
+      "file_bytes": 26214400
+    }
+  },
+  "product_runtime": {
+    "checks": [
+      "same-build identity and no initial raw physics requests",
+      "truthful source coverage and publication gate",
+      "mobile layout",
+      "real research drilldown",
+      "no page exceptions"
+    ],
+    "build_key": "b9b45f5879986b7299084103aef625141f2f479ac7d3de5ecf69131588628e51",
+    "source_vehicles": 2680,
+    "source_maps": 97779,
+    "ready_ms": 88.99799999999999,
+    "first_load_transfer_bytes": 1719239,
+    "page_errors": [],
+    "status": "passed"
+  },
+  "research_browser_checks": 11,
+  "catalog_alignment": {
+    "status": "verified_same_input_catalog",
+    "catalog_sha256": "b7e3df3f63356353569087fd9c5fcacba61a3dde423daf552000645251dbcca9"
+  },
+  "status": "passed"
+}

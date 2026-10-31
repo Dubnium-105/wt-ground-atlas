@@ -1,0 +1,855 @@
+{
+  "schema_version": "1.0.0",
+  "collected_at": "2026-10-31T01:57:07.933212+00:00",
+  "history_selection": {
+    "status": "blocked",
+    "counts": {
+      "available_bidirectional_pairs": 125158,
+      "available_forward_pairs": 171703,
+      "missing_direction_or_distance": 65145,
+      "missing_owned_ammunition": 53149,
+      "required_directed_pairs": 236848
+    },
+    "duration_seconds": 1454.783878599992,
+    "blockers": [
+      "incomplete_bidirectional_native_coverage"
+    ],
+    "inventory": {
+      "ambiguous_maps": 0,
+      "annotation_reconciled_maps": 0,
+      "content_sha256": "f379e69f3a860bfe4da19d6cca447753908713ed56c02e609ad05b90757fb7f3",
+      "historical_duplicate_maps": 49215,
+      "metadata_objects": 220202,
+      "metrics": {
+        "array_seconds": 482.0428035999648,
+        "arrays_checked": 97421,
+        "memory_budget_bytes": 2147483648,
+        "metadata_cpu_seconds": 210.4375,
+        "metadata_rebuilt": 146636,
+        "metadata_seconds": 912.5006698999787,
+        "rejected": 73566,
+        "workers": 4
+      },
+      "rejections": {
+        "distance_missing": 19395,
+        "profile_hash_mismatch": 54048,
+        "profile_missing": 123
+      },
+      "selected_array_bytes": 16853831074,
+      "selected_maps": 97421,
+      "status_counts": {
+        "historical_duplicate": 49215,
+        "rejected": 73566,
+        "verified": 97421
+      },
+      "verified_arrays": 97421
+    }
+  },
+  "resources": {
+    "scope": "sampled parent and direct worker working sets; monitoring began after launch; not a continuous simultaneous peak",
+    "samples": 90,
+    "first_sample": "2026-10-31T01:32:00.7518477Z",
+    "last_sample": "2026-10-31T01:54:34.9982754Z",
+    "max_sampled_combined_working_set_bytes": 596840448
+  },
+  "native_rebuild": {
+    "computed_maps": 358,
+    "duration_seconds": 143.5723510000389,
+    "endpoint": "conditional_penetration",
+    "game_probability_validated": false,
+    "input_ammunition_sha256": "43f5c96215fce06a75f9fbbb900e597db466e4cbfd9319bcba27a83e4b0a02c8",
+    "input_catalog_sha256": "b7e3df3f63356353569087fd9c5fcacba61a3dde423daf552000645251dbcca9",
+    "model": {
+      "backend": "v2-cuda",
+      "tool_code_sha256": "58f1bf518f58f16386ff8ee9851673aa7d588a380545656df643c3cef9e9ad3b",
+      "tool_manifest_sha256": "38b35c2418cd1731fb1fc00c194482d464dedb41e9291ee775ea23866499542c"
+    },
+    "pending_maps": 0,
+    "planned_maps": 358,
+    "raw_sources_modified": false,
+    "requests_sha256": "7ae05da1b8acbba397b3c5d6a5dfa133a7150271d35239dffbf6037b9467438f",
+    "resources": {
+      "cpu_seconds": 139.984375,
+      "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+      "peak_rss_bytes": 1100222464
+    },
+    "reused_maps": 0,
+    "source_probability_maps_read": 0,
+    "status": "completed"
+  },
+  "combined_atlas_preflight": {
+    "status": "verified",
+    "inventory": {
+      "ambiguous_maps": 0,
+      "annotation_reconciled_maps": 0,
+      "content_sha256": "629228feb034a9506292a6e505bd865a1e4d1f7e56cb252196b538019cf26724",
+      "historical_duplicate_maps": 0,
+      "metadata_objects": 97779,
+      "metrics": {
+        "array_seconds": 450.4694219001103,
+        "arrays_checked": 97779,
+        "memory_budget_bytes": 2147483648,
+        "metadata_cpu_seconds": 89.078125,
+        "metadata_rebuilt": 97779,
+        "metadata_seconds": 379.2190744000254,
+        "workers": 4
+      },
+      "rejections": {},
+      "selected_array_bytes": 16927346056,
+      "selected_maps": 97779,
+      "status_counts": {
+        "verified": 97779
+      },
+      "verified_arrays": 97779
+    }
+  },
+  "formal_rankings": 0,
+  "publishable": false,
+  "validation": {
+    "python_tests": 197,
+    "node_tests": 58,
+    "http_smoke_checks": 4,
+    "forecast_playwright": "passed",
+    "forecast_module_tests": 144,
+    "forecast_module_tests_scope": "separate unittest discovery passed; subset of all Python tests",
+    "ci": {
+      "commit": "0f50df140b9a2ad6e36735da373a0c13eb61e6b1",
+      "runs": [
+        41160867096,
+        41160867126
+      ],
+      "status": "success"
+    },
+    "real_research_browser": {
+      "tests": 11,
+      "browser": "151.0.7922.34",
+      "page_errors": [],
+      "local_http_failures": [],
+      "raw_geometry_requests": [],
+      "report": "reports\\native-research-browser.json",
+      "scope": "Fresh same-catalog research pages composed into the local untruncated study; optional original probability exports served by QA only"
+    }
+  },
+  "latest_source_commit": "0f50df140b9a2ad6e36735da373a0c13eb61e6b1",
+  "combined_atlas": {
+    "ammunition_sha256": "43f5c96215fce06a75f9fbbb900e597db466e4cbfd9319bcba27a83e4b0a02c8",
+    "base_index": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\data\\cache\\reconciled-physical-inventory.sqlite",
+    "copied_arrays": 0,
+    "hardlinked_arrays": 97779,
+    "maps": 97779,
+    "new_maps": 358,
+    "physical_source": [
+      "2.59.0.92",
+      "af0cce561a73704e30c1df66eff06209bcc3f035"
+    ],
+    "shared_bytes_require_hash_invalidation": true,
+    "source_atlases": [
+      "D:\\tools\\wtwebpage\\wt-ground-atlas\\data\\derived\\grp_probability_v2\\2.59.0.92\\KE-weighted-opponents",
+      "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\data\\derived\\native-missing-pairs-dd56552"
+    ],
+    "source_files_modified": false,
+    "status": "assembled_requires_fresh_preflight"
+  },
+  "native_resume": {
+    "computed_maps": 0,
+    "duration_seconds": 10.139687499962747,
+    "endpoint": "conditional_penetration",
+    "game_probability_validated": false,
+    "input_ammunition_sha256": "43f5c96215fce06a75f9fbbb900e597db466e4cbfd9319bcba27a83e4b0a02c8",
+    "input_catalog_sha256": "b7e3df3f63356353569087fd9c5fcacba61a3dde423daf552000645251dbcca9",
+    "model": {
+      "backend": "v2-cuda",
+      "tool_code_sha256": "58f1bf518f58f16386ff8ee9851673aa7d588a380545656df643c3cef9e9ad3b",
+      "tool_manifest_sha256": "38b35c2418cd1731fb1fc00c194482d464dedb41e9291ee775ea23866499542c"
+    },
+    "pending_maps": 0,
+    "planned_maps": 358,
+    "raw_sources_modified": false,
+    "requests_sha256": "7ae05da1b8acbba397b3c5d6a5dfa133a7150271d35239dffbf6037b9467438f",
+    "resources": {
+      "cpu_seconds": 8.96875,
+      "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+      "peak_rss_bytes": 505217024
+    },
+    "reused_maps": 358,
+    "source_probability_maps_read": 0,
+    "status": "completed"
+  },
+  "cpu_cuda_crosscheck": {
+    "charge_scaled_tolerance": 1e-06,
+    "duration_seconds": 56.8369538000552,
+    "map_count": 358,
+    "method": "Deterministic full-grid rays plus protected/unknown strata; existing CPU model versus fresh CUDA output; not game probability validation",
+    "probability_tolerance": 3.0517578125e-05,
+    "source_code_sha256": "53247e392f330f6a3d513de92b7357325f221da0d931f985d0b8067d7b466f35",
+    "status": "passed",
+    "status_and_flags": "exact",
+    "rays": 115925,
+    "max_probability_absolute_error": 6.51925802230835e-06,
+    "max_charge_scaled_error": 2.3280648520085379e-07,
+    "failures": 0,
+    "full_report_sha256": "13e477835190882b49065c6fc4318eede9752ae80dee1075177e417c29cc2551"
+  },
+  "remaining_native_gaps": {
+    "candidate_request_count": 0,
+    "counts": {
+      "missing_native_profile_vehicles": 320,
+      "missing_directions": 64836,
+      "vehicles_by_reason": {
+        "no_exact_owned_profile": 268,
+        "owned_profile_missing_native_distance": 52
+      },
+      "directions_by_reason": {
+        "no_exact_owned_profile": 53149,
+        "owned_profile_missing_native_distance": 11687
+      },
+      "unbound_catalog_ammo_types": {
+        "None": 703,
+        "HE_FRAG": 61,
+        "SMOKE": 24,
+        "SHRAPNEL": 2,
+        "ROCKET": 7,
+        "HESH": 3
+      }
+    },
+    "full_report": "reports/native-profile-gaps.json",
+    "full_report_sha256": "088d1c04876969fab4c4277ebf83051b931d1c511819097b099d1fd81ab005d4",
+    "planner_report_sha256": "a5e86b4b5190002f050ce2b31b7573881ed62a3e44b12675c6a43bcbd588b0a3",
+    "scope": {
+      "physical_distance_m": 10,
+      "yaw_deg": 0,
+      "same_nation_enemies": false,
+      "br_spread_steps": 3
+    }
+  },
+  "updated_at": "2026-10-31T03:46:00.762346+00:00",
+  "synthetic_benchmark_current_code": {
+    "report": "reports/native-current-benchmark.json",
+    "source_commit": "2bcf8e7f3172324fc2cf59b2fc78b8dadba0da49",
+    "measurement_context": "Concurrent real-data full product search; synthetic benchmark does not claim real-data throughput",
+    "results": {
+      "data_kind": "synthetic_only",
+      "global_optimum_claimed": false,
+      "metadata": [
+        {
+          "cold": {
+            "metadata_cpu_seconds": 0.515625,
+            "metadata_rebuilt": 1000,
+            "metadata_seconds": 3.569512600079179
+          },
+          "duration_seconds": 3.88226800004486,
+          "index_bytes": 1622016,
+          "npz_loads": 3,
+          "objects": 1000,
+          "resources": {
+            "cpu_seconds": 1.359375,
+            "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+            "peak_rss_bytes": 66355200
+          },
+          "selected_maps": 1000,
+          "warm": {
+            "incremental_hits": 1000,
+            "metadata_cpu_seconds": 0.296875,
+            "metadata_seconds": 0.3017928999615833
+          }
+        },
+        {
+          "cold": {
+            "metadata_cpu_seconds": 5.0625,
+            "metadata_rebuilt": 10000,
+            "metadata_seconds": 34.917502800002694
+          },
+          "duration_seconds": 38.17879320005886,
+          "index_bytes": 16060416,
+          "npz_loads": 3,
+          "objects": 10000,
+          "resources": {
+            "cpu_seconds": 11.859375,
+            "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+            "peak_rss_bytes": 90415104
+          },
+          "selected_maps": 10000,
+          "warm": {
+            "incremental_hits": 10000,
+            "metadata_cpu_seconds": 3.171875,
+            "metadata_seconds": 3.1810839000390843
+          }
+        }
+      ],
+      "real_116k_throughput": null,
+      "resources": {
+        "cpu_seconds": 12.65625,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+        "peak_rss_bytes": 90415104
+      },
+      "schema_version": "1.0.0",
+      "search": [
+        {
+          "best": null,
+          "budget": 1,
+          "evaluations": 1,
+          "optimality_gap": null,
+          "oracle": 50.30628124704957,
+          "seconds": 0.0018055998953059316,
+          "seed": 17,
+          "truncated": true
+        },
+        {
+          "best": null,
+          "budget": 1,
+          "evaluations": 1,
+          "optimality_gap": null,
+          "oracle": 50.30628124704957,
+          "seconds": 0.0017038000514730811,
+          "seed": 105,
+          "truncated": true
+        },
+        {
+          "best": 50.30628124704957,
+          "budget": 4,
+          "evaluations": 3,
+          "optimality_gap": 0.0,
+          "oracle": 50.30628124704957,
+          "seconds": 0.0035378000466153026,
+          "seed": 17,
+          "truncated": false
+        },
+        {
+          "best": 50.30628124704957,
+          "budget": 4,
+          "evaluations": 3,
+          "optimality_gap": 0.0,
+          "oracle": 50.30628124704957,
+          "seconds": 0.0038346999790519476,
+          "seed": 105,
+          "truncated": false
+        },
+        {
+          "best": 50.30628124704957,
+          "budget": 64,
+          "evaluations": 3,
+          "optimality_gap": 0.0,
+          "oracle": 50.30628124704957,
+          "seconds": 0.0035786000080406666,
+          "seed": 17,
+          "truncated": false
+        },
+        {
+          "best": 50.30628124704957,
+          "budget": 64,
+          "evaluations": 3,
+          "optimality_gap": 0.0,
+          "oracle": 50.30628124704957,
+          "seconds": 0.003558599972166121,
+          "seed": 105,
+          "truncated": false
+        }
+      ]
+    }
+  },
+  "local_untruncated_research": {
+    "scope": {
+      "nation": "france",
+      "ground_rb": 1.0,
+      "slots": 5,
+      "acquisition": "researchable",
+      "physical_distance_m": 10
+    },
+    "build_result": {
+      "out": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\native-local-research",
+      "build_key": "7dea191650a144323a5bac6ce5593ad3ccbceb6b216395da1e2ddaf34a187a48",
+      "catalog_vehicles": 2680,
+      "maps": 97779,
+      "diagnostic_rows": 0,
+      "cache_hits": 2786,
+      "cache_misses": 2574,
+      "npz_loads": 2574,
+      "ranked_counts": {
+        "current": 0
+      },
+      "evaluations": {
+        "current": 146
+      },
+      "search_execution": {
+        "current": {
+          "restored_tables": 0,
+          "computed_tables": 1,
+          "new_evaluations": 146,
+          "restored_evaluations": 0
+        }
+      },
+      "research_counts": {
+        "current": 0
+      },
+      "release_readiness": {
+        "current": {
+          "algorithm_ready": true,
+          "data_ready": false,
+          "publishable": false,
+          "why_not_publishable": [
+            "snapshot_identity_missing",
+            "baseline_release_status_unverified",
+            "source_version_timeline_incomplete",
+            "snapshot_physics_version_mismatch",
+            "no_candidates_meet_bidirectional_coverage",
+            "scope_is_limited_ground_research",
+            "full_mode_mission_evidence_missing",
+            "spawn_rules_assumed",
+            "loadout_source_unverified",
+            "sensitivity_not_verified",
+            "rating_version_provenance_incomplete"
+          ],
+          "snapshot": {
+            "snapshot_id": "wiki-5623f68d352b3916",
+            "game_version": null,
+            "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+            "wiki_collected_at": "2026-10-30T13:06:38.003583+00:00",
+            "effective_date": null,
+            "source_status": "unknown",
+            "sources": [
+              {
+                "br_field": "rb",
+                "bytes": 1336296,
+                "count": 1226,
+                "kind": "ground",
+                "path": "cc2eb7a15f16b27e3f39e86de9902b1c4469326a29daea81543c6f957bd868f8.html",
+                "sha256": "cc2eb7a15f16b27e3f39e86de9902b1c4469326a29daea81543c6f957bd868f8",
+                "url": "https://wiki.warthunder.com/ground"
+              },
+              {
+                "br_field": "trb",
+                "bytes": 1478761,
+                "count": 1342,
+                "kind": "aircraft",
+                "path": "3979ae97a58c65c9157fee8d47fdb7207dd4bbbec985a5d38b119ce8fc15d951.html",
+                "sha256": "3979ae97a58c65c9157fee8d47fdb7207dd4bbbec985a5d38b119ce8fc15d951",
+                "url": "https://wiki.warthunder.com/aviation"
+              },
+              {
+                "br_field": "rb",
+                "bytes": 429841,
+                "count": 112,
+                "kind": "helicopter",
+                "path": "4ea08fd04f1559038a6be193cd1bb1856fb65d47e4a5a5692f32b27f0a2a3969.html",
+                "sha256": "4ea08fd04f1559038a6be193cd1bb1856fb65d47e4a5a5692f32b27f0a2a3969",
+                "url": "https://wiki.warthunder.com/helicopters"
+              }
+            ],
+            "sha256": "e5ecf32d868db122853026594385bdb2a699250f8b856c67e32bb59b26b76651"
+          },
+          "calibration_status": "uncalibrated",
+          "empirical_win_rate_validated": false,
+          "research_candidates": 0
+        }
+      },
+      "duration_seconds": 540.7792447999818,
+      "resources": {
+        "peak_rss_bytes": 848195584,
+        "cpu_seconds": 157.3125,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
+      },
+      "publication": "conditional_research_only"
+    },
+    "sensitivity": {
+      "cases": [
+        {
+          "baseline_truncated": 0,
+          "boards": [],
+          "case": "aim_narrower",
+          "changed_truncated": 0,
+          "config_sha256": "21ad66456265ea6156ab1a4d09866f57a37e8ffddfcd0edf4ca3ece50e04cf1d",
+          "evaluations": 146,
+          "execution": {
+            "computed_tables": 1,
+            "new_evaluations": 146,
+            "restored_evaluations": 0,
+            "restored_tables": 0
+          },
+          "passed": false
+        },
+        {
+          "baseline_truncated": 0,
+          "boards": [],
+          "case": "aim_wider",
+          "changed_truncated": 0,
+          "config_sha256": "69295e49e7df2a336f019bbc23ad4b23e87684e88eb2165240cd74b58b1fafd8",
+          "evaluations": 147,
+          "execution": {
+            "computed_tables": 1,
+            "new_evaluations": 147,
+            "restored_evaluations": 0,
+            "restored_tables": 0
+          },
+          "passed": false
+        },
+        {
+          "baseline_truncated": 0,
+          "boards": [],
+          "case": "opponent_skill_higher",
+          "changed_truncated": 0,
+          "config_sha256": "4d0c7b332e7d5b3091b25774f20f0e9f449c8da38aa14d44d7333639b071db1d",
+          "evaluations": 150,
+          "execution": {
+            "computed_tables": 1,
+            "new_evaluations": 150,
+            "restored_evaluations": 0,
+            "restored_tables": 0
+          },
+          "passed": false
+        },
+        {
+          "baseline_truncated": 0,
+          "boards": [],
+          "case": "increased_search_budget",
+          "changed_truncated": 0,
+          "config_sha256": "34ac7fdc77634c1cd1696696b8f7e942c68125f4f3d71d8b71b58e69fea02bec",
+          "evaluations": 146,
+          "execution": {
+            "computed_tables": 1,
+            "new_evaluations": 146,
+            "restored_evaluations": 0,
+            "restored_tables": 0
+          },
+          "passed": false
+        },
+        {
+          "baseline_truncated": 0,
+          "boards": [],
+          "case": "alternate_queue_seed",
+          "changed_truncated": 0,
+          "config_sha256": "3dbe5666aee2da74438fa8644137ea4d663f2e0b3c2b42b5239476cb3904ac12",
+          "evaluations": 145,
+          "execution": {
+            "computed_tables": 1,
+            "new_evaluations": 145,
+            "restored_evaluations": 0,
+            "restored_tables": 0
+          },
+          "passed": false
+        }
+      ],
+      "catalog_sha256": "7e145cdb6c1896f01d24a00e3bee0aa42afa65efba74fcb6586518500105d877",
+      "config_sha256": "99dbe2a07dabaf90b79c0d6b6f399da346409be72961623c468e697b67a1129a",
+      "duration_seconds": 29.359486200031824,
+      "empirical_validation": false,
+      "inputs_sha256": "ab641125d6e58a51775cf82d3bad36d3c7bee0aa73356b13e832c1454c82c948",
+      "kind": "measured_model_search_sensitivity",
+      "passed": false,
+      "policy": {
+        "aim_narrower_factor": 0.8,
+        "aim_wider_factor": 1.2,
+        "opponent_skill_mean_shift": 0.5,
+        "schema_version": "1.0.0",
+        "search_budget_multiplier": 2,
+        "seed_offset": 1,
+        "status": "assumed_robustness_policy",
+        "thresholds": {
+          "maximum_score_delta": 10.0,
+          "minimum_overlap": 0.5
+        }
+      },
+      "schema_version": "1.0.0",
+      "sha256": "a985c6d0eb266b34b30128c32feab98d69670daa35eb44e5bf160eeb51ebb43f",
+      "thresholds": {
+        "maximum_score_delta": 10.0,
+        "minimum_overlap": 0.5
+      }
+    },
+    "complete_candidate_count": 3,
+    "best_candidate_evidence_coverage": 0.7244791666666666,
+    "minimum_required_coverage": 0.8,
+    "formal_rankings": 0,
+    "research_rankings": 0,
+    "publication_reason": "Complete rosters were evaluated without exhausting the budget, but no roster meets native bidirectional evidence coverage. No ranking was published."
+  },
+  "catalog_alignment": {
+    "status": "verified_same_input_catalog",
+    "original_research_catalog_sha256": "620d21a1656646f1c4d58703da0c10b58f07cd8d4df3f8432e6ef02fbc235be2",
+    "required_catalog_sha256": "b7e3df3f63356353569087fd9c5fcacba61a3dde423daf552000645251dbcca9",
+    "published_vehicle_route_fields_checked": 2680,
+    "research_directory": "dist/research-native-0f50df1",
+    "research_build": {
+      "snapshot_id": "wiki-5623f68d352b3916",
+      "catalog_count": 2680,
+      "nation_count": 10,
+      "precomputed_shards": 20,
+      "core_gzip_bytes": 84237,
+      "default_view_data_gzip_bytes_excluding_manifest": 1399110,
+      "raw_geometry_first_load_files": 0,
+      "public_database_required": false,
+      "public_GPU_required": false,
+      "business_API_required": false,
+      "worker_engine_catalog_gzip_bytes": 3289909,
+      "default_nation": "ussr",
+      "content_addressed": true,
+      "numerical_game_inputs_embedded_in_UI": false,
+      "bundled_fonts_bytes": 257196,
+      "manifest_raw_bytes": 1163244,
+      "manifest_gzip_bytes": 302336,
+      "default_first_load_gzip_bytes": 2042879,
+      "first_load_measurement_note": "Core/data use gzip sizes; bundled WOFF2 uses its encoded size. Browser HTTP transfer measurements are recorded separately.",
+      "static_total_bytes": 93032230,
+      "static_published_file_count": 4025,
+      "probability_mode": "disabled",
+      "budgets": {
+        "site_bytes": 104857600,
+        "file_bytes": 26214400
+      },
+      "duration_s": 24.074599000043236,
+      "output_directory": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\data\\work\\research-source-native\\dist\\research-native-0f50df1",
+      "relocated_output_directory": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\research-native-0f50df1"
+    },
+    "research_decision_build": {
+      "status": "built",
+      "build_key": "ff1d555763f796cc6de8dccba0d06c88bf051a02671e0d738d90f57831f4983b",
+      "elapsed_ms": 826403.0059,
+      "nation_count": 10,
+      "file_count": 20,
+      "uncompressed_bytes": 26428393,
+      "gzip_bytes": 2266959,
+      "version_environment_count": 373,
+      "deterministic_payloads": true,
+      "full_matrices_materialized": false,
+      "cache_invalidated_by": [
+        "catalog_sha256"
+      ],
+      "prior_build_key": "1fcd6d820a811d71d4ae838ba39698963cda756a76074c8cb3814b34817b74e0"
+    },
+    "local_product_composition": {
+      "static_total_bytes": 68384514,
+      "static_published_file_count": 4029,
+      "probability_mode": "disabled",
+      "budgets": {
+        "site_bytes": 104857600,
+        "file_bytes": 26214400
+      },
+      "output": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\native-local-product",
+      "build_key": "7dea191650a144323a5bac6ce5593ad3ccbceb6b216395da1e2ddaf34a187a48",
+      "research": {
+        "url": "research/index.html",
+        "status": "available",
+        "catalog_alignment": {
+          "status": "verified_same_input_catalog",
+          "catalog_sha256": "b7e3df3f63356353569087fd9c5fcacba61a3dde423daf552000645251dbcca9"
+        },
+        "manifest_sha256": "eede311a4450dd35cc846bed31a37248e9bcfc2a648283fb71cdee2c9b9c2f8f",
+        "source_manifest_sha256": "b4d5a81d6da8c49475e83dd2aea29fdc2dbb334b544e3b84233955a8f2e27298"
+      }
+    },
+    "local_product_runtime": {
+      "checks": [
+        "same-build identity and no initial raw physics requests",
+        "truthful source coverage and publication gate",
+        "mobile layout",
+        "real research drilldown",
+        "no page exceptions"
+      ],
+      "build_key": "7dea191650a144323a5bac6ce5593ad3ccbceb6b216395da1e2ddaf34a187a48",
+      "source_vehicles": 2680,
+      "source_maps": 97779,
+      "ready_ms": 96.40809999999999,
+      "first_load_transfer_bytes": 1489614,
+      "page_errors": [],
+      "status": "passed"
+    }
+  },
+  "combined_native_coverage": {
+    "scope": "All catalog ground vehicles and legal cross-nation BR spreads at native 10 m/yaw 0; measured using the isolated verified combined inventory in the local search build",
+    "counts": {
+      "available_bidirectional_pairs": 125548,
+      "available_forward_pairs": 172012,
+      "missing_direction_or_distance": 64836,
+      "missing_owned_ammunition": 53149,
+      "required_directed_pairs": 236848
+    },
+    "change_from_verified_base": {
+      "available_bidirectional_pairs": 390,
+      "available_forward_pairs": 309,
+      "missing_direction_or_distance": -309,
+      "missing_owned_ammunition": 0,
+      "required_directed_pairs": 0
+    },
+    "selected_array_bytes": 16927346056,
+    "verified_maps": 97779,
+    "independent_geometry_verified_maps": 97779
+  },
+  "combined_full_product": {
+    "status": "verified_local_diagnostic_product",
+    "execution": {
+      "out": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\real-forecast-native-2bcf8e7",
+      "build_key": "b9b45f5879986b7299084103aef625141f2f479ac7d3de5ecf69131588628e51",
+      "catalog_vehicles": 2680,
+      "maps": 97779,
+      "diagnostic_rows": 0,
+      "cache_hits": 301164,
+      "cache_misses": 194671,
+      "npz_loads": 193698,
+      "ranked_counts": {
+        "current": 0
+      },
+      "evaluations": {
+        "current": 1100
+      },
+      "search_execution": {
+        "current": {
+          "restored_tables": 0,
+          "computed_tables": 758,
+          "new_evaluations": 1100,
+          "restored_evaluations": 0
+        }
+      },
+      "research_counts": {
+        "current": 0
+      },
+      "release_readiness": {
+        "current": {
+          "algorithm_ready": true,
+          "data_ready": false,
+          "publishable": false,
+          "why_not_publishable": [
+            "snapshot_identity_missing",
+            "baseline_release_status_unverified",
+            "source_version_timeline_incomplete",
+            "snapshot_physics_version_mismatch",
+            "search_budget_truncated",
+            "no_candidates_meet_bidirectional_coverage",
+            "scope_is_limited_ground_research",
+            "full_mode_mission_evidence_missing",
+            "spawn_rules_assumed",
+            "loadout_source_unverified",
+            "sensitivity_not_verified",
+            "rating_version_provenance_incomplete"
+          ],
+          "snapshot": {
+            "snapshot_id": "wiki-5623f68d352b3916",
+            "game_version": null,
+            "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+            "wiki_collected_at": "2026-10-30T13:06:38.003583+00:00",
+            "effective_date": null,
+            "source_status": "unknown",
+            "sources": [
+              {
+                "br_field": "rb",
+                "bytes": 1336296,
+                "count": 1226,
+                "kind": "ground",
+                "path": "cc2eb7a15f16b27e3f39e86de9902b1c4469326a29daea81543c6f957bd868f8.html",
+                "sha256": "cc2eb7a15f16b27e3f39e86de9902b1c4469326a29daea81543c6f957bd868f8",
+                "url": "https://wiki.warthunder.com/ground"
+              },
+              {
+                "br_field": "trb",
+                "bytes": 1478761,
+                "count": 1342,
+                "kind": "aircraft",
+                "path": "3979ae97a58c65c9157fee8d47fdb7207dd4bbbec985a5d38b119ce8fc15d951.html",
+                "sha256": "3979ae97a58c65c9157fee8d47fdb7207dd4bbbec985a5d38b119ce8fc15d951",
+                "url": "https://wiki.warthunder.com/aviation"
+              },
+              {
+                "br_field": "rb",
+                "bytes": 429841,
+                "count": 112,
+                "kind": "helicopter",
+                "path": "4ea08fd04f1559038a6be193cd1bb1856fb65d47e4a5a5692f32b27f0a2a3969.html",
+                "sha256": "4ea08fd04f1559038a6be193cd1bb1856fb65d47e4a5a5692f32b27f0a2a3969",
+                "url": "https://wiki.warthunder.com/helicopters"
+              }
+            ],
+            "sha256": "e5ecf32d868db122853026594385bdb2a699250f8b856c67e32bb59b26b76651"
+          },
+          "calibration_status": "uncalibrated",
+          "empirical_win_rate_validated": false,
+          "research_candidates": 0
+        }
+      },
+      "duration_seconds": 5786.659891200019,
+      "resources": {
+        "peak_rss_bytes": 1091227648,
+        "cpu_seconds": 4729.21875,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
+      },
+      "publication": "conditional_research_only"
+    },
+    "composition": {
+      "static_total_bytes": 69036327,
+      "static_published_file_count": 5553,
+      "probability_mode": "disabled",
+      "budgets": {
+        "site_bytes": 104857600,
+        "file_bytes": 26214400
+      },
+      "output": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\site-native-0f50df1",
+      "build_key": "b9b45f5879986b7299084103aef625141f2f479ac7d3de5ecf69131588628e51",
+      "research": {
+        "url": "research/index.html",
+        "status": "available",
+        "catalog_alignment": {
+          "status": "verified_same_input_catalog",
+          "catalog_sha256": "b7e3df3f63356353569087fd9c5fcacba61a3dde423daf552000645251dbcca9"
+        },
+        "manifest_sha256": "eede311a4450dd35cc846bed31a37248e9bcfc2a648283fb71cdee2c9b9c2f8f",
+        "source_manifest_sha256": "b4d5a81d6da8c49475e83dd2aea29fdc2dbb334b544e3b84233955a8f2e27298"
+      }
+    },
+    "static_verification": {
+      "build_key": "b9b45f5879986b7299084103aef625141f2f479ac7d3de5ecf69131588628e51",
+      "package": {
+        "file": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\ground-atlas-native-0f50df1.zip",
+        "bytes": 66086091,
+        "sha256": "0f88eb61de470a2098f2bb33febaa780a4adec79ab580af3e46c1225335fcf8f",
+        "entries": 5554,
+        "uncompressed_bytes": 69036327,
+        "probability_mode": "disabled",
+        "crc_validation": "all_entries_passed",
+        "checksum_manifest": "FILE_INTEGRITY.sha256",
+        "scope": "deployable_static_site_only"
+      },
+      "extracted_integrity": {
+        "checked": 5553,
+        "failures": []
+      },
+      "extracted_site": {
+        "static_total_bytes": 69747828,
+        "static_published_file_count": 5554,
+        "probability_mode": "disabled",
+        "budgets": {
+          "site_bytes": 104857600,
+          "file_bytes": 26214400
+        }
+      },
+      "product_runtime": {
+        "checks": [
+          "same-build identity and no initial raw physics requests",
+          "truthful source coverage and publication gate",
+          "mobile layout",
+          "real research drilldown",
+          "no page exceptions"
+        ],
+        "build_key": "b9b45f5879986b7299084103aef625141f2f479ac7d3de5ecf69131588628e51",
+        "source_vehicles": 2680,
+        "source_maps": 97779,
+        "ready_ms": 88.99799999999999,
+        "first_load_transfer_bytes": 1719239,
+        "page_errors": [],
+        "status": "passed"
+      },
+      "research_browser_checks": 11,
+      "catalog_alignment": {
+        "status": "verified_same_input_catalog",
+        "catalog_sha256": "b7e3df3f63356353569087fd9c5fcacba61a3dde423daf552000645251dbcca9"
+      },
+      "status": "passed"
+    },
+    "resource_monitor": {
+      "scope": "Sampled parent/direct-worker working sets; sampling began after launch and does not capture every peak",
+      "samples": 379,
+      "first": "2026-10-31T02:05:58.8867204Z",
+      "last": "2026-10-31T03:41:38.2434743Z",
+      "maximum_sampled_aggregate_working_set_bytes": 887255040
+    },
+    "sensitivity_passed": false,
+    "formal_rankings": 0,
+    "research_rankings": 0
+  }
+}

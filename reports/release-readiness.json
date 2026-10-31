@@ -55,23 +55,24 @@
       "full_mode_mission_evidence_missing",
       "spawn_rules_assumed",
       "loadout_source_unverified",
-      "sensitivity_not_verified"
+      "sensitivity_not_verified",
+      "rating_version_provenance_incomplete"
     ]
   },
   "schema_version": "1.1.0",
-  "build_key": "d0bca96c6fd8e436e5ebcca7849428042065723db6a667fc81849e6cb7bde0c9",
+  "build_key": "b9b45f5879986b7299084103aef625141f2f479ac7d3de5ecf69131588628e51",
   "algorithm_ready": true,
   "data_ready": false,
   "publishable": false,
   "static_artifact": {
     "status": "verified_local_package",
-    "site": "dist/site-8060dd2",
+    "site": "dist/site-native-0f50df1",
     "package": {
-      "file": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\ground-atlas-complete-8060dd2.zip",
-      "bytes": 63645418,
-      "sha256": "edb9618e7224d8c172a4bd3cb81ec74d2308c6207e74f35a2441fc1acf4de148",
+      "file": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\ground-atlas-native-0f50df1.zip",
+      "bytes": 66086091,
+      "sha256": "0f88eb61de470a2098f2bb33febaa780a4adec79ab580af3e46c1225335fcf8f",
       "entries": 5554,
-      "uncompressed_bytes": 66559129,
+      "uncompressed_bytes": 69036327,
       "probability_mode": "disabled",
       "crc_validation": "all_entries_passed",
       "checksum_manifest": "FILE_INTEGRITY.sha256",
@@ -79,15 +80,15 @@
     },
     "verification": {
       "checked": 5553,
-      "failures": [],
-      "site": {
-        "static_total_bytes": 67270630,
-        "static_published_file_count": 5554,
-        "probability_mode": "disabled",
-        "budgets": {
-          "site_bytes": 104857600,
-          "file_bytes": 26214400
-        }
+      "failures": []
+    },
+    "extracted_site": {
+      "static_total_bytes": 69747828,
+      "static_published_file_count": 5554,
+      "probability_mode": "disabled",
+      "budgets": {
+        "site_bytes": 104857600,
+        "file_bytes": 26214400
       }
     },
     "runtime": {
@@ -98,15 +99,19 @@
         "real research drilldown",
         "no page exceptions"
       ],
-      "build_key": "d0bca96c6fd8e436e5ebcca7849428042065723db6a667fc81849e6cb7bde0c9",
+      "build_key": "b9b45f5879986b7299084103aef625141f2f479ac7d3de5ecf69131588628e51",
       "source_vehicles": 2680,
-      "source_maps": 97421,
-      "ready_ms": 96.81869999999981,
-      "first_load_transfer_bytes": 1698119,
+      "source_maps": 97779,
+      "ready_ms": 88.99799999999999,
+      "first_load_transfer_bytes": 1719239,
       "page_errors": [],
       "status": "passed"
     },
-    "public_deployment": "blocked_missing_hosting_target_and_probability_CDN"
+    "catalog_alignment": {
+      "status": "verified_same_input_catalog",
+      "catalog_sha256": "b7e3df3f63356353569087fd9c5fcacba61a3dde423daf552000645251dbcca9"
+    },
+    "public_deployment": "not_deployed_no_hosting_target_or_probability_CDN_configured"
   },
   "required_external_inputs": [
     {
@@ -117,12 +122,12 @@
     {
       "id": "physical_coverage",
       "path": "data/derived/grp_probability_v2/<version>/<atlas>/arrays/",
-      "needed": "Global exact-owned-ammunition reciprocal maps remain incomplete. Original atlas is native 10m only. Six independently recomputed KE maps now cover Khalid/BMP-2M at native 100/500/1000m; this two-vehicle subset does not establish global far-range coverage. See native-range-validation.json."
+      "needed": "97,779 maps are verified at native 10 m/yaw 0. No computable missing-map requests remain for currently bound native profiles. Remaining 64,836 directions: 53,149 from 268 vehicles without exact owned profiles, and 11,687 from 52 vehicles whose owned profiles lack native distance. Supply same-version exact vehicle/ammo/projectile bindings and source physics parameters; do not infer from names or caliber. Detailed IDs: reports/native-profile-gaps.json. Existing six independently recomputed 100/500/1000 m KE maps remain a two-vehicle subset, not global far-range coverage."
     },
     {
       "id": "official_configuration",
       "path": "data/snapshots/catalog.json",
-      "needed": "Per-vehicle br_provenance.source/source_version; rating_configurations.ground_rb with official_verified source/version/options/allowlists; legal loadouts with source/source_version/source_status; spawn_rule.status/source/source_version/base_points/room_costs/respawn_multiplier. Current Wiki refresh quarantines 1195 vehicles' old presets/rules, including 10678 loadout presets; revalidate against the same current version before use."
+      "needed": "Pinned .94 BR and hardpoint rules were imported, including four official BR corrections; this does not prove coherent current snapshot/physical identity. Supply same-version legal carried loadouts and native SP rules: source/source_version/status, exact payload identity, base_points/room_costs, spawn_group and respawn_model. count-power respawn semantics are implemented; native final shop_get_spawn_score base costs and full payload provenance remain unavailable."
     },
     {
       "id": "missions",
@@ -132,83 +137,70 @@
     {
       "id": "damage",
       "path": "data/raw/next-stage/effects.json and referenced NPZ",
-      "needed": "records: map_id,map_array_sha256,source,source_version,status,array_file,array_sha256. conditional_outcomes[angle,height,width,3] for firepower,mobility,termination; finite nonnegative mutually exclusive mass <=1. Required only to switch the endpoint to damage."
+      "needed": "records: map_id,map_array_sha256,source,source_version,status,array_file,array_sha256. conditional_outcomes[angle,height,width,3] for firepower,mobility,termination; finite nonnegative mutually exclusive mass <=1. Required only to switch the endpoint to damage.",
+      "optional_for_current_penetration_model": true
     },
     {
       "id": "statistics",
       "path": "data/private/authorized-statistics.json",
-      "needed": "Authorized packet: source,sampling_window,game_version,mode,sample_count,deduplication,bias_notes,authorization,endpoint,observations; observations have observation_id,player_id,match_id,timestamp,stratum,game_version,prediction,outcome. Optional empirical calibration; missing keeps uncalibrated."
+      "needed": "Authorized packet: source,sampling_window,game_version,mode,sample_count,deduplication,bias_notes,authorization,endpoint,observations; observations have observation_id,player_id,match_id,timestamp,stratum,game_version,prediction,outcome. Optional empirical calibration; missing keeps uncalibrated.",
+      "optional_for_current_penetration_model": true
     },
     {
       "id": "planned_version",
       "path": "data/raw/next-stage/scenario.json or a complete --planned-* snapshot",
-      "needed": "Official announced/proposed next-version changes with sources and version identity, or explicitly hypothetical labels; no next-version source was supplied. Already released October BR changes are in the current captured baseline; no duplicate future board is generated."
+      "needed": "Official announced/proposed next-version changes with sources and version identity, or explicitly hypothetical labels; no next-version source was supplied. Already released October BR changes are in the current captured baseline; no duplicate future board is generated.",
+      "optional_for_current_penetration_model": true
     },
     {
       "id": "hosting",
       "path": "deployment target and versioned probability CDN URL",
-      "needed": "No authorized public deployment target/CDN configured. Static ZIP is verified locally; remote live deployment is not performed."
+      "needed": "No authorized public deployment target/CDN configured. Static ZIP is verified locally; remote live deployment is not performed.",
+      "optional_for_current_penetration_model": true
     }
   ],
   "tests": {
     "python": {
-      "passed": 156,
+      "passed": 197,
       "skipped": 0,
-      "seconds": 44.214
+      "seconds": 40.226,
+      "command": "npm test (Python portion)"
     },
     "forecast": {
-      "passed": 103,
-      "subset_of_python": true
+      "passed": 144,
+      "subset_of_python": true,
+      "seconds": 22.554,
+      "command": "python -m unittest discover -s tests -p 'test_forecast*.py' -v"
     },
     "node": {
-      "passed": 58
-    },
-    "preserved_research_source_node": {
       "passed": 58,
-      "scope": "original unchanged research engine and original Node test suite"
+      "command": "npm test (Node portion)"
     },
     "smoke": {
-      "passed": 4
+      "passed": 4,
+      "command": "npm run test:smoke"
     },
     "forecast_browser": {
       "status": "passed",
-      "automatic_ranking": true,
-      "independent_br_and_nation_views": true,
-      "lazy_view_shards": true,
-      "version_switch": true,
-      "nation_filter": true,
-      "subpath": true,
-      "mobile": true,
-      "cohort_switch": true,
-      "unified_research": true,
-      "hash_error_retry": true,
+      "command": "node tests/forecast.e2e.mjs",
       "raw_physics_initial_requests": 0,
       "page_errors": []
     },
     "real_product_browser": {
-      "passed": 5
+      "passed": 5,
+      "report": "reports/native-combined-product/product-runtime.json"
     },
     "real_research_browser": {
       "passed": 11,
       "browser": "151.0.7922.34",
-      "future_version_case": "No future source: disabled future selection and no duplicate future ranking; separate imported fixture still exercises comparison."
+      "report": "reports/native-combined-product/research-browser.json"
     },
     "remote_ci": {
-      "tested_head": "52d590232670b4ce36282d419c1ddfbf071f9ca8",
+      "tested_head": "0f50df140b9a2ad6e36735da373a0c13eb61e6b1",
       "status": "success",
-      "workflows": [
-        {
-          "id": 41067886291,
-          "name": "Generative forecast contracts",
-          "conclusion": "success",
-          "url": "https://github.com/Dubnium-105/wt-ground-atlas/actions/runs/41067886291"
-        },
-        {
-          "id": 41067886286,
-          "name": "Validate source and lightweight site",
-          "conclusion": "success",
-          "url": "https://github.com/Dubnium-105/wt-ground-atlas/actions/runs/41067886286"
-        }
+      "runs": [
+        41160867096,
+        41160867126
       ]
     }
   },
@@ -314,11 +306,11 @@
             "passed": false
           }
         ],
-        "catalog_sha256": "620d21a1656646f1c4d58703da0c10b58f07cd8d4df3f8432e6ef02fbc235be2",
+        "catalog_sha256": "7e145cdb6c1896f01d24a00e3bee0aa42afa65efba74fcb6586518500105d877",
         "config_sha256": "352fec773f799515ea98c3da1cee4e0cb6e1f84a17bf4c9218ddb5c72b413dfe",
-        "duration_seconds": 3505.311881599948,
+        "duration_seconds": 3706.450689499965,
         "empirical_validation": false,
-        "inputs_sha256": "7681d7b10c3a4214d4c0049d677a41fd150c44e7ac4a7dd8b60b4bd28dfa511f",
+        "inputs_sha256": "fdae1b83cb9ca01cb81b32b0f165403e839fa1dfef9de5717ec19d809052a50e",
         "kind": "measured_model_search_sensitivity",
         "passed": false,
         "policy": {
@@ -335,13 +327,15 @@
           }
         },
         "schema_version": "1.0.0",
-        "sha256": "f7ce84daa871493d4e45181224334ef4d13b9ae83e50280982a506358145808c",
+        "sha256": "ec9c83fc5a8a6f93cf4b6640300b765d88c199a2aa1724d0cd61e457631e85e3",
         "thresholds": {
           "maximum_score_delta": 10.0,
           "minimum_overlap": 0.5
         }
       }
-    }
+    },
+    "total_tables_with_sensitivity": 4548,
+    "total_evaluations_with_sensitivity": 7700
   },
   "current_catalog_refresh": {
     "collected_at": "2026-10-30T13:06:38.003583+00:00",
@@ -396,7 +390,11 @@
     "c723e59 perf: load version comparison details in hashed shards",
     "58bb731 fix: require complete rosters for selected lineup slots",
     "f8d66d3 feat: version sensitivity perturbations and acceptance thresholds",
-    "441ce63 fix: rank every forecast view before global truncation"
+    "441ce63 fix: rank every forecast view before global truncation",
+    "a023a2a fix exact current selection over compatible historical duplicates",
+    "dd56552 implement missing native-pair discovery and recomputation",
+    "2bcf8e7 assemble native map additions atomically",
+    "0f50df1 require one catalog across prediction and research routes"
   ],
   "resolved_external_inputs": [
     {
@@ -411,5 +409,53 @@
     "report": "reports/formal-gap-progress.json",
     "scope": "Follow-up audit; original static build is unchanged.",
     "formal_rankings": 0
-  }
+  },
+  "observed_at": "2026-10-31T03:46:00.762346+00:00",
+  "previous_static_artifact": {
+    "status": "verified_local_package",
+    "site": "dist/site-8060dd2",
+    "package": {
+      "file": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\ground-atlas-complete-8060dd2.zip",
+      "bytes": 63645418,
+      "sha256": "edb9618e7224d8c172a4bd3cb81ec74d2308c6207e74f35a2441fc1acf4de148",
+      "entries": 5554,
+      "uncompressed_bytes": 66559129,
+      "probability_mode": "disabled",
+      "crc_validation": "all_entries_passed",
+      "checksum_manifest": "FILE_INTEGRITY.sha256",
+      "scope": "deployable_static_site_only"
+    },
+    "verification": {
+      "checked": 5553,
+      "failures": [],
+      "site": {
+        "static_total_bytes": 67270630,
+        "static_published_file_count": 5554,
+        "probability_mode": "disabled",
+        "budgets": {
+          "site_bytes": 104857600,
+          "file_bytes": 26214400
+        }
+      }
+    },
+    "runtime": {
+      "checks": [
+        "same-build identity and no initial raw physics requests",
+        "truthful source coverage and publication gate",
+        "mobile layout",
+        "real research drilldown",
+        "no page exceptions"
+      ],
+      "build_key": "d0bca96c6fd8e436e5ebcca7849428042065723db6a667fc81849e6cb7bde0c9",
+      "source_vehicles": 2680,
+      "source_maps": 97421,
+      "ready_ms": 96.81869999999981,
+      "first_load_transfer_bytes": 1698119,
+      "page_errors": [],
+      "status": "passed"
+    },
+    "public_deployment": "blocked_missing_hosting_target_and_probability_CDN"
+  },
+  "remaining_local_validation_after_inputs": "Run an adequately budgeted full-mode search and sensitivity acceptance after missing same-version evidence is supplied; the current all-nation run is deliberately bounded and 550 baseline tables are truncated.",
+  "native_data_progress": "reports/native-data-progress.json"
 }

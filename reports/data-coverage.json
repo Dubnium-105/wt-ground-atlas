@@ -5,9 +5,9 @@
   ],
   "catalog_vehicles": 2680,
   "counts": {
-    "available_bidirectional_pairs": 125158,
-    "available_forward_pairs": 171703,
-    "missing_direction_or_distance": 65145,
+    "available_bidirectional_pairs": 125548,
+    "available_forward_pairs": 172012,
+    "missing_direction_or_distance": 64836,
     "missing_owned_ammunition": 53149,
     "required_directed_pairs": 236848
   },
@@ -764,7 +764,7 @@
     {
       "br": 6.3,
       "class": "fighter",
-      "count": 2,
+      "count": 3,
       "domain": "air",
       "nation": "britain"
     },
@@ -785,7 +785,7 @@
     {
       "br": 6.7,
       "class": "fighter",
-      "count": 2,
+      "count": 1,
       "domain": "air",
       "nation": "britain"
     },
@@ -6070,7 +6070,7 @@
     {
       "br": 6.3,
       "class": "fighter",
-      "count": 1,
+      "count": 3,
       "domain": "air",
       "nation": "japan"
     },
@@ -6098,7 +6098,7 @@
     {
       "br": 6.7,
       "class": "fighter",
-      "count": 3,
+      "count": 1,
       "domain": "air",
       "nation": "japan"
     },
@@ -9234,7 +9234,7 @@
     {
       "br": 6.3,
       "class": "fighter",
-      "count": 2,
+      "count": 3,
       "domain": "air",
       "nation": "ussr"
     },
@@ -9264,13 +9264,6 @@
       "class": "tank_destroyer",
       "count": 2,
       "domain": "ground",
-      "nation": "ussr"
-    },
-    {
-      "br": 6.7,
-      "class": "fighter",
-      "count": 1,
-      "domain": "air",
       "nation": "ussr"
     },
     {
@@ -9633,30 +9626,26 @@
   ],
   "inventory": {
     "ambiguous_maps": 0,
-    "content_sha256": "4d55a4a246e5df20d1d3cf5fb7f9f36f3325f5d849b03211fa7ce1626bd61732",
-    "metadata_objects": 220202,
+    "annotation_reconciled_maps": 0,
+    "content_sha256": "629228feb034a9506292a6e505bd865a1e4d1f7e56cb252196b538019cf26724",
+    "historical_duplicate_maps": 0,
+    "metadata_objects": 97779,
     "metrics": {
-      "array_seconds": 1008.039698400069,
-      "arrays_checked": 97421,
-      "memory_budget_bytes": 536870912,
-      "metadata_cpu_seconds": 298.359375,
-      "metadata_rebuilt": 97421,
-      "metadata_seconds": 1417.7553490999853,
-      "rejected": 122781,
-      "workers": 2
+      "array_seconds": 450.4694219001103,
+      "arrays_checked": 97779,
+      "memory_budget_bytes": 2147483648,
+      "metadata_cpu_seconds": 89.078125,
+      "metadata_rebuilt": 97779,
+      "metadata_seconds": 379.2190744000254,
+      "workers": 4
     },
-    "rejections": {
-      "distance_missing": 19395,
-      "profile_hash_mismatch": 103263,
-      "profile_missing": 123
-    },
-    "selected_array_bytes": 16853831074,
-    "selected_maps": 97421,
+    "rejections": {},
+    "selected_array_bytes": 16927346056,
+    "selected_maps": 97779,
     "status_counts": {
-      "rejected": 122781,
-      "verified": 97421
+      "verified": 97779
     },
-    "verified_arrays": 97421
+    "verified_arrays": 97779
   },
   "matrix": [
     {
@@ -9708,10 +9697,9 @@
       "vehicle_id": "cn_m18_hellcat"
     },
     {
-      "available_bidirectional_pairs": 166,
-      "available_forward_pairs": 244,
+      "available_bidirectional_pairs": 174,
+      "available_forward_pairs": 257,
       "br": 8.7,
-      "missing_direction_or_distance": 13,
       "nation": "china",
       "required_directed_pairs": 257,
       "vehicle_id": "cn_m_41d"
@@ -9725,7 +9713,7 @@
       "vehicle_id": "cn_m60a3_tts"
     },
     {
-      "available_bidirectional_pairs": 160,
+      "available_bidirectional_pairs": 161,
       "available_forward_pairs": 219,
       "br": 9.3,
       "nation": "china",
@@ -9733,7 +9721,7 @@
       "vehicle_id": "cn_cm11"
     },
     {
-      "available_bidirectional_pairs": 97,
+      "available_bidirectional_pairs": 100,
       "available_forward_pairs": 129,
       "br": 11.7,
       "nation": "china",
@@ -9884,10 +9872,9 @@
       "vehicle_id": "cn_cm_25"
     },
     {
-      "available_bidirectional_pairs": 147,
-      "available_forward_pairs": 205,
+      "available_bidirectional_pairs": 161,
+      "available_forward_pairs": 219,
       "br": 9.3,
-      "missing_direction_or_distance": 14,
       "nation": "china",
       "required_directed_pairs": 219,
       "vehicle_id": "cn_ptl_02"
@@ -9942,9 +9929,8 @@
     },
     {
       "available_bidirectional_pairs": 150,
-      "available_forward_pairs": 246,
+      "available_forward_pairs": 247,
       "br": 7.3,
-      "missing_direction_or_distance": 1,
       "nation": "china",
       "required_directed_pairs": 247,
       "vehicle_id": "cn_plz_83_130"
@@ -9958,7 +9944,7 @@
       "vehicle_id": "cn_antelope_tc_1l_ads"
     },
     {
-      "available_bidirectional_pairs": 97,
+      "available_bidirectional_pairs": 100,
       "available_forward_pairs": 129,
       "br": 11.7,
       "nation": "china",
@@ -9998,7 +9984,7 @@
       "vehicle_id": "cn_m55"
     },
     {
-      "available_bidirectional_pairs": 160,
+      "available_bidirectional_pairs": 161,
       "available_forward_pairs": 219,
       "br": 9.3,
       "nation": "china",
@@ -10030,7 +10016,7 @@
       "vehicle_id": "cn_hq_11"
     },
     {
-      "available_bidirectional_pairs": 97,
+      "available_bidirectional_pairs": 100,
       "available_forward_pairs": 129,
       "br": 11.7,
       "nation": "china",
@@ -10173,7 +10159,7 @@
       "vehicle_id": "cn_type_59"
     },
     {
-      "available_bidirectional_pairs": 153,
+      "available_bidirectional_pairs": 154,
       "available_forward_pairs": 242,
       "br": 8.3,
       "nation": "china",
@@ -10181,7 +10167,7 @@
       "vehicle_id": "cn_type_69"
     },
     {
-      "available_bidirectional_pairs": 171,
+      "available_bidirectional_pairs": 174,
       "available_forward_pairs": 257,
       "br": 8.7,
       "nation": "china",
@@ -10221,7 +10207,7 @@
       "vehicle_id": "cn_ztz_96a"
     },
     {
-      "available_bidirectional_pairs": 113,
+      "available_bidirectional_pairs": 115,
       "available_forward_pairs": 147,
       "br": 11.0,
       "nation": "china",
@@ -10229,7 +10215,7 @@
       "vehicle_id": "cn_ztz_99"
     },
     {
-      "available_bidirectional_pairs": 113,
+      "available_bidirectional_pairs": 115,
       "available_forward_pairs": 147,
       "br": 11.0,
       "nation": "china",
@@ -10317,16 +10303,15 @@
       "vehicle_id": "cn_ptz_89"
     },
     {
-      "available_bidirectional_pairs": 153,
-      "available_forward_pairs": 192,
+      "available_bidirectional_pairs": 160,
+      "available_forward_pairs": 202,
       "br": 10.0,
-      "missing_direction_or_distance": 10,
       "nation": "china",
       "required_directed_pairs": 202,
       "vehicle_id": "cn_zbd_04a"
     },
     {
-      "available_bidirectional_pairs": 161,
+      "available_bidirectional_pairs": 163,
       "available_forward_pairs": 217,
       "br": 9.7,
       "nation": "china",
@@ -10358,7 +10343,7 @@
       "vehicle_id": "cn_t_34_85_zis_53_no215"
     },
     {
-      "available_bidirectional_pairs": 153,
+      "available_bidirectional_pairs": 154,
       "available_forward_pairs": 242,
       "br": 8.3,
       "nation": "china",
@@ -10366,7 +10351,7 @@
       "vehicle_id": "cn_ztz_59a"
     },
     {
-      "available_bidirectional_pairs": 171,
+      "available_bidirectional_pairs": 174,
       "available_forward_pairs": 257,
       "br": 8.7,
       "nation": "china",
@@ -10374,7 +10359,7 @@
       "vehicle_id": "cn_type_69_2a"
     },
     {
-      "available_bidirectional_pairs": 158,
+      "available_bidirectional_pairs": 161,
       "available_forward_pairs": 219,
       "br": 9.3,
       "nation": "china",
@@ -10382,7 +10367,7 @@
       "vehicle_id": "cn_wma_301"
     },
     {
-      "available_bidirectional_pairs": 158,
+      "available_bidirectional_pairs": 161,
       "available_forward_pairs": 219,
       "br": 9.3,
       "nation": "china",
@@ -10398,10 +10383,9 @@
       "vehicle_id": "cn_ztz_96a_prot"
     },
     {
-      "available_bidirectional_pairs": 136,
-      "available_forward_pairs": 173,
+      "available_bidirectional_pairs": 137,
+      "available_forward_pairs": 174,
       "br": 10.3,
-      "missing_direction_or_distance": 1,
       "nation": "china",
       "required_directed_pairs": 174,
       "vehicle_id": "cn_qn506"
@@ -10423,7 +10407,7 @@
       "vehicle_id": "fr_amc_34"
     },
     {
-      "available_bidirectional_pairs": 113,
+      "available_bidirectional_pairs": 115,
       "available_forward_pairs": 147,
       "br": 11.0,
       "nation": "china",
@@ -10431,7 +10415,7 @@
       "vehicle_id": "cn_t_80ud_478be"
     },
     {
-      "available_bidirectional_pairs": 97,
+      "available_bidirectional_pairs": 100,
       "available_forward_pairs": 129,
       "br": 11.7,
       "nation": "china",
@@ -10524,10 +10508,9 @@
       "vehicle_id": "fr_amx_13_hot"
     },
     {
-      "available_bidirectional_pairs": 170,
-      "available_forward_pairs": 244,
+      "available_bidirectional_pairs": 178,
+      "available_forward_pairs": 257,
       "br": 8.7,
-      "missing_direction_or_distance": 13,
       "nation": "france",
       "required_directed_pairs": 257,
       "vehicle_id": "fr_amx_10rc"
@@ -10612,7 +10595,7 @@
       "vehicle_id": "fr_amx_50_surbaisse"
     },
     {
-      "available_bidirectional_pairs": 167,
+      "available_bidirectional_pairs": 168,
       "available_forward_pairs": 229,
       "br": 9.3,
       "nation": "france",
@@ -10620,19 +10603,17 @@
       "vehicle_id": "fr_amx_32_105"
     },
     {
-      "available_bidirectional_pairs": 160,
-      "available_forward_pairs": 212,
+      "available_bidirectional_pairs": 169,
+      "available_forward_pairs": 226,
       "br": 9.7,
-      "missing_direction_or_distance": 14,
       "nation": "france",
       "required_directed_pairs": 226,
       "vehicle_id": "fr_amx_32"
     },
     {
-      "available_bidirectional_pairs": 137,
-      "available_forward_pairs": 175,
+      "available_bidirectional_pairs": 138,
+      "available_forward_pairs": 176,
       "br": 10.3,
-      "missing_direction_or_distance": 1,
       "nation": "france",
       "required_directed_pairs": 176,
       "vehicle_id": "fr_amx_40"
@@ -10804,7 +10785,7 @@
       "vehicle_id": "fr_amx_50_1950"
     },
     {
-      "available_bidirectional_pairs": 167,
+      "available_bidirectional_pairs": 168,
       "available_forward_pairs": 229,
       "br": 9.3,
       "nation": "france",
@@ -10828,10 +10809,9 @@
       "vehicle_id": "fr_amx_50_surblinde"
     },
     {
-      "available_bidirectional_pairs": 158,
-      "available_forward_pairs": 202,
+      "available_bidirectional_pairs": 166,
+      "available_forward_pairs": 210,
       "br": 10.0,
-      "missing_direction_or_distance": 8,
       "nation": "france",
       "required_directed_pairs": 210,
       "vehicle_id": "fr_cv_9035_nl"
@@ -10868,19 +10848,17 @@
       "vehicle_id": "fr_panhard_ebr_1951"
     },
     {
-      "available_bidirectional_pairs": 170,
-      "available_forward_pairs": 244,
+      "available_bidirectional_pairs": 178,
+      "available_forward_pairs": 257,
       "br": 8.7,
-      "missing_direction_or_distance": 13,
       "nation": "france",
       "required_directed_pairs": 257,
       "vehicle_id": "fr_mars_15"
     },
     {
-      "available_bidirectional_pairs": 161,
-      "available_forward_pairs": 230,
+      "available_bidirectional_pairs": 166,
+      "available_forward_pairs": 239,
       "br": 9.0,
-      "missing_direction_or_distance": 9,
       "nation": "france",
       "required_directed_pairs": 239,
       "vehicle_id": "fr_sk105_a2"
@@ -11195,9 +11173,8 @@
     },
     {
       "available_bidirectional_pairs": 111,
-      "available_forward_pairs": 142,
+      "available_forward_pairs": 143,
       "br": 11.3,
-      "missing_direction_or_distance": 1,
       "nation": "france",
       "required_directed_pairs": 143,
       "vehicle_id": "fr_msc"
@@ -11228,15 +11205,14 @@
     },
     {
       "available_bidirectional_pairs": 111,
-      "available_forward_pairs": 142,
+      "available_forward_pairs": 143,
       "br": 11.3,
-      "missing_direction_or_distance": 1,
       "nation": "france",
       "required_directed_pairs": 143,
       "vehicle_id": "fr_jaguar_ebrc"
     },
     {
-      "available_bidirectional_pairs": 167,
+      "available_bidirectional_pairs": 168,
       "available_forward_pairs": 229,
       "br": 9.3,
       "nation": "france",
@@ -11260,10 +11236,9 @@
       "vehicle_id": "germ_leopard_2a4"
     },
     {
-      "available_bidirectional_pairs": 160,
-      "available_forward_pairs": 201,
+      "available_bidirectional_pairs": 166,
+      "available_forward_pairs": 210,
       "br": 10.0,
-      "missing_direction_or_distance": 9,
       "nation": "france",
       "required_directed_pairs": 210,
       "vehicle_id": "fr_vextra_105"
@@ -11308,34 +11283,31 @@
       "vehicle_id": "germ_bmp_1_ddr"
     },
     {
-      "available_bidirectional_pairs": 149,
-      "available_forward_pairs": 197,
+      "available_bidirectional_pairs": 160,
+      "available_forward_pairs": 212,
       "br": 9.7,
-      "missing_direction_or_distance": 15,
       "nation": "germany",
       "required_directed_pairs": 212,
       "vehicle_id": "germ_begleitpanzer_57"
     },
     {
-      "available_bidirectional_pairs": 151,
-      "available_forward_pairs": 203,
+      "available_bidirectional_pairs": 160,
+      "available_forward_pairs": 212,
       "br": 9.7,
-      "missing_direction_or_distance": 9,
       "nation": "germany",
       "required_directed_pairs": 212,
       "vehicle_id": "germ_kpz_70"
     },
     {
-      "available_bidirectional_pairs": 155,
-      "available_forward_pairs": 208,
+      "available_bidirectional_pairs": 160,
+      "available_forward_pairs": 212,
       "br": 9.7,
-      "missing_direction_or_distance": 4,
       "nation": "germany",
       "required_directed_pairs": 212,
       "vehicle_id": "germ_kpz_t72m1"
     },
     {
-      "available_bidirectional_pairs": 160,
+      "available_bidirectional_pairs": 161,
       "available_forward_pairs": 220,
       "br": 9.3,
       "nation": "germany",
@@ -11527,7 +11499,7 @@
       "vehicle_id": "germ_flakpanzer_v_coelian"
     },
     {
-      "available_bidirectional_pairs": 127,
+      "available_bidirectional_pairs": 128,
       "available_forward_pairs": 162,
       "br": 10.3,
       "nation": "germany",
@@ -11623,7 +11595,7 @@
       "vehicle_id": "germ_jaguar_2"
     },
     {
-      "available_bidirectional_pairs": 117,
+      "available_bidirectional_pairs": 118,
       "available_forward_pairs": 149,
       "br": 10.7,
       "nation": "germany",
@@ -11782,7 +11754,7 @@
       "vehicle_id": "germ_mkpz_m48a2ga2"
     },
     {
-      "available_bidirectional_pairs": 160,
+      "available_bidirectional_pairs": 161,
       "available_forward_pairs": 220,
       "br": 9.3,
       "nation": "germany",
@@ -11950,7 +11922,7 @@
       "vehicle_id": "germ_mkpz_m47"
     },
     {
-      "available_bidirectional_pairs": 160,
+      "available_bidirectional_pairs": 161,
       "available_forward_pairs": 220,
       "br": 9.3,
       "nation": "germany",
@@ -11958,7 +11930,7 @@
       "vehicle_id": "germ_leopard_a1a1_120"
     },
     {
-      "available_bidirectional_pairs": 160,
+      "available_bidirectional_pairs": 161,
       "available_forward_pairs": 220,
       "br": 9.3,
       "nation": "germany",
@@ -11998,7 +11970,7 @@
       "vehicle_id": "germ_leopard_2_pt14"
     },
     {
-      "available_bidirectional_pairs": 127,
+      "available_bidirectional_pairs": 128,
       "available_forward_pairs": 162,
       "br": 10.3,
       "nation": "germany",
@@ -12077,10 +12049,9 @@
       "vehicle_id": "germ_radpanzer_90"
     },
     {
-      "available_bidirectional_pairs": 124,
-      "available_forward_pairs": 158,
+      "available_bidirectional_pairs": 128,
+      "available_forward_pairs": 162,
       "br": 10.3,
-      "missing_direction_or_distance": 4,
       "nation": "germany",
       "required_directed_pairs": 162,
       "vehicle_id": "germ_schutzenpanzer_puma"
@@ -12406,7 +12377,7 @@
       "vehicle_id": "germ_pzkpfw_maus"
     },
     {
-      "available_bidirectional_pairs": 112,
+      "available_bidirectional_pairs": 114,
       "available_forward_pairs": 144,
       "br": 11.0,
       "nation": "germany",
@@ -12438,7 +12409,7 @@
       "vehicle_id": "germ_sdkfz_234_2_mod"
     },
     {
-      "available_bidirectional_pairs": 112,
+      "available_bidirectional_pairs": 114,
       "available_forward_pairs": 144,
       "br": 11.0,
       "nation": "germany",
@@ -12470,16 +12441,15 @@
       "vehicle_id": "germ_thyssen_henschel_tam"
     },
     {
-      "available_bidirectional_pairs": 159,
-      "available_forward_pairs": 225,
+      "available_bidirectional_pairs": 165,
+      "available_forward_pairs": 235,
       "br": 9.0,
-      "missing_direction_or_distance": 10,
       "nation": "germany",
       "required_directed_pairs": 235,
       "vehicle_id": "germ_sk105_a2"
     },
     {
-      "available_bidirectional_pairs": 127,
+      "available_bidirectional_pairs": 128,
       "available_forward_pairs": 162,
       "br": 10.3,
       "nation": "germany",
@@ -12612,7 +12582,7 @@
       "vehicle_id": "germ_sturmmorser_sturmtiger"
     },
     {
-      "available_bidirectional_pairs": 160,
+      "available_bidirectional_pairs": 161,
       "available_forward_pairs": 220,
       "br": 9.3,
       "nation": "germany",
@@ -12620,7 +12590,7 @@
       "vehicle_id": "germ_thyssen_henschel_tam_2ip"
     },
     {
-      "available_bidirectional_pairs": 117,
+      "available_bidirectional_pairs": 118,
       "available_forward_pairs": 149,
       "br": 10.7,
       "nation": "germany",
@@ -12691,7 +12661,7 @@
       "vehicle_id": "germ_vt_1_2"
     },
     {
-      "available_bidirectional_pairs": 159,
+      "available_bidirectional_pairs": 161,
       "available_forward_pairs": 220,
       "br": 9.3,
       "nation": "germany",
@@ -12802,7 +12772,7 @@
       "vehicle_id": "il_m113_hvms"
     },
     {
-      "available_bidirectional_pairs": 157,
+      "available_bidirectional_pairs": 160,
       "available_forward_pairs": 212,
       "br": 9.7,
       "nation": "germany",
@@ -12811,15 +12781,14 @@
     },
     {
       "available_bidirectional_pairs": 103,
-      "available_forward_pairs": 132,
+      "available_forward_pairs": 134,
       "br": 11.7,
-      "missing_direction_or_distance": 2,
       "nation": "israel",
       "required_directed_pairs": 134,
       "vehicle_id": "il_eitan"
     },
     {
-      "available_bidirectional_pairs": 121,
+      "available_bidirectional_pairs": 123,
       "available_forward_pairs": 158,
       "br": 10.7,
       "nation": "israel",
@@ -12898,7 +12867,7 @@
       "vehicle_id": "il_magach_6r"
     },
     {
-      "available_bidirectional_pairs": 158,
+      "available_bidirectional_pairs": 160,
       "available_forward_pairs": 237,
       "br": 9.0,
       "nation": "israel",
@@ -12906,7 +12875,7 @@
       "vehicle_id": "il_magach_6b"
     },
     {
-      "available_bidirectional_pairs": 158,
+      "available_bidirectional_pairs": 160,
       "available_forward_pairs": 237,
       "br": 9.0,
       "nation": "israel",
@@ -12922,7 +12891,7 @@
       "vehicle_id": "il_magach_6m"
     },
     {
-      "available_bidirectional_pairs": 166,
+      "available_bidirectional_pairs": 167,
       "available_forward_pairs": 230,
       "br": 9.3,
       "nation": "israel",
@@ -12930,7 +12899,7 @@
       "vehicle_id": "il_magach_6c"
     },
     {
-      "available_bidirectional_pairs": 166,
+      "available_bidirectional_pairs": 167,
       "available_forward_pairs": 230,
       "br": 9.3,
       "nation": "israel",
@@ -12938,7 +12907,7 @@
       "vehicle_id": "il_magach_6b_gal_batash"
     },
     {
-      "available_bidirectional_pairs": 166,
+      "available_bidirectional_pairs": 167,
       "available_forward_pairs": 230,
       "br": 9.3,
       "nation": "israel",
@@ -13067,9 +13036,8 @@
     },
     {
       "available_bidirectional_pairs": 103,
-      "available_forward_pairs": 132,
+      "available_forward_pairs": 134,
       "br": 11.7,
-      "missing_direction_or_distance": 2,
       "nation": "israel",
       "required_directed_pairs": 134,
       "vehicle_id": "il_namer_rcws_30"
@@ -13098,7 +13066,7 @@
       "vehicle_id": "il_magach_3"
     },
     {
-      "available_bidirectional_pairs": 166,
+      "available_bidirectional_pairs": 167,
       "available_forward_pairs": 230,
       "br": 9.3,
       "nation": "israel",
@@ -13201,9 +13169,8 @@
     },
     {
       "available_bidirectional_pairs": 103,
-      "available_forward_pairs": 132,
+      "available_forward_pairs": 134,
       "br": 11.7,
-      "missing_direction_or_distance": 2,
       "nation": "israel",
       "required_directed_pairs": 134,
       "vehicle_id": "il_namer_tsrikhon"
@@ -13382,7 +13349,7 @@
       "vehicle_id": "it_m26a1_pershing"
     },
     {
-      "available_bidirectional_pairs": 170,
+      "available_bidirectional_pairs": 171,
       "available_forward_pairs": 233,
       "br": 9.3,
       "nation": "italy",
@@ -13390,10 +13357,9 @@
       "vehicle_id": "it_leopard_1a5"
     },
     {
-      "available_bidirectional_pairs": 118,
-      "available_forward_pairs": 153,
+      "available_bidirectional_pairs": 121,
+      "available_forward_pairs": 155,
       "br": 10.7,
-      "missing_direction_or_distance": 2,
       "nation": "italy",
       "required_directed_pairs": 155,
       "vehicle_id": "it_c1_ariete_preserie"
@@ -13487,7 +13453,7 @@
       "vehicle_id": "it_m113a1_tow"
     },
     {
-      "available_bidirectional_pairs": 159,
+      "available_bidirectional_pairs": 163,
       "available_forward_pairs": 206,
       "br": 10.0,
       "nation": "italy",
@@ -13519,7 +13485,7 @@
       "vehicle_id": "it_leopard_2a4"
     },
     {
-      "available_bidirectional_pairs": 110,
+      "available_bidirectional_pairs": 112,
       "available_forward_pairs": 145,
       "br": 11.0,
       "nation": "italy",
@@ -13559,7 +13525,7 @@
       "vehicle_id": "it_m14_41_47_40"
     },
     {
-      "available_bidirectional_pairs": 166,
+      "available_bidirectional_pairs": 167,
       "available_forward_pairs": 251,
       "br": 8.3,
       "nation": "italy",
@@ -13614,7 +13580,7 @@
       "vehicle_id": "it_c13_tua"
     },
     {
-      "available_bidirectional_pairs": 119,
+      "available_bidirectional_pairs": 121,
       "available_forward_pairs": 155,
       "br": 10.7,
       "nation": "italy",
@@ -13660,7 +13626,7 @@
       "vehicle_id": "it_oto_r3_106sr"
     },
     {
-      "available_bidirectional_pairs": 170,
+      "available_bidirectional_pairs": 171,
       "available_forward_pairs": 233,
       "br": 9.3,
       "nation": "italy",
@@ -13773,9 +13739,8 @@
     },
     {
       "available_bidirectional_pairs": 99,
-      "available_forward_pairs": 128,
+      "available_forward_pairs": 130,
       "br": 11.7,
-      "missing_direction_or_distance": 2,
       "nation": "italy",
       "required_directed_pairs": 130,
       "vehicle_id": "it_otomatic"
@@ -13861,7 +13826,7 @@
       "vehicle_id": "it_m36b1"
     },
     {
-      "available_bidirectional_pairs": 167,
+      "available_bidirectional_pairs": 170,
       "available_forward_pairs": 227,
       "br": 9.7,
       "nation": "italy",
@@ -13869,7 +13834,7 @@
       "vehicle_id": "it_vbc_pt2"
     },
     {
-      "available_bidirectional_pairs": 159,
+      "available_bidirectional_pairs": 163,
       "available_forward_pairs": 206,
       "br": 10.0,
       "nation": "italy",
@@ -13877,10 +13842,9 @@
       "vehicle_id": "it_vcc_80_hitfist_30"
     },
     {
-      "available_bidirectional_pairs": 167,
-      "available_forward_pairs": 223,
+      "available_bidirectional_pairs": 170,
+      "available_forward_pairs": 227,
       "br": 9.7,
-      "missing_direction_or_distance": 4,
       "nation": "italy",
       "required_directed_pairs": 227,
       "vehicle_id": "it_t_72m1"
@@ -14150,7 +14114,7 @@
       "vehicle_id": "jp_m47_patton_ii"
     },
     {
-      "available_bidirectional_pairs": 179,
+      "available_bidirectional_pairs": 182,
       "available_forward_pairs": 268,
       "br": 8.7,
       "nation": "japan",
@@ -14231,9 +14195,8 @@
     },
     {
       "available_bidirectional_pairs": 152,
-      "available_forward_pairs": 246,
+      "available_forward_pairs": 247,
       "br": 7.3,
-      "missing_direction_or_distance": 1,
       "nation": "japan",
       "required_directed_pairs": 247,
       "vehicle_id": "jp_type_5_ho_ri_production"
@@ -14312,9 +14275,8 @@
     },
     {
       "available_bidirectional_pairs": 170,
-      "available_forward_pairs": 243,
+      "available_forward_pairs": 246,
       "br": 6.7,
-      "missing_direction_or_distance": 3,
       "nation": "japan",
       "required_directed_pairs": 246,
       "vehicle_id": "jp_type_5_ho_ri_prototype"
@@ -14336,7 +14298,7 @@
       "vehicle_id": "jp_type_3_ka_chi"
     },
     {
-      "available_bidirectional_pairs": 164,
+      "available_bidirectional_pairs": 167,
       "available_forward_pairs": 224,
       "br": 9.7,
       "nation": "japan",
@@ -14344,7 +14306,7 @@
       "vehicle_id": "jp_icv_prototype"
     },
     {
-      "available_bidirectional_pairs": 164,
+      "available_bidirectional_pairs": 167,
       "available_forward_pairs": 224,
       "br": 9.7,
       "nation": "japan",
@@ -14415,7 +14377,7 @@
       "vehicle_id": "jp_leopard_2ri"
     },
     {
-      "available_bidirectional_pairs": 141,
+      "available_bidirectional_pairs": 142,
       "available_forward_pairs": 181,
       "br": 10.3,
       "nation": "japan",
@@ -14462,7 +14424,7 @@
       "vehicle_id": "jp_type_87_rcv_prot"
     },
     {
-      "available_bidirectional_pairs": 164,
+      "available_bidirectional_pairs": 167,
       "available_forward_pairs": 230,
       "br": 9.3,
       "nation": "japan",
@@ -14510,7 +14472,7 @@
       "vehicle_id": "jp_type_61"
     },
     {
-      "available_bidirectional_pairs": 179,
+      "available_bidirectional_pairs": 182,
       "available_forward_pairs": 268,
       "br": 8.7,
       "nation": "japan",
@@ -14662,7 +14624,7 @@
       "vehicle_id": "jp_type_97_kai_td"
     },
     {
-      "available_bidirectional_pairs": 166,
+      "available_bidirectional_pairs": 167,
       "available_forward_pairs": 230,
       "br": 9.3,
       "nation": "japan",
@@ -14677,7 +14639,7 @@
       "vehicle_id": "sw_bt_42"
     },
     {
-      "available_bidirectional_pairs": 167,
+      "available_bidirectional_pairs": 168,
       "available_forward_pairs": 227,
       "br": 9.3,
       "nation": "sweden",
@@ -14733,19 +14695,17 @@
       "vehicle_id": "sw_charioteer_mk_7"
     },
     {
-      "available_bidirectional_pairs": 151,
-      "available_forward_pairs": 193,
+      "available_bidirectional_pairs": 159,
+      "available_forward_pairs": 201,
       "br": 10.0,
-      "missing_direction_or_distance": 8,
       "nation": "sweden",
       "required_directed_pairs": 201,
       "vehicle_id": "sw_cv_9035_dk"
     },
     {
-      "available_bidirectional_pairs": 118,
-      "available_forward_pairs": 153,
+      "available_bidirectional_pairs": 122,
+      "available_forward_pairs": 157,
       "br": 10.7,
-      "missing_direction_or_distance": 4,
       "nation": "sweden",
       "required_directed_pairs": 157,
       "vehicle_id": "sw_cv_90105_tml"
@@ -14759,7 +14719,7 @@
       "vehicle_id": "sw_bmp_2md"
     },
     {
-      "available_bidirectional_pairs": 120,
+      "available_bidirectional_pairs": 122,
       "available_forward_pairs": 157,
       "br": 10.7,
       "nation": "sweden",
@@ -14767,7 +14727,7 @@
       "vehicle_id": "sw_cv_90_mk4"
     },
     {
-      "available_bidirectional_pairs": 179,
+      "available_bidirectional_pairs": 182,
       "available_forward_pairs": 268,
       "br": 8.7,
       "nation": "japan",
@@ -14791,7 +14751,7 @@
       "vehicle_id": "sw_eldenhet_98"
     },
     {
-      "available_bidirectional_pairs": 164,
+      "available_bidirectional_pairs": 166,
       "available_forward_pairs": 237,
       "br": 9.0,
       "nation": "sweden",
@@ -14868,10 +14828,9 @@
       "vehicle_id": "sw_strf_90b"
     },
     {
-      "available_bidirectional_pairs": 118,
-      "available_forward_pairs": 152,
+      "available_bidirectional_pairs": 122,
+      "available_forward_pairs": 157,
       "br": 10.7,
-      "missing_direction_or_distance": 5,
       "nation": "sweden",
       "required_directed_pairs": 157,
       "vehicle_id": "sw_strf_90c"
@@ -14901,7 +14860,7 @@
       "vehicle_id": "sw_strv_101"
     },
     {
-      "available_bidirectional_pairs": 160,
+      "available_bidirectional_pairs": 161,
       "available_forward_pairs": 245,
       "br": 8.3,
       "nation": "sweden",
@@ -14973,10 +14932,9 @@
       "vehicle_id": "sw_lvrbv_701"
     },
     {
-      "available_bidirectional_pairs": 118,
-      "available_forward_pairs": 152,
+      "available_bidirectional_pairs": 122,
+      "available_forward_pairs": 157,
       "br": 10.7,
-      "missing_direction_or_distance": 5,
       "nation": "sweden",
       "required_directed_pairs": 157,
       "vehicle_id": "sw_lvkv_90c"
@@ -15053,7 +15011,7 @@
       "vehicle_id": "sw_pbv_302_bill"
     },
     {
-      "available_bidirectional_pairs": 135,
+      "available_bidirectional_pairs": 136,
       "available_forward_pairs": 173,
       "br": 10.3,
       "nation": "sweden",
@@ -15125,7 +15083,7 @@
       "vehicle_id": "sw_kungstiger"
     },
     {
-      "available_bidirectional_pairs": 167,
+      "available_bidirectional_pairs": 168,
       "available_forward_pairs": 227,
       "br": 9.3,
       "nation": "sweden",
@@ -15157,7 +15115,7 @@
       "vehicle_id": "sw_k9_vidar"
     },
     {
-      "available_bidirectional_pairs": 155,
+      "available_bidirectional_pairs": 159,
       "available_forward_pairs": 201,
       "br": 10.0,
       "nation": "sweden",
@@ -15262,9 +15220,8 @@
     },
     {
       "available_bidirectional_pairs": 170,
-      "available_forward_pairs": 240,
+      "available_forward_pairs": 243,
       "br": 6.7,
-      "missing_direction_or_distance": 3,
       "nation": "britain",
       "required_directed_pairs": 243,
       "vehicle_id": "uk_a39_tortoise"
@@ -15382,7 +15339,7 @@
       "vehicle_id": "sw_strv_104"
     },
     {
-      "available_bidirectional_pairs": 167,
+      "available_bidirectional_pairs": 168,
       "available_forward_pairs": 227,
       "br": 9.3,
       "nation": "sweden",
@@ -15502,10 +15459,9 @@
       "vehicle_id": "sw_t_55m"
     },
     {
-      "available_bidirectional_pairs": 163,
-      "available_forward_pairs": 216,
+      "available_bidirectional_pairs": 166,
+      "available_forward_pairs": 220,
       "br": 9.7,
-      "missing_direction_or_distance": 4,
       "nation": "sweden",
       "required_directed_pairs": 220,
       "vehicle_id": "sw_t_72m1"
@@ -15543,7 +15499,7 @@
       "vehicle_id": "sw_strv_81_rb52"
     },
     {
-      "available_bidirectional_pairs": 160,
+      "available_bidirectional_pairs": 161,
       "available_forward_pairs": 245,
       "br": 8.3,
       "nation": "sweden",
@@ -15679,7 +15635,7 @@
       "vehicle_id": "uk_chieftain_mk_5"
     },
     {
-      "available_bidirectional_pairs": 162,
+      "available_bidirectional_pairs": 163,
       "available_forward_pairs": 221,
       "br": 9.3,
       "nation": "britain",
@@ -15927,9 +15883,8 @@
     },
     {
       "available_bidirectional_pairs": 170,
-      "available_forward_pairs": 240,
+      "available_forward_pairs": 243,
       "br": 6.7,
-      "missing_direction_or_distance": 3,
       "nation": "britain",
       "required_directed_pairs": 243,
       "vehicle_id": "uk_centurion_mk_2"
@@ -15959,7 +15914,7 @@
       "vehicle_id": "uk_badger"
     },
     {
-      "available_bidirectional_pairs": 162,
+      "available_bidirectional_pairs": 163,
       "available_forward_pairs": 221,
       "br": 9.3,
       "nation": "britain",
@@ -15975,10 +15930,9 @@
       "vehicle_id": "uk_ajax"
     },
     {
-      "available_bidirectional_pairs": 117,
-      "available_forward_pairs": 150,
+      "available_bidirectional_pairs": 120,
+      "available_forward_pairs": 152,
       "br": 10.7,
-      "missing_direction_or_distance": 2,
       "nation": "britain",
       "required_directed_pairs": 152,
       "vehicle_id": "uk_boxer_crv_block2"
@@ -16000,10 +15954,9 @@
       "vehicle_id": "uk_challenger_2_megatron_sm"
     },
     {
-      "available_bidirectional_pairs": 109,
-      "available_forward_pairs": 136,
+      "available_bidirectional_pairs": 110,
+      "available_forward_pairs": 140,
       "br": 11.0,
-      "missing_direction_or_distance": 4,
       "nation": "britain",
       "required_directed_pairs": 140,
       "vehicle_id": "uk_arjun_mk1"
@@ -16137,7 +16090,7 @@
       "vehicle_id": "uk_fv102_striker"
     },
     {
-      "available_bidirectional_pairs": 159,
+      "available_bidirectional_pairs": 162,
       "available_forward_pairs": 214,
       "br": 9.7,
       "nation": "britain",
@@ -16247,16 +16200,15 @@
       "vehicle_id": "uk_fv721_fox"
     },
     {
-      "available_bidirectional_pairs": 156,
-      "available_forward_pairs": 225,
+      "available_bidirectional_pairs": 162,
+      "available_forward_pairs": 234,
       "br": 9.0,
-      "missing_direction_or_distance": 9,
       "nation": "britain",
       "required_directed_pairs": 234,
       "vehicle_id": "uk_rooikat_76"
     },
     {
-      "available_bidirectional_pairs": 168,
+      "available_bidirectional_pairs": 171,
       "available_forward_pairs": 251,
       "br": 8.7,
       "nation": "britain",
@@ -16272,7 +16224,7 @@
       "vehicle_id": "uk_rooikat_mttd"
     },
     {
-      "available_bidirectional_pairs": 162,
+      "available_bidirectional_pairs": 163,
       "available_forward_pairs": 221,
       "br": 9.3,
       "nation": "britain",
@@ -16568,10 +16520,9 @@
       "vehicle_id": "uk_tog_2"
     },
     {
-      "available_bidirectional_pairs": 116,
-      "available_forward_pairs": 150,
+      "available_bidirectional_pairs": 120,
+      "available_forward_pairs": 152,
       "br": 10.7,
-      "missing_direction_or_distance": 2,
       "nation": "britain",
       "required_directed_pairs": 152,
       "vehicle_id": "uk_t_90s_bheeshma"
@@ -16608,16 +16559,15 @@
       "vehicle_id": "ussr_bmp_2"
     },
     {
-      "available_bidirectional_pairs": 155,
-      "available_forward_pairs": 206,
+      "available_bidirectional_pairs": 160,
+      "available_forward_pairs": 215,
       "br": 9.3,
-      "missing_direction_or_distance": 9,
       "nation": "ussr",
       "required_directed_pairs": 215,
       "vehicle_id": "ussr_2s25"
     },
     {
-      "available_bidirectional_pairs": 153,
+      "available_bidirectional_pairs": 157,
       "available_forward_pairs": 193,
       "br": 10.0,
       "nation": "ussr",
@@ -16672,7 +16622,7 @@
       "vehicle_id": "ussr_bmd_4"
     },
     {
-      "available_bidirectional_pairs": 114,
+      "available_bidirectional_pairs": 119,
       "available_forward_pairs": 149,
       "br": 10.7,
       "nation": "ussr",
@@ -17064,10 +17014,9 @@
       "vehicle_id": "ussr_is_6"
     },
     {
-      "available_bidirectional_pairs": 129,
-      "available_forward_pairs": 159,
+      "available_bidirectional_pairs": 134,
+      "available_forward_pairs": 164,
       "br": 10.3,
-      "missing_direction_or_distance": 5,
       "nation": "ussr",
       "required_directed_pairs": 164,
       "vehicle_id": "ussr_bmp_2m"
@@ -17249,10 +17198,9 @@
       "vehicle_id": "ussr_su_100p"
     },
     {
-      "available_bidirectional_pairs": 128,
-      "available_forward_pairs": 206,
+      "available_bidirectional_pairs": 152,
+      "available_forward_pairs": 233,
       "br": 8.3,
-      "missing_direction_or_distance": 27,
       "nation": "ussr",
       "required_directed_pairs": 233,
       "vehicle_id": "ussr_object_906"
@@ -17506,9 +17454,8 @@
     },
     {
       "available_bidirectional_pairs": 145,
-      "available_forward_pairs": 218,
+      "available_forward_pairs": 219,
       "br": 6.7,
-      "missing_direction_or_distance": 1,
       "nation": "ussr",
       "required_directed_pairs": 219,
       "vehicle_id": "ussr_type_62"
@@ -17522,7 +17469,7 @@
       "vehicle_id": "ussr_t_10a"
     },
     {
-      "available_bidirectional_pairs": 169,
+      "available_bidirectional_pairs": 172,
       "available_forward_pairs": 248,
       "br": 8.7,
       "nation": "ussr",
@@ -17539,9 +17486,8 @@
     },
     {
       "available_bidirectional_pairs": 108,
-      "available_forward_pairs": 135,
+      "available_forward_pairs": 138,
       "br": 11.0,
-      "missing_direction_or_distance": 3,
       "nation": "ussr",
       "required_directed_pairs": 138,
       "vehicle_id": "ussr_object_292"
@@ -17603,16 +17549,15 @@
       "vehicle_id": "ussr_t_55_amd_1"
     },
     {
-      "available_bidirectional_pairs": 160,
-      "available_forward_pairs": 207,
+      "available_bidirectional_pairs": 161,
+      "available_forward_pairs": 208,
       "br": 9.7,
-      "missing_direction_or_distance": 1,
       "nation": "ussr",
       "required_directed_pairs": 208,
       "vehicle_id": "ussr_t_72a"
     },
     {
-      "available_bidirectional_pairs": 133,
+      "available_bidirectional_pairs": 134,
       "available_forward_pairs": 164,
       "br": 10.3,
       "nation": "ussr",
@@ -17685,9 +17630,8 @@
     },
     {
       "available_bidirectional_pairs": 145,
-      "available_forward_pairs": 218,
+      "available_forward_pairs": 219,
       "br": 6.7,
-      "missing_direction_or_distance": 1,
       "nation": "ussr",
       "required_directed_pairs": 219,
       "vehicle_id": "ussr_t_44"
@@ -17725,7 +17669,7 @@
       "vehicle_id": "ussr_t_54_1951"
     },
     {
-      "available_bidirectional_pairs": 169,
+      "available_bidirectional_pairs": 172,
       "available_forward_pairs": 248,
       "br": 8.7,
       "nation": "ussr",
@@ -17749,7 +17693,7 @@
       "vehicle_id": "ussr_t_62m1"
     },
     {
-      "available_bidirectional_pairs": 133,
+      "available_bidirectional_pairs": 134,
       "available_forward_pairs": 164,
       "br": 10.3,
       "nation": "ussr",
@@ -17757,7 +17701,7 @@
       "vehicle_id": "ussr_t_72b_1989"
     },
     {
-      "available_bidirectional_pairs": 94,
+      "available_bidirectional_pairs": 96,
       "available_forward_pairs": 123,
       "br": 11.3,
       "nation": "ussr",
@@ -17781,16 +17725,15 @@
       "vehicle_id": "ussr_t_28e"
     },
     {
-      "available_bidirectional_pairs": 160,
-      "available_forward_pairs": 207,
+      "available_bidirectional_pairs": 161,
+      "available_forward_pairs": 208,
       "br": 9.7,
-      "missing_direction_or_distance": 1,
       "nation": "ussr",
       "required_directed_pairs": 208,
       "vehicle_id": "ussr_t_64a_1971"
     },
     {
-      "available_bidirectional_pairs": 133,
+      "available_bidirectional_pairs": 134,
       "available_forward_pairs": 164,
       "br": 10.3,
       "nation": "ussr",
@@ -17918,7 +17861,7 @@
       "vehicle_id": "ussr_t_55_am"
     },
     {
-      "available_bidirectional_pairs": 133,
+      "available_bidirectional_pairs": 134,
       "available_forward_pairs": 164,
       "br": 10.3,
       "nation": "ussr",
@@ -17926,7 +17869,7 @@
       "vehicle_id": "ussr_t_72av_turms"
     },
     {
-      "available_bidirectional_pairs": 114,
+      "available_bidirectional_pairs": 119,
       "available_forward_pairs": 149,
       "br": 10.7,
       "nation": "ussr",
@@ -17934,7 +17877,7 @@
       "vehicle_id": "ussr_t_80ud"
     },
     {
-      "available_bidirectional_pairs": 114,
+      "available_bidirectional_pairs": 119,
       "available_forward_pairs": 149,
       "br": 10.7,
       "nation": "ussr",
@@ -17958,7 +17901,7 @@
       "vehicle_id": "ussr_t_34_85_zis_53_v80"
     },
     {
-      "available_bidirectional_pairs": 95,
+      "available_bidirectional_pairs": 96,
       "available_forward_pairs": 115,
       "br": 12.0,
       "nation": "ussr",
@@ -17982,7 +17925,7 @@
       "vehicle_id": "ussr_t_34_85_stp_s53"
     },
     {
-      "available_bidirectional_pairs": 106,
+      "available_bidirectional_pairs": 108,
       "available_forward_pairs": 138,
       "br": 11.0,
       "nation": "ussr",
@@ -17991,9 +17934,8 @@
     },
     {
       "available_bidirectional_pairs": 145,
-      "available_forward_pairs": 218,
+      "available_forward_pairs": 219,
       "br": 6.7,
-      "missing_direction_or_distance": 1,
       "nation": "ussr",
       "required_directed_pairs": 219,
       "vehicle_id": "ussr_t_44_kit_4rank"
@@ -18118,7 +18060,7 @@
       "vehicle_id": "us_m109a1"
     },
     {
-      "available_bidirectional_pairs": 133,
+      "available_bidirectional_pairs": 134,
       "available_forward_pairs": 170,
       "br": 10.3,
       "nation": "usa",
@@ -18141,7 +18083,7 @@
       "vehicle_id": "us_m18_super_hellcat"
     },
     {
-      "available_bidirectional_pairs": 133,
+      "available_bidirectional_pairs": 134,
       "available_forward_pairs": 170,
       "br": 10.3,
       "nation": "usa",
@@ -18197,7 +18139,7 @@
       "vehicle_id": "us_ags_teledyne"
     },
     {
-      "available_bidirectional_pairs": 106,
+      "available_bidirectional_pairs": 108,
       "available_forward_pairs": 138,
       "br": 11.0,
       "nation": "ussr",
@@ -18381,7 +18323,7 @@
       "vehicle_id": "us_m10_booker_late"
     },
     {
-      "available_bidirectional_pairs": 160,
+      "available_bidirectional_pairs": 161,
       "available_forward_pairs": 217,
       "br": 9.3,
       "nation": "usa",
@@ -18453,10 +18395,9 @@
       "vehicle_id": "us_m3_bradley"
     },
     {
-      "available_bidirectional_pairs": 152,
-      "available_forward_pairs": 200,
+      "available_bidirectional_pairs": 163,
+      "available_forward_pairs": 216,
       "br": 9.7,
-      "missing_direction_or_distance": 16,
       "nation": "usa",
       "required_directed_pairs": 216,
       "vehicle_id": "us_m3a3_bradley"
@@ -18876,10 +18817,9 @@
       "vehicle_id": "us_m60a3_tts"
     },
     {
-      "available_bidirectional_pairs": 129,
-      "available_forward_pairs": 165,
+      "available_bidirectional_pairs": 134,
+      "available_forward_pairs": 170,
       "br": 10.3,
-      "missing_direction_or_distance": 5,
       "nation": "usa",
       "required_directed_pairs": 170,
       "vehicle_id": "us_m60_120s"
@@ -18901,10 +18841,9 @@
       "vehicle_id": "us_t1e1"
     },
     {
-      "available_bidirectional_pairs": 152,
-      "available_forward_pairs": 205,
+      "available_bidirectional_pairs": 163,
+      "available_forward_pairs": 216,
       "br": 9.7,
-      "missing_direction_or_distance": 11,
       "nation": "usa",
       "required_directed_pairs": 216,
       "vehicle_id": "us_mbt_70"
@@ -19227,9 +19166,8 @@
     },
     {
       "available_bidirectional_pairs": 145,
-      "available_forward_pairs": 220,
+      "available_forward_pairs": 223,
       "br": 6.7,
-      "missing_direction_or_distance": 3,
       "nation": "usa",
       "required_directed_pairs": 223,
       "vehicle_id": "us_t34"
@@ -19379,10 +19317,9 @@
       "vehicle_id": "us_t86"
     },
     {
-      "available_bidirectional_pairs": 156,
-      "available_forward_pairs": 225,
+      "available_bidirectional_pairs": 162,
+      "available_forward_pairs": 233,
       "br": 9.0,
-      "missing_direction_or_distance": 8,
       "nation": "usa",
       "required_directed_pairs": 233,
       "vehicle_id": "us_t58"
@@ -19394,236 +19331,41 @@
   ],
   "sample_subset": false,
   "schema_version": "1.0.0",
-  "inputs": {
-    "ammunition": "43f5c96215fce06a75f9fbbb900e597db466e4cbfd9319bcba27a83e4b0a02c8",
-    "catalog": "620d21a1656646f1c4d58703da0c10b58f07cd8d4df3f8432e6ef02fbc235be2",
-    "code": {
-      "../npz_io.py": "d14a8f7a1f18171919095d1634de35625f954b376a509f1dd49e82adea80ed2c",
-      "__init__.py": "9ab0ca0cef5ce48f3bffa5a9d946307d945cb837e75ab00c0d8fb5550c1551c1",
-      "aim.py": "6390ffb7793120f6ba6e9142e0e6dafd18ef63b5941daaa1c8a7432bca18bf25",
-      "build.py": "53525fe7f26535f88b892da1b6df9cc8dfb1a7b6aff3fea0495f784b138a7695",
-      "calibrate.py": "999756edfbea39011e23b53a3fbd89938c4b7ef2686d33a8194616e4b8e4a4d5",
-      "capabilities.py": "15261bc98b819c820ce318a95209e7aa8277231d6b92184f95bd0ff2ddb3a6f5",
-      "combat.py": "26e95706884e58fbba23d8e00bdb1ebf81bdba66df3152594189d28898d3967f",
-      "data.py": "47935131a03f3f24665173a53bb3b11a6f4f4df2dc940a2ad20cb1417b60163c",
-      "engine.py": "1d8fd83028d0cf7bb47fd36c12c74f4ab02576fb0cb65114dbd5ef39ed46de7a",
-      "inventory.py": "29a4dc0874eb680dd3007114b98ddf133ce800b87aea2930cd616396a8d74ad0",
-      "rankings.py": "ddb6d3fd1533e58476b5f35dd7a0707abe24a0d270a0cfca04c8871cf9cf6902",
-      "resources.py": "f38f6c7d98a7b64856d068a8e4aa3860deece515db017eaa5ebbf063f8c9adcc",
-      "search.py": "5a92182326c6222b56f6c66782734f0d985d117b7848007cf45c8bcd89ab05bc",
-      "sensitivity.py": "296ccd415d38b0c83e608c5930eb69e9d9e7f76198f94e8074d46beb4d89c524",
-      "statistics.py": "5bc3e4ab733a5ca6bbb312b1d56282e2f2c786c04d274c49136f957483bf1d8b",
-      "updates.py": "b0b52ad6e3e3599670540a7aff5fc06d41b6489476252aef446c1991f4cd1527",
-      "versions.py": "f994380227f15a5c9c4dc59263d154629eea013559ecf22841cc6035a2fd452f"
+  "source_directory_audit": {
+    "ambiguous_maps": 0,
+    "annotation_reconciled_maps": 0,
+    "content_sha256": "f379e69f3a860bfe4da19d6cca447753908713ed56c02e609ad05b90757fb7f3",
+    "historical_duplicate_maps": 49215,
+    "metadata_objects": 220202,
+    "metrics": {
+      "array_seconds": 482.0428035999648,
+      "arrays_checked": 97421,
+      "memory_budget_bytes": 2147483648,
+      "metadata_cpu_seconds": 210.4375,
+      "metadata_rebuilt": 146636,
+      "metadata_seconds": 912.5006698999787,
+      "rejected": 73566,
+      "workers": 4
     },
-    "config": "6eb924ebf9b1881104f194edfad653dd577af0538b173331d820a3c74a770cb7",
-    "effects": null,
-    "maps": "39b2609ce249ec5342c6875ec1d8145dd7e6da7dc25d49ef7d8153cb0da8495c",
-    "missions": null,
-    "patch": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
-    "planned_ammunition": null,
-    "planned_catalog": null,
-    "planned_effects": null,
-    "planned_maps": null,
-    "planned_missions": null,
-    "planned_status": null,
-    "runtime_config": "352fec773f799515ea98c3da1cee4e0cb6e1f84a17bf4c9218ddb5c72b413dfe"
+    "rejections": {
+      "distance_missing": 19395,
+      "profile_hash_mismatch": 54048,
+      "profile_missing": 123
+    },
+    "selected_array_bytes": 16853831074,
+    "selected_maps": 97421,
+    "status_counts": {
+      "historical_duplicate": 49215,
+      "rejected": 73566,
+      "verified": 97421
+    },
+    "verified_arrays": 97421
   },
-  "sources": {
-    "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
-    "effective_date": null,
-    "game_version": null,
-    "sha256": "e5ecf32d868db122853026594385bdb2a699250f8b856c67e32bb59b26b76651",
-    "snapshot_id": "wiki-5623f68d352b3916",
-    "source_status": "unknown",
-    "sources": [
-      {
-        "br_field": "rb",
-        "bytes": 1336296,
-        "count": 1226,
-        "kind": "ground",
-        "path": "cc2eb7a15f16b27e3f39e86de9902b1c4469326a29daea81543c6f957bd868f8.html",
-        "sha256": "cc2eb7a15f16b27e3f39e86de9902b1c4469326a29daea81543c6f957bd868f8",
-        "url": "https://wiki.warthunder.com/ground"
-      },
-      {
-        "br_field": "trb",
-        "bytes": 1478761,
-        "count": 1342,
-        "kind": "aircraft",
-        "path": "3979ae97a58c65c9157fee8d47fdb7207dd4bbbec985a5d38b119ce8fc15d951.html",
-        "sha256": "3979ae97a58c65c9157fee8d47fdb7207dd4bbbec985a5d38b119ce8fc15d951",
-        "url": "https://wiki.warthunder.com/aviation"
-      },
-      {
-        "br_field": "rb",
-        "bytes": 429841,
-        "count": 112,
-        "kind": "helicopter",
-        "path": "4ea08fd04f1559038a6be193cd1bb1856fb65d47e4a5a5692f32b27f0a2a3969.html",
-        "sha256": "4ea08fd04f1559038a6be193cd1bb1856fb65d47e4a5a5692f32b27f0a2a3969",
-        "url": "https://wiki.warthunder.com/helicopters"
-      }
-    ],
-    "wiki_collected_at": "2026-10-30T13:06:38.003583+00:00"
-  },
-  "current_catalog_refresh": {
-    "collected_at": "2026-10-30T13:06:38.003583+00:00",
-    "observed_vehicles": 2680,
-    "rating_changes": 592,
-    "added_ids": [
-      "fw_190a_8_mistel"
-    ],
-    "unobserved_ids": [],
-    "rules_requiring_revalidation_count": 1195,
-    "before_sha256": "881892454ed3b1cc658006fb5ad19481323ed6da23f6c8d61631914f545d2577",
-    "after_sha256": "620d21a1656646f1c4d58703da0c10b58f07cd8d4df3f8432e6ef02fbc235be2",
-    "game_version_alignment_verified": false,
-    "future_snapshot_created": false,
-    "captures": [
-      {
-        "br_field": "rb",
-        "bytes": 1336296,
-        "count": 1226,
-        "kind": "ground",
-        "path": "cc2eb7a15f16b27e3f39e86de9902b1c4469326a29daea81543c6f957bd868f8.html",
-        "sha256": "cc2eb7a15f16b27e3f39e86de9902b1c4469326a29daea81543c6f957bd868f8",
-        "url": "https://wiki.warthunder.com/ground"
-      },
-      {
-        "br_field": "trb",
-        "bytes": 1478761,
-        "count": 1342,
-        "kind": "aircraft",
-        "path": "3979ae97a58c65c9157fee8d47fdb7207dd4bbbec985a5d38b119ce8fc15d951.html",
-        "sha256": "3979ae97a58c65c9157fee8d47fdb7207dd4bbbec985a5d38b119ce8fc15d951",
-        "url": "https://wiki.warthunder.com/aviation"
-      },
-      {
-        "br_field": "rb",
-        "bytes": 429841,
-        "count": 112,
-        "kind": "helicopter",
-        "path": "4ea08fd04f1559038a6be193cd1bb1856fb65d47e4a5a5692f32b27f0a2a3969.html",
-        "sha256": "4ea08fd04f1559038a6be193cd1bb1856fb65d47e4a5a5692f32b27f0a2a3969",
-        "url": "https://wiki.warthunder.com/helicopters"
-      }
-    ]
-  },
-  "physical_artifacts": {
-    "json_bytes": 958587150,
-    "json_files": 220202,
-    "measurement": "initial direct filesystem inventory; rejected historical objects included",
-    "npz_bytes": 44165399237,
-    "npz_files": 220202
-  },
-  "physical_artifact_audit_note": "Original full atlas size from prior on-disk inventory; current selected maps are independently revalidated in this build.",
-  "supplemental_native_range": {
-    "separate_atlas": true,
-    "global_counts_unchanged": true,
-    "maps": 6,
-    "vehicles": 2,
-    "distances_m": [
-      100,
-      500,
-      1000
-    ],
-    "diagnostics": 432,
-    "receipt": "reports/native-range-validation.json"
-  },
-  "sample": {
-    "diagnostics": 72,
-    "checkpoints": 6,
-    "maximum_delta": 0.0,
-    "source_hashes_unchanged": true,
-    "original_32_file_archive_available": false,
-    "build": {
-      "out": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\sample-8060dd2",
-      "build_key": "26e0670db234135da835cc5008818ba7b9606a105f5399c1298453370b5c60a0",
-      "catalog_vehicles": 2,
-      "maps": 1,
-      "diagnostic_rows": 72,
-      "cache_hits": 45,
-      "cache_misses": 81,
-      "npz_loads": 1,
-      "ranked_counts": {
-        "current": 0
-      },
-      "evaluations": {
-        "current": 0
-      },
-      "search_execution": {
-        "current": {
-          "restored_tables": 0,
-          "computed_tables": 4,
-          "new_evaluations": 0,
-          "restored_evaluations": 0
-        }
-      },
-      "research_counts": {
-        "current": 0
-      },
-      "release_readiness": {
-        "current": {
-          "algorithm_ready": true,
-          "data_ready": false,
-          "publishable": false,
-          "why_not_publishable": [
-            "sample_subset",
-            "snapshot_identity_missing",
-            "baseline_release_status_unverified",
-            "source_version_timeline_incomplete",
-            "snapshot_physics_version_mismatch",
-            "independent_target_geometry_not_verified",
-            "physical_arrays_not_fully_verified",
-            "no_candidates_meet_bidirectional_coverage",
-            "scope_is_limited_ground_research",
-            "full_mode_mission_evidence_missing",
-            "spawn_rules_assumed",
-            "sensitivity_not_verified",
-            "rating_version_provenance_incomplete"
-          ],
-          "snapshot": {
-            "snapshot_id": "wiki-d759fcb02ab375b4",
-            "game_version": null,
-            "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
-            "wiki_collected_at": "2026-10-29T01:19:11.129331+00:00",
-            "effective_date": null,
-            "source_status": "unknown",
-            "sources": [
-              {
-                "count": 1226,
-                "kind": "ground",
-                "sha256": "48f16f5a4dd40cc4243530035609689926d9d0809b9cdf69f0e28f22a5f90243",
-                "url": "https://wiki.warthunder.com/ground"
-              },
-              {
-                "count": 1341,
-                "kind": "aircraft",
-                "sha256": "fdac34358e9626485d27352a7f21c5e2fcab9c6147345a32fadc819d49c86963",
-                "url": "https://wiki.warthunder.com/aviation"
-              },
-              {
-                "count": 112,
-                "kind": "helicopter",
-                "sha256": "d2caa3307d468a25290085dd8292ce4cf4dd41c6fc58eede53aa1121c8d623b9",
-                "url": "https://wiki.warthunder.com/helicopters"
-              }
-            ],
-            "sha256": "f1738dae0a13689edd1a985b8ef31a8f5bb328a3223a712da911de9685701884"
-          },
-          "calibration_status": "uncalibrated",
-          "empirical_win_rate_validated": false,
-          "research_candidates": 0
-        }
-      },
-      "duration_seconds": 1.0068209000164643,
-      "resources": {
-        "peak_rss_bytes": 118931456,
-        "cpu_seconds": 1.53125,
-        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
-      },
-      "publication": "sample_diagnostics_only"
-    }
+  "native_additions": {
+    "maps": 358,
+    "forward_direction_increase": 309,
+    "bidirectionally_covered_directed_pair_increase": 390,
+    "remaining_locally_computable_requests": 0,
+    "remaining_profile_gap_report": "reports/native-profile-gaps.json"
   }
 }

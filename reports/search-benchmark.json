@@ -580,5 +580,276 @@
       }
     ],
     "scope": "Windows WMI parent and direct worker processes; sampling began during array preflight. Shared pages can be counted twice; sampled sum is not an exact process-tree lifetime peak. Transfer counters are logical I/O, not physical disk traffic."
+  },
+  "native_current_code_synthetic": {
+    "data_kind": "synthetic_only",
+    "global_optimum_claimed": false,
+    "metadata": [
+      {
+        "cold": {
+          "metadata_cpu_seconds": 0.515625,
+          "metadata_rebuilt": 1000,
+          "metadata_seconds": 3.569512600079179
+        },
+        "duration_seconds": 3.88226800004486,
+        "index_bytes": 1622016,
+        "npz_loads": 3,
+        "objects": 1000,
+        "resources": {
+          "cpu_seconds": 1.359375,
+          "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+          "peak_rss_bytes": 66355200
+        },
+        "selected_maps": 1000,
+        "warm": {
+          "incremental_hits": 1000,
+          "metadata_cpu_seconds": 0.296875,
+          "metadata_seconds": 0.3017928999615833
+        }
+      },
+      {
+        "cold": {
+          "metadata_cpu_seconds": 5.0625,
+          "metadata_rebuilt": 10000,
+          "metadata_seconds": 34.917502800002694
+        },
+        "duration_seconds": 38.17879320005886,
+        "index_bytes": 16060416,
+        "npz_loads": 3,
+        "objects": 10000,
+        "resources": {
+          "cpu_seconds": 11.859375,
+          "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+          "peak_rss_bytes": 90415104
+        },
+        "selected_maps": 10000,
+        "warm": {
+          "incremental_hits": 10000,
+          "metadata_cpu_seconds": 3.171875,
+          "metadata_seconds": 3.1810839000390843
+        }
+      }
+    ],
+    "real_116k_throughput": null,
+    "resources": {
+      "cpu_seconds": 12.65625,
+      "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+      "peak_rss_bytes": 90415104
+    },
+    "schema_version": "1.0.0",
+    "search": [
+      {
+        "best": null,
+        "budget": 1,
+        "evaluations": 1,
+        "optimality_gap": null,
+        "oracle": 50.30628124704957,
+        "seconds": 0.0018055998953059316,
+        "seed": 17,
+        "truncated": true
+      },
+      {
+        "best": null,
+        "budget": 1,
+        "evaluations": 1,
+        "optimality_gap": null,
+        "oracle": 50.30628124704957,
+        "seconds": 0.0017038000514730811,
+        "seed": 105,
+        "truncated": true
+      },
+      {
+        "best": 50.30628124704957,
+        "budget": 4,
+        "evaluations": 3,
+        "optimality_gap": 0.0,
+        "oracle": 50.30628124704957,
+        "seconds": 0.0035378000466153026,
+        "seed": 17,
+        "truncated": false
+      },
+      {
+        "best": 50.30628124704957,
+        "budget": 4,
+        "evaluations": 3,
+        "optimality_gap": 0.0,
+        "oracle": 50.30628124704957,
+        "seconds": 0.0038346999790519476,
+        "seed": 105,
+        "truncated": false
+      },
+      {
+        "best": 50.30628124704957,
+        "budget": 64,
+        "evaluations": 3,
+        "optimality_gap": 0.0,
+        "oracle": 50.30628124704957,
+        "seconds": 0.0035786000080406666,
+        "seed": 17,
+        "truncated": false
+      },
+      {
+        "best": 50.30628124704957,
+        "budget": 64,
+        "evaluations": 3,
+        "optimality_gap": 0.0,
+        "oracle": 50.30628124704957,
+        "seconds": 0.003558599972166121,
+        "seed": 105,
+        "truncated": false
+      }
+    ]
+  },
+  "native_combined_real_run": {
+    "execution": {
+      "out": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\real-forecast-native-2bcf8e7",
+      "build_key": "b9b45f5879986b7299084103aef625141f2f479ac7d3de5ecf69131588628e51",
+      "catalog_vehicles": 2680,
+      "maps": 97779,
+      "diagnostic_rows": 0,
+      "cache_hits": 301164,
+      "cache_misses": 194671,
+      "npz_loads": 193698,
+      "ranked_counts": {
+        "current": 0
+      },
+      "evaluations": {
+        "current": 1100
+      },
+      "search_execution": {
+        "current": {
+          "restored_tables": 0,
+          "computed_tables": 758,
+          "new_evaluations": 1100,
+          "restored_evaluations": 0
+        }
+      },
+      "research_counts": {
+        "current": 0
+      },
+      "release_readiness": {
+        "current": {
+          "algorithm_ready": true,
+          "data_ready": false,
+          "publishable": false,
+          "why_not_publishable": [
+            "snapshot_identity_missing",
+            "baseline_release_status_unverified",
+            "source_version_timeline_incomplete",
+            "snapshot_physics_version_mismatch",
+            "search_budget_truncated",
+            "no_candidates_meet_bidirectional_coverage",
+            "scope_is_limited_ground_research",
+            "full_mode_mission_evidence_missing",
+            "spawn_rules_assumed",
+            "loadout_source_unverified",
+            "sensitivity_not_verified",
+            "rating_version_provenance_incomplete"
+          ],
+          "snapshot": {
+            "snapshot_id": "wiki-5623f68d352b3916",
+            "game_version": null,
+            "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+            "wiki_collected_at": "2026-10-30T13:06:38.003583+00:00",
+            "effective_date": null,
+            "source_status": "unknown",
+            "sources": [
+              {
+                "br_field": "rb",
+                "bytes": 1336296,
+                "count": 1226,
+                "kind": "ground",
+                "path": "cc2eb7a15f16b27e3f39e86de9902b1c4469326a29daea81543c6f957bd868f8.html",
+                "sha256": "cc2eb7a15f16b27e3f39e86de9902b1c4469326a29daea81543c6f957bd868f8",
+                "url": "https://wiki.warthunder.com/ground"
+              },
+              {
+                "br_field": "trb",
+                "bytes": 1478761,
+                "count": 1342,
+                "kind": "aircraft",
+                "path": "3979ae97a58c65c9157fee8d47fdb7207dd4bbbec985a5d38b119ce8fc15d951.html",
+                "sha256": "3979ae97a58c65c9157fee8d47fdb7207dd4bbbec985a5d38b119ce8fc15d951",
+                "url": "https://wiki.warthunder.com/aviation"
+              },
+              {
+                "br_field": "rb",
+                "bytes": 429841,
+                "count": 112,
+                "kind": "helicopter",
+                "path": "4ea08fd04f1559038a6be193cd1bb1856fb65d47e4a5a5692f32b27f0a2a3969.html",
+                "sha256": "4ea08fd04f1559038a6be193cd1bb1856fb65d47e4a5a5692f32b27f0a2a3969",
+                "url": "https://wiki.warthunder.com/helicopters"
+              }
+            ],
+            "sha256": "e5ecf32d868db122853026594385bdb2a699250f8b856c67e32bb59b26b76651"
+          },
+          "calibration_status": "uncalibrated",
+          "empirical_win_rate_validated": false,
+          "research_candidates": 0
+        }
+      },
+      "duration_seconds": 5786.659891200019,
+      "resources": {
+        "peak_rss_bytes": 1091227648,
+        "cpu_seconds": 4729.21875,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
+      },
+      "publication": "conditional_research_only"
+    },
+    "preflight": {
+      "ambiguous_maps": 0,
+      "annotation_reconciled_maps": 0,
+      "content_sha256": "629228feb034a9506292a6e505bd865a1e4d1f7e56cb252196b538019cf26724",
+      "historical_duplicate_maps": 0,
+      "metadata_objects": 97779,
+      "metrics": {
+        "array_seconds": 450.4694219001103,
+        "arrays_checked": 97779,
+        "memory_budget_bytes": 2147483648,
+        "metadata_cpu_seconds": 89.078125,
+        "metadata_rebuilt": 97779,
+        "metadata_seconds": 379.2190744000254,
+        "workers": 4
+      },
+      "rejections": {},
+      "selected_array_bytes": 16927346056,
+      "selected_maps": 97779,
+      "status_counts": {
+        "verified": 97779
+      },
+      "verified_arrays": 97779
+    },
+    "composition": {
+      "static_total_bytes": 69036327,
+      "static_published_file_count": 5553,
+      "probability_mode": "disabled",
+      "budgets": {
+        "site_bytes": 104857600,
+        "file_bytes": 26214400
+      },
+      "output": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\site-native-0f50df1",
+      "build_key": "b9b45f5879986b7299084103aef625141f2f479ac7d3de5ecf69131588628e51",
+      "research": {
+        "url": "research/index.html",
+        "status": "available",
+        "catalog_alignment": {
+          "status": "verified_same_input_catalog",
+          "catalog_sha256": "b7e3df3f63356353569087fd9c5fcacba61a3dde423daf552000645251dbcca9"
+        },
+        "manifest_sha256": "eede311a4450dd35cc846bed31a37248e9bcfc2a648283fb71cdee2c9b9c2f8f",
+        "source_manifest_sha256": "b4d5a81d6da8c49475e83dd2aea29fdc2dbb334b544e3b84233955a8f2e27298"
+      }
+    },
+    "resource_monitor": {
+      "scope": "Sampled parent/direct-worker working sets; sampling began after launch and does not capture every peak",
+      "samples": 379,
+      "first": "2026-10-31T02:05:58.8867204Z",
+      "last": "2026-10-31T03:41:38.2434743Z",
+      "maximum_sampled_aggregate_working_set_bytes": 887255040
+    },
+    "all_cases_evaluations": 7700,
+    "all_cases_tables": 4548,
+    "measurement_context": "Same host; part of run overlapped an isolated local research study, synthetic benchmark, legacy research rebuild and acceptance tests."
   }
 }
