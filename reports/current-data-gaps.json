@@ -53,7 +53,7 @@
       "id": "us_lav_ad::M247",
       "maps_status": "running",
       "new_owned_selections": 1,
-      "report": "reports/primary-modifications-progress.json",
+      "report": "reports/primary-ammunition-progress.json",
       "report_sha256": "ccbd5024f4e1061a3f7556c7675e34922b9b3d9bf423419e2c5bd3ca9089e7eb",
       "required_modification": "lav_ad_hydra_70"
     },
