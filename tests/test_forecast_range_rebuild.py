@@ -45,6 +45,24 @@ def source_fixture(root):
     return catalog,ammo,metadata,raw
 
 class RangeRebuildTests(unittest.TestCase):
+    def test_incremental_profiles_preserve_verified_old_ranges_and_reject_changed_source(self):
+        import sys
+        sys.path.insert(0,str(ROOT/'scripts'))
+        from prepare_range_profiles import prepare
+        old=profile();old_range=source_range_profile(old,100)
+        new=copy.deepcopy(old);new['name']='new_round';new['provenance']['penetration_source_ammo_ids']=['fixture::new']
+        bundle,counts,rejections,preserved=prepare([old,new],[100,500],None,previous=[old],existing=[old,old_range])
+        self.assertEqual(bundle[:2],[old,old_range]);self.assertEqual(preserved,2)
+        self.assertEqual(counts['KE'],2);self.assertEqual(rejections,[])
+        self.assertEqual([p['distance_m'] for p in bundle[3:]],[100,500])
+        changed=copy.deepcopy(old);changed['penetration_mm']=101.
+        with self.assertRaisesRegex(ValueError,'Previous source profiles changed'):
+            prepare([changed,new],[100],None,previous=[old],existing=[old,old_range])
+        with self.assertRaisesRegex(ValueError,'supplied together'):
+            prepare([old],[100],None,previous=[old])
+        with self.assertRaisesRegex(ValueError,'conflicts'):
+            prepare([old,new],[100],None,previous=[old],existing=[old,new])
+
     def test_ce_range_requires_exact_source_scalar_and_preserves_unknown_flight(self):
         with tempfile.TemporaryDirectory() as temporary:
             p,source=ce_profile(temporary);original=copy.deepcopy(p)

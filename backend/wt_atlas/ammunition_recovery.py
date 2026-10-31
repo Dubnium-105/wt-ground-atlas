@@ -48,10 +48,11 @@ class Localization:
 
 
 class MountedAmmunition:
-    def __init__(self, root, localization, *, default_rules=None, selector_rules=None, structural_projectiles=False):
+    def __init__(self, root, localization, *, default_rules=None, selector_rules=None, structural_projectiles=False, primary_rules=None):
         self.root = Path(root); self.localization = localization
         self.default_rules = default_rules
         self.selector_rules = selector_rules
+        self.primary_rules = primary_rules
         self.structural_projectiles = structural_projectiles
         self.cache = OrderedDict(); self.sources = {}; self.rejections = []
 
@@ -74,9 +75,34 @@ class MountedAmmunition:
         unit = self.read(path); modifications = unit.get('modifications', {})
         mounts = array(unit.get('commonWeapons', {}).get('Weapon'))
         result = []
-        for weapon_path in sorted({m['blk'].replace('\\', '/').lower() for m in mounts if m.get('blk')}):
+        contexts = [(None, mounts)]
+        if self.primary_rules:
+            from .primary_armament import primary_declarations, modification_requirements
+            base_paths = {m['blk'].replace('\\', '/').lower() for m in mounts if m.get('blk')}
+            for mod, definition in sorted(modifications.items()):
+                effects=definition.get('effects') if isinstance(definition,dict) else None
+                if not isinstance(effects,dict) or not isinstance(effects.get('commonWeapons'),dict): continue
+                if definition.get('invertEnableLogic', False) is not False: continue
+                try:
+                    declarations, _ = primary_declarations(unit, mod)
+                except (ValueError,KeyError,TypeError) as error:
+                    self.rejections.append({'unit_path':path,'primary_modification_id':mod,'reason':str(error)})
+                    continue
+                changed = [d for d in declarations if d['weapon'].get('blk', '').replace('\\', '/').lower() not in base_paths]
+                for conditional_path in sorted({d['weapon'].get('blk','').replace('\\','/').lower() for d in changed if d['weapon'].get('blk')}):
+                    group=[d for d in changed if d['weapon'].get('blk','').replace('\\','/').lower()==conditional_path]
+                    try:
+                        required=modification_requirements(unit,[mod]+[name for d in group for name in d.get('required_modification_ids',[])])
+                    except (ValueError,KeyError,TypeError) as error:
+                        self.rejections.append({'unit_path':path,'primary_modification_id':mod,'weapon_path':conditional_path,'reason':str(error)})
+                        continue
+                    contexts.append(({'primary_modification_id': mod,
+                        'required_modification_ids': required,
+                        'primary_armament_rules': self.primary_rules}, [d['weapon'] for d in group]))
+        for context, context_mounts in contexts:
+          for weapon_path in sorted({m['blk'].replace('\\', '/').lower() for m in context_mounts if m.get('blk')}):
             weapon = self.read(weapon_path)
-            weapon_mounts = [m for m in mounts if m.get('blk', '').replace('\\', '/').lower() == weapon_path]
+            weapon_mounts = [m for m in context_mounts if m.get('blk', '').replace('\\', '/').lower() == weapon_path]
             selections = [('@default', weapon, {})]
             if self.selector_rules:
                 for name in modifications:
@@ -104,7 +130,7 @@ class MountedAmmunition:
                 if self.default_rules and selector == '@default':
                     from .default_belts import candidate_fields
                     extra.update(candidate_fields(weapon, weapon_mounts))
-                result.append({**extra, **selection_proof, 'unit_path': path, 'unit_sha256': self.sources[path],
+                result.append({**extra, **selection_proof, **(context or {}), 'unit_path': path, 'unit_sha256': self.sources[path],
                     'weapon_path': weapon_path, 'weapon_sha256': self.sources[weapon_path],
                     'selector': selector, 'selection_sha256': content_hash(selected),
                     'bullets': bullets, 'is_belt': weapon.get('isBulletBelt') is True,
@@ -137,7 +163,7 @@ class MountedAmmunition:
         if not matches: raise ValueError('exact_localized_mounted_selection_missing')
         # The default and a named selector may contain exactly the same rounds.
         # They are equivalent only within the same mounted weapon source.
-        identities = {(m['weapon_path'], content_hash(m['bullets'])) for m in matches}
+        identities = {(m['weapon_path'], content_hash(m['bullets']), m.get('primary_modification_id')) for m in matches}
         if len(identities) != 1: raise ValueError('ambiguous_localized_mounted_selection')
         match = sorted(matches, key=lambda m: (m['selector'] == '@default', m['selector']))[0]
         return {**match, 'equivalent_selectors': sorted({m['selector'] for m in matches})}
@@ -292,9 +318,12 @@ def consolidate(profiles):
     for profile in profiles:
         provenance = profile['provenance']
         binding = next(iter(provenance['recovery_bindings'].values()))
-        key = content_hash({'physical': {k: v for k, v in profile.items() if k not in ('name', 'provenance')},
+        identity = {'physical': {k: v for k, v in profile.items() if k not in ('name', 'provenance')},
             'projectile_sha256': binding['projectile_sha256'],
-            **{k: provenance[k] for k in ('client_version', 'datamine_commit', 'source_hashes', 'model_assumptions')}})
+            **{k: provenance[k] for k in ('client_version', 'datamine_commit', 'source_hashes', 'model_assumptions')}}
+        if binding.get('primary_modification_id'):
+            identity['primary_modification_id'] = binding['primary_modification_id']
+        key = content_hash(identity)
         name = 'recovered_' + key[:24]; renamed[profile['name']] = name
         if name not in groups:
             groups[name] = copy.deepcopy(profile); groups[name]['name'] = name
@@ -341,6 +370,8 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
             if binding.get('selector_rules') and (not adapter.selector_rules or
                     binding['selector_rules'] != adapter.selector_rules['evidence']):
                 raise ValueError('Existing selector evidence changed or was not enabled')
+            if binding.get('primary_modification_id') and binding.get('primary_armament_rules') != adapter.primary_rules:
+                raise ValueError('Existing primary armament evidence changed or was not enabled')
             if 'projectile_identities' in binding:
                 if not adapter.structural_projectiles:
                     raise ValueError('Existing structural projectile evidence was not enabled')
@@ -371,7 +402,7 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
             checked.add(key)
 
 
-def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False, selector_rules=False, structural_projectiles=False, ordered_belts=False, chemical_energy=False):
+def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False, selector_rules=False, structural_projectiles=False, ordered_belts=False, chemical_energy=False, primary_modifications=False):
     from .forecast.rule_snapshot import verify_capture
     catalog = read_json(catalog_path); existing = read_json(ammunition_path)
     capture = read_json(capture_path); language = read_json(language_path)
@@ -390,9 +421,11 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
     default_rules = verified_rules(capture, version) if default_belts else None
     from .ammunition_selectors import verified_rules as verified_selector_rules
     selection_rules = verified_selector_rules(capture, version) if selector_rules else None
+    from .primary_armament import verified_rules as verified_primary_rules
+    primary_rules = verified_primary_rules(capture, version) if primary_modifications else None
     localization = Localization(Path(language['extracted']) / 'lang', include_defaults=default_belts)
     adapter = MountedAmmunition(pack['extracted'], localization, default_rules=default_rules, selector_rules=selection_rules,
-                               structural_projectiles=structural_projectiles)
+                               structural_projectiles=structural_projectiles, primary_rules=primary_rules)
     verify_existing_recovery(existing, adapter, localization, wiki_root, version, commit)
     from .ordered_belt_recovery import component_index, recover_belt, verify_existing_belts
     has_belts = any(a.get('ordered_belt') for v in catalog['vehicles'] for a in v.get('ammo', []))
@@ -434,6 +467,8 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
                      'slopeEffectPreset', 'ricochetPreset', 'armorpower', 'cumulativeDamage')}
                     for b in binding['bullets']]
                 if ordered_belts and len({content_hash(b) for b in binding['bullets']}) > 1:
+                    if binding.get('primary_modification_id'):
+                        raise ValueError('conditional_ordered_belt_source_revalidation_unavailable')
                     belt = recover_belt(vehicle, ammo, binding, components, version, commit, wiki_source)
                     record.update(status='ordered_belt_recovered', ordered_belt=belt)
                     records.append(record)
@@ -442,6 +477,8 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
                     from .chemical_projectiles import ce_profile
                     profile = ce_profile(ammo, binding, tables, wiki_source, response, version, commit)
                 else:
+                    if binding.get('primary_modification_id'):
+                        raise ValueError('conditional_kinetic_source_revalidation_unavailable')
                     profile = ke_profile(ammo, binding, tables, wiki_source, response, version, commit)
                 profiles.append(profile); record.update(status='profile_recovered', profile=profile['name'])
                 # Preserve the Wiki's exact parent-weapon timing for previously
@@ -474,6 +511,7 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
         'structural_projectiles': structural_projectiles,
         'ordered_belts': ordered_belts,
         'chemical_energy': chemical_energy,
+        'primary_armament_rules': primary_rules,
         'legacy_ce_source_rejections': legacy_ce_rejections,
         'source_files': adapter.sources, 'localization_files': localization.sources,
         'counts': {'examined_ammunition': len(records), 'recovered_profiles': len(profiles),

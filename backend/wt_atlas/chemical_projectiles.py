@@ -114,7 +114,21 @@ def source_evidence(profile, source_root):
         if proof['unit_path']!='gamedata/units/tankmodels/'+ammo_id.split('::',1)[0]+'.blk':
             raise ValueError('Chemical source vehicle ownership mismatch')
         unit=read(proof['unit_path'],proof['unit_sha256'])
-        mounted={w.get('blk','').replace('\\','/').lower() for w in array(unit.get('commonWeapons',{}).get('Weapon'))}
+        primary=proof.get('primary_modification_id')
+        if primary:
+            from .primary_armament import primary_declarations, modification_requirements, REVIEWED_SCRIPTS
+            declarations,_=primary_declarations(unit,primary)
+            rules=proof.get('primary_armament_rules',{})
+            selected=[d for d in declarations if d['weapon'].get('blk','').replace('\\','/').lower()==proof['weapon_path']]
+            actual_mounts=[{k:d['weapon'][k] for k in ('trigger','triggerGroup','emitter') if k in d['weapon']} for d in selected]
+            required=modification_requirements(unit,[primary]+[name for d in selected for name in d.get('required_modification_ids',[])])
+            if (proof.get('required_modification_ids')!=required or
+                rules.get('source_version')!=provenance.get('client_version') or proof.get('mounts')!=actual_mounts or
+                any(rules.get('scripts',{}).get(path,{}).get('lf_sha256')!=sha for path,sha in REVIEWED_SCRIPTS.items())):
+                raise ValueError('Chemical primary modification proof mismatch')
+            mounted={d['weapon'].get('blk','').replace('\\','/').lower() for d in declarations}
+        else:
+            mounted={w.get('blk','').replace('\\','/').lower() for w in array(unit.get('commonWeapons',{}).get('Weapon'))}
         if proof['weapon_path'] not in mounted: raise ValueError('Chemical source weapon is not mounted')
         weapon=read(proof['weapon_path'],proof['weapon_sha256'])
         selected=weapon if proof['selector']=='@default' else weapon.get(proof['selector'],{})

@@ -88,6 +88,56 @@ class AmmunitionRecoveryTests(unittest.TestCase):
         self.assertEqual([b['bulletName'] for b in binding['bullets']], ['round_m20', 'other'])
         with self.assertRaisesRegex(ValueError, 'mixed_belt'): self.profile(binding=binding)
 
+    def test_primary_modification_weapon_is_source_bound_and_not_baseline(self):
+        self.localization({'round_m20':'M20','rocket_round':'Rocket'})
+        rocket={'bulletName':'rocket_round','bulletType':'heat_tank','caliber':.07}
+        self.put('gamedata/weapons/rocket.blk',{'bullet':rocket})
+        self.unit['modifications']['upgrade']={'effects':{'commonWeapons':{'Weapon':[
+            {'blk':'gamedata/weapons/gun.blk','trigger':'gunner0'},
+            {'blk':'gamedata/weapons/rocket.blk','trigger':'gunner2'}]}}}
+        self.put('gamedata/units/tankmodels/vehicle.blk',self.unit)
+        ammo={**self.ammo,'id':'vehicle::rocket','name':'Rocket','caliber_mm':70.}
+        with self.assertRaisesRegex(ValueError,'selection_missing'):
+            self.adapter().bind(self.adapter().candidates({'id':'vehicle'}),ammo)
+        adapter=MountedAmmunition(self.root,Localization(self.lang),primary_rules={'source_version':'test'})
+        binding=adapter.bind(adapter.candidates({'id':'vehicle'}),ammo)
+        self.assertEqual(binding['primary_modification_id'],'upgrade')
+        self.assertEqual(binding['required_modification_ids'],['upgrade'])
+        self.assertEqual(binding['mounts'],[{'trigger':'gunner2'}])
+        self.assertEqual(binding['primary_armament_rules']['source_version'],'test')
+
+    def test_two_alternative_primary_modifications_are_not_silently_merged(self):
+        self.localization({'rocket_round':'Rocket'})
+        self.put('gamedata/weapons/rocket.blk',{'bullet':{'bulletName':'rocket_round','bulletType':'heat_tank'}})
+        effect={'effects':{'commonWeapons':{'Weapon':{'blk':'gamedata/weapons/rocket.blk'}}}}
+        self.unit['modifications'].update(first=effect,second=effect)
+        self.put('gamedata/units/tankmodels/vehicle.blk',self.unit)
+        adapter=MountedAmmunition(self.root,Localization(self.lang),primary_rules={'source_version':'test'})
+        with self.assertRaisesRegex(ValueError,'ambiguous_localized'):
+            adapter.bind(adapter.candidates({'id':'vehicle'}),{**self.ammo,'name':'Rocket'})
+
+    def test_primary_weapon_slot_prerequisites_are_not_dropped(self):
+        self.localization({'rocket_round':'Rocket'})
+        self.put('gamedata/weapons/rocket.blk',{'bullet':{'bulletName':'rocket_round','bulletType':'heat_tank'}})
+        self.unit['WeaponSlots']={'WeaponSlot':{'index':1,'WeaponPreset':{'name':'mount',
+            'reqModification':'mount_unlock','Weapon':{'blk':'gamedata/weapons/rocket.blk','trigger':'gunner2'}}}}
+        self.unit['modifications'].update(mount_unlock={},upgrade={'effects':{'commonWeapons':{
+            'Weapon':{'slot':1,'preset':'mount'}}}})
+        self.put('gamedata/units/tankmodels/vehicle.blk',self.unit)
+        adapter=MountedAmmunition(self.root,Localization(self.lang),primary_rules={'source_version':'test'})
+        binding=adapter.bind(adapter.candidates({'id':'vehicle'}),{**self.ammo,'name':'Rocket'})
+        self.assertEqual(binding['required_modification_ids'],['mount_unlock','upgrade'])
+
+    def test_conditional_ownership_does_not_mutate_existing_profile_identity(self):
+        base=self.profile();conditional=copy.deepcopy(base)
+        proof=conditional['provenance']['recovery_bindings'].pop('vehicle::API-T')
+        proof.update(primary_modification_id='upgrade',required_modification_ids=['upgrade'])
+        conditional['provenance']['recovery_bindings']={'vehicle::conditional':proof}
+        conditional['provenance']['penetration_source_ammo_ids']=['vehicle::conditional']
+        previous,_=consolidate([base]);combined,_=consolidate([base,conditional])
+        self.assertEqual(len(combined),2)
+        self.assertIn(previous[0],combined)
+
     def test_component_index_rechecks_the_complete_raw_projectile(self):
         from wt_atlas.ordered_belt_recovery import component_index
         from wt_atlas.common import content_hash

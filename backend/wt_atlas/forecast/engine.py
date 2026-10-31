@@ -98,14 +98,28 @@ def enumerate_variants(catalog: dict, atlas: Atlas, config: dict | None = None) 
             for ammo, profiles, loadout in payloads:
                 profiles = profiles or ()
                 profile = profiles[0] if profiles else None
+                primary = None
+                if domain == 'ground' and ammo and profiles:
+                    proofs=[p.get('provenance',{}).get('recovery_bindings',{}).get(ammo['id']) for p in profiles]
+                    conditional=[p for p in proofs if isinstance(p,dict) and p.get('primary_modification_id')]
+                    if conditional:
+                        binding=ammo.get('native_ammunition_binding');primary=conditional[0].get('primary_modification_id')
+                        required=conditional[0].get('required_modification_ids')
+                        if (not isinstance(required,list) or not all(isinstance(x,str) and x for x in required) or
+                            primary not in required or any(p!=binding for p in proofs)):
+                            rejected.append({'vehicle_id':vehicle['id'],'ammo_id':ammo['id'],'reason':'primary_ammunition_binding_mismatch'});continue
+                        if ownership.get('require_unlocked') and (unlocked is None or not set(required)<=set(unlocked)):
+                            rejected.append({'vehicle_id':vehicle['id'],'ammo_id':ammo['id'],'reason':'modifications_unavailable'});continue
                 if block is not None:
                     has_policy = any(k in option for k in ("allowed_loadout_ids", "allowed_weapon_ids", "allowed_ammo_ids", "allowed_source_preset_ids", "allowed_primary_armament_ids"))
                     if not has_policy: continue
                     if "allowed_loadout_ids" in option and (loadout is None or loadout["id"] not in option["allowed_loadout_ids"]): continue
                     if "allowed_weapon_ids" in option and (loadout is None or any(w["id"] not in option["allowed_weapon_ids"] for w in loadout["weapons"]+loadout.get('fixed_weapons',[]))): continue
                     if "allowed_ammo_ids" in option and (ammo is None or ammo["id"] not in option["allowed_ammo_ids"]): continue
+                    if domain=='ground' and "allowed_primary_armament_ids" in option and (primary or '') not in option['allowed_primary_armament_ids']: continue
                 identity = {"vehicle_id": vehicle["id"], "mode": "ground_rb", "version": version, "rating_configuration_id": option["id"],
                             "ammo_id": ammo["id"] if ammo else None, "loadout_id": loadout["id"] if loadout else None}
+                if primary:identity['primary_modification_id']=primary
                 variants.append({**identity, "key": digest(identity), "vehicle": vehicle, "ammo": ammo,
                                  "profile": profile, "profiles": profiles, "loadout": loadout, "nation": vehicle["nation"],
                                  "br": br, "br_step": br_step(br), "domain": domain,

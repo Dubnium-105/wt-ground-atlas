@@ -44,10 +44,19 @@
     ],
     "total_scope": "Four generated and independently checked batches; combined atlas validation and global coverage remain pending."
   },
-  "collected_at": "2026-10-31T10:42:59.775221+00:00",
+  "collected_at": "2026-10-31T11:02:08.220991+00:00",
   "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
   "formal_rankings": 0,
   "ground_ammunition": {
+    "conditional_primary_recovery": {
+      "additional_ground_vehicles_with_profile": 0,
+      "id": "us_lav_ad::M247",
+      "maps_status": "running",
+      "new_owned_selections": 1,
+      "report": "reports/primary-modifications-progress.json",
+      "report_sha256": "ccbd5024f4e1061a3f7556c7675e34922b9b3d9bf423419e2c5bd3ca9089e7eb",
+      "required_modification": "lav_ad_hydra_70"
+    },
     "counts": {
       "exactly_bound_selections": 2029,
       "examined_ammunition": 2886,
@@ -277,7 +286,7 @@
   "range_profile_source_conflicts": {
     "needed": "Resolve source projectile identity and chemical penetration parameter semantics before generating fresh range profiles. Existing input ownership must not be rewritten.",
     "new_source_owned_replacements": 14,
-    "note": "Five legacy profiles remain unchanged and rejected; 14 of their selections now have independently recovered profiles.",
+    "note": "Five legacy profiles remain unchanged and rejected; 14 of their selections now have independently recovered profiles. LAV-AD M247 has a newly source-bound replacement pending completion and combined preflight of its new physical maps.",
     "remaining_owned_ammo_ids": [
       "us_lav_ad::M247"
     ],

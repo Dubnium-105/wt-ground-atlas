@@ -100,6 +100,20 @@ class ChemicalProjectileTests(unittest.TestCase):
         path=self.root/self.weapon_path;path.write_text(path.read_text()+'\n// changed source\n')
         with self.assertRaisesRegex(ValueError,'hash mismatch'):source_range_profile(p,100,self.root)
 
+    def test_primary_modification_jet_rechecks_mount_and_prerequisites(self):
+        from wt_atlas.primary_armament import REVIEWED_SCRIPTS
+        self.put(self.unit_path,{'commonWeapons':{'Weapon':{'blk':'other.blk'}},'modifications':{
+            'upgrade':{'effects':{'commonWeapons':{'Weapon':{'blk':self.weapon_path,'trigger':'gunner0'}}}}}})
+        binding=self.binding();binding.update(primary_modification_id='upgrade',required_modification_ids=['upgrade'],
+                                              primary_armament_rules={'source_version':'test','scripts':{k:{'lf_sha256':v} for k,v in REVIEWED_SCRIPTS.items()}})
+        profile=ce_profile(self.ammo,binding,self.tables,self.wiki,self.response,'test','a'*40)
+        self.assertEqual(source_evidence(profile,self.root)['penetration_mm'],330.)
+        for key,value in [('primary_modification_id','missing'),('required_modification_ids',[]),('mounts',[{'trigger':'wrong'}])]:
+            changed=copy.deepcopy(profile);changed['provenance']['recovery_bindings'][self.ammo['id']][key]=value
+            with self.subTest(key=key),self.assertRaises(ValueError):source_evidence(changed,self.root)
+        changed=copy.deepcopy(profile);del changed['provenance']['recovery_bindings'][self.ammo['id']]['primary_modification_id']
+        with self.assertRaisesRegex(ValueError,'not mounted'):source_evidence(changed,self.root)
+
     def test_mixed_source_cannot_use_a_maximum_or_one_matching_member(self):
         binding=self.binding();binding['bullets'].append({**self.bullet,'bulletName':'other'})
         with self.assertRaisesRegex(ValueError,'mixed_selection'):

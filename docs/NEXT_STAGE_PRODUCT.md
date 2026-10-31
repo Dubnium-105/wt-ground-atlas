@@ -443,3 +443,9 @@ BR 选项可通过 `allowed_source_preset_ids` 和 `allowed_primary_armament_ids
 即使载具带有同版本来源字段，只要默认 Ground RB 或任何动态配置的 Ground RB 未知，正式发布审计都会列出载具 ID 并阻止发布。动态配置还必须具有已验证状态和来源 URL；搜索时跳过了某个未知配置不能证明全服候选已覆盖。已明确识别为多载具系统组件的记录继续按已有组件规则处理。
 
 官方[舰载侦察机说明](https://wiki.warthunder.com/mechanics/247-shipboard-reconnaissance-aircraft)将当前 16 个无 BR 条目中的 12 个标为舰载而非独立航空单位，将 KOR-2 标为当时未使用；官方[无人机介绍](https://warthunder.com/en/news/7840)描述了另三个条目对应的战场攻击无人机。它们提供进一步核对资格的线索，但旧文章本身不能证明当前版本所有相关条目的完整资格；在逐项绑定版本和适用模式之前，不会自动解除这些记录的门槛或填写虚构 BR。
+
+## 改装添加的弹药与增量距离档案
+
+`scripts/recover_native_ammunition.py --primary-modifications` 会校验捕获的客户端武器界面脚本，并从独立改装的 `effects.commonWeapons` 中读取新增武器。不同改装之间的同名候选不会被任意合并；改装、武器槽前置要求、源文件哈希、本地化和弹药块均写入来源证明。当前仅恢复可验证的单射流 CE 弹药；改装新增的混合弹链与动能弹继续明确列为待验证。预测枚举会核对该证明、已解锁的改装，以及动态 BR 配置允许的主武器。单射流计算仍仅表示射流已经有效命中后的条件贯穿，不代表飞行、引信、命中或穿后毁伤。
+
+可用 `scripts/prepare_range_profiles.py --previous-ammunition <旧源档案> --existing-ranges <旧距离档案> --ammunition <新源档案> --source-root <客户端源目录> --out <新输出> --report <新报告>` 只为新增源档案生成距离档案。工具检查旧源档案逐项未变、输出身份不冲突，并原样保留旧距离结果；更改旧源或混用旧距离包时不会静默重算或覆盖。实际 2.59.0.92 样本中，LAV-AD 的 M247 通过 `lav_ad_hydra_70` 改装和对应武器、弹药及本地化来源绑定，四个距离档案已生成，旧 1,963 个档案保持不变。
