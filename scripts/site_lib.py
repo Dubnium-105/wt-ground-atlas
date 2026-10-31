@@ -159,10 +159,15 @@ def validate_site(site: Path, budgets: dict | None = None) -> dict:
         for cohort in index.get('cohorts',[]):directories.add(local_file(site,cohort['directory']+'index.json').parent)
         for directory in directories:
             ci=read_json(local_file(directory,'index.json'))
-            forecast_descriptor(ci['report'],directory);forecast_descriptor(ci['migrations'],directory)
+            forecast_descriptor(ci['report'],directory)
+            migration_index=forecast_descriptor(ci['migrations'],directory)
+            if isinstance(migration_index,dict) and migration_index.get('kind')=='migration_index':
+                for shard in migration_index['tables']:forecast_descriptor(shard,directory)
             for d in ci['worlds'].values():
                 world=forecast_descriptor(d,directory)
                 for shard in world['tables']:forecast_descriptor(shard,directory)
+                for boards in world.get('views',{}).values():
+                    for descriptor in boards.values():forecast_descriptor(descriptor,directory)
         if index['research']['status']=='available':validate_site(site/'research',budgets)
     mode = manifest.get('deployment', {}).get('probability_mode', 'disabled')
     paths = []

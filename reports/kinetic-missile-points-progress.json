@@ -1,0 +1,158 @@
+{
+  "ammo_id": "us_losat_ccv::MGM-166",
+  "checks": [
+    {
+      "computed_rays": 4374,
+      "distance_m": 10.0,
+      "inside_declared_distance_bounds": false,
+      "max_probability_delta": 0.0,
+      "partial_probability_rays": 0,
+      "penetration_mm": 20.0,
+      "research_map": {
+        "array_sha256": "0b8a33f2f68f98b2e4c232400ada46b391a50121ec6c4a3904724da72bcf1103",
+        "map_id": "fca49eee6a1804589d926fe8d8eeeeff84af3114f4d5d6ee484b84cab399d59d",
+        "reference_only": true,
+        "reused": false
+      },
+      "sampled_rays": 16319
+    },
+    {
+      "computed_rays": 4374,
+      "distance_m": 100.0,
+      "inside_declared_distance_bounds": false,
+      "max_probability_delta": 6.556510925292969e-07,
+      "partial_probability_rays": 228,
+      "penetration_mm": 124.0,
+      "research_map": {
+        "array_sha256": "21b312622aaf5b12fc208c874ea4065691c96d33b9fdce09cb43b2c570509a21",
+        "map_id": "b39857134c6f6a0bdc5c18c5809477b7e6bdb5e8fb925b2b01a65bed4dca3756",
+        "reference_only": true,
+        "reused": false
+      },
+      "sampled_rays": 16319
+    },
+    {
+      "computed_rays": 4374,
+      "distance_m": 500.0,
+      "inside_declared_distance_bounds": true,
+      "max_probability_delta": 1.475214958190918e-06,
+      "partial_probability_rays": 102,
+      "penetration_mm": 416.0,
+      "research_map": {
+        "array_sha256": "aa8b380ddf262a4295d18e682aa75036fb00ca6787c2bf54856c8729c185590a",
+        "map_id": "0b98a2c38411d1ea03b7ccfb7a2be02be6a3a898500325b5d99be7b3a1d8d001",
+        "reference_only": true,
+        "reused": false
+      },
+      "sampled_rays": 16319
+    },
+    {
+      "computed_rays": 4374,
+      "distance_m": 1000.0,
+      "inside_declared_distance_bounds": true,
+      "max_probability_delta": 7.748603820800781e-07,
+      "partial_probability_rays": 74,
+      "penetration_mm": 764.0,
+      "research_map": {
+        "array_sha256": "3d8898f3e84d904909b01c0a59f439009518af9093536f339bf4764e7b965ac1",
+        "map_id": "1f6459ad9fab70504385eeffcd27396fbb242a69559c188a002df8f3b953e903",
+        "reference_only": true,
+        "reused": false
+      },
+      "sampled_rays": 16319
+    }
+  ],
+  "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+  "duration_seconds": 3.1467454000376165,
+  "formal_rankings": 0,
+  "game_probability_validated": false,
+  "layer_metadata_sha256": "51c1bd1eaffe5308fcb3aaddaf1ddafaf6a4b5e4c253e042fb2ef765e8174fba",
+  "max_probability_delta": 1.475214958190918e-06,
+  "offline_research_batch": {
+    "angles_per_map": 24,
+    "base_catalog_br_only": true,
+    "checkpoint_resume_verified": true,
+    "checks_with_partial_probability": 734,
+    "compressed_array_bytes": 181335062,
+    "independent_code_sha256": {
+      "audit": "e50925e0a8347e4a164b4a927a5b154bc7b8be464f749b0f39e2695e7d1054df",
+      "summary": "2d6817c05c0d3fc3fa94578a296dc4e562c3534eb452baa5e5c045b0ee66a3ae"
+    },
+    "independent_report_sha256": "855f5348282cc8fdaf670344451fa5df58833715e8ce531a2cbcdc6b34972465",
+    "independent_verification_seconds": 21.06884960003663,
+    "input_sha256": {
+      "ammunition": "802915fb4ebbfec220240f24539fd10322e1d2e9cc87ef00dfd37a70e4ac7d24",
+      "bindings": "4ca8ad497a492f3f069111c4cd1ed187596fe23be1d6583d3ccb151752597952",
+      "catalog": "3a402261ab45bd1812759230470ad8c714a4915045ad89d42de5b0b33a0fd9c1",
+      "config": "fb6c9a2c39db7e1597796eee65d2a8fbb1d558137d15442bac5c64f5b9448de6",
+      "source-report": "43b2db4f7f2c0d7f420e834d664cedc686ee458e2b93c8c16980523b8dacd701"
+    },
+    "max_probability_delta": 2.4605542421340942e-06,
+    "plan_sha256": "a7ae822117b06b80a5ba202c905b10028a9cb537a7439ae0082d8463295d4692",
+    "planned_maps": 776,
+    "planner_sha256": "a160dbade9c6d71400529b68d1c35538089f1976f0213bae55e7c6bb0fe35f18",
+    "publishable": false,
+    "reference_only": true,
+    "runner_sha256": "980af74f22f3959603405f2680da8a7bbda410e75cde5a8684946a7931300c73",
+    "sampled_rays": 12669464,
+    "scope": "Real source-matched research calculations; 10 m and 100 m are below the source-declared minimum, and none of these conditional maps enters production.",
+    "status_at_capture": "completed_and_independently_verified",
+    "target_count": 194,
+    "verified_arrays": 776
+  },
+  "offline_research_maps": {
+    "all_arrays_validated": true,
+    "all_reference_only": true,
+    "angles_per_map": 24,
+    "compressed_bytes": 1507724,
+    "count": 4,
+    "resume_all_reused": true,
+    "resume_report_sha256": "76392a28e8279721d5c5ef82a5e6455be502a48c829f87bf61a2e54f7b6c0208",
+    "run_identity": {
+      "backend": "v2-cuda",
+      "cpu_code_sha256": "29729aad137faf7cfceb0af6403d487e84aa418063523d97e458610c64505c4b",
+      "cpu_config_sha256": "af03a4212ffcf2a7dd70db3ff6961a9a0cb5206d819f18a1ec1d0b67bfd17ce5",
+      "cuda_adapter_sha256": "99e8b70083a85d149e4461ad1805b735c27c5befa5a8d1753d30eab025fec298",
+      "layer_arrays_sha256": "8d0e2c922bb2ae24f5eff6c7bb0de278d058e397f4669c94198bad381737ee73",
+      "layer_metadata_sha256": "51c1bd1eaffe5308fcb3aaddaf1ddafaf6a4b5e4c253e042fb2ef765e8174fba",
+      "source_profiles_sha256": "802915fb4ebbfec220240f24539fd10322e1d2e9cc87ef00dfd37a70e4ac7d24",
+      "source_report_sha256": "43b2db4f7f2c0d7f420e834d664cedc686ee458e2b93c8c16980523b8dacd701",
+      "storage_sha256": "aa17ddb42b6f23cd754e9ac927f6017a2ceb009e660caaf952a63ab664387b27",
+      "target_id": "ussr_t_72a",
+      "target_sha256": "8e962f3e99ba9dc090d54a4c7cdbc8861968d32215039e4f3deda13cf36e3eb3",
+      "vendor_code_sha256": "58f1bf518f58f16386ff8ee9851673aa7d588a380545656df643c3cef9e9ad3b",
+      "vendor_manifest_sha256": "38b35c2418cd1731fb1fc00c194482d464dedb41e9291ee775ea23866499542c",
+      "verifier_sha256": "462b11619905dfdff39e18d7dc680448a37d7f984a536aa2a68ed6b73a9e7f8c"
+    }
+  },
+  "parity_report_sha256": "5bfe618b82a6da7edf8409e1181cf3765b1318b80c97cb55617fd5c66680a924",
+  "profiles_sha256": "802915fb4ebbfec220240f24539fd10322e1d2e9cc87ef00dfd37a70e4ac7d24",
+  "publishable": false,
+  "recovery_report_sha256": "43b2db4f7f2c0d7f420e834d664cedc686ee458e2b93c8c16980523b8dacd701",
+  "sampled_rays": 65276,
+  "schema_version": "1.0.0",
+  "scope": "Exact source points and conditional impact on real geometry only; no flight, launch eligibility, activation, hit probability or damage. Profiles are reference-only and blocked from rankings. The 10 m and 100 m points are below the declared 400 m minimum distance.",
+  "source_code_sha256": {
+    "adapter": "b6287462da8781945d1d7cfee3de2c542821a767cc51121d4d6d25a0e411ab79",
+    "producer": "5d0cfc7887d545cd8fef955b2e622e8a77a7796fa6cfc05dc48b5abf2bb70291"
+  },
+  "source_input_sha256": {
+    "catalog": "3a402261ab45bd1812759230470ad8c714a4915045ad89d42de5b0b33a0fd9c1",
+    "gap_summary": "ba300f6a3e02d5fd11d32f83ca0f8b503c6577af9992cf263f6e21566faee6ba",
+    "recovery": "783a0217813c9c23f1410597eca44edb8a25625f2af18575680d17d345505e17"
+  },
+  "source_max_distance_m": 5000.0,
+  "source_min_distance_m": 400.0,
+  "source_probability_maps_read": 0,
+  "source_version": "2.59.0.92",
+  "source_weapon_path": "gamedata/weapons/groundmodels_weapons/162mm_mgm166_launcher_user_cannon.blk",
+  "source_weapon_sha256": "7c1364287391d3f693b487b0ebed89e1d188580340d4069e54fb583126e46e38",
+  "target": "ussr_t_72a",
+  "vehicle_id": "us_losat_ccv",
+  "verification_code_sha256": "462b11619905dfdff39e18d7dc680448a37d7f984a536aa2a68ed6b73a9e7f8c",
+  "wiki": {
+    "path": "unit_us_losat_ccv.html.gz",
+    "sha256": "a7188d08b2a6bd85e41269cf847c5995a5eb9532a9411e1b55ba964d5287f6a5",
+    "url": "https://wiki.warthunder.com/unit/us_losat_ccv"
+  }
+}

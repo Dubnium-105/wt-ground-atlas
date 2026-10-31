@@ -33,6 +33,7 @@ try{
   await page.setViewportSize({width:390,height:844});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await page.screenshot({path:path.join(dir,'forecast-real-mobile.png'),fullPage:true});result.checks.push('mobile layout');
   if(index.research?.status==='available'){
     await page.locator('#research-nav a').first().click();await page.waitForFunction(()=>window.__GROUNDOPS__?.ready);assert.equal(await page.evaluate(()=>window.__GROUNDOPS__.getState().view),'tree');result.checks.push('real research drilldown');
+    assert.match(await page.locator('[aria-label="研究模型说明"]').innerText(),/V3 正式推荐/);
   }
   assert.deepEqual(errors,[]);result.checks.push('no page exceptions');result.page_errors=errors;result.status='passed';
 }catch(error){result.status='failed';result.error=error.message;throw error;}

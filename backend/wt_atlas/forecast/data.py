@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+from ..npz_io import load_npz_bounded
 
 
 def canonical(value: Any) -> str:
@@ -68,6 +69,47 @@ def verify_manifest(root: Path) -> dict:
     return {"status": "verified", "files": len(seen), "sha256": file_hash(path)}
 
 
+def validate_sensitivity_policy(policy):
+    if not isinstance(policy, dict):
+        raise ValueError('Sensitivity requires an explicit versioned sensitivity config section')
+    try:
+        thresholds = policy['thresholds']
+        if policy['schema_version'] != '1.0.0' or policy['status'] != 'assumed_robustness_policy':
+            raise ValueError('Unsupported sensitivity policy version/status')
+        if not number(thresholds['minimum_overlap']) or not 0 < thresholds['minimum_overlap'] <= 1:
+            raise ValueError('Invalid sensitivity overlap threshold')
+        if not number(thresholds['maximum_score_delta']) or not 0 <= thresholds['maximum_score_delta'] <= 100:
+            raise ValueError('Invalid sensitivity utility threshold')
+        if not number(policy['aim_narrower_factor']) or not 0 < policy['aim_narrower_factor'] < 1:
+            raise ValueError('Invalid sensitivity narrower factor')
+        if not number(policy['aim_wider_factor']) or policy['aim_wider_factor'] <= 1:
+            raise ValueError('Invalid sensitivity wider factor')
+        if not number(policy['opponent_skill_mean_shift']) or policy['opponent_skill_mean_shift'] <= 0:
+            raise ValueError('Invalid sensitivity opponent skill shift')
+        for key in ('search_budget_multiplier', 'seed_offset'):
+            if not isinstance(policy[key], int) or isinstance(policy[key], bool) or policy[key] < (2 if key == 'search_budget_multiplier' else 1):
+                raise ValueError('Invalid sensitivity ' + key)
+    except (KeyError, TypeError) as error:
+        raise ValueError('Incomplete sensitivity policy') from error
+    return policy
+
+
+def mission_policy(c: dict) -> dict:
+    """Legacy configurations stay strict; configured priors never become observations."""
+    policy = c.get('mission_policy', {'mode': 'require_evidence'})
+    if not isinstance(policy, dict) or policy.get('mode') not in ('require_evidence', 'assumed_defaults'):
+        raise ValueError('Invalid mission policy')
+    if policy['mode'] == 'assumed_defaults':
+        interval = policy.get('default_interval', {})
+        if policy.get('schema_version') != '1.0.0' or policy.get('status') != 'assumed_not_observed':
+            raise ValueError('Mission defaults must remain versioned assumptions')
+        if not isinstance(interval, dict) or any(not number(interval.get(k)) for k in ('lower', 'mean', 'upper')):
+            raise ValueError('Invalid default mission interval')
+        if not 0 <= interval['lower'] <= interval['mean'] <= interval['upper'] <= 1:
+            raise ValueError('Invalid default mission interval')
+    return policy
+
+
 def validate_config(c: dict) -> None:
     for key in ("aim", "population", "timing", "matchmaking", "spawn", "search", "scenarios", "publication"):
         if key not in c:
@@ -81,6 +123,7 @@ def validate_config(c: dict) -> None:
         elif isinstance(x, float) and not math.isfinite(x):
             raise ValueError("Non-finite config")
     visit(c)
+    mission_policy(c)
     for key, v in c["aim"].items():
         if not number(v) or v < 0:
             raise ValueError("Invalid aim parameter: " + key)
@@ -97,6 +140,8 @@ def validate_config(c: dict) -> None:
     if not isinstance(p["nodes"], int) or not 1 <= p["nodes"] <= 15: raise ValueError("Invalid quadrature size")
     for key, v in c["timing"].items():
         if not number(v) or v <= 0: raise ValueError("Invalid timing setting: " + key)
+    if "sensitivity" in c:
+        validate_sensitivity_policy(c["sensitivity"])
     search = c["search"]
     for key in ("beam_width", "exchange_width", "max_evaluations", "per_cap_limit", "global_limit"):
         if not isinstance(search[key], int) or isinstance(search[key], bool) or search[key] < 1:
@@ -236,7 +281,9 @@ def patch_catalog(catalog: dict, patch: dict | None) -> tuple[dict, list[dict]]:
 
 class Atlas:
     """Index small metadata, load exactly one map on demand. No reference-slice fallback."""
-    def __init__(self, root: Path, ammunition: Path, catalog: dict, *, index=None, memory_budget=512 * 1024**2):
+    def __init__(self, root: Path, ammunition: Path, catalog: dict, *, index=None, memory_budget=512 * 1024**2, profile_history=None):
+        from .profile_history import ProfileHistory, current_duplicate
+        history=profile_history or ProfileHistory()
         self.root = root.resolve()
         self.memory_budget = memory_budget
         raw = read_json(ammunition)
@@ -255,14 +302,19 @@ class Atlas:
                 self._binding_index.setdefault(ammo_id, []).append(profile)
         self.meta = {}
         self.lookup = {}
+        candidates={}
+        self.historical_duplicates={}
         for path in ([] if index is not None else sorted((self.root / "arrays").glob("*.json"))):
             item = read_json(path)
             for key in ("map_id", "target_id", "target_sha256", "ammo_id", "ammo_profile_sha256",
                         "source_version", "datamine_commit", "array_file", "array_sha256"):
                 if not item.get(key): raise ValueError("Missing map identity: " + key)
             profile = self.profiles.get(item["ammo_id"])
-            if profile is None or digest(profile) != item["ammo_profile_sha256"]:
+            if profile is None:
                 raise ValueError("Exact ammunition profile hash mismatch")
+            proof=history.reconcile(item['ammo_profile_sha256'],profile)
+            if proof:item['profile_reconciliation']=proof
+            else:item.pop('profile_reconciliation',None)
             provenance = profile.get("provenance", {})
             if provenance.get("client_version") != item["source_version"] or provenance.get("datamine_commit") != item["datamine_commit"]:
                 raise ValueError("Map/profile version mismatch")
@@ -270,7 +322,7 @@ class Atlas:
                 raise ValueError("Unsupported/reference-only ammunition")
             if not number(profile.get("distance_m")) or profile["distance_m"] < 0: raise ValueError("Unknown map physical distance")
             key = (item["target_id"], item["ammo_id"], profile["distance_m"])
-            if key in self.lookup or item["map_id"] in self.meta: raise ValueError("Ambiguous physical map identity")
+            if item["map_id"] in self.meta: raise ValueError("Ambiguous physical map identity")
             target = self.catalog.get(item["target_id"])
             if target:
                 client = target.get("client_collision") or target.get("source_attributes", {}).get("client", {})
@@ -283,7 +335,14 @@ class Atlas:
             item["metadata_sha256"] = file_hash(path)
             item.pop("images", None)  # PNG paths never enter physics or offline memory indices.
             self.meta[item["map_id"]] = item
-            self.lookup[key] = item["map_id"]
+            candidates.setdefault(key,[]).append(item)
+        for key,maps in candidates.items():
+            selected=maps[0]['map_id'] if len(maps)==1 else current_duplicate(maps)
+            if selected is None:raise ValueError('Ambiguous physical map identity')
+            self.lookup[key]=selected
+            for item in maps:
+                if item['map_id']!=selected:
+                    self.historical_duplicates[item['map_id']]={'superseded_by':selected,'metadata':self.meta.pop(item['map_id'])}
         if index is not None:
             self.meta, self.lookup = index.metadata, index.lookup
         elif not self.meta: raise ValueError("No V2 map metadata under atlas/arrays")
@@ -309,13 +368,8 @@ class Atlas:
         source = self.verify(map_id)
         if self._loaded_id == map_id: return self._loaded
         m = self.meta[map_id]
-        with zipfile.ZipFile(source) as archive:
-            names = archive.namelist()
-            if len(names) != len(set(names)) or sum(i.file_size for i in archive.infolist()) > self.memory_budget:
-                raise ValueError("NPZ duplicate member or expanded memory budget exceeded")
-        with np.load(source, allow_pickle=False) as packet:
-            data = {k: packet[k] for k in ("penetration_probability", "status", "material_response_flags",
-                    "angles_deg", "pixel_pitch_m", "top_y_m", "bottom_y_m", "world_width_m")}
+        data = load_npz_bounded(source, ("penetration_probability", "status", "material_response_flags",
+                    "angles_deg", "pixel_pitch_m", "top_y_m", "bottom_y_m", "world_width_m"), self.memory_budget)
         p, s, f = (data[k] for k in ("penetration_probability", "status", "material_response_flags"))
         if p.dtype != np.float32 or s.dtype != np.uint8 or f.dtype != np.uint8 or p.ndim != 3 or p.shape != s.shape or p.shape != f.shape:
             raise ValueError("Invalid NPZ array layout/dtypes")
@@ -340,12 +394,14 @@ class Atlas:
         return data
 
     def bindings(self, vehicle: dict) -> list[tuple[dict, dict]]:
+        from .belts import ordered_bindings
         result = []
         for ammo in vehicle.get("ammo", []):
+            if ammo.get('ordered_belt'): continue  # Components are a complete selection, never alternatives.
             for p in self._binding_index.get(ammo["id"], []):
                 if ammo["id"] in p.get("provenance", {}).get("penetration_source_ammo_ids", []):
                     client = vehicle.get("source_attributes", {}).get("client", {})
                     if client.get("source_version") != p["provenance"].get("client_version"): continue
                     if p.get("mode") not in ("KE", "CE") or p.get("reference_only"): continue
                     result.append((ammo, p))
-        return result
+        return result + ordered_bindings(vehicle, self.profiles)

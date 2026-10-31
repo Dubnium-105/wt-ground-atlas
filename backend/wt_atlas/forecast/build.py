@@ -13,13 +13,16 @@ import time
 
 from . import MODEL_VERSION
 from .aim import skill_nodes
-from .data import Atlas, canonical, digest, file_hash, patch_catalog, read_json, validate_config, verify_manifest
-from .engine import variant_profiles, Forecast, ShotCache
+from .data import Atlas, canonical, digest, file_hash, mission_policy, patch_catalog, read_json, validate_config, verify_manifest
+from .engine import variant_profiles, variant_projectiles, Forecast, ShotCache
 from .search import Optimizer
+from .rankings import table_candidates
 from .inventory import Inventory, coverage, discover, bind_geometry
 from .versions import apply_version, invalidation, release_gate, selection_identity, snapshot
 from .resources import usage
 from .statistics import community_annotations
+from .profile_history import ProfileHistory
+from .profiles import resolve, cohorts as ordered_cohorts
 
 
 def compact(row: dict) -> dict:
@@ -39,7 +42,7 @@ def package_site(out: Path, report: dict, worlds: dict, migrations: list, root: 
     backup = out.with_name(out.name + ".previous")
     try:
         source = root / "web" / "forecast"
-        for name in ("index.html", "app.mjs", "styles.css"):
+        for name in ("index.html", "app.mjs", "views.mjs", "styles.css"):
             shutil.copyfile(source / name, stage / name)
         (stage / ".wt-forecast-site").write_text(MODEL_VERSION)
         def write_json(name, data):
@@ -53,8 +56,24 @@ def package_site(out: Path, report: dict, worlds: dict, migrations: list, root: 
             path.with_suffix(path.suffix + ".gz").write_bytes(compressed)
             return {"url": "data/" + filename, "sha256": checksum, "bytes": len(raw),
                     "gzip_url":"data/"+filename+'.gz',"gzip_bytes":len(compressed)}
+        migration_groups = {}
+        for migration in migrations:
+            group = (migration['nation'], migration['slots'], migration['acquisition'], migration['before']['actual_br'])
+            migration_groups.setdefault(group, []).append(migration)
+        migration_tables = []
+        for group, rows in sorted(migration_groups.items()):
+            summaries = []
+            for row in rows:
+                summary = {k: row[k] for k in ('status', 'fixed_lineup_delta', 'adaptation_gain_same_new_BR') if k in row}
+                for state in ('before', 'after_fixed'):
+                    if row.get(state):
+                        summary[state] = {'actual_br': row[state]['actual_br']}
+                summaries.append(summary)
+            migration_tables.append({'nation': group[0], 'slots': group[1], 'acquisition': group[2],
+                                     'summaries': summaries, **write_json('migration.' + digest(group)[:16], rows)})
         index = {"schema_version": "1.0.0", "report": write_json("report", report), "worlds": {},
-                 "migrations": write_json("migrations", migrations), "build_key": report["build_key"]}
+                 "migrations": write_json("migrations", {'schema_version': '1.0.0', 'kind': 'migration_index', 'tables': migration_tables}),
+                 "build_key": report["build_key"]}
         for version, world in worlds.items():
             descriptors = [];details = {}
             for table in world["tables"]:
@@ -62,10 +81,20 @@ def package_site(out: Path, report: dict, worlds: dict, migrations: list, root: 
                 descriptors.append({"nation": table["nation"], "slots": table["slots"],
                                     "acquisition": table["acquisition"], "br": round(table["cap_step"] / 3, 1),
                                     **write_json(identity, table)})
-                for row in table["candidates"]:details[row["lineup_key"]]=descriptors[-1]
+                for row in table_candidates(table):details[row["lineup_key"]]=descriptors[-1]
+            view_files = {}
+            for view, boards in world.get('views', {}).items():
+                if view == 'global':
+                    continue
+                view_files[view] = {}
+                for board, rows in boards.items():
+                    eligible = [] if report.get('sample_subset') else rows
+                    view_files[view][board] = write_json(
+                        f'{version}.view.{view}.{board.replace("/", ".")}',
+                        [{**compact(r), 'detail': details.get(r['lineup_key'])} for r in eligible])
             overview = {"boards": {k: [{**compact(r),'detail':details.get(r['lineup_key'])} for r in rows] for k, rows in world["boards"].items()},
                         "research_boards":{k:[{**compact(r),'detail':details.get(r['lineup_key'])} for r in rows] for k,rows in world.get('research_boards',{}).items()},
-                        "tables": descriptors, "evaluations": world["evaluations"],
+                        "views": view_files, "tables": descriptors, "evaluations": world["evaluations"],
                         "truncated_searches": world["truncated_searches"], "global_optimum_guaranteed": False}
             index["worlds"][version] = write_json(version + ".overview", overview)
         (stage / "index.json").write_text(canonical(index), encoding="utf-8")
@@ -95,9 +124,8 @@ def build(args, root: Path) -> dict:
         if value:config['search'][name]=value.split(',') if name=='nations' else value
     if getattr(args,'slots',None):config['search']['slots']=args.slots
     if getattr(args,'max_evaluations',None):config['search']['max_evaluations']=args.max_evaluations
-    if getattr(args,'skill',None):config['population']=config['skill_profiles'][args.skill]
-    if getattr(args,'preference',None):config['spawn'].update(config['task_profiles'][args.preference])
-    validate_config(config)
+    config, selected = resolve(config, getattr(args,'skill',None), getattr(args,'preference',None))
+    args.skill, args.preference = selected
     if args.sample_root:
         sample = Path(args.sample_root).resolve()
         integrity = verify_manifest(sample)
@@ -129,6 +157,8 @@ def build(args, root: Path) -> dict:
     if any(planned_inputs) and patch is not None:
         raise ValueError("Use a patch OR a complete planned snapshot, not ambiguous combined mutations")
     original_baseline=baseline
+    history=ProfileHistory(getattr(args,'profile_history',None) or [])
+    planned_history=ProfileHistory(getattr(args,'planned_profile_history',None) or [])
     baseline, planned, audit = apply_version(baseline, patch)
     index=None
     if getattr(args,'index',None):
@@ -137,9 +167,9 @@ def build(args, root: Path) -> dict:
         if getattr(args,'bindings',None):
             binding_report=read_json(Path(args.bindings))
             bindings,binding_errors=bind_geometry(Path(binding_report['repository']),Path(binding_report['jobs']),baseline)
-        if not getattr(args,'_reuse_index',False):index.sync(atlas_root,ammo_path,baseline,bindings=bindings,force=getattr(args,'force',False))
+        if not getattr(args,'_reuse_index',False):index.sync(atlas_root,ammo_path,baseline,bindings=bindings,force=getattr(args,'force',False),profile_history=history)
         if getattr(args,'preflight',False):index.verify(atlas_root,max_workers=args.max_workers,memory_budget=args.memory_budget*1024**2,resume=args.resume and not args.force)
-    atlas = Atlas(atlas_root, ammo_path, baseline,index=index,memory_budget=args.memory_budget*1024**2)
+    atlas = Atlas(atlas_root, ammo_path, baseline,index=index,memory_budget=args.memory_budget*1024**2,profile_history=history)
     planned_atlas = atlas;planned_index=None
     if all(planned_inputs):
         planned = read_json(Path(args.planned_catalog))
@@ -149,16 +179,18 @@ def build(args, root: Path) -> dict:
             if getattr(args,'planned_bindings',None):
                 br=read_json(Path(args.planned_bindings))
                 planned_bindings,_=bind_geometry(Path(br['repository']),Path(br['jobs']),planned)
-            if not getattr(args,'_reuse_index',False):planned_index.sync(Path(args.planned_atlas),Path(args.planned_ammunition),planned,bindings=planned_bindings,force=args.force)
+            if not getattr(args,'_reuse_index',False):planned_index.sync(Path(args.planned_atlas),Path(args.planned_ammunition),planned,bindings=planned_bindings,force=args.force,profile_history=planned_history)
             if args.preflight:planned_index.verify(Path(args.planned_atlas),max_workers=args.max_workers,memory_budget=args.memory_budget*1024**2,resume=args.resume and not args.force)
-        planned_atlas = Atlas(Path(args.planned_atlas), Path(args.planned_ammunition), planned,index=planned_index,memory_budget=args.memory_budget*1024**2)
+        planned_atlas = Atlas(Path(args.planned_atlas), Path(args.planned_ammunition), planned,index=planned_index,memory_budget=args.memory_budget*1024**2,profile_history=planned_history)
         planned["forecast_scenario"] = {"status": args.planned_status, "id": "separate_physical_snapshot"}
     has_planned = planned is not None or all(planned_inputs)
     cache = ShotCache(Path(args.cache))
     effects = Path(args.effects).resolve() if args.effects else None
     missions = Path(args.missions).resolve() if args.missions else None
     code_hashes = {p.name: file_hash(p) for p in sorted(Path(__file__).parent.glob("*.py"))}
+    code_hashes['../npz_io.py'] = file_hash(Path(__file__).parents[1]/'npz_io.py')
     inputs = {"catalog": file_hash(catalog_path), "ammunition": file_hash(ammo_path), "config": file_hash(config_path),
+              'profile_history':history.signature,'planned_profile_history':planned_history.signature if all(planned_inputs) else None,
               "patch": digest(patch), "maps": digest(sorted((k, m["metadata_sha256"]) for k, m in atlas.meta.items())),
               "effects": file_hash(effects) if effects else None, "missions": file_hash(missions) if missions else None,
               "planned_effects":file_hash(Path(args.planned_effects)) if getattr(args,'planned_effects',None) else None,
@@ -199,7 +231,9 @@ def build(args, root: Path) -> dict:
                                 "physical_distance_m": atlas.profiles[meta["ammo_id"]]["distance_m"],
                                 "aiming_distance_m": atlas.profiles[meta["ammo_id"]]["distance_m"]}
                     for skill in args.diagnostic_skills:
-                        shot = engine.shot(attackers[0], targets[0], scenario, skill)
+                        projectile_index = next(i for i, group in enumerate(variant_projectiles(attackers[0]))
+                                                if any(p['name']==meta['ammo_id'] for p in group))
+                        shot = engine.shot(attackers[0], targets[0], scenario, skill, projectile_index=projectile_index)
                         diagnostics.append({k: v for k, v in shot.items() if k != "aim_points"})
         if has_planned:
             before, after = optimizers["current"], optimizers["planned"]
@@ -209,16 +243,17 @@ def build(args, root: Path) -> dict:
                     key = (tuple(old["keys"]), table["slots"], table["acquisition"])
                     if key in seen: continue
                     seen.add(key)
-                    after_selections={selection_identity(v):v['key'] for v in engines['planned'].variants}
+                    after_selections={selection_identity(v):v['key'] for v in engines['planned'].variants if v.get('selection_ready',True)}
                     mapped=[after_selections.get(selection_identity(engines['current'].by_key[k])) for k in old['keys']]
                     if not all(mapped):
-                        migrations.append({"nation": old["nation"], "members": old["members"], "status": "configuration_removed_or_illegal"}); continue
+                        migrations.append({"nation": old["nation"], "slots": table["slots"], "acquisition": table["acquisition"], "before": compact(old), "members": old["members"], "status": "configuration_removed_or_illegal"}); continue
                     fixed = after.evaluate(tuple(sorted(mapped)))
-                    next_rows = [r for t in worlds["planned"]["tables"] if t["nation"] == old["nation"] and t["slots"] == table["slots"] and t["acquisition"] == table["acquisition"] for r in t["candidates"] if r["actual_br"] == fixed["actual_br"] and r["score"] is not None]
+                    next_rows = [r for t in worlds["planned"]["tables"] if not t["budget_exhausted"] if t["nation"] == old["nation"] and t["slots"] == table["slots"] and t["acquisition"] == table["acquisition"] for r in t["candidates"] if r["actual_br"] == fixed["actual_br"] and r["score"] is not None]
                     best = max(next_rows, key=lambda r: r["score"], default=None)
-                    delta = fixed["score"] - old["score"] if fixed["score"] is not None and old["score"] is not None else None
-                    gain = best["score"] - fixed["score"] if best and fixed["score"] is not None else None
+                    delta = fixed["score"] - old["score"] if not table["budget_exhausted"] and fixed["score"] is not None and old["score"] is not None else None
+                    gain = best["score"] - fixed["score"] if delta is not None and best and fixed["score"] is not None else None
                     migrations.append({"nation": old["nation"], "slots": table["slots"], "acquisition": table["acquisition"],
+                                       "status": "search_truncated" if table["budget_exhausted"] else "comparable" if delta is not None else "insufficient_evidence",
                                        "before": compact(old), "after_fixed": compact(fixed), "after_optimized": compact(best) if best else None,
                                        "fixed_lineup_delta": delta, "adaptation_gain_same_new_BR": gain})
                     migrations[-1]['attribution']={'direct_changes':[r for r in audit if r.get('vehicle_id') in {m['vehicle_id'] for m in old['members']}],
@@ -241,7 +276,7 @@ def build(args, root: Path) -> dict:
                 sensitivity_reports[version]=run(e,world,inputs_sha256=sensitivity_inputs)
             else:sensitivity_reports[version]=read_json(Path(args.sensitivity)) if getattr(args,'sensitivity',None) else None
             gates[version]=release_gate(e.catalog,e.atlas,config,world,inventory=active_index.summary() if active_index else None,missions=e.missions,
-                sensitivity=sensitivity_reports[version],sensitivity_inputs=sensitivity_inputs)
+                sensitivity=sensitivity_reports[version],sensitivity_inputs=sensitivity_inputs,variants=e.variants)
             world['research_boards']=world['boards'] if not sample_only else {k:[] for k in world['boards']}
             if not gates[version]['publishable']:world['boards']={k:[] for k in world['boards']}
         public_coverage=copy.deepcopy({k:v for k,v in coverage_report.items() if k not in ('matrix','groups')})
@@ -263,13 +298,14 @@ def build(args, root: Path) -> dict:
                   "scenario_audit": audit, "diagnostics": diagnostics,
                   "rejected_variants": engines["current"].rejected,
                   "calibration_status": config["calibration_status"], "endpoint": config.get("endpoint", "penetration"),
+                  "mission_policy":mission_policy(config),
                   "population": config["population"], "matchmaking": config["matchmaking"], "spawn_assumptions": config["spawn"],
                   "ranking_scope": config["publication"]["scope"],
                   "limitations": ["Conditional source-model estimates, not actual kills or win rates.",
                     "Only supplied physical distances and yaw slices are used; no range rescaling from required-charge maps.",
                     "No-reference-slice substitution. Every attack direction needs its own owned-ammunition map.",
                     "Catalog geometry equivalence is not inferred from target_sha256; binding strength is reported.",
-                    "Air/AA/recon tasks require versioned mission evidence; absent evidence is not zero or free capability.",
+                    "Missing task records use explicitly configured assumed intervals when enabled; they are not observations and do not fill physical coverage.",
                     "Beam/exchange search has an explicit work budget, not a global optimality guarantee.",
                     "Intervals bound missing map effects, not statistical confidence or all model error."]}
         package_site(out, report, worlds, migrations, root)
@@ -298,7 +334,8 @@ def empty_build(args,root,config,found):
     report={'build_key':digest([config,found]),'sample_subset':False,'published_rankings':False,'research_rankings':False,
         'metadata_count':0,'catalog_vehicles':0,'physical_distances_m':[],'scenario_status':'not_provided','diagnostics':[],
         'release_readiness':{'current':gate},'coverage':{'discovered':found},'endpoint':config['endpoint'],
-        'calibration_status':config['calibration_status'],'limitations':['Provide a same-version catalog, ammunition profiles and V2 atlas.']}
+        'skill_profile':args.skill,'task_preference':args.preference,'ranking_scope':config['publication']['scope'],
+        'calibration_status':config['calibration_status'],'mission_policy':mission_policy(config),'limitations':['Provide a same-version catalog, ammunition profiles and V2 atlas.']}
     world={'boards':{f'{s}/{a}':[] for s in config['search']['slots'] for a in config['search']['acquisition_profiles']},'tables':[],'evaluations':0,'truncated_searches':0}
     if not getattr(args,'dry_run',False):package_site(Path(args.out),report,{'current':world},[],root)
     return {'out':args.out,'ranked_counts':{'current':0},'release_readiness':gate,'publication':'input_diagnostics_only'}
@@ -314,6 +351,8 @@ def main(argv=None):
     parser.add_argument("--planned-catalog"); parser.add_argument("--planned-atlas"); parser.add_argument("--planned-ammunition")
     parser.add_argument("--planned-status", choices=["proposed", "announced", "released", "hypothetical"], default="proposed")
     parser.add_argument('--planned-effects');parser.add_argument('--planned-missions');parser.add_argument('--planned-bindings');parser.add_argument('--snapshot-info')
+    parser.add_argument('--profile-history',action='append',default=[])
+    parser.add_argument('--planned-profile-history',action='append',default=[])
     parser.add_argument('--index',default=str(root/'data/cache/forecast-metadata.sqlite'));parser.add_argument('--bindings');parser.add_argument('--preflight',action='store_true')
     parser.add_argument('--max-workers',type=int,default=2);parser.add_argument('--memory-budget',type=int,default=512,help='MiB for array workers')
     parser.add_argument('--resume',action='store_true');parser.add_argument('--force',action='store_true');parser.add_argument('--dry-run',action='store_true')
@@ -338,7 +377,7 @@ def main(argv=None):
             if final.exists() and any(final.iterdir()) and not (final/'.wt-forecast-site').is_file():raise ValueError('Unmanaged forecast output')
             with tempfile.TemporaryDirectory(prefix='.profiles-',dir=final.parent) as temporary:
                 stage=Path(temporary)/'site';results=[];cohorts=[]
-                profiles=[('normal','ground')]+[(s,p) for s in ('novice','normal','expert') for p in ('ground','balanced','air_support') if (s,p)!=('normal','ground')]
+                profiles=ordered_cohorts(read_json(Path(args.config)), args.skill, args.preference)
                 for i,(skill,preference) in enumerate(profiles):
                     a=copy.copy(args);a.skill=skill;a.preference=preference;a._reuse_index=i>0
                     a.out=str(stage if i==0 else Path(temporary)/(skill+'-'+preference));a.reports=args.reports if i==0 else None

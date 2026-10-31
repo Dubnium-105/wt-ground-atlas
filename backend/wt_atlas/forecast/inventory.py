@@ -17,6 +17,7 @@ import time
 import zipfile
 
 from .data import Atlas, canonical, digest, file_hash, number, read_json, safe_file, taxonomy
+from .profile_history import ProfileHistory, current_duplicate
 
 
 def stamp(path):
@@ -102,7 +103,7 @@ class Inventory:
         self.db.commit()
         self.db.close()
 
-    def sync(self, root, ammunition, catalog, *, bindings=None, force=False):
+    def sync(self, root, ammunition, catalog, *, bindings=None, force=False, profile_history=None):
         started, cpu = time.perf_counter(), time.process_time()
         root = Path(root).resolve()
         profiles = read_json(Path(ammunition))
@@ -112,7 +113,8 @@ class Inventory:
         if len(by_vehicle) != len(catalog['vehicles']): raise ValueError('Duplicate vehicle identity')
         hashes = {k: digest(p) for k, p in by_profile.items()}
         bindings = bindings or {}
-        base_key=digest([str(root),file_hash(Path(__file__)),file_hash(Path(__file__).with_name('data.py'))])
+        history=profile_history or ProfileHistory()
+        base_key=digest([str(root),file_hash(Path(__file__)),file_hash(Path(__file__).with_name('data.py')),file_hash(Path(__file__).parents[1]/'npz_io.py'),file_hash(Path(__file__).with_name('profile_history.py')),history.signature])
         target_keys={k:digest([v.get('client_collision'),v.get('source_attributes',{}).get('client'),v.get('analysis_target_sha256'),bindings.get(k)]) for k,v in by_vehicle.items()}
         generation = time.time_ns()
         counts = Counter()
@@ -132,7 +134,7 @@ class Inventory:
                 input_key=digest([base_key,hashes.get(m.get('ammo_id')),target_keys.get(m.get('target_id'))])
                 source = safe_file(root, m['array_file'])
                 current_stamp = stamp(source)
-                if not force and old and (h, current_stamp, input_key) == (old[0], old[1], old[3]) and old[2] in ('metadata_valid', 'verified'):
+                if not force and old and (h, current_stamp, input_key) == (old[0], old[1], old[3]) and old[2] in ('metadata_valid', 'verified', 'historical_duplicate'):
                     self.db.execute('UPDATE maps SET generation=? WHERE path=?', (generation,key))
                     counts['incremental_hits'] += 1
                     continue
@@ -141,7 +143,9 @@ class Inventory:
                 if m['map_id'] != path.stem: raise ValueError('Map filename identity mismatch')
                 p = by_profile.get(m['ammo_id'])
                 if p is None: raise ValueError('profile_missing')
-                if hashes[m['ammo_id']] != m['ammo_profile_sha256']: raise ValueError('profile_hash_mismatch')
+                proof=history.reconcile(m['ammo_profile_sha256'],p)
+                if proof:m['profile_reconciliation']=proof
+                else:m.pop('profile_reconciliation',None)
                 if p.get('mode') not in ('KE','CE') or p.get('reference_only') or m.get('reference_only'): raise ValueError('unsupported_or_reference_ammunition')
                 prov = p.get('provenance', {})
                 if (prov.get('client_version'),prov.get('datamine_commit')) != (m['source_version'],m['datamine_commit']): raise ValueError('profile_version_mismatch')
@@ -167,11 +171,23 @@ class Inventory:
                 counts['rejected'] += 1
             if sum(counts.values()) % 500 == 0: self.db.commit()
         self.db.execute('DELETE FROM maps WHERE generation != ?', (generation,))
+        self.db.execute("UPDATE maps SET status='metadata_valid' WHERE status='historical_duplicate'")
         self.db.execute("UPDATE maps SET selected=1 WHERE status IN ('metadata_valid','verified')")
-        # Distinct map IDs with the same target/ammo/range are not interchangeable.
-        self.db.execute('''UPDATE maps SET selected=0 WHERE (target,ammo,distance) IN
-          (SELECT target,ammo,distance FROM maps WHERE selected=1 GROUP BY target,ammo,distance HAVING count(*)>1)''')
+        # An exact current map may supersede an annotation-only archived copy
+        # with identical array and model identity. Every other collision stays
+        # quarantined. Archived copies are not counted as verified coverage.
+        duplicates=self.db.execute('''SELECT target,ammo,distance FROM maps WHERE selected=1
+            GROUP BY target,ammo,distance HAVING count(*)>1''').fetchall()
+        for key in duplicates:
+            rows=self.db.execute('SELECT path,metadata FROM maps WHERE selected=1 AND target=? AND ammo=? AND distance=?',key).fetchall()
+            maps=[json.loads(row[1]) for row in rows]
+            primary=current_duplicate(maps)
+            for (path,_),meta in zip(rows,maps):
+                if primary is None:self.db.execute('UPDATE maps SET selected=0 WHERE path=?',(path,))
+                elif meta['map_id']!=primary:
+                    self.db.execute("UPDATE maps SET selected=0,status='historical_duplicate' WHERE path=?",(path,))
         self.db.execute('INSERT OR REPLACE INTO settings VALUES (?,?)', ('root',str(root)))
+        self.db.execute('INSERT OR REPLACE INTO settings VALUES (?,?)', ('profile_history',canonical(history.receipts)))
         self.db.commit()
         self.metrics = {**counts,'metadata_seconds':time.perf_counter()-started,'metadata_cpu_seconds':time.process_time()-cpu}
         return self.summary()
@@ -222,6 +238,8 @@ class Inventory:
         for row in self.db.execute('SELECT id,meta_hash,status,selected FROM maps ORDER BY path'):
             h.update(canonical(list(row)).encode())
         return {'metadata_objects':sum(status.values()),'selected_maps':selected,'verified_arrays':verified,
+                'historical_duplicate_maps':status.get('historical_duplicate',0),
+                'annotation_reconciled_maps':self.db.execute("SELECT count(*) FROM maps WHERE selected=1 AND json_extract(metadata,'$.profile_reconciliation.kind') IS NOT NULL").fetchone()[0],
                 'selected_array_bytes':byte_count,'status_counts':status,'rejections':errors,
                 'ambiguous_maps':self.db.execute("SELECT count(*) FROM maps WHERE status IN ('metadata_valid','verified') AND selected=0").fetchone()[0],
                 'content_sha256':h.hexdigest(),'metrics':self.metrics}
@@ -262,7 +280,7 @@ def bind_geometry(repository: Path, jobs: Path, catalog: dict) -> tuple[dict, li
 
 def discover(roots):
     """Bounded conventional-path discovery; never scan every disk or infer versions."""
-    found = {'catalogs':[], 'ammunition':[], 'atlases':[], 'samples':[], 'client_jobs':[], 'clients':[]}
+    found = {'catalogs':[], 'ammunition':[], 'atlases':[], 'samples':[], 'sample_archives':[], 'client_jobs':[], 'clients':[]}
     for raw in roots:
         root = Path(raw).expanduser().resolve()
         for p in root.glob('data/snapshots/catalog.json'): found['catalogs'].append(str(p))
@@ -271,6 +289,11 @@ def discover(roots):
         for p in root.glob('data/work/*/jobs'): found['client_jobs'].append(str(p))
         for pattern in ('analysis-sample*/manifest.json','data/analysis-sample*/manifest.json'):
             for p in root.glob(pattern): found['samples'].append(str(p.parent))
+        # Archives are discovered separately; their existence is not a claim
+        # of manifest validation and they are never silently treated as folders.
+        for pattern in ('analysis-sample*.zip','data/analysis-sample*.zip','data/exports/analysis-sample*.zip'):
+            for p in root.glob(pattern):
+                if p.is_file():found['sample_archives'].append(str(p))
         cfg = root/'config/pipeline.json'
         if cfg.is_file():
             source = read_json(cfg).get('client',{}).get('source')
@@ -284,6 +307,19 @@ def coverage(catalog, atlas, config, index=None):
     from .data import br_step
     grounds = [v for v in vehicles if v.get('kind')=='ground' and number(v.get('br',{}).get('current')) and v.get('system_role')!='component']
     bound = {v['id']:atlas.bindings(v) for v in grounds}
+    from .engine import ammunition_payloads
+    from .belts import projectile_groups
+    requirements = {}
+    distances = {s['physical_distance_m'] for s in config['scenarios']}
+    for vehicle_id, bindings in bound.items():
+        payloads = [projectile_groups(ammo, profiles) for ammo, profiles, _ in ammunition_payloads(bindings)]
+        requirements[vehicle_id] = {}
+        for distance in distances:
+            choices = []
+            for component_groups in payloads:
+                matching = [[p['name'] for p in group if p['distance_m']==distance] for group in component_groups]
+                if all(len(names)==1 for names in matching): choices.append(tuple(names[0] for names in matching))
+            requirements[vehicle_id][distance] = choices
     # One index query per map, then bounded set membership in the pair loop.
     available = set(atlas.lookup)
     angle_sets={}
@@ -294,6 +330,9 @@ def coverage(catalog, atlas, config, index=None):
         if key not in available:return False
         angles=angle_sets.get(key)
         return angles is not None and yaw in angles
+    def has_selection(attacker_id, target_id, distance, yaw):
+        return any(all(has_slice((target_id,p,distance),yaw) for p in choice)
+                   for choice in requirements[attacker_id][distance])
     if index is None:
         for key,map_id in atlas.lookup.items():
             declared=atlas.meta[map_id].get('angles_deg')
@@ -308,8 +347,8 @@ def coverage(catalog, atlas, config, index=None):
             for scenario in config['scenarios']:
                 item['required_directed_pairs']+=1
                 d=scenario['physical_distance_m']
-                forward=any(has_slice((b['id'],p,d),scenario['yaw_deg']) for p in profiles)
-                reverse=any(has_slice((a['id'],p['name'],d),scenario['yaw_deg']) for _,p in bound[b['id']])
+                forward=has_selection(a['id'],b['id'],d,scenario['yaw_deg'])
+                reverse=has_selection(b['id'],a['id'],d,scenario['yaw_deg'])
                 if not profiles: item['missing_owned_ammunition']+=1
                 if not forward: item['missing_direction_or_distance']+=1
                 if forward: item['available_forward_pairs']+=1
@@ -318,7 +357,7 @@ def coverage(catalog, atlas, config, index=None):
     report={'schema_version':'1.0.0','catalog_vehicles':len(vehicles),'ammunition_profiles':len(atlas.profiles),
         'physical_distances_m':sorted({p['distance_m'] for p in atlas.profiles.values() if number(p.get('distance_m'))}),
         'groups':[{'nation':k[0],'br':k[1],'domain':k[2],'class':k[3],'count':v} for k,v in sorted(groups.items(),key=lambda x:str(x[0]))],
-        'counts':dict(totals),'matrix':rows,'pair_count_semantics':'vehicle directions per configured scenario; any exact owned supported round; only exact verified or explicitly declared yaw slices count; any missing angle metadata is unavailable',
+        'counts':dict(totals),'matrix':rows,'pair_count_semantics':'vehicle directions per configured scenario; any exact owned supported selection with every ordered component present; only exact verified or explicitly declared yaw slices count; any missing angle metadata is unavailable',
         'sample_subset':catalog.get('sample_subset',False),'inventory':index.summary() if index else None}
     report['blockers']=[]
     if catalog.get('sample_subset'): report['blockers'].append('sample_subset')

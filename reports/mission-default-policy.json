@@ -1,0 +1,207 @@
+{
+  "schema_version": "1.0.0",
+  "observed_at": "2026-10-31T04:25:37.073706+00:00",
+  "user_decision": "Mission-effectiveness and battle records may be empty; use defaults now, ingest user feedback and other sources later.",
+  "mission_policy": {
+    "schema_version": "1.0.0",
+    "mode": "assumed_defaults",
+    "status": "assumed_not_observed",
+    "default_interval": {
+      "lower": 0.0,
+      "mean": 0.5,
+      "upper": 1.0
+    }
+  },
+  "calibration_status": "uncalibrated",
+  "empirical_win_rate_validated": false,
+  "tests": {
+    "python": {
+      "passed": 203,
+      "seconds": 43.452
+    },
+    "forecast_python_subset": {
+      "passed": 150,
+      "seconds": 27.062
+    },
+    "node": {
+      "passed": 58
+    },
+    "http_smoke": {
+      "passed": 4
+    },
+    "forecast_browser": {
+      "status": "passed",
+      "automatic_ranking": true,
+      "independent_br_and_nation_views": true,
+      "lazy_view_shards": true,
+      "version_switch": true,
+      "nation_filter": true,
+      "subpath": true,
+      "mobile": true,
+      "cohort_switch": true,
+      "unified_research": true,
+      "hash_error_retry": true,
+      "raw_physics_initial_requests": 0,
+      "page_errors": []
+    },
+    "real_sample_browser": {
+      "checks": [
+        "same-build identity and no initial raw physics requests",
+        "truthful source coverage and publication gate",
+        "mobile layout",
+        "no page exceptions"
+      ],
+      "build_key": "5197bdfb2b1b4ed808e2c2b86186e20354da3c5490f3c907eaeea017be5a53b8",
+      "source_vehicles": 2,
+      "source_maps": 1,
+      "ready_ms": 90.90049999999997,
+      "first_load_transfer_bytes": 121592,
+      "page_errors": [],
+      "status": "passed"
+    }
+  },
+  "sample": {
+    "manifest_files_verified": 32,
+    "diagnostics": 72,
+    "historical_checkpoints": 6,
+    "maximum_delta": 0.0,
+    "source_hashes_unchanged": true,
+    "build": {
+      "out": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\mission-default-original-sample",
+      "build_key": "5197bdfb2b1b4ed808e2c2b86186e20354da3c5490f3c907eaeea017be5a53b8",
+      "catalog_vehicles": 2,
+      "maps": 1,
+      "diagnostic_rows": 72,
+      "cache_hits": 45,
+      "cache_misses": 81,
+      "npz_loads": 1,
+      "ranked_counts": {
+        "current": 0
+      },
+      "evaluations": {
+        "current": 0
+      },
+      "search_execution": {
+        "current": {
+          "restored_tables": 0,
+          "computed_tables": 4,
+          "new_evaluations": 0,
+          "restored_evaluations": 0
+        }
+      },
+      "research_counts": {
+        "current": 0
+      },
+      "release_readiness": {
+        "current": {
+          "algorithm_ready": true,
+          "data_ready": false,
+          "publishable": false,
+          "why_not_publishable": [
+            "sample_subset",
+            "snapshot_identity_missing",
+            "baseline_release_status_unverified",
+            "source_version_timeline_incomplete",
+            "snapshot_physics_version_mismatch",
+            "independent_target_geometry_not_verified",
+            "physical_arrays_not_fully_verified",
+            "no_candidates_meet_bidirectional_coverage",
+            "scope_is_limited_ground_research",
+            "spawn_rules_assumed",
+            "sensitivity_not_verified",
+            "rating_version_provenance_incomplete"
+          ],
+          "snapshot": {
+            "snapshot_id": "wiki-d759fcb02ab375b4",
+            "game_version": null,
+            "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+            "wiki_collected_at": "2026-10-29T01:19:11.129331+00:00",
+            "effective_date": null,
+            "source_status": "unknown",
+            "sources": [
+              {
+                "count": 1226,
+                "kind": "ground",
+                "sha256": "48f16f5a4dd40cc4243530035609689926d9d0809b9cdf69f0e28f22a5f90243",
+                "url": "https://wiki.warthunder.com/ground"
+              },
+              {
+                "count": 1341,
+                "kind": "aircraft",
+                "sha256": "fdac34358e9626485d27352a7f21c5e2fcab9c6147345a32fadc819d49c86963",
+                "url": "https://wiki.warthunder.com/aviation"
+              },
+              {
+                "count": 112,
+                "kind": "helicopter",
+                "sha256": "d2caa3307d468a25290085dd8292ce4cf4dd41c6fc58eede53aa1121c8d623b9",
+                "url": "https://wiki.warthunder.com/helicopters"
+              }
+            ],
+            "sha256": "f1738dae0a13689edd1a985b8ef31a8f5bb328a3223a712da911de9685701884"
+          },
+          "calibration_status": "uncalibrated",
+          "empirical_win_rate_validated": false,
+          "mission_policy": {
+            "schema_version": "1.0.0",
+            "mode": "assumed_defaults",
+            "status": "assumed_not_observed",
+            "default_interval": {
+              "lower": 0.0,
+              "mean": 0.5,
+              "upper": 1.0
+            }
+          },
+          "mission_evidence_required": false,
+          "prediction_basis": "explicit_mission_assumptions",
+          "research_candidates": 0
+        }
+      },
+      "duration_seconds": 0.9203779000090435,
+      "resources": {
+        "peak_rss_bytes": 118403072,
+        "cpu_seconds": 1.078125,
+        "measurement_scope": "current_process; workers separately bounded, not included in peak RSS"
+      },
+      "publication": "sample_diagnostics_only"
+    },
+    "composition": {
+      "static_total_bytes": 686433,
+      "static_published_file_count": 66,
+      "probability_mode": "disabled",
+      "budgets": {
+        "site_bytes": 104857600,
+        "file_bytes": 26214400
+      },
+      "output": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\mission-default-sample-site",
+      "build_key": "5197bdfb2b1b4ed808e2c2b86186e20354da3c5490f3c907eaeea017be5a53b8",
+      "research": {
+        "url": "research/index.html",
+        "status": "offline_snapshot_missing"
+      }
+    },
+    "package": {
+      "file": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\mission-default-sample-site.zip",
+      "bytes": 401059,
+      "sha256": "263e5a8760629b8e7bce1b4b80e28a4036dc06ee28dc4f7608ec835038182b4e",
+      "entries": 67,
+      "uncompressed_bytes": 686433,
+      "probability_mode": "disabled",
+      "crc_validation": "all_entries_passed",
+      "checksum_manifest": "FILE_INTEGRITY.sha256",
+      "scope": "deployable_static_site_only"
+    }
+  },
+  "full_data_recomputed": false,
+  "previous_full_artifact": "dist/ground-atlas-native-0f50df1.zip",
+  "previous_full_artifact_note": "Retained unchanged under its original code/configuration; this policy update is verified with original sample and synthetic end-to-end builds.",
+  "remaining_required_inputs": [
+    "same-version source identity",
+    "exact native profiles and distances",
+    "native SP and payload provenance"
+  ],
+  "remaining_validation": [
+    "adequately budgeted full-mode search and sensitivity checks"
+  ],
+  "feedback_collection": "Not enabled; future imports use existing missions and authorized-statistics contracts."
+}

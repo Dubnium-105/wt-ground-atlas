@@ -1,0 +1,11 @@
+{
+  "archive": "D:/tools/wtwebpage/wt-ground-atlas/data/exports/analysis-sample-2.59.0.92.zip",
+  "archive_sha256": "5a5dc1b5e4254f54491599505cbdb15a1292562c1dfc148849dcf270ce10b463",
+  "manifest_files_verified": 32,
+  "diagnostics": 72,
+  "historical_checkpoints": 6,
+  "maximum_delta": 0.0,
+  "source_hashes_unchanged": true,
+  "original_archive_gap_closed": true,
+  "formal_rankings": 0
+}

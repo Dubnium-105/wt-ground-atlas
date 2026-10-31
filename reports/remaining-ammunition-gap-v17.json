@@ -1,0 +1,36 @@
+{
+  "catalog_sha256": "3a402261ab45bd1812759230470ad8c714a4915045ad89d42de5b0b33a0fd9c1",
+  "formal_rankings": 0,
+  "projectile_types_in_chemical_single_jet_type_unsupported_selections": {
+    "ahead": 1,
+    "atgm_he_tank": 3,
+    "atgm_ke_tank": 1,
+    "atgm_tandem_tank": 9,
+    "he_frag_radio_fuse": 20,
+    "he_frag_tank": 54,
+    "he_frag_vog": 2,
+    "he_tf": 1,
+    "hesh_tank": 3,
+    "rocket_tank": 6,
+    "sam_tank": 31,
+    "shrapnel_tank": 2,
+    "smoke_tank": 24
+  },
+  "publishable": false,
+  "schema_version": "1.0.0",
+  "scope": "Unresolved selections on 148 ground catalog entries without any exact owned supported source profile in v17. Categories count distinct vehicles and overlap; projectile-type counts count selections, not vehicles. A raw importer reason is not proof that a projectile can attack ground or that an external file is missing.",
+  "source_recovery_sha256": "783a0217813c9c23f1410597eca44edb8a25625f2af18575680d17d345505e17",
+  "unresolved_selection_records": 383,
+  "vehicle_counts_by_raw_reason": {
+    "ambiguous_localized_mounted_selection": 3,
+    "chemical_single_jet_type_unsupported": 80,
+    "conditional_ordered_belt_source_revalidation_unavailable": 1,
+    "exact_localized_mounted_selection_missing": 29,
+    "native_generic_kinetic_mechanism_not_verified": 1,
+    "native_response_preset_missing": 1,
+    "ordered_belt_component_counts_missing": 69,
+    "ordered_belt_component_profile_missing": 25,
+    "ordered_belt_unequal_component_counts_require_native_sequence": 4
+  },
+  "without_owned_supported_source_profile": 148
+}

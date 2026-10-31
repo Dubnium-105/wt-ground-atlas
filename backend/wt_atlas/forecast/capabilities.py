@@ -1,6 +1,8 @@
 """Evidence for independent tasks, complete carried payloads and sortie costs."""
 from .data import digest, number
 import re
+from .mount_rules import check_mounts, verified_empty_preset
+from ..primary_armament import weapon_summary, configuration_id
 
 TASKS={'ground','anti_tank','ground_control','recon','anti_helicopter','anti_air','cap','cas','sead'}
 
@@ -25,11 +27,26 @@ def validate_mission(row,version,variants,scenarios):
 
 def loadout_errors(loadout,vehicle,option,*,unlocked=None,require_unlocked=False):
     errors=[]
+    if vehicle.get('mount_rule_audit',{}).get('status')=='unsupported_source_constraints':
+        errors.append('unsupported_source_mount_constraints')
+    if vehicle.get('mount_rule') is not None and not verified_empty_preset(loadout):
+        errors.extend(check_mounts(loadout.get('mounts'),vehicle['mount_rule'])['errors'])
+    if 'primary_armament_sha256' in loadout:
+        primary=vehicle.get('primary_armaments',{}).get(loadout.get('primary_armament_id'))
+        if primary is None and loadout.get('primary_armament_id')=='':primary=vehicle.get('default_primary_armament')
+        if (not isinstance(primary,dict) or loadout.get('primary_armament_id')!=primary.get('id') or
+            digest(primary)!=loadout['primary_armament_sha256'] or primary.get('source_version')!=loadout.get('source_version') or
+            loadout.get('fixed_weapons')!=weapon_summary(primary.get('weapons',[]))):
+            errors.append('primary_armament_identity_mismatch')
     if loadout.get('legal') is not True:errors.append('loadout_not_verified_legal')
+    if 'source_preset_id' in loadout and loadout.get('id')!=configuration_id(loadout['source_preset_id'],loadout.get('primary_armament_id','')):
+        errors.append('carried_configuration_identity_mismatch')
+    if any(name in vehicle.get('primary_armaments',{}) and name!=loadout.get('primary_armament_id') for name in loadout.get('required_enabled_modification_ids',[])):
+        errors.append('incompatible_required_primary_selection')
     weapons=loadout.get('weapons',[])
     stations=[w['station'] for w in weapons if w.get('station') is not None]
     if len(stations)!=len(set(stations)):errors.append('mutually_exclusive_station')
-    ids={w.get('id') for w in weapons}
+    ids={w.get('id') for w in weapons+loadout.get('fixed_weapons',[])}
     if None in ids:errors.append('weapon_identity_missing')
     for w in weapons:
         if not isinstance(w.get('count'),int) and (not number(w.get('count')) or int(w['count'])!=w['count']):errors.append('invalid_weapon_count')
@@ -37,17 +54,36 @@ def loadout_errors(loadout,vehicle,option,*,unlocked=None,require_unlocked=False
         if any(x in ids for x in w.get('conflicts_with',[])):errors.append('mutually_exclusive_weapon')
         if any(x not in ids for x in w.get('requires',[])):errors.append('weapon_dependency_missing')
     capacity=loadout.get('max_payload_kg',vehicle.get('max_payload_kg'))
-    if number(capacity) and all(number(w.get('mass_kg')) and number(w.get('count')) for w in weapons):
-        if sum(w['mass_kg']*w['count'] for w in weapons)>capacity:errors.append('payload_capacity_exceeded')
+    if number(capacity):
+        # Known configured masses are a lower bound when fuel or ammunition
+        # state is unresolved; missing masses must not hide a known overload.
+        known_mass=sum(w['mass_kg']*w['count'] for w in weapons if number(w.get('mass_kg')) and number(w.get('count')))
+        if known_mass>capacity:errors.append('payload_capacity_exceeded')
     for field,chosen in [('allowed_loadout_ids',[loadout.get('id')]),('allowed_weapon_ids',ids)]:
         if field in option and any(x not in option[field] for x in chosen):errors.append('forbidden_by_rating_configuration')
+    for field,value in [('allowed_source_preset_ids',loadout.get('source_preset_id',loadout.get('id'))),
+                        ('allowed_primary_armament_ids',loadout.get('primary_armament_id',''))]:
+        if field in option and value not in option[field]:errors.append('forbidden_by_rating_configuration')
     required=set(option.get('required_modification_ids',[]))|set(loadout.get('required_modification_ids',[]))
+    if loadout.get('primary_armament_id'):required.add(loadout['primary_armament_id'])
     if require_unlocked and (unlocked is None or not required<=set(unlocked)):errors.append('modifications_unavailable')
     return sorted(set(errors))
 
 
+def spawn_group(variant):
+    """Declared spawn category can differ by carried payload; never infer from role."""
+    source=(variant.get('loadout') or {}).get('spawn_rule',variant['vehicle'].get('spawn_rule')) or {}
+    group=source.get('spawn_group')
+    if group is not None and (not isinstance(group,str) or not group.strip()):
+        raise ValueError('Invalid spawn group')
+    return group if group is not None else variant['domain']
+
+
 def spawn_cost(variant,spawn,room_top,respawns=0):
+    if not isinstance(respawns,int) or isinstance(respawns,bool) or respawns<0:
+        raise ValueError('Previous spawn count must be a nonnegative integer')
     source=(variant.get('loadout') or {}).get('spawn_rule',variant['vehicle'].get('spawn_rule'))
+    model='multiplier'
     if source:
         if source.get('status') not in ('official_verified','assumed') or not source.get('source'):raise ValueError('Unsourced spawn rule')
         if source['status']=='official_verified' and source.get('source_version')!=variant.get('version'):raise ValueError('Spawn source version mismatch')
@@ -55,10 +91,22 @@ def spawn_cost(variant,spawn,room_top,respawns=0):
         room_steps=room_top-variant['br_step']
         cost=source.get('room_costs',{}).get(str(room_steps),cost)
         increase=source.get('respawn_multiplier',1)
+        model=source.get('respawn_model','multiplier')
+        if model=='power_of_count':
+            # The pinned client's get_spawn_score_type_mul uses (1+n)^spawn_pow.
+            # Its n is counted per declared spawn category, not per vehicle/domain.
+            power=source.get('respawn_power')
+            if not number(power) or power<0 or not source.get('spawn_group'):
+                raise ValueError('Count-power spawn rule requires a power and spawn group')
+            if 'respawn_multiplier' in source:
+                raise ValueError('Ambiguous respawn escalation models')
+            spawn_group(variant)
+        elif model!='multiplier':raise ValueError('Unknown respawn escalation model')
     else:
         cost=(variant.get('loadout') or {}).get('spawn_cost',variant['vehicle'].get('spawn_cost'))
         if cost is None:cost=spawn['ground_cost' if variant['domain']=='ground' else 'air_cost']
         increase=spawn.get('respawn_multiplier',{}).get(variant['domain'],1)
     if cost is None:return None
     if not number(cost) or cost<0 or int(cost)!=cost or not number(increase) or increase<1:raise ValueError('Invalid spawn point rule')
-    return int(round(cost*increase**respawns))
+    factor=(1+respawns)**power if model=='power_of_count' else increase**respawns
+    return int(round(cost*factor))

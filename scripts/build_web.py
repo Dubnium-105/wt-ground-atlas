@@ -60,6 +60,7 @@ def _assemble(root: Path, web: Path, mode: str, base_url: str, settings: dict):
         engine_vehicles.append(item)
     manifest={
         'schema_version':'1.0.0','snapshot_id':catalog['snapshot']['id'],
+        'catalog_sha256':file_hash(root/'data/snapshots/catalog.json'),
         'snapshot':catalog['snapshot'], 'model_version':model['model_version'],
         'public_runtime':'static_HTTP_and_browser_Web_Worker',
         'raw_geometry_required_on_first_load':False,

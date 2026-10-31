@@ -1,5 +1,6 @@
 import {fetchJSON, fetchBytes, decodeProbability, probabilityBaseURL} from './data-client.mjs';
 import {topLineups} from '../shared/engine.mjs';
+import {hasFutureScenario} from './scenario-state.mjs';
 
 const $ = (query, root = document) => root.querySelector(query);
 const $$ = (query, root = document) => [...root.querySelectorAll(query)];
@@ -167,6 +168,7 @@ function renderOverview() {
   <section class="lineup-options" aria-label="推荐队列待选">${choices.map((c,i)=>recommendationChoice(c,i)).join('')||empty('当前条件没有可用队列','可在研究工具中的自定义队列设置条件。',button('scan','扫描可用队列','primary','refresh'))}</section>${sourceNote()}`;
 }
 function renderVersionRankings() {
+  if(!hasFutureScenario(state.scenario))return notice('未提供下一版方案；当前采集数据已作为基线。可在下方导入或编辑独立模拟方案。');
   const overview=state.versionOverviews.get(recommendationKey('planned'));
   if(!overview)return busy('正在载入新版前三与被拆队列前三…');
   return `<section class="version-ranking-section"><div class="section-row"><div class="section-heading"><h2>新版评分最高的队列</h2><span class="ranking-description">${esc(nationName(state.nation))} · 全 BR 按新版评分排序</span></div>${tag(`${overview.planned_top.length} 支推荐`,'blue')}</div><div class="lineup-options" id="planned-top-lineups" aria-label="新版评分前三">${overview.planned_top.map((c,i)=>recommendationChoice(c,i,{mode:'planned'})).join('')||empty('新版暂无可用队列','检查当前限制与方案数据。')}</div></section>
@@ -229,8 +231,8 @@ function renderVersions() {
   const audits=state.scenario?.audit||[];
   const entered=(comp?.entered||[]).map(x=>typeof x==='string'?x:x.vehicle_id||x.id),left=(comp?.left||[]).map(x=>typeof x==='string'?x:x.vehicle_id||x.id);
   const fieldName=key=>key==='br'?'陆战历史 BR':state.ui.scenario_fields.find(f=>f.key===key)?.label||key;
-  return `${heading('', '版本变化','查看新版最强候选，以及此次调整拆分的高分旧队列。',button('compare','比较队列影响','primary','versions'))}
-  <section class="version-banner"><div class="version-banner-title">${icon('versions')}<div><h2>${state.scenarioCustom?'我的调整方案':'已采集的调整方案'}</h2><p>以当前目录为基线，预览调整后的陆战历史环境。</p></div></div><div class="version-flow"><span>当前版本</span>${icon('arrow')}<span>调整后 ${tag('模拟','warn')}</span></div></section>
+  return `${heading('', '版本变化',hasFutureScenario(state.scenario)?'比较独立方案下的候选与固定队列变化。':'当前采集基线；未提供下一版方案。',hasFutureScenario(state.scenario)?button('compare','比较队列影响','primary','versions'):'')}
+  ${hasFutureScenario(state.scenario)?`<section class="version-banner"><div class="version-banner-title">${icon('versions')}<div><h2>${state.scenarioCustom?'我的调整方案':'已采集的调整方案'}</h2><p>以当前目录为基线，预览调整后的陆战历史环境。</p></div></div><div class="version-flow"><span>当前版本</span>${icon('arrow')}<span>调整后 ${tag('模拟','warn')}</span></div></section>`:''}
   ${renderVersionRankings()}
   <div class="changes-heading"><div><h2>载具变化</h2><span class="muted">${scoped.length} 项调整</span></div><label class="scope-field">查看范围<select id="change-scope"><option value="nation" ${state.changeScope==='nation'?'selected':''}>${esc(nationName(state.nation))}</option><option value="all" ${state.changeScope==='all'?'selected':''}>全部国家</option></select></label></div>
   <section class="changes-panel"><div class="change-tabs" aria-label="变更类型">${[['all','全部',scoped.length],['up','BR 上调',up],['down','BR 下调',down],['other','性能调整',scoped.filter(e=>!isBR(e)).length]].map(([id,label,count])=>`<button data-change-filter="${id}" class="${state.changeFilter===id?'active':''}" aria-pressed="${state.changeFilter===id}">${label}<span>${count}</span></button>`).join('')}</div>
@@ -242,7 +244,7 @@ function renderVersions() {
   ${comp?.ground_only_alternative?`<section class="panel panel-pad mb"><div class="section-heading"><h3>保留地面成员，移除航空的对照方案</h3>${tag(`实际 BR ${fmt(comp.ground_only_alternative.actual_br)}`,'neutral')}${tag(`指数 ${indexScore(comp.ground_only_alternative.score)}`,'neutral')}</div><div class="tags mt">${comp.ground_only_alternative.lineup_ids.map(id=>`<button class="tag neutral" data-vehicle="${esc(id)}">${esc(nameOf(id))}</button>`).join('')}</div><p class="lead">用于区分保留全组合的匹配成本与移除航空的任务损失。此项与新版自动优化候选分别计算。</p></section>`:''}
   ${comp?`<div class="two-column"><section class="panel"><div class="panel-title"><h2>环境公告与队列拆分</h2>${tag('可追溯','neutral')}</div><div class="panel-body">${announcementView(comp.announcements)}</div></section><section class="panel"><div class="panel-title"><h2>主力匹配范围的变化</h2><span class="muted">进入 ${entered.length} / 离开 ${left.length}</span></div><div class="panel-body"><h3 class="positive">进入主力区间</h3><div class="tags mt">${entered.map(id=>`<button class="tag warn" data-vehicle="${esc(id)}">${esc(nameOf(id))}</button>`).join('')||'<span class="muted">无</span>'}</div><h3 class="muted mt">离开主力区间</h3><div class="tags mt">${left.map(id=>`<button class="tag neutral" data-vehicle="${esc(id)}">${esc(nameOf(id))}</button>`).join('')||'<span class="muted">无</span>'}</div><p class="lead">离开主力区间不表示绝不遇见：低档载具仍可能被高档队列携带。</p></div></section></div>`:''}
 
-  <details class="disclosure"><summary><span>各国 / BR 影响图</span><small>比较原队列在新版中的表现</small></summary>${impactMap()}</details>
+  ${hasFutureScenario(state.scenario)?`<details class="disclosure"><summary><span>各国 / BR 影响图</span><small>比较原队列在新版中的表现</small></summary>${impactMap()}</details>`:''}
   <details class="disclosure"><summary><span>编辑或导入调整方案</span><small>自定义 BR 与性能变化</small></summary><div class="toolbar">${button('import-scenario','导入方案','secondary')}${button('export-scenario','导出方案','secondary','download')}</div>
   <section class="panel panel-pad"><div class="form-grid"><label class="form-field">载具<select id="scenario-vehicle">${own.sort((a,b)=>a.name.localeCompare(b.name)).map(v=>`<option value="${esc(v.id)}">${esc(v.name)} · ${fmt(v.br?.current)}</option>`).join('')}</select></label><label class="form-field">调整字段<select id="scenario-field">${state.ui.scenario_fields.map(f=>`<option value="${esc(f.key)}">${esc(f.label)}</option>`).join('')}</select></label><label class="form-field">方案新值<input id="scenario-value" type="number" step="any" placeholder="填写方案值"></label></div><div class="toolbar mt">${button('add-change','加入方案并重新计算','primary','plus')}${button('reset-scenario','恢复采集的原始方案','ghost')}<span class="muted" style="font-size:10px">新旧值、来源、操作时间与冲突均进入审计。不会改写当前快照。</span></div></section>
 </details>
@@ -311,7 +313,7 @@ function render() {
   if(!state.catalog)return;
   $('#current-view-label').textContent=views.find(v=>v[0]===state.view)?.[1]||'战备总览';
   $$('#navigation a').forEach(a=>{a.classList.toggle('active',a.dataset.view===state.view); if(a.dataset.view===state.view)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
-  $$('.version-control button').forEach(b=>b.classList.toggle('active',b.dataset.version===state.version));
+  $$('.version-control button').forEach(b=>{b.classList.toggle('active',b.dataset.version===state.version);b.disabled=b.dataset.version==='planned'&&!hasFutureScenario(state.scenario);});
   const renderers={overview:renderOverview,tree:renderTree,lineup:renderLineup,versions:renderVersions,matrix:renderMatrix,armor:renderArmor,audit:renderAudit};
   $('#workspace').innerHTML=(renderers[state.view]||renderOverview)();
   syncBRControl();
@@ -396,6 +398,7 @@ function syncIndex() {
   state.catalog.vehicles=state.catalog.vehicles.map(v=>state.vehicles.get(v.id)||v);
 }
 async function loadRecs(version=state.version) {
+  if(version==='planned'&&!hasFutureScenario(state.scenario))return;
   const key=recommendationKey(version);
   if(state.recommendations.has(key))return;
   if(!defaultRecommendationConditions()||(state.scenarioCustom&&version==='planned')){const result=await workerCall('recommend',{nation:state.nation},{...state.context,version});state.recommendations.set(key,result);return;}
@@ -403,6 +406,7 @@ async function loadRecs(version=state.version) {
   if(path){const result=await fetchJSON(path);state.recommendations.set(key,result.recommendation||result);}
 }
 async function loadVersionOverview() {
+  if(!hasFutureScenario(state.scenario))return;
   const key=recommendationKey('planned');
   if(state.versionOverviews.has(key))return;
   if(defaultRecommendationConditions()&&!state.scenarioCustom){
@@ -423,6 +427,7 @@ function updateSelectors() {
   state.context={...state.context,nation:state.nation,br:state.br,version:state.version};
 }
 async function switchContext({nation=state.nation,br=state.br,version=state.version}={}) {
+  if(!hasFutureScenario(state.scenario))version='current';
   if(state.context.availableIds)state.context.availableIds=state.owned[nation]||[];
   state.nation=nation;state.br=br;state.version=version;state.result=null;state.comparison=null;state.treePage=0;state.matrixPage=0;state.changePage=0;state.analysisGeneration++;
   await loadNation(nation);await applyScenarioToIndex();updateSelectors();await loadRecs();save();render();if(state.view==='versions'){await loadVersionOverview();render();}
@@ -464,6 +469,7 @@ async function scan() {
   finally{state.busyCount--;state.busy=state.busyCount>0;render();}
 }
 async function compare() {
+  if(!hasFutureScenario(state.scenario))return toast('请先导入或编辑独立版本方案。');
   let ids=chosenIds();if(!ids.length){ids=selectedCandidate()?.lineup_ids||[];state.lineups[state.nation]=ids;save();}
   if(!ids.length)return toast('请先建立一支旧版队列。');
   const generation=state.analysisGeneration;state.busyCount=(state.busyCount||0)+1;state.busy=true;render();
@@ -524,6 +530,7 @@ function adoptCandidate(ids,cap) {
 async function changeScenario(scenario,custom=true) {
   if(!scenario||!Array.isArray(scenario.entries))throw new Error('方案必须包含 entries 数组');
   state.scenario=scenario;state.scenarioCustom=custom;state.recommendations.clear();state.versionOverviews.clear();state.result=null;state.comparison=null;state.analysisGeneration++;
+  if(!hasFutureScenario(scenario))state.version='current';
   await applyScenarioToIndex();updateSelectors();await loadRecs();render();
   if(state.view==='versions'){await loadVersionOverview();render();}
   if(chosenIds().length)await compare();
@@ -622,6 +629,7 @@ async function boot() {
   const route=new URLSearchParams(location.search);
   if(catalog.nations.some(n=>n.id===route.get('nation')))state.nation=route.get('nation');
   if(['current','planned'].includes(route.get('version')))state.version=route.get('version');
+  if(!hasFutureScenario(scenario))state.version='current';
   if(route.has('br')&&Number.isFinite(Number(route.get('br'))))state.br=Number(route.get('br'));
   for(const v of catalog.vehicles){state.vehicles.set(v.id,v);state.baseVehicles.set(v.id,v);}
   const navLink=([id,label])=>`<a href="#${id}" data-view="${id}">${icon(id)}<span>${label}</span></a>`;

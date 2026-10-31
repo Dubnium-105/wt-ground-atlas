@@ -23,6 +23,7 @@ from wt_atlas.forecast.search import Optimizer, feasible, lower_tail, sortie_pol
 
 def settings():
     c = json.loads((ROOT / "config/forecast.json").read_text(encoding="utf-8"))
+    c["mission_policy"] = {"mode": "require_evidence"}  # Legacy strict protocol fixtures.
     c["population"]["sd"] = 0
     c["scenarios"] = [copy.deepcopy(c["scenarios"][0])]
     c["scenarios"][0].update(weight=1., horizon_s=8.)
