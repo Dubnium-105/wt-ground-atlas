@@ -93,12 +93,12 @@
     "profile_gap_catalog_scope": "v15 root rocket source recovery; native range maps remain under generation and validation",
     "root_rocket_recovery": {
       "additional_ground_vehicles_with_source_profile": 4,
-      "full_maps_status": "generation_running_preflight_queued",
+      "full_maps_status": "generation_completed_independent_preflight_running",
       "new_owned_selections": 14,
       "new_profiles": 8,
       "planned_maps": 8584,
       "report": "reports/root-rockets-progress.json",
-      "report_sha256": "d0fa7502587b6e85ed078f86d4e48c0023b99b338ae6946e835b5f9aa57c9139",
+      "report_sha256": "db0e5346ba438e4e06dbafc115fc6e264dc91d4a828cee96316e8e61539c5df6",
       "sample_independently_verified_arrays": 32
     },
     "scope_note": "Having one exact profile does not establish complete ammunition choices, native distance maps or bidirectional coverage.",
@@ -287,7 +287,8 @@
     "reports/ordered-belt-progress.json": "48afe13e315612fa41dbaf18525aa24d0103fc04e869b323a198bd2699c75b85",
     "reports/range-rebuild-progress.json": "16d2b5bd74bef13fc1b837689cd5bf6d229f5ec22eb4df9752fad34f66a96ced",
     "reports/root-rockets-progress.json": "d0fa7502587b6e85ed078f86d4e48c0023b99b338ae6946e835b5f9aa57c9139",
-    "reports\\federated-original-coverage-progress.json": "242057547296578dc920c4672aba0f005bbddd5dffc66b3a2ebb9f896a67cf90"
+    "reports\\federated-original-coverage-progress.json": "242057547296578dc920c4672aba0f005bbddd5dffc66b3a2ebb9f896a67cf90",
+    "reports\\root-rockets-progress.json": "db0e5346ba438e4e06dbafc115fc6e264dc91d4a828cee96316e8e61539c5df6"
   },
   "ongoing_chemical_batch": {
     "array_bytes": 15165992092,

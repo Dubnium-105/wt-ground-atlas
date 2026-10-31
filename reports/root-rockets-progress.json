@@ -17,8 +17,31 @@
     "verified_arrays": 32
   },
   "formal_rankings": false,
-  "full_batch_status_at_report": "generation_running_independent_preflight_queued",
+  "full_batch_status_at_report": "generation_completed_independent_preflight_running",
   "game_probability_validated": false,
+  "generation": {
+    "array_bytes": 3130787728,
+    "computed_maps": 8552,
+    "duration_seconds": 887.9047971999971,
+    "input_ammunition_sha256": "55c069ee0771eb8d7c7fd0d52b3813b1514031f92b9f744fff03e9c316d01c0a",
+    "input_catalog_sha256": "e6541fdef1e2a61472b72c9378a262926a1085bc7f7279e923bd84bfe0ea1325",
+    "model": {
+      "backend": "v2-cuda",
+      "chemical_profile_code_sha256": "5fcd504692d26dd9128607f0f9dc7c612825afb1f29d65ae54deabf88cc6f7d4",
+      "range_profile_code_sha256": "8fcea023f76eda19566739b5fe94601eb969b8ddb0569571bcfe24b8bb1cd671",
+      "tool_code_sha256": "58f1bf518f58f16386ff8ee9851673aa7d588a380545656df643c3cef9e9ad3b",
+      "tool_manifest_sha256": "38b35c2418cd1731fb1fc00c194482d464dedb41e9291ee775ea23866499542c"
+    },
+    "pending_maps": 0,
+    "planned_maps": 8584,
+    "requests_sha256": "407602f0fd7272e608d7107f1371d2a3828fb86278100c3bdc84629c08342e87",
+    "resources": {
+      "cpu_seconds": 809.65625,
+      "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+      "peak_rss_bytes": 1410633728
+    },
+    "reused_maps": 32
+  },
   "limitations": "Source recovery and sample validation do not establish full-map coverage, in-game kill rates, win rates, or formal rankings.",
   "new_ground_vehicles_with_source_profile": [
     "cn_m113a1_tow",
