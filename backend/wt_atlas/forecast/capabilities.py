@@ -1,6 +1,7 @@
 """Evidence for independent tasks, complete carried payloads and sortie costs."""
 from .data import digest, number
 import re
+from .mount_rules import check_mounts
 
 TASKS={'ground','anti_tank','ground_control','recon','anti_helicopter','anti_air','cap','cas','sead'}
 
@@ -25,6 +26,10 @@ def validate_mission(row,version,variants,scenarios):
 
 def loadout_errors(loadout,vehicle,option,*,unlocked=None,require_unlocked=False):
     errors=[]
+    if vehicle.get('mount_rule_audit',{}).get('status')=='unsupported_source_constraints':
+        errors.append('unsupported_source_mount_constraints')
+    if vehicle.get('mount_rule') is not None:
+        errors.extend(check_mounts(loadout.get('mounts'),vehicle['mount_rule'])['errors'])
     if loadout.get('legal') is not True:errors.append('loadout_not_verified_legal')
     weapons=loadout.get('weapons',[])
     stations=[w['station'] for w in weapons if w.get('station') is not None]

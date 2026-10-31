@@ -1,0 +1,205 @@
+{
+  "source": {
+    "version": "2.59.0.94",
+    "commit": "2423f3099e2a5ec3f31efdce87b9f4380ea761ec",
+    "wpcost_sha256": "6ff662a0d2f443e998c5718b34e4aabfe5ad6b4a430172a4a08827fc3a60fb2c"
+  },
+  "counts": {
+    "payload_unverified": 1429,
+    "source_constraints_checked": 7453,
+    "source_constraints_rejected": 5,
+    "source_preset_missing": 1267
+  },
+  "vehicles": {
+    "no_custom_mount_block": 1930,
+    "constraints_imported": 726,
+    "unsupported_source_constraints": 24
+  },
+  "rejected_loadouts": [
+    {
+      "vehicle_id": "f_16d_block_40_barak_2",
+      "errors": [
+        "required_mount_preset_missing"
+      ],
+      "loadout_id": "f_16d_block_40_barak_2_gbu_15v1",
+      "promoted_legal": false,
+      "selected_weapons": {
+        "bombguns_us_2000lb_gbu_15v2": 2
+      },
+      "source_preset_present": true,
+      "status": "source_constraints_rejected"
+    },
+    {
+      "vehicle_id": "mirage_4000",
+      "errors": [
+        "mount_preset_not_in_source"
+      ],
+      "loadout_id": "mirage_4000_as37",
+      "promoted_legal": false,
+      "selected_weapons": {
+        "rocketguns_fr_as37_armat": 2
+      },
+      "source_preset_present": true,
+      "status": "source_constraints_rejected"
+    },
+    {
+      "vehicle_id": "su_17m2",
+      "errors": [
+        "required_mount_preset_missing"
+      ],
+      "loadout_id": "su_17m2_rocket_kh25",
+      "promoted_legal": false,
+      "selected_weapons": {
+        "equipment_su_projector_1": 1,
+        "rocketguns_su_kh_25": 2
+      },
+      "source_preset_present": true,
+      "status": "source_constraints_rejected"
+    },
+    {
+      "vehicle_id": "tornado_gr4",
+      "errors": [
+        "banned_mount_preset_combination"
+      ],
+      "loadout_id": "tornado_gr4_mk82_tsc",
+      "promoted_legal": false,
+      "selected_weapons": {
+        "bombguns_us_500lb_mk_82_ldgp": 1,
+        "containers_uk_tsc_500_mk82_x2": 6
+      },
+      "source_preset_present": true,
+      "status": "source_constraints_rejected"
+    },
+    {
+      "vehicle_id": "tornado_gr4",
+      "errors": [
+        "banned_mount_preset_combination"
+      ],
+      "loadout_id": "tornado_gr4_mk82_snakeye_tsc",
+      "promoted_legal": false,
+      "selected_weapons": {
+        "bombguns_us_500lb_mk_82_ldgp_snakeye": 1,
+        "containers_uk_tsc_500_mk82_snakeye_x2": 6
+      },
+      "source_preset_present": true,
+      "status": "source_constraints_rejected"
+    }
+  ],
+  "unsupported_sources": [
+    {
+      "vehicle_id": "a_7h_greece",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "fa_18c_switzerland",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "f_111c_raaf",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "f_15i_raam",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "f_16am_block_15_mlu_belgium",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "f_16a_block_72v_china",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "f_16c_block_52_aesa",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "hawk_200_rda",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "jh_7",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "mirage_2000d_rmv",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "rafale_c_f3",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "rafale_eg_greece",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "rafale_m_f3r",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "sbd-3",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "super_etendard_97",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "su_17m4",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "su_22m3",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "su_22m3_hungary",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "su_22m4",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "su_22m4_de_wtd61",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "su_34",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "tornado_gr1",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "tornado_ids_it_ret8",
+      "reason": "Source mount relation references a missing preset"
+    },
+    {
+      "vehicle_id": "ah_64e_china",
+      "reason": "Source mount relation references a missing preset"
+    }
+  ],
+  "actual_source_f102_constraints": {
+    "aim26b_only": {
+      "errors": [],
+      "selected_weapons": {
+        "rocketguns_us_aim_26b": 1
+      }
+    },
+    "aim26b_and_ffar": {
+      "errors": [
+        "banned_mount_preset_combination"
+      ],
+      "selected_weapons": {
+        "rocketguns_us_2_75_in_ffar_mighty_mouse_m151": 12,
+        "rocketguns_us_aim_26b": 1
+      }
+    }
+  },
+  "promoted_loadouts": 0,
+  "formal_rankings": 0
+}

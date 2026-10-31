@@ -189,6 +189,10 @@ Ground RB 按客户端 `economicRankTankHistorical` 优先、`economicRankHistor
 
 本次真实导入核对 2,680 条目录：2,650 一致，26 个不可独立选用组件保留空值，4 条 Ground RB 从 6.7 改为 6.3（N1K2-J、N1K2-Ja、Spitfire F Mk XVIIIe、Yak-3U）。完整逐车审计写入本地报告；摘要与源哈希保存在 `reports/formal-gap-progress.json`。2.59.0.92 本地 char 配置与其固定源的 3,437 条记录一致，但这不证明 2.59.0.94 物理兼容性。
 
+导入还提取 `custom_presets.slot` 的精确挂点、容器数量、`DependentWeaponPreset` 与 `BannedWeaponPreset`，包括 BLK 同名字段形成的多个挂点引用。载具上的 `mount_rule` 直接参与优化器的挂载合法性检查；重复挂点、未定义预设、缺少依赖和互斥组合均拒绝。未知源结构或悬空预设引用单独报告，不能忽略后按合法组合计算。
+
+实际 2.59.0.94 审计：726 辆载具导入挂点约束，7,453 个旧组合通过约束检查，5 个组合不符，24 辆载具的源约束有悬空引用。F-102A 的 AIM-26B 与 FFAR 冲突已用真实源验证拒绝。约束通过只证明此次检查覆盖的挂点关系，不代表旧嵌套武器、固定内置武器、完整载荷、SP 或任务效用已验证，因此导入不把隔离挂载改成 `legal` 或 `official_verified`。见 `reports/formal-mount-validation.json`。
+
 ## 原始样例归档验收
 
 `doctor` 另列 `sample_archives`，检查数据根及常用 `data/exports` 位置中的 `analysis-sample*.zip`，不会自动解压或把发现等同于验证。此次在原数据仓库的 `data/exports/analysis-sample-2.59.0.92.zip` 找到原归档，ZIP 哈希匹配合同；32 个 manifest 文件校验通过、源哈希未变，72 条诊断与 6 项历史检查点完全一致。见 `reports/original32-sample-verification.json`。该样例仍只有一个方向、原生 10 m，产生 0 条正式排名。

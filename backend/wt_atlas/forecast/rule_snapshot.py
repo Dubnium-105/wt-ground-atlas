@@ -15,6 +15,7 @@ from datetime import datetime,timezone
 from pathlib import Path
 from .data import digest, file_hash, read_json
 from ..common import atomic_write,write_json
+from .mount_rules import audit_vehicle_mounts
 
 RANKS_SCRIPT_SHA256='f4ba585b2260289bb7eb4b9e8d62b9357b6c1d6e36e7a4b44a67c21660008c9e'
 WPCOST_PATH='char.vromfs.bin_u/config/wpcost.blkx'
@@ -94,7 +95,7 @@ def reconcile(catalog,wpcost,source):
         key=source_id.lower()
         if key in index:raise ValueError('Ambiguous case-normalized source ID: '+key)
         index[key]=(source_id,unit)
-    result=copy.deepcopy(catalog);rows=[];counts=Counter()
+    result=copy.deepcopy(catalog);rows=[];counts=Counter();mount_rows=[]
     for vehicle in result['vehicles']:
         identifier=vehicle['id']
         if not isinstance(identifier,str) or not identifier.isascii():raise ValueError('Unsupported catalog ID')
@@ -104,6 +105,7 @@ def reconcile(catalog,wpcost,source):
         source_id,unit=pair
         if unit.get('country')!='country_'+vehicle['nation']:
             raise ValueError('Source country conflicts with exact vehicle ID: '+identifier)
+        mount_rows.append(audit_vehicle_mounts(vehicle,unit,source))
         br,field=rating(unit);old=vehicle.get('br',{}).get('current')
         status='source_rating_missing' if br is None else 'catalog_nonselectable' if old is None else 'matched' if old==br else 'updated'
         binding={'source_id':source_id,'catalog_id':identifier,
@@ -125,6 +127,8 @@ def reconcile(catalog,wpcost,source):
     # Updating four BRs cannot prove the client/GRP/loadout snapshot is coherent.
     # Deliberately do not set game_version, released, or official_verified here.
     return result,{'source':source,'counts':dict(counts),'vehicles':rows,
+                   'mount_constraints':{'vehicles':mount_rows,'counts':dict(Counter(
+                       row['status'] for vehicle in mount_rows for row in vehicle['loadouts']))},
                    'before_sha256':digest(catalog),'after_sha256':digest(result),
                    'promoted_physics_version':False,'promoted_release_status':False}
 
