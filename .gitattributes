@@ -11,3 +11,5 @@ reports/dual-use-cpu-cuda-crosscheck.json -text
 reports/remaining-ammunition-gap-v17.json -text
 reports/federated-nine-batch-progress.json -text
 reports/aviation-source-reconciliation-progress.json -text
+backend/wt_atlas/aviation_source_audit.py -text
+scripts/audit_aviation_sources.py -text
