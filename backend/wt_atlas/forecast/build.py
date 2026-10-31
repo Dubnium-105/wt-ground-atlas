@@ -274,7 +274,7 @@ def build(args, root: Path) -> dict:
                 sensitivity_reports[version]=run(e,world,inputs_sha256=sensitivity_inputs)
             else:sensitivity_reports[version]=read_json(Path(args.sensitivity)) if getattr(args,'sensitivity',None) else None
             gates[version]=release_gate(e.catalog,e.atlas,config,world,inventory=active_index.summary() if active_index else None,missions=e.missions,
-                sensitivity=sensitivity_reports[version],sensitivity_inputs=sensitivity_inputs)
+                sensitivity=sensitivity_reports[version],sensitivity_inputs=sensitivity_inputs,variants=e.variants)
             world['research_boards']=world['boards'] if not sample_only else {k:[] for k in world['boards']}
             if not gates[version]['publishable']:world['boards']={k:[] for k in world['boards']}
         public_coverage=copy.deepcopy({k:v for k,v in coverage_report.items() if k not in ('matrix','groups')})

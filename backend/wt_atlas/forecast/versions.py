@@ -57,7 +57,74 @@ def selection_identity(variant):
     return tuple(variant.get(k) for k in ('vehicle_id','rating_configuration_id','loadout_id','ammo_id'))
 
 
-def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensitivity=None,sensitivity_inputs=None):
+def publication_rows(world):
+    """Include filtered/category views, not only the representative top board."""
+    rows = [r for board in world['boards'].values() for r in board]
+    rows += [r for view in world.get('views', {}).values() for board in view.values() for r in board]
+    rows += [r for table in world.get('tables', []) if not table['budget_exhausted']
+             for r in table_candidates(table) if r.get('rankable')]
+    return rows
+
+
+def source_audit(catalog, config, version, variants, rows):
+    """Audit eligible source rules and prove published members were enumerated.
+
+    Illegal presets remain diagnostics, not a global publication veto. Missing
+    source evidence on legal presets and unknown opponent configurations remain
+    visible; no candidate is removed to improve a coverage denominator.
+    """
+    blockers = set(); excluded = []; legal = 0; quarantined = 0; checked = 0
+    def sourced(rule):
+        return (isinstance(rule, dict) and rule.get('status') == 'official_verified' and
+                rule.get('source_version') == version and bool(rule.get('source')))
+    for vehicle in catalog['vehicles']:
+        if vehicle.get('system_role') == 'component':
+            excluded.append(vehicle['id']); continue
+        checked += 1
+        if config['spawn'].get('status') == 'official_verified' and not sourced(vehicle.get('spawn_rule', {})):
+            blockers.add('vehicle_spawn_provenance_incomplete')
+        br = vehicle.get('br_provenance', {})
+        if br.get('source_version') != version or not br.get('source'):
+            blockers.add('rating_version_provenance_incomplete')
+        block = vehicle.get('rating_configurations', {}).get('ground_rb')
+        if block and block.get('source_version') != version:
+            blockers.add('rating_configuration_version_unverified')
+        for loadout in vehicle.get('loadouts', []):
+            if loadout.get('legal') is not True:
+                quarantined += 1; continue
+            legal += 1
+            if (loadout.get('source_version') != version or loadout.get('source_status') != 'official_verified'
+                    or not loadout.get('source')):
+                blockers.add('loadout_source_unverified')
+            # spawn_cost() gives a carried payload's rule precedence over the
+            # vehicle rule. A verified vehicle must not mask an assumed override.
+            if config['spawn'].get('status') == 'official_verified' and 'spawn_rule' in loadout:
+                if not sourced(loadout['spawn_rule'] or {}):
+                    blockers.add('loadout_spawn_provenance_incomplete')
+    by_key = {v['key']: v for v in variants}
+    if len(by_key) != len(variants): blockers.add('ambiguous_variant_identity')
+    selected = set()
+    for row in rows:
+        members = row.get('members')
+        if not isinstance(members, list) or not members:
+            blockers.add('ranked_configuration_not_verified'); continue
+        for member in members:
+            variant = by_key.get(member.get('key'))
+            if (variant is None or not variant.get('selection_ready') or
+                selection_identity(member) != selection_identity(variant) or
+                member.get('version') != version or member.get('mode') != 'ground_rb' or
+                member.get('br') != variant['br']):
+                blockers.add('ranked_configuration_not_verified'); continue
+            if 'loadout' in member and digest(member['loadout']) != digest(variant.get('loadout')):
+                blockers.add('ranked_configuration_not_verified'); continue
+            selected.add(variant['key'])
+    return {'blockers': sorted(blockers), 'checked_vehicles': checked,
+            'excluded_component_ids': sorted(excluded), 'checked_legal_loadouts': legal,
+            'quarantined_loadouts': quarantined, 'verified_ranked_configurations': len(selected),
+            'unknown_opponent_configurations': sum(not v.get('selection_ready') for v in variants)}
+
+
+def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensitivity=None,sensitivity_inputs=None,variants=None):
     info=snapshot(catalog); blockers=[]
     policy=mission_policy(config)
     require_missions=policy['mode']=='require_evidence'
@@ -78,9 +145,7 @@ def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensi
     tasks=config['publication'].get('required_tasks',['ground_control','anti_tank','recon','anti_helicopter','anti_air','cap','cas','sead'])
     evidence_tasks={r.get('task') for r in (missions or {}).values() if r.get('production_validated')}
     if require_missions and not set(tasks)<=evidence_tasks:blockers.append('full_mode_mission_evidence_missing')
-    ranked_rows = [r for rows in world['boards'].values() for r in rows]
-    ranked_rows += [r for t in world.get('tables', []) if not t['budget_exhausted']
-                    for r in table_candidates(t) if r.get('rankable')]
+    ranked_rows = publication_rows(world)
     if config['publication']['scope']=='full_ground_rb':
         modeled={task for task,weight in zip(config['spawn']['phases'],config['spawn']['phase_weights']) if weight>0}
         if not set(tasks)<=modeled:blockers.append('required_tasks_not_modeled')
@@ -90,29 +155,19 @@ def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensi
                for row in ranked_rows for task in tasks):
             blockers.append('ranked_lineup_mission_evidence_incomplete')
     if config['spawn'].get('status')!='official_verified':blockers.append('spawn_rules_assumed')
-    if config['spawn'].get('status')=='official_verified':
-        for v in catalog['vehicles']:
-            rule=v.get('spawn_rule',{})
-            if rule.get('status')!='official_verified' or rule.get('source_version')!=info['game_version'] or not rule.get('source'):
-                blockers.append('vehicle_spawn_provenance_incomplete');break
-    for v in catalog['vehicles']:
-        if any(l.get('source_version')!=info['game_version'] or l.get('source_status')!='official_verified' or not l.get('source') for l in v.get('loadouts',[])):
-            blockers.append('loadout_source_unverified');break
+    if variants is None:
+        from .engine import enumerate_variants
+        variants, _ = enumerate_variants(catalog, atlas, config)
+    audit = source_audit(catalog, config, info['game_version'], variants, ranked_rows)
+    blockers.extend(audit['blockers'])
     from .sensitivity import valid
     if not valid(sensitivity,catalog,config,sensitivity_inputs,world=world):blockers.append('sensitivity_not_verified')
     if config.get('endpoint')=='damage' and config.get('damage_status')!='validated':blockers.append('damage_evidence_unvalidated')
     if config.get('calibration_status')=='validated' and not config.get('calibration',{}).get('independent_report_sha256'):
         blockers.append('unsupported_calibration_claim')
-    # Every single-BR/loadout provenance is audited, even where variants are legacy fixed BR.
-    for v in catalog['vehicles']:
-        br_source=v.get('br_provenance',{})
-        if br_source.get('source_version')!=info['game_version'] or not br_source.get('source'):
-            blockers.append('rating_version_provenance_incomplete');break
-        block=v.get('rating_configurations',{}).get('ground_rb')
-        if block and block.get('source_version')!=info['game_version']:
-            blockers.append('rating_configuration_version_unverified');break
     return {'algorithm_ready':True,'data_ready':not any(b for b in blockers if b not in ('search_budget_truncated','sensitivity_not_verified')),
             'publishable':not blockers,'why_not_publishable':blockers,'snapshot':info,
+            'source_audit':audit,
             'calibration_status':config['calibration_status'],'empirical_win_rate_validated':False,
             'mission_policy':policy,'mission_evidence_required':require_missions,
             'prediction_basis':'evidence_required' if require_missions else 'explicit_mission_assumptions',
