@@ -225,3 +225,5 @@ python scripts/rebuild_native_maps.py --repository /data/source-repository --cat
 默认使用现有 CPU 层模型；已安装 CuPy/CUDA 的环境可显式选择 `--backend v2-cuda`，调用仓库现有 V2 CUDA 实现。两种后端保留各自代码和数值配置身份，不伪造相同哈希。当前检出的 CRLF 与历史 LF 代码字节不同，因此即使数组数值完全一致，也分别记录代码、map 和 NPZ 哈希。输出仍是条件穿透模型，不能标为实测击毁率。
 
 真实缺图规划发现 309 个方向已有自有原生档案，归并为 358 个任务；另外 64,836 个方向缺少该距离的精确自有档案。首轮 CUDA 重算完成全部 358 张，用时 124.229 秒、父进程峰值 RSS 1,100,562,432 字节。两组历史样本的全部数组数值一致，原始文件未修改。新结果必须与既有图集一起再次验收后才更新产品覆盖；单独生成这些图不解除全模式任务效果、SP、当前版本一致性和搜索收敛门槛。
+
+使用 `python scripts/assemble_native_atlas.py --base-index <已完成 preflight 的索引> --ammunition <完整原始弹药文件> --extra <新图目录> --out <不存在的新目录>` 原子组合数据。组合前复核基础元数据哈希/数组文件状态，并完整校验新增 NPZ；跨物理版本和重复物理身份直接拒绝。默认同卷硬链接，不改动来源；跨卷回退复制，`--copy` 可强制独立副本。硬链接属于离线工作数据而非不可变副本，来源的后续变化必须由 preflight/读取器重新校验。输出明确为 `assembled_requires_fresh_preflight`，需对新目录重新运行 `forecast_data.py preflight`，不能直接据目录文件数量宣称覆盖。
