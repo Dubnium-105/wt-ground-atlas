@@ -277,6 +277,7 @@
     "data/snapshots/catalog.formal-root-rockets-2.59.0.92.v15.json": "e6541fdef1e2a61472b72c9378a262926a1085bc7f7279e923bd84bfe0ea1325",
     "reports/chemical-projectile-progress.json": "2818035eccf49643db4d6818d622e198aa07e657c88b53444dd186e2e2a32d82",
     "reports/chemical-range-final-preflight-summary.json": "98efedffae2c77d3c30fff833677c1c73c7cb08a903e9d8405e9565716d3a9a6",
+    "reports/federated-original-coverage-progress.json": "b1aa601f7a80666d618502396f202ac741d10943c9411ff488df807464d2adb3",
     "reports/formal-client-payloads-v9.json": "96477382d20116ad5d85ccfba5d0c867c95095b1278a64aa96ab356407cbcd4c",
     "reports/formal-ordered-belt-recovery.json": "1fcb213eb3eb6953ab4e464099f7b57a61507f0370440fa667ccebdd256f023d",
     "reports/formal-sp-components-v9.json": "01723940ff5f40fe31719bfa871c0a4e05c223a5b01cbad94a691f91b419a238",
@@ -285,7 +286,8 @@
     "reports/native-sp-final-arithmetic.json": "6284a12b5dfaff73c8714e55f4c6250c2ed47ac75ed8b5363ce5227f42571692",
     "reports/ordered-belt-progress.json": "48afe13e315612fa41dbaf18525aa24d0103fc04e869b323a198bd2699c75b85",
     "reports/range-rebuild-progress.json": "16d2b5bd74bef13fc1b837689cd5bf6d229f5ec22eb4df9752fad34f66a96ced",
-    "reports/root-rockets-progress.json": "d0fa7502587b6e85ed078f86d4e48c0023b99b338ae6946e835b5f9aa57c9139"
+    "reports/root-rockets-progress.json": "d0fa7502587b6e85ed078f86d4e48c0023b99b338ae6946e835b5f9aa57c9139",
+    "reports\\federated-original-coverage-progress.json": "242057547296578dc920c4672aba0f005bbddd5dffc66b3a2ebb9f896a67cf90"
   },
   "ongoing_chemical_batch": {
     "array_bytes": 15165992092,
@@ -315,17 +317,18 @@
   },
   "provisional_federated_coverage": {
     "counts": {
-      "available_bidirectional_pairs": 13688832,
-      "available_forward_pairs": 16492176,
-      "missing_direction_or_distance": 6949296,
-      "missing_owned_ammunition": 2941536,
+      "available_bidirectional_pairs": 17948160,
+      "available_forward_pairs": 20499936,
+      "missing_direction_or_distance": 2941536,
+      "missing_owned_ammunition": 2841120,
       "required_directed_pairs": 23441472
     },
     "independent_arrays_rechecked": false,
     "publishable": false,
-    "report": "reports/federated-coverage-progress.json",
+    "report": "reports/federated-original-coverage-progress.json",
+    "root_rocket_batch_included": false,
     "scope": "Provisional coverage planning from previously verified index snapshots; source arrays and assembled atlas are not rechecked here. The matrix uses base catalog BR and does not establish unlocked or dynamic-mount eligibility.",
-    "sha256": "1cac568fa66ba94508e7bb9ec243c73ad538a912cd265447241c144632abed75"
+    "sha256": "242057547296578dc920c4672aba0f005bbddd5dffc66b3a2ebb9f896a67cf90"
   },
   "publishable": false,
   "range_profile_source_conflicts": {
