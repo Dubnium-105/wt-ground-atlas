@@ -364,6 +364,7 @@
     "reports/missile-delivery-real-check.json": "455b6ad02e309ce58d4ec6ddb04847ffa51c739b4b63c5518c946f36549c35a6",
     "reports/native-sp-final-arithmetic.json": "6284a12b5dfaff73c8714e55f4c6250c2ed47ac75ed8b5363ce5227f42571692",
     "reports/ordered-belt-progress.json": "48afe13e315612fa41dbaf18525aa24d0103fc04e869b323a198bd2699c75b85",
+    "reports/random-ground-reinforcements-evidence.json": "bd528eb2a6240834a05c9121c5044069b96c214057d732d0cb593f58e878f25c",
     "reports/range-rebuild-progress.json": "16d2b5bd74bef13fc1b837689cd5bf6d229f5ec22eb4df9752fad34f66a96ced",
     "reports/root-rockets-progress.json": "d0fa7502587b6e85ed078f86d4e48c0023b99b338ae6946e835b5f9aa57c9139",
     "reports\\aviation-source-reconciliation-progress.json": "3959e75fa816795cc5a670eb8b2fae3ae69372858e42c63a12b89ac6dc7f6486",
@@ -627,6 +628,23 @@
     },
     "native_function": "shop_get_spawn_score",
     "needed": "Same-version battle base-cost table/callback inputs or observed final costs, actual room BR and mission overrides, selected ammunition/payload and respawn history. Final normal-path arithmetic is now statically verified; complete battle formula and returned script multiplier precision are not.",
+    "random_ground_reinforcements": {
+      "base_br_catalog_entries_at_or_above_threshold": 314,
+      "configured_candidate_counts": {
+        "spaa": 58,
+        "tank": 181
+      },
+      "configured_country_count": 10,
+      "historical_official_url": "https://warthunder.com/en/game/changelog/current/1806",
+      "report": "reports/random-ground-reinforcements-evidence.json",
+      "report_sha256": "bd528eb2a6240834a05c9121c5044069b96c214057d732d0cb593f58e878f25c",
+      "reviewed_client_version": "2.59.0.92",
+      "runtime_session_state_observed": false,
+      "scope": "Client configuration lists candidates, not observed session pools. Current server activation, joint candidate distribution, loadout, SP and sortie behavior remain unverified.",
+      "selection_probabilities_verified": false,
+      "supplemental_sortie_model_implemented": false,
+      "threshold_br_in_historical_announcement": 9.3
+    },
     "unknown_belt_selections": 334,
     "verified_component_records": 11712,
     "verified_final_costs": 0

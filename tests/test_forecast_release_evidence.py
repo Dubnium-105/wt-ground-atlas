@@ -80,6 +80,19 @@ class ReleaseEvidenceTests(unittest.TestCase):
         self.assertIn('delivery_unverified_outside_source_distance_bounds',result['why_not_publishable'])
         self.assertEqual(result['source_audit']['delivery_unverified_profiles'][0]['distance_m'],10.)
 
+    def test_reviewed_high_br_version_blocks_unmodeled_random_reinforcements(self):
+        cat,atlas,config,world,kwargs=self.gate_inputs();version='2.59.0.92'
+        cat['snapshot']['game_version']=version; vehicle=cat['vehicles'][0];vehicle['br']['current']=9.3
+        vehicle['br_provenance']['source_version']=version;vehicle['spawn_rule']['source_version']=version
+        atlas.meta['map']['source_version']=version
+        variant=enumerate_variants(cat,atlas,config)[0][0]
+        world['boards']['2/all'][0]['members']=[{k:variant[k] for k in
+            ('key','vehicle_id','rating_configuration_id','loadout_id','ammo_id','version','mode','br')}]
+        self.resign_fixture(cat,config,kwargs)
+        result=release_gate(cat,atlas,config,world,**kwargs)
+        self.assertFalse(result['publishable'])
+        self.assertIn('random_ground_reinforcements_unmodeled_or_unverified',result['why_not_publishable'])
+
     def test_sensitivity_report_is_invalidated_by_physics_and_content_changes(self):
         cat,atlas,config,world,kwargs=self.gate_inputs()
         report=kwargs['sensitivity'];report['inputs_sha256']='original-maps'

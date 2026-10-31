@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from .data import digest, patch_catalog, number, mission_policy
 from .delivery import delivery_issue
+from .random_reinforcements import requires_unmodeled_gate
 from .rankings import table_candidates
 
 STATUSES={'released','announced','proposed','hypothetical','unknown'}
@@ -166,6 +167,8 @@ def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensi
     if world['truncated_searches']:blockers.append('search_budget_truncated')
     if not any(world['boards'].values()):blockers.append('no_candidates_meet_bidirectional_coverage')
     if config['publication']['scope']!='full_ground_rb':blockers.append('scope_is_limited_ground_research')
+    if requires_unmodeled_gate(catalog, info['game_version'], config['publication']['scope']):
+        blockers.append('random_ground_reinforcements_unmodeled_or_unverified')
     tasks=config['publication'].get('required_tasks',['ground_control','anti_tank','recon','anti_helicopter','anti_air','cap','cas','sead'])
     evidence_tasks={r.get('task') for r in (missions or {}).values() if r.get('production_validated')}
     # Ground anti-tank evidence comes from exact bidirectional physical maps.

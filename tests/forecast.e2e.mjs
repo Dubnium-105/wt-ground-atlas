@@ -37,13 +37,18 @@ import json,sys
 from pathlib import Path
 sys.path.insert(0, str(Path('backend').resolve()))
 from wt_atlas.forecast.data import digest
-p=Path(sys.argv[1]); path=p/'ammo.json'; profiles=json.loads(path.read_text())
+p=Path(sys.argv[1]); catalog_path=p/'catalog.json'; catalog=json.loads(catalog_path.read_text())
+catalog['snapshot']['client_source']['version']='2.59.0.92'
+for vehicle in catalog['vehicles']: vehicle['source_attributes']['client']['source_version']='2.59.0.92'
+catalog_path.write_text(json.dumps(catalog))
+path=p/'ammo.json'; profiles=json.loads(path.read_text())
+for profile in profiles: profile['provenance']['client_version']='2.59.0.92'
 profile=profiles[0]; profile['provenance']['chemical_energy']={'source_min_distance_m':30.,'source_max_distance_m':4000.,'flight_and_activation_modeled':False}
 path.write_text(json.dumps(profiles))
+by_name={profile['name']:profile for profile in profiles}
 for metadata in (p/'v2/arrays').glob('*.json'):
     row=json.loads(metadata.read_text())
-    if row['ammo_id']==profile['name']:
-        row['ammo_profile_sha256']=digest(profile); metadata.write_text(json.dumps(row))
+    row['source_version']='2.59.0.92'; row['ammo_profile_sha256']=digest(by_name[row['ammo_id']]); metadata.write_text(json.dumps(row))
 `,work],{cwd:root,encoding:'utf8'});
 assert.equal(missileFixture.status,0,missileFixture.stderr);
 // Exercise the product's actual default configuration without substituting the
@@ -108,6 +113,8 @@ try{
   assert.ok(fullReport.release_readiness.current.why_not_publishable.includes('delivery_unverified_outside_source_distance_bounds'));
   assert.match(await fullPage.locator('#coverage').innerText(),/部分导弹的场景距离超出来源声明范围，投射能力尚未核验/);
   assert.match(await fullPage.locator('#coverage').innerText(),/图表覆盖不代表导弹飞行或投射能力已核验/);
+  assert.ok(fullReport.release_readiness.current.why_not_publishable.includes('random_ground_reinforcements_unmodeled_or_unverified'));
+  assert.match(await fullPage.locator('#coverage').innerText(),/高分房随机补充载具的当前分配与出击规则尚未完整建模/);
   await fullPage.locator('#coverage details summary').click();
   await fullPage.locator('#coverage details li').first().waitFor();
   assert.match(await fullPage.locator('#coverage details').innerText(),/synthetic_a_0.*10 米/);
