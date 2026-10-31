@@ -253,3 +253,15 @@ python scripts/rebuild_native_maps.py --repository /data/source-repository --cat
 可用 `verify_native_ranges.py --repository ... --catalog ... --ammunition <原始档案> --source-root ... --targets <目标 ID...> --profiles <源档案名...> --distances 100 500 1000 --out reports/range-parity.json` 对真实独立绑定几何运行 CPU/GPU 交叉检查。它同时抽查均匀网格和非空射线，比较状态、概率、所需穿深及材料风险标记；报告保留样本量和实际误差。该检查证明两种离线实现的一致性，不代表游戏实战校准。
 
 2026-10-31 的初次扩展核对 348 个动能弹、51 个破甲弹源档案，追加 1,248 个距离档案，另有 5 个破甲弹档案未通过直接源校验。12 组真实几何检查共 195,846 条采样射线，最大概率差 `1.4722347259521484e-5`。首批 1,000 张新图计算与验证完成，完整规划为 351,403 张；规划量和生成量不等于最终已发布覆盖。实测记录见 `reports/range-rebuild-progress.json`，完整生产数据保持在离线目录。
+
+## 从已捕获客户端重新验证航空固定挂载
+
+```sh
+python scripts/import_client_payloads.py --catalog /data/catalog.rules.json --capture /data/client-capture.json --rules-root /data/pinned-rules --commit <40位提交> --catalog-output /data/catalog.payloads.json --out reports/client-payloads.json
+```
+
+输入捕获清单的 `packs` 按资源包文件名索引，每项包含 `version`、`saved`、`sha256`、`extracted`。导入器复核保存的资源包哈希和一致版本，验证固定 Datamine Git blob，并要求解包后的 char `wpcost.blk` 与固定版本规则逐记录完全一致。随后重读 aces 中的载具预设、挂点和嵌套容器，复用现有固定挂载解析器，为各武器以及载具使用的源文件记录哈希。
+
+只有客户端明确声明、精确挂点和依赖关系通过、完整所选武器可解析且数量明确的固定预设才标为合法。容器明确的子弹数量作用于其引用的单个弹体资源；顶层发射器没有数量时仍拒绝。内嵌弹体的发射器保留其显式数量。循环容器、未知携带触发器、缺少 shop 预设、互斥配置和不支持的来源约束均不能被静默忽略。未通过的旧挂载继续隔离，并保留在新目录中供审计。
+
+这一步验证实际携带配置，不生成任务命中率或 SP，不改变全局快照的发布状态。导入器将 `client_payload_sources` 留作离线来源追踪；静态站点仍应由现有构建器选择发布字段，不能将完整客户端目录或概率数组发布到首页。当前验收摘要见 `reports/client-payload-progress.json`。

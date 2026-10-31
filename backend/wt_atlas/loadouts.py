@@ -58,7 +58,10 @@ class DatamineLoadouts:
             nested = data.get('Weapon') or data.get('weapons')
             if nested:
                 return [x for w in array(nested) for x in self.weapons(w, ancestry+(resolved,))]
-            raise ValueError('unsupported container schema')
+            # Some declared launchers store their projectile directly rather
+            # than through another resource. Keep its explicit count below.
+            if not isinstance(data.get('rocket') or data.get('bomb') or data.get('bullet'),dict):
+                raise ValueError('unsupported container schema')
         projectile = data.get('rocket') or data.get('bomb') or data.get('bullet')
         if not isinstance(projectile, dict):
             raise ValueError('not a supported external projectile')
@@ -72,6 +75,9 @@ class DatamineLoadouts:
         elif trigger == 'atgm' or guidance: typ = 'agm'
         else: typ = 'rocket'
         count = weapon.get('bullets', data.get('bullets'))
+        # A container's explicit bullets count multiplies this single referenced
+        # projectile resource. A top-level launcher still needs a declared count.
+        if count is None and ancestry:count=1
         if count is None: raise ValueError('projectile count unknown')
         identifier = projectile.get('bulletName') or Path(resolved).stem
         exact = {'id':identifier, 'name':identifier, 'type':typ, 'count':count,
