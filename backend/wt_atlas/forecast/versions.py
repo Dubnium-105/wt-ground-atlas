@@ -73,7 +73,7 @@ def source_audit(catalog, config, version, variants, rows):
     source evidence on legal presets and unknown opponent configurations remain
     visible; no candidate is removed to improve a coverage denominator.
     """
-    blockers = set(); excluded = []; legal = 0; quarantined = 0; checked = 0
+    blockers = set(); excluded = []; unknown_ratings = []; legal = 0; quarantined = 0; checked = 0
     def sourced(rule):
         return (isinstance(rule, dict) and rule.get('status') == 'official_verified' and
                 rule.get('source_version') == version and bool(rule.get('source')))
@@ -87,8 +87,14 @@ def source_audit(catalog, config, version, variants, rows):
         if br.get('source_version') != version or not br.get('source'):
             blockers.add('rating_version_provenance_incomplete')
         block = vehicle.get('rating_configurations', {}).get('ground_rb')
-        if block and block.get('source_version') != version:
+        if block is not None and block.get('source_version') != version:
             blockers.add('rating_configuration_version_unverified')
+        if block is not None and (block.get('status') != 'official_verified' or not block.get('source', {}).get('url')):
+            blockers.add('rating_configuration_source_unverified')
+        ratings = [option.get('br', {}).get('current') for option in block.get('options', [])] if block is not None else [vehicle.get('br', {}).get('current')]
+        if not ratings or any(not number(value) for value in ratings):
+            unknown_ratings.append(vehicle['id'])
+            blockers.add('ground_rb_rating_or_eligibility_unknown')
         for loadout in vehicle.get('loadouts', []):
             if loadout.get('legal') is not True:
                 quarantined += 1; continue
@@ -119,7 +125,7 @@ def source_audit(catalog, config, version, variants, rows):
                 blockers.add('ranked_configuration_not_verified'); continue
             selected.add(variant['key'])
     return {'blockers': sorted(blockers), 'checked_vehicles': checked,
-            'excluded_component_ids': sorted(excluded), 'checked_legal_loadouts': legal,
+            'excluded_component_ids': sorted(excluded), 'unknown_rating_or_eligibility_ids': sorted(unknown_ratings), 'checked_legal_loadouts': legal,
             'quarantined_loadouts': quarantined, 'verified_ranked_configurations': len(selected),
             'unknown_opponent_configurations': sum(not v.get('selection_ready') for v in variants)}
 

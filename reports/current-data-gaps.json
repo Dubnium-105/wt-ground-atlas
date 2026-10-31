@@ -44,7 +44,7 @@
     ],
     "total_scope": "Four generated and independently checked batches; combined atlas validation and global coverage remain pending."
   },
-  "collected_at": "2026-10-31T10:36:29.371761+00:00",
+  "collected_at": "2026-10-31T10:42:59.775221+00:00",
   "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
   "formal_rankings": 0,
   "ground_ammunition": {
@@ -290,7 +290,68 @@
     ]
   },
   "rating_and_eligibility": {
+    "historical_classification_candidates": {
+      "historical_unused_candidates": [
+        "kor_2"
+      ],
+      "not_in_marked_table": [
+        "ucav_mq_1_predator",
+        "ucav_orion",
+        "ucav_wing_loong_i"
+      ],
+      "scope": "Candidates derived from the linked historical official sources; not current-version eligibility proof and not excluded from the release gate. The remaining three IDs are strike-drone candidates, requiring current mode and ownership validation.",
+      "shipborne_only_candidates": [
+        "aichi_e13a",
+        "e7k2",
+        "e8n2",
+        "gl_832",
+        "kor_1",
+        "loire_130",
+        "o3u_1",
+        "osprey_mk4",
+        "ro_43",
+        "sc_1",
+        "soc_1",
+        "walrus_mk1"
+      ]
+    },
+    "historical_official_evidence": [
+      {
+        "note": "Identifies specific aircraft as shipborne rather than independent aviation units; historical article, current version/mode eligibility not promoted.",
+        "sha256": "4c782325daaffd20bc08d784a16a35b660129cd766634a2a76efd17562429fc3",
+        "url": "https://wiki.warthunder.com/mechanics/247-shipboard-reconnaissance-aircraft"
+      },
+      {
+        "note": "Describes three battle-support strike drones; historical news, current eligibility and mechanics not promoted.",
+        "sha256": "b91be933e591837886f0acef68fb2f55acdd8284c88d6dd5adba792aaff432b0",
+        "url": "https://warthunder.com/en/news/7840"
+      }
+    ],
     "needed": "Same-version Ground RB rating and eligibility evidence, or explicit source evidence that a catalog entry cannot be independently queued.",
+    "release_gate": {
+      "audit_code_sha256": "5b4d8c07eb409a538fdb2ef775ef0e3465609f4b69dedfa1af7f89d2a3d24a21",
+      "blocker": "ground_rb_rating_or_eligibility_unknown",
+      "catalog_sha256": "5b1108f012725fc8f4313112d4c7a67050cdf9f0113928cbba5647727cbf006b",
+      "note": "A version source by itself does not establish a numeric BR or independently selectable status. Dynamic options must also carry a verified source and rating.",
+      "unknown_ids": [
+        "aichi_e13a",
+        "e7k2",
+        "e8n2",
+        "gl_832",
+        "kor_1",
+        "kor_2",
+        "loire_130",
+        "o3u_1",
+        "osprey_mk4",
+        "ro_43",
+        "sc_1",
+        "soc_1",
+        "ucav_mq_1_predator",
+        "ucav_orion",
+        "ucav_wing_loong_i",
+        "walrus_mk1"
+      ]
+    },
     "unknown_count": 16,
     "unknown_ground_rb_rating_ids": [
       "aichi_e13a",

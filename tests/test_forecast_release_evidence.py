@@ -180,6 +180,42 @@ class ReleaseEvidenceTests(unittest.TestCase):
         result=release_gate(cat,atlas,config,world,**kwargs)
         self.assertIn('rating_version_provenance_incomplete',result['why_not_publishable'])
 
+    def test_sourced_null_rating_still_blocks_and_names_unknown_vehicle(self):
+        cat,atlas,config,world,kwargs=self.gate_inputs()
+        unknown=copy.deepcopy(cat['vehicles'][0]);unknown.update(id='unknown-br',br={'current':None})
+        cat['vehicles'].append(unknown);self.resign_fixture(cat,config,kwargs)
+        result=release_gate(cat,atlas,config,world,**kwargs)
+        self.assertIn('ground_rb_rating_or_eligibility_unknown',result['why_not_publishable'])
+        self.assertEqual(result['source_audit']['unknown_rating_or_eligibility_ids'],['unknown-br'])
+
+    def test_missing_dynamic_rating_option_blocks_even_with_base_rating(self):
+        cat,atlas,config,world,kwargs=self.gate_inputs()
+        unknown=copy.deepcopy(cat['vehicles'][0]);unknown.update(id='unknown-option',
+            rating_configurations={'ground_rb':{'source_version':'fixture','status':'official_verified',
+                'source':{'url':'fixture'},'options':[{'id':'missing','br':{'current':None}}]}})
+        cat['vehicles'].append(unknown);self.resign_fixture(cat,config,kwargs)
+        result=release_gate(cat,atlas,config,world,**kwargs)
+        self.assertIn('ground_rb_rating_or_eligibility_unknown',result['why_not_publishable'])
+        self.assertEqual(result['source_audit']['unknown_rating_or_eligibility_ids'],['unknown-option'])
+
+    def test_unverified_dynamic_configuration_cannot_disappear_from_release_audit(self):
+        cat,atlas,config,world,kwargs=self.gate_inputs()
+        unknown=copy.deepcopy(cat['vehicles'][0]);unknown.update(id='unverified-option',
+            rating_configurations={'ground_rb':{'source_version':'fixture','status':'assumed',
+                'source':{'url':'fixture'},'options':[{'id':'option','br':{'current':1.}}]}})
+        cat['vehicles'].append(unknown);self.resign_fixture(cat,config,kwargs)
+        result=release_gate(cat,atlas,config,world,**kwargs)
+        self.assertIn('rating_configuration_source_unverified',result['why_not_publishable'])
+
+    def test_empty_dynamic_configuration_cannot_fall_back_to_base_rating(self):
+        cat,atlas,config,world,kwargs=self.gate_inputs()
+        unknown=copy.deepcopy(cat['vehicles'][0]);unknown.update(id='empty-option',
+            rating_configurations={'ground_rb':{}})
+        cat['vehicles'].append(unknown);self.resign_fixture(cat,config,kwargs)
+        result=release_gate(cat,atlas,config,world,**kwargs)
+        self.assertIn('rating_configuration_source_unverified',result['why_not_publishable'])
+        self.assertIn('ground_rb_rating_or_eligibility_unknown',result['why_not_publishable'])
+
     def test_payload_spawn_override_cannot_borrow_vehicle_rule_provenance(self):
         for override in (None,{'status':'assumed','source':'fixture','source_version':'fixture'},
                          {'status':'official_verified','source':'fixture','source_version':'old'}):
