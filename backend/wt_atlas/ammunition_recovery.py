@@ -49,10 +49,11 @@ class Localization:
 
 
 class MountedAmmunition:
-    def __init__(self, root, localization, *, default_rules=None, selector_rules=None):
+    def __init__(self, root, localization, *, default_rules=None, selector_rules=None, structural_projectiles=False):
         self.root = Path(root); self.localization = localization
         self.default_rules = default_rules
         self.selector_rules = selector_rules
+        self.structural_projectiles = structural_projectiles
         self.cache = OrderedDict(); self.sources = {}; self.rejections = []
 
     def read(self, path):
@@ -91,14 +92,19 @@ class MountedAmmunition:
             for selector, selected, selection_proof in selections:
                 bullets = array(selected.get('bullet'))
                 if not bullets: continue
-                if any(not isinstance(b, dict) or not isinstance(b.get('bulletName'), str) or not b['bulletName'] for b in bullets):
+                if any(not isinstance(b, dict) or
+                       (not self.structural_projectiles or 'bulletName' in b) and
+                       (not isinstance(b.get('bulletName'), str) or not b['bulletName']) for b in bullets):
                     self.rejections.append({'unit_path': path, 'weapon_path': weapon_path,
                         'selector': selector, 'reason': 'projectile_identity_missing_or_repeated'})
                     continue
                 extra = {}
+                if self.structural_projectiles:
+                    from .projectile_identity import identities
+                    extra['projectile_identities'] = identities(weapon_path, self.sources[weapon_path], selector, bullets)
                 if self.default_rules and selector == '@default':
                     from .default_belts import candidate_fields
-                    extra = candidate_fields(weapon, weapon_mounts)
+                    extra.update(candidate_fields(weapon, weapon_mounts))
                 result.append({**extra, **selection_proof, 'unit_path': path, 'unit_sha256': self.sources[path],
                     'weapon_path': weapon_path, 'weapon_sha256': self.sources[weapon_path],
                     'selector': selector, 'selection_sha256': content_hash(selected),
@@ -114,7 +120,7 @@ class MountedAmmunition:
             keys = [] if selector == '@default' else [candidate.get('modification_id', selector) + '/name']
             # A localized projectile is a selectable name only for a homogeneous
             # selection. One matching member never identifies an entire belt.
-            if len({content_hash(b) for b in bullets}) == 1:
+            if len({content_hash(b) for b in bullets}) == 1 and bullets[0].get('bulletName'):
                 keys += [bullets[0]['bulletName']]
             matched = self.localization.match(keys, ammo['name'])
             extra = {}
@@ -256,7 +262,7 @@ def ke_profile(ammo, binding, tables, source, response, version, commit):
     dispersion = response['dispersion']
     if not number(dispersion) or not 0 <= dispersion < 1: raise ValueError('invalid_native_dispersion')
     evidence = {k: copy.deepcopy(v) for k, v in binding.items() if k != 'bullets'}
-    evidence.update(ordered_projectiles=[b['bulletName'] for b in bullets],
+    evidence.update(ordered_projectiles=[b.get('bulletName') for b in bullets],
         projectile_sha256=content_hash(bullet), wiki=source, wiki_maximum_only=table['maximum_only'],
         maximum_table_usage='homogeneous_projectile_selection_only')
     result = {'mode': 'KE', 'penetration_mm': penetration, 'distance_m': distance,
@@ -264,7 +270,7 @@ def ke_profile(ammo, binding, tables, source, response, version, commit):
         'dispersion': dispersion, 'damage_caliber_mm': caliber * 1000, 'mechanism_id': 0,
         'air_loss_mm_per_m': 0., 'slope_rows': slope, 'ricochet_rows': ricochet,
         'provenance': {'client_version': version, 'datamine_commit': commit,
-            'penetration_source_ammo_ids': [ammo['id']], 'bullet_name': bullet['bulletName'],
+            'penetration_source_ammo_ids': [ammo['id']], 'bullet_name': bullet.get('bulletName'),
             'bullet_type': typ, 'source_weapon_path': binding['weapon_path'],
             'source_weapon_sha256': binding['weapon_sha256'],
             'source_match_method': 'exact_mounted_selector_and_client_localization',
@@ -332,6 +338,16 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
             if binding.get('selector_rules') and (not adapter.selector_rules or
                     binding['selector_rules'] != adapter.selector_rules['evidence']):
                 raise ValueError('Existing selector evidence changed or was not enabled')
+            if 'projectile_identities' in binding:
+                if not adapter.structural_projectiles:
+                    raise ValueError('Existing structural projectile evidence was not enabled')
+                from .projectile_identity import identities
+                weapon = adapter.read(binding['weapon_path'])
+                selected = weapon if binding['selector'] == '@default' else weapon.get(binding['selector'], {})
+                actual = identities(binding['weapon_path'], adapter.sources[binding['weapon_path']],
+                                    binding['selector'], array(selected.get('bullet')))
+                if not actual or actual != binding['projectile_identities']:
+                    raise ValueError('Existing structural projectile evidence changed')
             expected += [(binding['unit_path'], binding['unit_sha256']),
                          (binding['weapon_path'], binding['weapon_sha256'])]
             for loc in binding['localization']:
@@ -352,7 +368,7 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
             checked.add(key)
 
 
-def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False, selector_rules=False):
+def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False, selector_rules=False, structural_projectiles=False):
     from .forecast.rule_snapshot import verify_capture
     catalog = read_json(catalog_path); existing = read_json(ammunition_path)
     capture = read_json(capture_path); language = read_json(language_path)
@@ -372,7 +388,8 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
     from .ammunition_selectors import verified_rules as verified_selector_rules
     selection_rules = verified_selector_rules(capture, version) if selector_rules else None
     localization = Localization(Path(language['extracted']) / 'lang', include_defaults=default_belts)
-    adapter = MountedAmmunition(pack['extracted'], localization, default_rules=default_rules, selector_rules=selection_rules)
+    adapter = MountedAmmunition(pack['extracted'], localization, default_rules=default_rules, selector_rules=selection_rules,
+                               structural_projectiles=structural_projectiles)
     verify_existing_recovery(existing, adapter, localization, wiki_root, version, commit)
     root = 'gamedata/damage_model/'
     response = {'slope': adapter.read(root + 'slope_effect.blk'),
@@ -430,6 +447,7 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
         'rules_capture_sha256': file_hash(rules_root / 'capture.json'),
         'default_belt_rules': default_rules,
         'selector_rules': selection_rules['evidence'] if selection_rules else None,
+        'structural_projectiles': structural_projectiles,
         'source_files': adapter.sources, 'localization_files': localization.sources,
         'counts': {'examined_ammunition': len(records), 'recovered_profiles': len(profiles),
             'new_profiles': len(combined) - len(existing),

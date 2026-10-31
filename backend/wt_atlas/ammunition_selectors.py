@@ -64,7 +64,8 @@ def named_cannon_label(candidate, localization):
     bullet = candidate['bullets'][0]
     caliber = bullet.get('rocket', bullet).get('caliber')
     if not number(caliber) or caliber * 1000 < 15: return None
-    name = bullet['bulletName']
+    name = bullet.get('bulletName')
+    if not name: return None
     # Match the client's precedence: an existing direct translation wins.
     return next((localization.values[k] for k in (name, 'weapons/' + name + '/short')
                  if k in localization.values), None)

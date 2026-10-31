@@ -359,3 +359,11 @@ BR 选项可通过 `allowed_source_preset_ids` 和 `allowed_primary_armament_ids
 地面载具的具名机炮弹链按客户端 `isCaliberCannon` 的 15 mm 阈值，可用首发弹丸的本地化名称显示整条弹链。导入器遵守直接名称优先于 `weapons/<id>/short` 的规则，不匹配后续弹丸，也不把该规则用于默认弹链、反制装置或小口径机枪。完整弹丸顺序仍保留，混合弹链继续拒绝生成单一最大穿深档案。来源、修改件、实际选择器与显示规则都记录在绑定证据中；增量恢复检查全局修改件和 GUI 证据变化。
 
 2026-10-31 全目录复查新增 125 条明确绑定，待定位选择器从 1,087 降至 962；这 125 条均为混合弹链，需要逐弹曲线的记录从 220 明确到 345。现有目录和弹药档案的字节哈希均不变，没有新增物理档案或地图，无可用自有弹药档案的载具仍为 181。316 项 Python、63 项 Node.js 和合成统一站点 Playwright 验收通过。详细记录保存在本地 `reports/formal-selector-effect-recovery.json`，轻量摘要见 `reports/selector-effects-progress.json`。
+
+## 无命名弹丸的精确源块身份
+
+`recover_native_ammunition.py --structural-projectiles` 可保留没有 `bulletName` 的原始弹块。每发弹丸的 `projectile_identities` 记录武器相对路径与完整文件 SHA-256、实际选择器、从零开始的弹块序号、弹块内容哈希和来源声明名称（缺失为 `null`）。`source-projectile:<sha256>` 是本项目的来源定位键，不冒充游戏内部弹药名称；原始弹块不注入任何虚构字段。重复且有冲突的声明名称继续拒绝。
+
+载具归属仍需精确挂载、声明修改件和本地化匹配。默认弹链继续要求 `--default-belts` 的 GUI 核验、父武器名称及实际挂载数量。新增源块身份本身不会恢复弹链中每发的穿深；混合弹链完整保留顺序，继续报告 `mixed_belt_requires_individual_projectile_tables`，不能使用整条弹链的最大穿深代替各发弹丸。
+
+对有完整来源且弹丸相同的选择，KE 导入仍检查原 Wiki 穿深、客户端机制、弹芯口径、倾角和跳弹曲线。增量恢复必须启用同一身份机制，并从原武器块重新生成定位证明；源文件、选择器、弹序或证明内容变动都拒绝沿用。真实结果见 `reports/structural-projectile-progress.json`，不把名称绑定数量计为新增物理覆盖。

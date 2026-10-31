@@ -16,6 +16,7 @@ def main():
     parser.add_argument('--vehicles', nargs='+')
     parser.add_argument('--default-belts', action='store_true', help='Verify captured GUI rules and exact parent weapon names for default belts')
     parser.add_argument('--selector-rules', action='store_true', help='Verify client modification effects and ground cannon display rules')
+    parser.add_argument('--structural-projectiles', action='store_true', help='Retain exact weapon/selector/block/hash identities for unnamed source projectiles')
     args = parser.parse_args()
     inputs = {p.resolve() for p in (args.catalog, args.ammunition, args.capture, args.language_capture)}
     outputs = {p.resolve() for p in (args.out, args.out_catalog, args.report)}
@@ -23,7 +24,7 @@ def main():
         raise ValueError('Keep recovery outputs distinct from each other and from source inputs')
     catalog, ammunition, report = recover(args.catalog, args.ammunition, args.capture,
         args.language_capture, args.wiki_root, args.rules_root, vehicle_ids=set(args.vehicles or []),
-        default_belts=args.default_belts, selector_rules=args.selector_rules)
+        default_belts=args.default_belts, selector_rules=args.selector_rules, structural_projectiles=args.structural_projectiles)
     write_json(args.out, ammunition); write_json(args.out_catalog, catalog)
     report.update(output_ammunition_sha256=file_hash(args.out), output_catalog_sha256=file_hash(args.out_catalog))
     write_json(args.report, report)

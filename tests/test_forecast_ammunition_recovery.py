@@ -197,6 +197,72 @@ class AmmunitionRecoveryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'caliber_mismatch'):
             self.profile(ammo={**self.ammo, 'caliber_mm': 20.})
 
+    def unnamed_weapon(self):
+        raw={k:v for k,v in self.bullet.items() if k!='bulletName'}
+        self.weapon={'isBulletBelt':True,'bullet':raw,'belt':{'bullet':raw}}
+        self.put('gamedata/weapons/gun.blk',self.weapon)
+        return raw
+
+    def test_unnamed_projectile_has_exact_source_identity_without_fabricated_name(self):
+        raw=self.unnamed_weapon()
+        adapter=MountedAmmunition(self.root,Localization(self.lang),structural_projectiles=True)
+        binding=adapter.bind(adapter.candidates({'id':'vehicle'}),self.ammo)
+        self.assertEqual(binding['bullets'],[raw]);self.assertNotIn('bulletName',binding['bullets'][0])
+        identity=binding['projectile_identities'][0]
+        self.assertIsNone(identity['declared_bullet_name'])
+        self.assertEqual(identity['selector'],'belt');self.assertEqual(identity['bullet_index'],0)
+        self.assertEqual(identity['source_weapon_sha256'],file_hash(self.root/'gamedata/weapons/gun.blk'))
+        profile=self.profile(binding=binding)
+        self.assertIsNone(profile['provenance']['bullet_name'])
+        proof=profile['provenance']['recovery_bindings'][self.ammo['id']]
+        self.assertEqual(proof['projectile_identities'],binding['projectile_identities'])
+        self.assertEqual(proof['ordered_projectiles'],[None])
+        with self.assertRaisesRegex(ValueError,'selection_missing'):
+            self.adapter().bind(self.adapter().candidates({'id':'vehicle'}),self.ammo)
+
+    def test_structural_identity_distinguishes_position_source_selector_and_content(self):
+        from wt_atlas.projectile_identity import identities
+        raw=self.unnamed_weapon();first=identities('gun.blk','a'*64,'@default',[raw,raw])
+        self.assertNotEqual(first[0]['id'],first[1]['id'])
+        for path,sha,selector,bullet in [('other.blk','a'*64,'@default',raw),('gun.blk','b'*64,'@default',raw),
+            ('gun.blk','a'*64,'belt',raw),('gun.blk','a'*64,'@default',{**raw,'mass':.06})]:
+            self.assertNotEqual(first[0]['id'],identities(path,sha,selector,[bullet])[0]['id'])
+        self.assertEqual(first,identities('gun.blk','a'*64,'@default',[raw,raw]))
+
+    def test_unnamed_default_mixture_is_bound_but_maximum_table_remains_unusable(self):
+        raw=self.unnamed_weapon();self.weapon['bullet']=[raw,{**raw,'mass':.09}]
+        self.put('gamedata/weapons/gun.blk',self.weapon)
+        adapter=self.default_adapter();adapter.structural_projectiles=True
+        binding=adapter.bind(adapter.candidates({'id':'vehicle'}),self.default_ammo())
+        self.assertEqual(len(binding['projectile_identities']),2)
+        self.assertEqual(binding['bullets'],self.weapon['bullet'])
+        with self.assertRaisesRegex(ValueError,'mixed_belt_requires_individual_projectile_tables'):
+            self.profile(binding=binding,ammo=self.default_ammo())
+
+    def test_structural_mode_still_rejects_conflicting_declared_names(self):
+        self.weapon['belt']['bullet']={**self.bullet,'bulletName':['one','two']}
+        self.put('gamedata/weapons/gun.blk',self.weapon)
+        adapter=MountedAmmunition(self.root,Localization(self.lang),structural_projectiles=True)
+        with self.assertRaisesRegex(ValueError,'selection_missing'):
+            adapter.bind(adapter.candidates({'id':'vehicle'}),self.ammo)
+        self.assertEqual(len(adapter.rejections),1)
+
+    def test_unnamed_recovery_replay_checks_source_and_structural_proof(self):
+        self.unnamed_weapon();args=self.integration_inputs()
+        catalog,profiles,report=recover(*args,structural_projectiles=True)
+        self.assertEqual(report['counts']['new_profiles'],1)
+        write_json(args[0],catalog);write_json(args[1],profiles)
+        _,again,replay=recover(*args,structural_projectiles=True)
+        self.assertEqual(again,profiles);self.assertEqual(replay['counts']['new_profiles'],0)
+        with self.assertRaisesRegex(ValueError,'structural projectile evidence was not enabled'):recover(*args)
+        changed=copy.deepcopy(profiles)
+        changed[0]['provenance']['recovery_bindings'][self.ammo['id']]['projectile_identities'][0]['bullet_index']=1
+        write_json(args[1],changed)
+        with self.assertRaisesRegex(ValueError,'structural projectile evidence changed'):recover(*args,structural_projectiles=True)
+        write_json(args[1],profiles)
+        self.weapon['belt']['bullet']['speed']=901.;self.put('gamedata/weapons/gun.blk',self.weapon)
+        with self.assertRaisesRegex(ValueError,'structural projectile evidence changed'):recover(*args,structural_projectiles=True)
+
     def test_subcaliber_requires_explicit_damage_caliber(self):
         binding = self.binding(); binding['bullets'][0] = {**self.bullet, 'bulletType': 'apds_tank'}
         with self.assertRaisesRegex(ValueError, 'damage_caliber_missing'): self.profile(binding=binding)
