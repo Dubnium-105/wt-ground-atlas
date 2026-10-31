@@ -45,11 +45,12 @@
     },
     "main_preflight_complete_report_exists": true,
     "remaining_processing": [
-      "complete fresh combined array and bidirectional preflight for 432659 earlier maps",
-      "complete assembly and combined validation of the 776 additional maps with earlier results",
+      "finish fresh five-batch combined full-array and bidirectional preflight",
+      "finish seven-batch assembly and fresh full-array and bidirectional preflight including original 10 m and root rocket maps",
+      "finish sequential eight- and nine-batch assemblies and fresh full-array preflights including nested and dual-use missiles",
       "complete full candidate search and sensitivity acceptance"
     ],
-    "total_scope": "Five generated and independently checked batches; 432659-map combined preflight and 433435-map updated assembly are running. Final combined acceptance remains pending."
+    "total_scope": "The five earlier generated batches were individually checked. The four-batch combined full-array preflight is complete but blocked by incomplete bidirectional coverage; the five-batch combined preflight and seven-batch assembly are running. Eight- and nine-batch assemblies and full preflights are queued. Final combined acceptance remains pending."
   },
   "collected_at": "2026-10-31T11:26:03.310791+00:00",
   "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
@@ -58,7 +59,7 @@
     "report": "reports\\five-batch-assembly-progress.json",
     "report_sha256": "ef444d27f4d668d5bec10955850e62b6099b8875b34943c83ae01765c3494455",
     "scope": "New batches only; original 10m and root rockets are planned for the subsequent seven-batch assembly.",
-    "status": "assembled_requires_fresh_preflight"
+    "status": "assembled_fresh_preflight_running"
   },
   "formal_rankings": 0,
   "four_batch_combined_preflight": {
@@ -122,7 +123,7 @@
       "report_sha256": "775a6f4635840d3d339aa70da88db4f92bf642cf6ed714178a08fcbcacffa659",
       "verified_arrays": 1068
     },
-    "profile_gap_catalog_scope": "v17 dual-use missile source recovery; native range maps remain under generation and validation",
+    "profile_gap_catalog_scope": "v17 dual-use missile source recovery; all nine source indexes were individually verified, but final assembled full-array preflight remains pending",
     "remaining_breakdown": {
       "counts_overlap": true,
       "distinct_vehicles": 148,
