@@ -14,6 +14,8 @@ from wt_atlas.ammunition_recovery import (Localization, MountedAmmunition, ke_pr
     merge_recovered, recover, source_rows, verify_wiki, wiki_tables)
 from wt_atlas.common import file_hash, write_json, read_json
 from wt_atlas.default_belts import REVIEWED_SCRIPTS, verified_rules
+from wt_atlas.ammunition_selectors import selector_effects, verified_rules as verified_selectors
+from wt_atlas.native_binding.ordered_blk import parse_ordered_blk
 
 
 def blk(data, indent=''):
@@ -91,6 +93,76 @@ class AmmunitionRecoveryTests(unittest.TestCase):
         adapter = self.adapter()
         with self.assertRaisesRegex(ValueError, 'selection_missing'):
             adapter.bind(adapter.candidates({'id': 'vehicle'}), {**self.ammo, 'name': 'M20'})
+
+    def selector_adapter(self, effects):
+        self.put('modifications.blk', {'modifications': effects})
+        rules={'selectors':selector_effects(parse_ordered_blk(self.root/'modifications.blk')),
+               'evidence':{'source_version':'test','modifications_sha256':file_hash(self.root/'modifications.blk')}}
+        return MountedAmmunition(self.root,Localization(self.lang),selector_rules=rules)
+
+    def test_declared_modification_resolves_exact_different_weapon_selector(self):
+        self.weapon['real-selector']=self.weapon.pop('belt');self.put('gamedata/weapons/gun.blk',self.weapon)
+        a=self.selector_adapter({'belt':{'effects':{'additiveBulletMod':'real-selector'}}})
+        bound=a.bind(a.candidates({'id':'vehicle'}),self.ammo)
+        self.assertEqual(bound['selector'],'real-selector');self.assertEqual(bound['modification_id'],'belt')
+        self.assertIn('selector_rules',bound)
+        self.assertEqual(self.profile(binding=bound)['penetration_mm'],29)
+
+    def test_effect_source_precedence_is_ordered_not_alphabetical(self):
+        a=self.selector_adapter({'belt':{'effects':{'bulletMod':'chosen','additiveBulletMod':'wrong'}}})
+        self.assertEqual(a.selector_rules['selectors']['belt'],{'kind':'bulletMod','selector':'chosen'})
+        a=self.selector_adapter({'belt':{'effects':{'additiveBulletMod':'chosen','bulletMod':'wrong'}}})
+        self.assertEqual(a.selector_rules['selectors']['belt']['selector'],'chosen')
+
+    def test_wrong_or_undeclared_effect_does_not_fall_back_to_equal_named_block(self):
+        for effects in ({'belt':{'effects':{'bulletMod':'absent'}}},{'unmounted':{'effects':{'bulletMod':'belt'}}}):
+            a=self.selector_adapter(effects)
+            self.assertEqual([x['selector'] for x in a.candidates({'id':'vehicle'})],['@default'])
+
+    def test_verified_cannon_label_identifies_whole_mixed_belt_without_maximum_profile(self):
+        self.weapon.pop('bullet');self.weapon.pop('belt')
+        for b in self.weapon['mixed']['bullet']:b['caliber']=.035
+        self.put('gamedata/weapons/gun.blk',self.weapon)
+        a=self.selector_adapter({'mixed':{'effects':{'bulletMod':'mixed'}}})
+        bound=a.bind(a.candidates({'id':'vehicle'}),{**self.ammo,'name':'M20'})
+        self.assertEqual([b['bulletName'] for b in bound['bullets']],['round_m20','other'])
+        self.assertIn('complete_ordered_belt_retained',bound['display_name_rule'])
+        with self.assertRaisesRegex(ValueError,'mixed_belt'):self.profile(binding=bound)
+
+    def test_cannon_label_never_selects_a_later_belt_member_or_small_machinegun(self):
+        self.weapon.pop('bullet');self.weapon.pop('belt')
+        self.localization({'round_m20':'M20','other':'Other'})
+        for caliber,name in ((.0127,'M20'),(.035,'Other')):
+            for b in self.weapon['mixed']['bullet']:b['caliber']=caliber
+            self.put('gamedata/weapons/gun.blk',self.weapon)
+            a=self.selector_adapter({'mixed':{'effects':{'bulletMod':'mixed'}}})
+            with self.assertRaisesRegex(ValueError,'selection_missing'):
+                a.bind(a.candidates({'id':'vehicle'}),{**self.ammo,'name':name})
+
+    def test_cannon_localization_fallback_obeys_existing_direct_label(self):
+        self.weapon.pop('bullet');self.weapon.pop('belt')
+        for b in self.weapon['mixed']['bullet']:b['caliber']=.035
+        self.put('gamedata/weapons/gun.blk',self.weapon)
+        self.localization({'weapons/round_m20/short':'Fallback'})
+        a=self.selector_adapter({'mixed':{'effects':{'bulletMod':'mixed'}}})
+        self.assertEqual(a.bind(a.candidates({'id':'vehicle'}),{**self.ammo,'name':'Fallback'})['localization'][0]['key'],'weapons/round_m20/short')
+        self.localization({'round_m20':'Primary','weapons/round_m20/short':'Fallback'})
+        a=self.selector_adapter({'mixed':{'effects':{'bulletMod':'mixed'}}})
+        with self.assertRaisesRegex(ValueError,'selection_missing'):
+            a.bind(a.candidates({'id':'vehicle'}),{**self.ammo,'name':'Fallback'})
+
+    def test_selector_capture_checks_scripts_registry_and_versions(self):
+        self.put('config/modifications.blk',{'modifications':{'belt':{'effects':{'bulletMod':'belt'}}}})
+        (self.root/'script.nut').write_bytes(b'reviewed\r\n');(self.root/'pack').write_bytes(b'pack')
+        pack={'version':'test','saved':str(self.root/'pack'),'sha256':file_hash(self.root/'pack'),'extracted':str(self.root)}
+        capture={'packs':{'char.vromfs.bin':pack,'gui.vromfs.bin':copy.deepcopy(pack)}}
+        with patch('wt_atlas.ammunition_selectors.REVIEWED_SCRIPTS',{'script.nut':hashlib.sha256(b'reviewed\n').hexdigest()}):
+            first=verified_selectors(capture,'test');self.assertEqual(first['selectors']['belt']['selector'],'belt')
+            self.put('config/modifications.blk',{'modifications':{'belt':{'effects':{'bulletMod':'changed'}}}})
+            self.assertNotEqual(first['evidence'],verified_selectors(capture,'test')['evidence'])
+            with self.assertRaisesRegex(ValueError,'capture mismatch'):verified_selectors(capture,'other')
+            (self.root/'script.nut').write_bytes(b'unreviewed')
+            with self.assertRaisesRegex(ValueError,'Unreviewed'):verified_selectors(capture,'test')
 
     def test_unmounted_and_undeclared_selectors_do_not_bind(self):
         self.unit['modifications'].pop('belt'); self.put('gamedata/units/tankmodels/vehicle.blk', self.unit)
