@@ -35,3 +35,4 @@ backend/wt_atlas/forecast/random_reinforcements.py -text
 scripts/audit_random_reinforcements.py -text
 reports/random-ground-reinforcements-evidence.json -text
 reports/random-ground-reinforcements-coverage.json -text
+reports/native-bullet-count-evidence.json -text

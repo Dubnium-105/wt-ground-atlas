@@ -480,6 +480,8 @@ MGM-166 的同版官方 Wiki 表列出 10、100、500、1000 米四个精确距�
 
 `scripts/audit_reinforcement_coverage.py` 将上述配置条目与 v17 目录及其弹药来源缺口清单按精确 ID 交叉核对，并检查输入哈希与版本。239 个条目中 234 个精确匹配，5 个仅有大小写相同的候选，未自动认定为同一身份；精确匹配中 47 个出现在无受支持自有弹药档案的清单内（44 个配置为防空、3 个配置为坦克）。该交集不证明对地攻击资格，也不证明任一战局的实际分配；逐车结果见 `reports/random-ground-reinforcements-coverage.json`。
 
+对 BTR-3E1、BTR-82AT、BMD-4M2 的 30 毫米炮作进一步核查：九个声明选择的各个弹丸源块均未显式声明 `bulletCount`。`scripts/audit_native_bullet_count.py` 只读核对同版客户端可执行文件及源包，固定相关二进制区间并记录源块；在审阅过的字段读取指令中，取不到可读的 `bulletCount` 时 getter 使用的默认值为整数 0。这一观察不证明源块是否经继承补值，也不证明字段的运行时语义、发射顺序或射击概率，不能把未写数量当作每种 1 发来恢复弹链。来源与限制见 `reports/native-bullet-count-evidence.json`。
+
 ## 改装添加的弹药与增量距离档案
 
 `scripts/recover_native_ammunition.py --primary-modifications` 会校验捕获的客户端武器界面脚本，并从独立改装的 `effects.commonWeapons` 中读取新增武器。不同改装之间的同名候选不会被任意合并；改装、武器槽前置要求、源文件哈希、本地化和弹药块均写入来源证明。当前仅恢复可验证的单射流 CE 弹药；改装新增的混合弹链与动能弹继续明确列为待验证。预测枚举会核对该证明、已解锁的改装，以及动态 BR 配置允许的主武器。单射流计算仍仅表示射流已经有效命中后的条件贯穿，不代表飞行、引信、命中或穿后毁伤。
