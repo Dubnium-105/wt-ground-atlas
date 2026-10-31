@@ -42,8 +42,11 @@ def loadout_errors(loadout,vehicle,option,*,unlocked=None,require_unlocked=False
         if any(x in ids for x in w.get('conflicts_with',[])):errors.append('mutually_exclusive_weapon')
         if any(x not in ids for x in w.get('requires',[])):errors.append('weapon_dependency_missing')
     capacity=loadout.get('max_payload_kg',vehicle.get('max_payload_kg'))
-    if number(capacity) and all(number(w.get('mass_kg')) and number(w.get('count')) for w in weapons):
-        if sum(w['mass_kg']*w['count'] for w in weapons)>capacity:errors.append('payload_capacity_exceeded')
+    if number(capacity):
+        # Known configured masses are a lower bound when fuel or ammunition
+        # state is unresolved; missing masses must not hide a known overload.
+        known_mass=sum(w['mass_kg']*w['count'] for w in weapons if number(w.get('mass_kg')) and number(w.get('count')))
+        if known_mass>capacity:errors.append('payload_capacity_exceeded')
     for field,chosen in [('allowed_loadout_ids',[loadout.get('id')]),('allowed_weapon_ids',ids)]:
         if field in option and any(x not in option[field] for x in chosen):errors.append('forbidden_by_rating_configuration')
     required=set(option.get('required_modification_ids',[]))|set(loadout.get('required_modification_ids',[]))

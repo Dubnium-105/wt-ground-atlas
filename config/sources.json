@@ -73,7 +73,17 @@
       "atgm",
       "aam",
       "guided bombs",
-      "guided_rockets"
+      "guided_rockets",
+      "fuel tanks",
+      "targetingPod",
+      "cannon",
+      "additional gun",
+      "machine gun",
+      "gunner1",
+      "gunner2",
+      "countermeasures",
+      "torpedoes",
+      "boosters"
     ]
   },
   "changes": {

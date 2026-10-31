@@ -18,6 +18,52 @@ def array(value):
     return value if isinstance(value, list) else ([value] if value is not None else [])
 
 
+def carried_device(weapon, data, resolved):
+    """Keep hardware counts separate from ammunition and unselected consumables.
+
+    These fields describe a mounted resource, not its combat effectiveness.
+    Configured gun/tank mass is retained without asserting a fully loaded mass.
+    """
+    trigger = weapon.get('trigger')
+    types = {'fuel tanks':('fuel_tank','fuelTankGun'),
+             'targetingPod':('targeting_pod','targetingPodGun'),
+             'boosters':('booster','boosterGun')}
+    if trigger in types:
+        typ, flag = types[trigger]
+        payload = data.get('payload')
+        if data.get(flag) is not True or not isinstance(payload,dict):
+            raise ValueError('unsupported carried device schema')
+        count = weapon.get('bullets',data.get('bullets'))
+        if not isinstance(count,int) or isinstance(count,bool) or count<=0:
+            raise ValueError('carried device quantity unknown or invalid')
+        return {'id':payload.get('bulletName') or Path(resolved).stem,
+                'type':typ,'count':count,'count_semantics':'devices',
+                'combat_delivery':False,'mass_kg':payload.get('mass'),
+                'mass_semantics':'configured_payload_mass',
+                'mass_complete':typ=='targeting_pod',
+                'consumable_state':{'fuel_tank':'fuel_load_not_selected',
+                    'booster':'propellant_state_not_selected'}.get(typ,'not_applicable')}
+    if trigger not in ('cannon','additional gun','machine gun','gunner1','gunner2','countermeasures'):
+        return None
+    # The native cannon flag is optional (e.g. Ksp m/22 and Browning .30).
+    # The explicit mounted gun trigger and projectile definitions identify a gun.
+    projectiles=array(data.get('bullet'))
+    if ('cannon' in data and not isinstance(data['cannon'],bool)) or not projectiles or any(not isinstance(b,dict) or not b for b in projectiles) or data.get('container'):
+        raise ValueError('unsupported carried gun or dispenser schema')
+    rounds = weapon.get('bullets',data.get('bullets'))
+    if not isinstance(rounds,int) or isinstance(rounds,bool) or rounds<0:
+        raise ValueError('carried ammunition quantity unknown or invalid')
+    countermeasure = trigger=='countermeasures'
+    return {'id':Path(resolved).stem,'type':'countermeasure_dispenser' if countermeasure else 'gun',
+            'count':1,'count_semantics':'devices','combat_delivery':not countermeasure,
+            'ammunition_per_unit':rounds,'ammunition_count':rounds,
+            'ammunition_count_source':'mount.bullets' if 'bullets' in weapon else 'resource.bullets',
+            'ammunition_selection_status':'not_selected',
+            'mass_kg':weapon.get('mass',data.get('mass')),'mass_complete':False,
+            'mass_semantics':'configured_device_mass_loaded_mass_unresolved',
+            'mass_source':'mount.mass' if 'mass' in weapon else 'resource.mass'}
+
+
 class DatamineLoadouts:
     def __init__(self, config, root):
         self.config, self.root = config, Path(root)
@@ -47,6 +93,11 @@ class DatamineLoadouts:
         resolved = self.resolve_path(path)
         if resolved in ancestry: raise ValueError('cyclic weapon container')
         data = self.read(path)
+        device = carried_device(weapon,data,resolved)
+        if device is not None:
+            device.update(name=device['id'],provenance={'source_path':resolved,
+                'commit':self.dm['ref'],'game_version':self.dm['version']})
+            return [device]
         if data.get('container'):
             child = data.get('blk')
             if child:
@@ -62,13 +113,19 @@ class DatamineLoadouts:
             # than through another resource. Keep its explicit count below.
             if not isinstance(data.get('rocket') or data.get('bomb') or data.get('bullet'),dict):
                 raise ValueError('unsupported container schema')
-        projectile = data.get('rocket') or data.get('bomb') or data.get('bullet')
+        if weapon.get('trigger')=='torpedoes':
+            if data.get('torpedoGun') is not True or not isinstance(data.get('torpedo'),dict):
+                raise ValueError('unsupported carried torpedo schema')
+            projectile=data['torpedo']
+        else:
+            projectile=data.get('rocket') or data.get('bomb') or data.get('bullet')
         if not isinstance(projectile, dict):
             raise ValueError('not a supported external projectile')
         trigger = weapon.get('trigger')
         guidance = projectile.get('guidanceType')
         icon = projectile.get('iconType', '')
-        if 'arm' in icon or 'radar' in str(guidance).lower() and 'passive' in str(guidance).lower(): typ = 'arm'
+        if trigger=='torpedoes': typ = 'torpedo'
+        elif 'arm' in icon or 'radar' in str(guidance).lower() and 'passive' in str(guidance).lower(): typ = 'arm'
         elif trigger == 'aam': typ = 'aam'
         elif data.get('bombGun') and guidance: typ = 'guided_bomb'
         elif data.get('bombGun'): typ = 'bomb'
@@ -109,7 +166,7 @@ class DatamineLoadouts:
                 if not declared:
                     continue
                 all_weapons, used_slots = [], set()
-                for selection in declared:
+                for selection_index,selection in enumerate(declared):
                     if 'slot' in selection:
                         si, pn = selection['slot'], selection['preset']
                         if si in used_slots: raise ValueError('duplicate hardpoint in source preset')
@@ -121,24 +178,37 @@ class DatamineLoadouts:
                         si = None; pn = None; weapon_list = [selection]
                     else:
                         raise ValueError('unrecognized preset reference')
-                    for w in weapon_list:
+                    for wi,w in enumerate(weapon_list):
                         if w.get('trigger') not in self.dm['external_weapon_triggers']:
                             continue
                         leaves = self.weapons(w)
                         for leaf in leaves:
                             leaf['hardpoint'] = si; leaf['mount_preset'] = pn
+                            leaf['mount_assignments'] = [{'hardpoint':si,'preset':pn,'selection_index':selection_index,
+                                'source_weapon_index':wi,'count':leaf['count']}]
+                            mods=array(w.get('reqModification'))
+                            if any(not isinstance(m,str) or not m for m in mods):
+                                raise ValueError('unsupported mount modification requirement')
+                            if mods:leaf['required_modification_ids']=mods
                         all_weapons.extend(leaves)
                 if not all_weapons: continue
                 grouped = {}
                 for w in all_weapons:
-                    key = (w['id'], w['type'])
+                    # Identical names do not imply identical quantities, mass,
+                    # ammunition capacity or source identity on different mounts.
+                    key = json.dumps({k:v for k,v in w.items() if k not in
+                        ('count','ammunition_count','hardpoint','mount_preset','mount_assignments')},
+                        sort_keys=True,separators=(',',':'))
                     if key not in grouped:
                         grouped[key] = copy.deepcopy(w); grouped[key]['hardpoints'] = [w['hardpoint']]
                     else:
                         grouped[key]['count'] += w['count']; grouped[key]['hardpoints'].append(w['hardpoint'])
+                        grouped[key]['mount_assignments'].extend(w['mount_assignments'])
+                        if 'ammunition_count' in w:grouped[key]['ammunition_count']+=w['ammunition_count']
                 normalized = list(grouped.values())
                 outputs.append({'id':preset['name'], 'name':' + '.join(f"{w['count']}×{w['name']}" for w in normalized),
                     'legal':True, 'weapons':normalized, 'mounts':declared,
+                    'required_modification_ids':sorted({m for w in normalized for m in w.get('required_modification_ids',[])}),
                     'spawn_cost':None, 'provenance':{'method':'declared-Datamine-preset-with-recursive-container-counts',
                         'commit':self.dm['ref'], 'game_version':self.dm['version'], 'path':self.resolve_path(preset['blk']),
                         'version_compatibility':'pinned-Datamine; Wiki-game-commit-unpublished'}})

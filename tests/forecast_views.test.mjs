@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {selectRows, tableRows, filterMovements, migrationSummaries} from '../web/forecast/views.mjs';
+import {selectRows, tableRows, filterMovements, migrationSummaries, payloadItemLabel} from '../web/forecast/views.mjs';
+
+test('payload display separates devices, ammunition and unresolved consumables', () => {
+  const gun=payloadItemLabel({id:'gun',type:'gun',count:1,ammunition_count:150,ammunition_selection_status:'not_selected',mass_complete:false});
+  assert.match(gun,/gun × 1/);assert.match(gun,/弹药 150 发/);assert.match(gun,/弹链未选择/);
+  const fuel=payloadItemLabel({id:'tank',type:'fuel_tank',count:2,consumable_state:'fuel_load_not_selected',mass_complete:false});
+  assert.match(fuel,/副油箱 tank × 2/);assert.match(fuel,/燃油量未选择/);assert.match(fuel,/满载质量未核实/);
+  assert.equal(payloadItemLabel({id:'bomb',count:3}),'bomb × 3');
+});
 
 const row=(id, nation, br, score, extra={})=>({lineup_key:id,nation,actual_br:br,score,rankable:true,evidence_coverage:1,members:[{vehicle_id:id}],...extra});
 
