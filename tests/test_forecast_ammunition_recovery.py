@@ -106,6 +106,34 @@ class AmmunitionRecoveryTests(unittest.TestCase):
         self.assertEqual(binding['mounts'],[{'trigger':'gunner2'}])
         self.assertEqual(binding['primary_armament_rules']['source_version'],'test')
 
+    def test_root_rocket_requires_exact_full_and_short_weapon_localization(self):
+        self.localization({'rocket_round':'Other label','weapons/rocket':'Rocket launcher','weapons/rocket/short':'Rocket'})
+        rocket={'bulletName':'rocket_round','bulletType':'atgm_tank','caliber':.127}
+        self.put('gamedata/weapons/rocket.blk',{'rocketGun':True,'rocket':rocket})
+        self.unit['commonWeapons']={'Weapon':{'blk':'gamedata/weapons/rocket.blk','trigger':'gunner0'}}
+        self.put('gamedata/units/tankmodels/vehicle.blk',self.unit)
+        ammo={**self.ammo,'id':'vehicle::rocket','name':'Rocket','caliber_mm':127.,
+              'provenance':{'parent_weapon_name':'Rocket launcher'}}
+        with self.assertRaisesRegex(ValueError,'requires verified'):
+            MountedAmmunition(self.root,Localization(self.lang),root_rockets=True)
+        rules={'source_version':'test'}
+        adapter=MountedAmmunition(self.root,Localization(self.lang),default_rules=rules,root_rockets=True,structural_projectiles=True)
+        binding=adapter.bind(adapter.candidates({'id':'vehicle'}),ammo)
+        self.assertEqual(binding['projectile_block'],'root_rocket');self.assertEqual(binding['bullets'],[rocket])
+        self.assertEqual(binding['root_rocket_rules'],rules)
+        self.assertEqual([v['value'] for v in binding['localization']],['Rocket launcher','Rocket'])
+        for bad in ({**ammo,'name':'Other label'}, {**ammo,'provenance':{'parent_weapon_name':'Different launcher'}}):
+            with self.subTest(bad=bad),self.assertRaisesRegex(ValueError,'selection_missing'):
+                adapter.bind(adapter.candidates({'id':'vehicle'}),bad)
+
+    def test_root_rocket_cannot_mask_ambiguous_projectile_blocks(self):
+        from wt_atlas.ammunition_recovery import selected_projectiles
+        rocket={'bulletName':'rocket','bulletType':'atgm_tank'}
+        for weapon in ({'rocketGun':False,'rocket':rocket},{'rocketGun':True,'rocket':[rocket,rocket]},
+                       {'rocketGun':True,'rocket':rocket,'bullet':rocket}):
+            with self.subTest(weapon=weapon),self.assertRaisesRegex(ValueError,'shape changed'):
+                selected_projectiles(weapon,'@default','root_rocket')
+
     def test_two_alternative_primary_modifications_are_not_silently_merged(self):
         self.localization({'rocket_round':'Rocket'})
         self.put('gamedata/weapons/rocket.blk',{'bullet':{'bulletName':'rocket_round','bulletType':'heat_tank'}})
@@ -137,6 +165,15 @@ class AmmunitionRecoveryTests(unittest.TestCase):
         previous,_=consolidate([base]);combined,_=consolidate([base,conditional])
         self.assertEqual(len(combined),2)
         self.assertIn(previous[0],combined)
+
+    def test_root_rocket_source_does_not_mutate_existing_profile_identity(self):
+        base=self.profile();rocket=copy.deepcopy(base)
+        proof=rocket['provenance']['recovery_bindings'].pop('vehicle::API-T')
+        proof['projectile_block']='root_rocket'
+        rocket['provenance']['recovery_bindings']={'vehicle::rocket':proof}
+        rocket['provenance']['penetration_source_ammo_ids']=['vehicle::rocket']
+        previous,_=consolidate([base]);combined,_=consolidate([base,rocket])
+        self.assertEqual(len(combined),2);self.assertIn(previous[0],combined)
 
     def test_component_index_rechecks_the_complete_raw_projectile(self):
         from wt_atlas.ordered_belt_recovery import component_index

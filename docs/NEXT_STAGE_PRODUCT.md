@@ -448,6 +448,8 @@ BR 选项可通过 `allowed_source_preset_ids` 和 `allowed_primary_armament_ids
 
 `scripts/recover_native_ammunition.py --primary-modifications` 会校验捕获的客户端武器界面脚本，并从独立改装的 `effects.commonWeapons` 中读取新增武器。不同改装之间的同名候选不会被任意合并；改装、武器槽前置要求、源文件哈希、本地化和弹药块均写入来源证明。当前仅恢复可验证的单射流 CE 弹药；改装新增的混合弹链与动能弹继续明确列为待验证。预测枚举会核对该证明、已解锁的改装，以及动态 BR 配置允许的主武器。单射流计算仍仅表示射流已经有效命中后的条件贯穿，不代表飞行、引信、命中或穿后毁伤。
 
+对把弹体直接放在发射器根 `rocket` 块中的武器，可同时指定 `--default-belts --root-rockets`。导入器要求确实挂载了该 `rocketGun`，且客户端本地化中的武器全称和短名分别与图鉴父武器、弹药名称精确一致；它重读完整弹体并保留单独的根块来源证明。混合或重复根块、未知名称及不支持的弹头机制不会被猜测为单射流。对改装更换的发射器还必须启用 `--primary-modifications`，其改装限制与原有弹药路径相同。
+
 可用 `scripts/prepare_range_profiles.py --previous-ammunition <旧源档案> --existing-ranges <旧距离档案> --ammunition <新源档案> --source-root <客户端源目录> --out <新输出> --report <新报告>` 只为新增源档案生成距离档案。工具检查旧源档案逐项未变、输出身份不冲突，并原样保留旧距离结果；更改旧源或混用旧距离包时不会静默重算或覆盖。实际 2.59.0.92 样本中，LAV-AD 的 M247 通过 `lav_ad_hydra_70` 改装和对应武器、弹药及本地化来源绑定，四个距离档案已生成，旧 1,963 个档案保持不变。
 
 ## 多批索引的临时覆盖规划

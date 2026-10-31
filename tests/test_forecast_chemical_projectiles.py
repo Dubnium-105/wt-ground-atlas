@@ -114,6 +114,20 @@ class ChemicalProjectileTests(unittest.TestCase):
         changed=copy.deepcopy(profile);del changed['provenance']['recovery_bindings'][self.ammo['id']]['primary_modification_id']
         with self.assertRaisesRegex(ValueError,'not mounted'):source_evidence(changed,self.root)
 
+    def test_root_rocket_rechecks_raw_block_and_reviewed_gui_rules(self):
+        from wt_atlas.default_belts import REVIEWED_SCRIPTS
+        self.bullet={'bulletName':'rocket','bulletType':'atgm_tank','caliber':.08,
+                     'ricochetPreset':'inner','cumulativeDamage':{'armorPower':330.}}
+        self.put(self.weapon_path,{'rocketGun':True,'rocket':self.bullet})
+        binding=self.binding();binding.update(selector='@default',projectile_block='root_rocket',
+            root_rocket_rules={'source_version':'test','scripts':{k:{'lf_sha256':v} for k,v in REVIEWED_SCRIPTS.items()}})
+        profile=ce_profile(self.ammo,binding,self.tables,self.wiki,self.response,'test','a'*40)
+        self.assertEqual(source_evidence(profile,self.root)['penetration_mm'],330.)
+        changed=copy.deepcopy(profile);changed['provenance']['recovery_bindings'][self.ammo['id']]['root_rocket_rules']['scripts']={}
+        with self.assertRaisesRegex(ValueError,'localization rules'):source_evidence(changed,self.root)
+        changed=copy.deepcopy(profile);changed['provenance']['recovery_bindings'][self.ammo['id']]['projectile_block']='bullet'
+        with self.assertRaisesRegex(ValueError,'Unknown projectile block'):source_evidence(changed,self.root)
+
     def test_mixed_source_cannot_use_a_maximum_or_one_matching_member(self):
         binding=self.binding();binding['bullets'].append({**self.bullet,'bulletName':'other'})
         with self.assertRaisesRegex(ValueError,'mixed_selection'):

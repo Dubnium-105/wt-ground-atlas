@@ -23,6 +23,18 @@ def array(value):
     return value if isinstance(value, list) else ([] if value is None else [value])
 
 
+def selected_projectiles(weapon, selector, projectile_block=None):
+    """Read the precise recorded block, without treating a rocket as a belt."""
+    if projectile_block == 'root_rocket':
+        if (selector!='@default' or weapon.get('rocketGun') is not True or
+            'bullet' in weapon or not isinstance(weapon.get('rocket'),dict)):
+            raise ValueError('Root rocket source shape changed')
+        return [weapon['rocket']]
+    if projectile_block is not None:raise ValueError('Unknown projectile block')
+    selected=weapon if selector=='@default' else weapon.get(selector,{})
+    return array(selected.get('bullet'))
+
+
 class Localization:
     def __init__(self, root, *, include_defaults=False):
         self.values = {}; self.sources = {}
@@ -48,11 +60,13 @@ class Localization:
 
 
 class MountedAmmunition:
-    def __init__(self, root, localization, *, default_rules=None, selector_rules=None, structural_projectiles=False, primary_rules=None):
+    def __init__(self, root, localization, *, default_rules=None, selector_rules=None, structural_projectiles=False, primary_rules=None, root_rockets=False):
         self.root = Path(root); self.localization = localization
         self.default_rules = default_rules
         self.selector_rules = selector_rules
         self.primary_rules = primary_rules
+        if root_rockets and not default_rules:raise ValueError('Root rocket recovery requires verified weapon localization rules')
+        self.root_rockets = root_rockets
         self.structural_projectiles = structural_projectiles
         self.cache = OrderedDict(); self.sources = {}; self.rejections = []
 
@@ -116,6 +130,10 @@ class MountedAmmunition:
                                if k in modifications and isinstance(v, dict) and 'bullet' in v]
             for selector, selected, selection_proof in selections:
                 bullets = array(selected.get('bullet'))
+                projectile_block = None
+                if (not bullets and self.root_rockets and selector=='@default' and weapon.get('rocketGun') is True
+                        and 'bullet' not in weapon and isinstance(weapon.get('rocket'),dict)):
+                    projectile_block='root_rocket';bullets=selected_projectiles(weapon,selector,projectile_block)
                 if not bullets: continue
                 if any(not isinstance(b, dict) or
                        (not self.structural_projectiles or 'bulletName' in b) and
@@ -124,6 +142,7 @@ class MountedAmmunition:
                         'selector': selector, 'reason': 'projectile_identity_missing_or_repeated'})
                     continue
                 extra = {}
+                if projectile_block:extra['projectile_block']=projectile_block
                 if self.structural_projectiles:
                     from .projectile_identity import identities
                     extra['projectile_identities'] = identities(weapon_path, self.sources[weapon_path], selector, bullets)
@@ -142,6 +161,16 @@ class MountedAmmunition:
         matches = []
         for candidate in candidates:
             bullets = candidate['bullets']; selector = candidate['selector']
+            if candidate.get('projectile_block')=='root_rocket':
+                parent=ammo.get('provenance',{}).get('parent_weapon_name');matched=[]
+                for key in candidate.get('weapon_localization_keys',[]):
+                    full=self.localization.values.get(key);short=self.localization.values.get(key+'/short')
+                    if full and short and full['value']==parent and short['value']==ammo['name']:
+                        matched += [full,short]
+                if matched:
+                    matches.append({**candidate,'localization':matched,'root_rocket_rules':self.default_rules,
+                        'display_name_rule':'exact_mounted_weapon_full_and_short_client_localization'})
+                continue
             keys = [] if selector == '@default' else [candidate.get('modification_id', selector) + '/name']
             # A localized projectile is a selectable name only for a homogeneous
             # selection. One matching member never identifies an entire belt.
@@ -323,6 +352,8 @@ def consolidate(profiles):
             **{k: provenance[k] for k in ('client_version', 'datamine_commit', 'source_hashes', 'model_assumptions')}}
         if binding.get('primary_modification_id'):
             identity['primary_modification_id'] = binding['primary_modification_id']
+        if binding.get('projectile_block')=='root_rocket':
+            identity['projectile_block']='root_rocket'
         key = content_hash(identity)
         name = 'recovered_' + key[:24]; renamed[profile['name']] = name
         if name not in groups:
@@ -372,14 +403,15 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
                 raise ValueError('Existing selector evidence changed or was not enabled')
             if binding.get('primary_modification_id') and binding.get('primary_armament_rules') != adapter.primary_rules:
                 raise ValueError('Existing primary armament evidence changed or was not enabled')
+            if binding.get('projectile_block')=='root_rocket' and (not adapter.root_rockets or binding.get('root_rocket_rules')!=adapter.default_rules):
+                raise ValueError('Existing root rocket source rules changed or were not enabled')
             if 'projectile_identities' in binding:
                 if not adapter.structural_projectiles:
                     raise ValueError('Existing structural projectile evidence was not enabled')
                 from .projectile_identity import identities
                 weapon = adapter.read(binding['weapon_path'])
-                selected = weapon if binding['selector'] == '@default' else weapon.get(binding['selector'], {})
                 actual = identities(binding['weapon_path'], adapter.sources[binding['weapon_path']],
-                                    binding['selector'], array(selected.get('bullet')))
+                                    binding['selector'], selected_projectiles(weapon,binding['selector'],binding.get('projectile_block')))
                 if not actual or actual != binding['projectile_identities']:
                     raise ValueError('Existing structural projectile evidence changed')
             expected += [(binding['unit_path'], binding['unit_sha256']),
@@ -402,7 +434,7 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
             checked.add(key)
 
 
-def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False, selector_rules=False, structural_projectiles=False, ordered_belts=False, chemical_energy=False, primary_modifications=False):
+def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False, selector_rules=False, structural_projectiles=False, ordered_belts=False, chemical_energy=False, primary_modifications=False, root_rockets=False):
     from .forecast.rule_snapshot import verify_capture
     catalog = read_json(catalog_path); existing = read_json(ammunition_path)
     capture = read_json(capture_path); language = read_json(language_path)
@@ -425,7 +457,7 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
     primary_rules = verified_primary_rules(capture, version) if primary_modifications else None
     localization = Localization(Path(language['extracted']) / 'lang', include_defaults=default_belts)
     adapter = MountedAmmunition(pack['extracted'], localization, default_rules=default_rules, selector_rules=selection_rules,
-                               structural_projectiles=structural_projectiles, primary_rules=primary_rules)
+                               structural_projectiles=structural_projectiles, primary_rules=primary_rules,root_rockets=root_rockets)
     verify_existing_recovery(existing, adapter, localization, wiki_root, version, commit)
     from .ordered_belt_recovery import component_index, recover_belt, verify_existing_belts
     has_belts = any(a.get('ordered_belt') for v in catalog['vehicles'] for a in v.get('ammo', []))
@@ -512,6 +544,7 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
         'ordered_belts': ordered_belts,
         'chemical_energy': chemical_energy,
         'primary_armament_rules': primary_rules,
+        'root_rockets': root_rockets,
         'legacy_ce_source_rejections': legacy_ce_rejections,
         'source_files': adapter.sources, 'localization_files': localization.sources,
         'counts': {'examined_ammunition': len(records), 'recovered_profiles': len(profiles),

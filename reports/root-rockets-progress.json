@@ -1,0 +1,67 @@
+{
+  "cpu_cuda_parity": {
+    "checks": 12,
+    "maximum_delta": 5.960464477539063e-08,
+    "report": "reports/root-rockets-cpu-cuda-crosscheck.json",
+    "sampled_rays": 195828,
+    "sha256": "ca9b39a8d267791d24d2b015711fa170e3dc274f8d51789898581ae2561583c9"
+  },
+  "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+  "endpoint": "conditional_penetration",
+  "first_sample": {
+    "binding_errors": [],
+    "blockers": [
+      "incomplete_bidirectional_native_coverage"
+    ],
+    "report_status": "blocked",
+    "verified_arrays": 32
+  },
+  "formal_rankings": false,
+  "full_batch_status_at_report": "generation_running_independent_preflight_queued",
+  "game_probability_validated": false,
+  "limitations": "Source recovery and sample validation do not establish full-map coverage, in-game kill rates, win rates, or formal rankings.",
+  "new_ground_vehicles_with_source_profile": [
+    "cn_m113a1_tow",
+    "il_m113a1_tow",
+    "it_m113a1_tow",
+    "uk_ratel_20"
+  ],
+  "new_profiles": 8,
+  "planned_maps": 8584,
+  "prior_range_profiles_preserved": 1968,
+  "range_bundle_sha256": "55c069ee0771eb8d7c7fd0d52b3813b1514031f92b9f744fff03e9c316d01c0a",
+  "range_profiles_added": 32,
+  "recovered_ammunition_ids": [
+    "cn_m113a1_tow::BGM-71 TOW",
+    "cn_m113a1_tow::BGM-71C I-TOW",
+    "cn_object_122tm::302 anti-tank guided missile",
+    "cn_type_86::HJ-73 anti-tank guided missile",
+    "fr_amx_13_hot::HOT",
+    "germ_bmp_1_ddr::9M113",
+    "germ_bmp_1_ddr::9M14",
+    "il_m113a1_tow::BGM-71 TOW",
+    "il_m113a1_tow::BGM-71C I-TOW",
+    "it_m113a1_tow::BGM-71 TOW",
+    "it_m113a1_tow::BGM-71C I-TOW",
+    "uk_ratel_20::MILAN",
+    "ussr_bmp_1::9M113",
+    "ussr_bmp_1::9M14"
+  ],
+  "recovered_vehicles": 9,
+  "schema_version": "1.0.0",
+  "source_evidence": {
+    "client_capture_sha256": "fd7c7ab7b9766f860b5d74d5b58c155009189b131798a1db6389c2fd7541a68a",
+    "language_capture_sha256": "2ac4bf8626850137ca580c38fb1ab025810e7704f293eff7661846967d7aec3d",
+    "output_ammunition_sha256": "9f501e5dc55cf634fb4ff7ed51f4e9b3a9bd901ccc3abb98405e9aac24301f18",
+    "output_catalog_sha256": "e6541fdef1e2a61472b72c9378a262926a1085bc7f7279e923bd84bfe0ea1325",
+    "rules_capture_sha256": "fe93b1f2a356207e5af01471d79776d4a58cccea99f95cf7e208ad757cdec329"
+  },
+  "source_version": "2.59.0.92",
+  "validation": {
+    "diagnostic_static_build_passed": true,
+    "node_tests_passed": 64,
+    "playwright_passed": true,
+    "python_tests_passed": 419,
+    "smoke_tests_passed": 4
+  }
+}

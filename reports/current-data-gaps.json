@@ -90,6 +90,17 @@
       "ordered_belt_unequal_component_counts_require_native_sequence": 12
     },
     "needed": "Exact vehicle/weapon/selector/projectile ownership, supported mechanism, individual projectile penetration versus distance/angle and source identity. Unresolved imports do not prove external files are absent.",
+    "profile_gap_catalog_scope": "v15 root rocket source recovery; native range maps remain under generation and validation",
+    "root_rocket_recovery": {
+      "additional_ground_vehicles_with_source_profile": 4,
+      "full_maps_status": "generation_running_preflight_queued",
+      "new_owned_selections": 14,
+      "new_profiles": 8,
+      "planned_maps": 8584,
+      "report": "reports/root-rockets-progress.json",
+      "report_sha256": "d0fa7502587b6e85ed078f86d4e48c0023b99b338ae6946e835b5f9aa57c9139",
+      "sample_independently_verified_arrays": 32
+    },
     "scope_note": "Having one exact profile does not establish complete ammunition choices, native distance maps or bidirectional coverage.",
     "unresolved_reasons": {
       "ambiguous_localized_mounted_selection": 5,
@@ -108,7 +119,6 @@
       "cn_hj_9",
       "cn_hq_11",
       "cn_hq_17",
-      "cn_m113a1_tow",
       "cn_m55",
       "cn_pgz_625_fb10",
       "cn_plz_83",
@@ -146,7 +156,6 @@
       "il_9a33bm3",
       "il_m109",
       "il_m109a1",
-      "il_m113a1_tow",
       "il_m163_vulcan",
       "il_machbet",
       "il_mim_72_chaparral",
@@ -158,7 +167,6 @@
       "it_9a35_m",
       "it_btr_80a_hungary",
       "it_m109g",
-      "it_m113a1_tow",
       "it_m44",
       "it_m55",
       "it_oto_r3_t20_fa",
@@ -207,7 +215,6 @@
       "uk_g6_spg",
       "uk_m109a1",
       "uk_m44",
-      "uk_ratel_20",
       "uk_rooikat_za_35",
       "uk_sky_sabre_fcs",
       "uk_stormer_air_defence",
@@ -259,7 +266,7 @@
       "ussr_zsu_23_4m2",
       "ussr_zsu_23_4m4"
     ],
-    "without_profile_count": 155
+    "without_profile_count": 151
   },
   "input_sha256": {
     "data/snapshots/ammunition.chemical-projectiles-2.59.0.92.json": "3df4ba0d20023b999e002a3dde48641799800f46461497878f415e9646f1ac50",

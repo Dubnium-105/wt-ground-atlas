@@ -95,7 +95,7 @@ def ce_profile(ammo, binding, tables, wiki, response, version, commit):
 
 def source_evidence(profile, source_root):
     """Re-read raw projectiles and response parameters before range derivation."""
-    from .ammunition_recovery import array, source_rows
+    from .ammunition_recovery import array, source_rows, selected_projectiles
     if source_root is None: raise ValueError('CE range requires the captured source weapon file')
     root=Path(source_root); provenance=profile['provenance']; proofs=provenance.get('recovery_bindings', {})
     if not proofs or sorted(proofs)!=sorted(provenance.get('penetration_source_ammo_ids', [])):
@@ -131,8 +131,13 @@ def source_evidence(profile, source_root):
             mounted={w.get('blk','').replace('\\','/').lower() for w in array(unit.get('commonWeapons',{}).get('Weapon'))}
         if proof['weapon_path'] not in mounted: raise ValueError('Chemical source weapon is not mounted')
         weapon=read(proof['weapon_path'],proof['weapon_sha256'])
-        selected=weapon if proof['selector']=='@default' else weapon.get(proof['selector'],{})
-        bullets=array(selected.get('bullet'))
+        if proof.get('projectile_block')=='root_rocket':
+            from .default_belts import REVIEWED_SCRIPTS as WEAPON_SCRIPTS
+            rules=proof.get('root_rocket_rules',{})
+            if (rules.get('source_version')!=provenance.get('client_version') or
+                any(rules.get('scripts',{}).get(path,{}).get('lf_sha256')!=sha for path,sha in WEAPON_SCRIPTS.items())):
+                raise ValueError('Root rocket weapon localization rules mismatch')
+        bullets=selected_projectiles(weapon,proof['selector'],proof.get('projectile_block'))
         if not bullets or {content_hash(b) for b in bullets}!={proof['projectile_sha256']}:
             raise ValueError('Chemical raw projectile source mismatch')
         jet,evidence=jet_source(bullets[0])

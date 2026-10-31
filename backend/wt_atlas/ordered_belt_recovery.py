@@ -5,7 +5,7 @@ from .projectile_identity import identities
 
 
 def component_index(profiles, adapter):
-    from .ammunition_recovery import array
+    from .ammunition_recovery import selected_projectiles
     result = {}
     for profile in profiles:
         provenance = profile.get('provenance', {})
@@ -15,8 +15,7 @@ def component_index(profiles, adapter):
         hashes = set()
         for proof in proofs.values():
             weapon = adapter.read(proof['weapon_path'])
-            selected = weapon if proof['selector'] == '@default' else weapon.get(proof['selector'], {})
-            bullets = array(selected.get('bullet'))
+            bullets = selected_projectiles(weapon,proof['selector'],proof.get('projectile_block'))
             if (adapter.sources[proof['weapon_path']] != proof['weapon_sha256'] or not bullets or
                     {content_hash(b) for b in bullets} != {proof.get('projectile_sha256')}):
                 raise ValueError('Recovered component raw projectile source changed')
