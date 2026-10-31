@@ -11,6 +11,39 @@
   "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
   "endpoint": "conditional_penetration_only_flight_and_activation_not_modeled",
   "formal_rankings": 0,
+  "full_preflight": {
+    "binding_error_count": 0,
+    "blockers": [
+      "incomplete_bidirectional_native_coverage"
+    ],
+    "duration_seconds": 135.52397380000912,
+    "inventory": {
+      "ambiguous_maps": 0,
+      "annotation_reconciled_maps": 0,
+      "content_sha256": "4c8fadd8f4007ec928e02cf5bb74f3d1ae3d7a056ca6c30206de0d8873259b3f",
+      "historical_duplicate_maps": 0,
+      "metadata_objects": 1068,
+      "metrics": {
+        "array_seconds": 12.18861559999641,
+        "arrays_checked": 1068,
+        "memory_budget_bytes": 536870912,
+        "metadata_cpu_seconds": 1.703125,
+        "metadata_rebuilt": 1068,
+        "metadata_seconds": 6.160576099995524,
+        "workers": 2
+      },
+      "rejections": {},
+      "selected_array_bytes": 411206424,
+      "selected_maps": 1068,
+      "status_counts": {
+        "verified": 1068
+      },
+      "verified_arrays": 1068
+    },
+    "report_sha256": "13d7db706451c205398d529e71876f216645a975289d92bde725b71c6c981437",
+    "report_status": "blocked",
+    "scope": "Standalone missile batch; combined full-array preflight is still required."
+  },
   "game_probability_validated": false,
   "generation": {
     "array_bytes": 411206424,
@@ -37,7 +70,7 @@
     "reused_maps": 0
   },
   "incremental_catalog_and_ammunition_replay_byte_identical": true,
-  "map_status_at_report": "generation_completed_independent_preflight_running",
+  "map_status_at_report": "generation_completed_and_standalone_arrays_verified",
   "new_ground_vehicles_with_source_profile": 1,
   "new_range_profiles": 4,
   "new_source_profiles": 1,
