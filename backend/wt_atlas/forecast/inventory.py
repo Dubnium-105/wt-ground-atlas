@@ -262,7 +262,7 @@ def bind_geometry(repository: Path, jobs: Path, catalog: dict) -> tuple[dict, li
 
 def discover(roots):
     """Bounded conventional-path discovery; never scan every disk or infer versions."""
-    found = {'catalogs':[], 'ammunition':[], 'atlases':[], 'samples':[], 'client_jobs':[], 'clients':[]}
+    found = {'catalogs':[], 'ammunition':[], 'atlases':[], 'samples':[], 'sample_archives':[], 'client_jobs':[], 'clients':[]}
     for raw in roots:
         root = Path(raw).expanduser().resolve()
         for p in root.glob('data/snapshots/catalog.json'): found['catalogs'].append(str(p))
@@ -271,6 +271,11 @@ def discover(roots):
         for p in root.glob('data/work/*/jobs'): found['client_jobs'].append(str(p))
         for pattern in ('analysis-sample*/manifest.json','data/analysis-sample*/manifest.json'):
             for p in root.glob(pattern): found['samples'].append(str(p.parent))
+        # Archives are discovered separately; their existence is not a claim
+        # of manifest validation and they are never silently treated as folders.
+        for pattern in ('analysis-sample*.zip','data/analysis-sample*.zip','data/exports/analysis-sample*.zip'):
+            for p in root.glob(pattern):
+                if p.is_file():found['sample_archives'].append(str(p))
         cfg = root/'config/pipeline.json'
         if cfg.is_file():
             source = read_json(cfg).get('client',{}).get('source')

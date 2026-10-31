@@ -176,3 +176,19 @@ Wiki 不提供游戏版本标记，刷新成功仍为 `source_status=unknown`，
 `spawn_rule` 新增 `spawn_group`、`respawn_model="power_of_count"`、`respawn_power`。这一模型使用 `(1 + 同类别先前出击次数) ** respawn_power`，对应固定客户端脚本 `get_spawn_score_type_mul`。实际携带挂载上的规则优先于车辆规则；制空与对地挂载可以声明不同类别，不再被统一的 `air` 计数误加价。车辆所属平台和出击计费类别是不同字段。
 
 出处：[2.59.0.92 固定脚本](https://github.com/gszabi99/War-Thunder-Datamine/blob/af0cce561a73704e30c1df66eff06209bcc3f035/gui.vromfs.bin_u/globals/ranks_common_shared.nut)，捕获 SHA-256 `f4ba585b2260289bb7eb4b9e8d62b9357b6c1d6e36e7a4b44a67c21660008c9e`。脚本中的类别可受任务与实际武器影响，因此导入规则必须给出已核对的 `spawn_group`；不会仅凭车辆分类自动标为官方规则。基础费用、房间修正、武器加价和任务覆盖仍须独立验证。既有 `respawn_multiplier` 保持原语义，两种计数模型不可同时声明。
+
+## 固定版本 Ground RB 规则导入
+
+```sh
+python scripts/import_rule_snapshot.py --catalog data/snapshots/catalog.current-wiki.json --source-root data/raw/pinned-rules/2423f3099e2a5ec3f31efdce87b9f4380ea761ec --commit 2423f3099e2a5ec3f31efdce87b9f4380ea761ec --fetch --catalog-output data/snapshots/catalog.rules-2.59.0.94.json --out reports/formal-rule-import.json
+```
+
+下载固定提交的版本、wpcost、warpoints 和客户端 BR 选择脚本，逐文件检查 Git blob 身份、大小和 SHA-256。中断后可复用匹配 Git 对象的文件，全部成功才发布捕获清单；`--offline` 严格重放完整捕获。脚本语义哈希未知时拒绝导入。可选 `--client-wpcost <解包后的 wpcost.blk>` 逐记录比较本地客户端规则，不把不同版本的本地文件标成一致。
+
+Ground RB 按客户端 `economicRankTankHistorical` 优先、`economicRankHistorical` 回退规则转换。仅接受精确 ID 或唯一 ASCII 大小写差异，拒绝大小写碰撞和国家冲突。无 BR 的不可选组件维持原样；独立的未来计划不被当前规则覆盖。输出另存，不修改输入目录或给物理数据更换版本。规则来源已核验不等于 GRP、弹药、挂载、任务效果与发布身份均已核验。
+
+本次真实导入核对 2,680 条目录：2,650 一致，26 个不可独立选用组件保留空值，4 条 Ground RB 从 6.7 改为 6.3（N1K2-J、N1K2-Ja、Spitfire F Mk XVIIIe、Yak-3U）。完整逐车审计写入本地报告；摘要与源哈希保存在 `reports/formal-gap-progress.json`。2.59.0.92 本地 char 配置与其固定源的 3,437 条记录一致，但这不证明 2.59.0.94 物理兼容性。
+
+## 原始样例归档验收
+
+`doctor` 另列 `sample_archives`，检查数据根及常用 `data/exports` 位置中的 `analysis-sample*.zip`，不会自动解压或把发现等同于验证。此次在原数据仓库的 `data/exports/analysis-sample-2.59.0.92.zip` 找到原归档，ZIP 哈希匹配合同；32 个 manifest 文件校验通过、源哈希未变，72 条诊断与 6 项历史检查点完全一致。见 `reports/original32-sample-verification.json`。该样例仍只有一个方向、原生 10 m，产生 0 条正式排名。

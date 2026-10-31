@@ -110,11 +110,6 @@
   },
   "required_external_inputs": [
     {
-      "id": "original_sample",
-      "path": "analysis-sample-2.59.0.92.zip",
-      "needed": "Original 32-file manifest archive (expected historical ZIP SHA256 5a5dc1b5e4254f54491599505cbdb15a1292562c1dfc148849dcf270ce10b463); the derived 4-file local sample does not replace this acceptance."
-    },
-    {
       "id": "snapshot_identity",
       "path": "data/raw/next-stage/snapshot-info.json",
       "needed": "snapshot_id, game_version, datamine_commit, wiki_collected_at, effective_date, source_status and sources URL/hash; independently establish release status and Wiki/client version alignment. Do not fill unknown fields by assumption."
@@ -402,5 +397,19 @@
     "58bb731 fix: require complete rosters for selected lineup slots",
     "f8d66d3 feat: version sensitivity perturbations and acceptance thresholds",
     "441ce63 fix: rank every forecast view before global truncation"
-  ]
+  ],
+  "resolved_external_inputs": [
+    {
+      "id": "original_sample",
+      "status": "verified",
+      "receipt": "reports/original32-sample-verification.json",
+      "sha256": "5a5dc1b5e4254f54491599505cbdb15a1292562c1dfc148849dcf270ce10b463",
+      "manifest_files": 32
+    }
+  ],
+  "subsequent_source_audit": {
+    "report": "reports/formal-gap-progress.json",
+    "scope": "Follow-up audit; original static build is unchanged.",
+    "formal_rankings": 0
+  }
 }
