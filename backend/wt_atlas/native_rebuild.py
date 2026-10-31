@@ -50,7 +50,8 @@ def plan(catalog_path,ammunition_path,index_path,config_path):
             if attacker['nation']==target['nation'] or abs(br_step(attacker['br']['current'])-br_step(target['br']['current']))>config['matchmaking']['spread_steps']:continue
             for scenario in config['scenarios']:
                 distance,yaw=scenario['physical_distance_m'],scenario['yaw_deg']
-                native=[p for p in profiles.values() if p.get('distance_m')==distance and p.get('impact_distance_m') is None]
+                native=[p for p in profiles.values() if p.get('distance_m')==distance and
+                        (p.get('impact_distance_m') is None or p['impact_distance_m']==distance)]
                 if any(yaw in available.get((target['id'],p['name'],distance),set()) for p in native):continue
                 if not native:counts['directions_without_exact_owned_native_profile']+=1;continue
                 counts['directions_with_owned_profile_but_without_map']+=1
@@ -64,7 +65,7 @@ def plan(catalog_path,ammunition_path,index_path,config_path):
 
 
 def rebuild(repository,catalog_path,ammunition_path,request_path,output,*,backend='cpu',
-            config_path=None,resume=False,limit=None,memory_budget=1536*1024**2):
+            config_path=None,resume=False,limit=None,memory_budget=1536*1024**2,source_root=None):
     started=time.perf_counter();repository=Path(repository).resolve();output=Path(output)
     if backend not in ('cpu','v2-cuda'):raise ValueError('Unsupported native backend')
     if limit is not None and (not isinstance(limit,int) or isinstance(limit,bool) or limit<1):raise ValueError('Invalid map limit')
@@ -81,8 +82,10 @@ def rebuild(repository,catalog_path,ammunition_path,request_path,output,*,backen
         raise ValueError('Rebuild request input hash mismatch')
     raw=read_json(ammunition_path);profiles={p['name']:p for p in raw}
     if len(profiles)!=len(raw):raise ValueError('Duplicate profile')
+    source_profiles={content_hash(p):p for p in raw if p.get('impact_distance_m') is None and
+                     not p.get('provenance',{}).get('range_rebuild')}
     config=read_json(config_path or ROOT/'config/pipeline.json')
-    by_target=defaultdict(set);seen=set();required_yaws={}
+    by_target=defaultdict(set);seen=set();required_yaws={};validated_ranges=set()
     # Binding uses exact owned IDs; platform, caliber or names are not aliases.
     class EmptyIndex:
         metadata={};lookup={}
@@ -95,10 +98,16 @@ def rebuild(repository,catalog_path,ammunition_path,request_path,output,*,backen
         seen.add(key)
         if target not in vehicles or name not in profiles:raise ValueError('Unknown requested target/profile')
         p=profiles[name];provenance=p.get('provenance',{})
-        if (p.get('mode') not in ('KE','CE') or p.get('reference_only') or p.get('impact_distance_m') is not None or
+        if (p.get('mode') not in ('KE','CE') or p.get('reference_only') or
             not number(p.get('distance_m')) or p['distance_m']<0):raise ValueError('Original explicit native-distance profile required')
+        if name not in validated_ranges and (p.get('impact_distance_m') is not None or provenance.get('range_rebuild')):
+            from .range_rebuild import source_range_profile
+            parent=source_profiles.get(p.get('provenance',{}).get('range_rebuild',{}).get('source_profile_sha256'))
+            if parent is None or p!=source_range_profile(parent,p['distance_m'],source_root):
+                raise ValueError('Derived native-distance profile must match its original source profile')
+            validated_ranges.add(name)
         curve=p.get('normalized_distance_curve',[])
-        if p['mode']=='KE' and curve and curve[0]!=[p['distance_m'],1.]:raise ValueError('Native distance disagrees with reference source curve')
+        if p.get('impact_distance_m') is None and p['mode']=='KE' and curve and curve[0]!=[p['distance_m'],1.]:raise ValueError('Native distance disagrees with reference source curve')
         yaws=row.get('required_yaws_deg',[])
         if not isinstance(yaws,list) or any(not number(yaw) or not 0<=yaw<360 for yaw in yaws):raise ValueError('Invalid requested yaw')
         required_yaws[key]=set(yaws)
@@ -126,6 +135,10 @@ def rebuild(repository,catalog_path,ammunition_path,request_path,output,*,backen
     code={p.relative_to(VENDOR).as_posix():file_hash(p) for p in sorted(VENDOR.rglob('*.py'))}
     model={'backend':backend,'tool_manifest_sha256':file_hash(VENDOR/'MANIFEST.json'),'tool_code_sha256':content_hash(code)}
     if backend=='cpu':model.update(cpu_code_sha256=file_hash(Path(__file__).with_name('cpu_model.py')),numerics_sha256=content_hash(config['numerics']))
+    ranged=any(profiles[n].get('impact_distance_m') is not None for _,n in seen)
+    if ranged:model.update(range_adapter_sha256=file_hash(Path(__file__).with_name('cuda_range.py')) if backend=='v2-cuda' else model['cpu_code_sha256'],range_reference='first_armor_intersection')
+    if any(profiles[n].get('provenance',{}).get('range_rebuild') for _,n in seen):
+        model['range_profile_code_sha256']=file_hash(Path(__file__).with_name('range_rebuild.py'))
     identity={'model':model,'versions':[list(v) for v in sorted(versions)],
               'adapter_sha256':file_hash(__file__)}
     if (output/MARKER).exists() and read_json(output/MARKER)!=identity:raise ValueError('Native output model/version changed; use a new directory')
@@ -141,7 +154,13 @@ def rebuild(repository,catalog_path,ammunition_path,request_path,output,*,backen
     report={'status':'completed','planned_maps':len(seen),'computed_maps':0,'reused_maps':0,'maps':[],
             'model':model,'input_catalog_sha256':file_hash(catalog_path),'input_ammunition_sha256':file_hash(ammunition_path),
             'requests_sha256':file_hash(request_path),'source_probability_maps_read':0,'raw_sources_modified':False,
-            'endpoint':'conditional_penetration','game_probability_validated':False}
+            'endpoint':'conditional_penetration','game_probability_validated':False,'array_bytes':0}
+    def progress():
+        write_json(output/'progress.json',{'status':'running','planned_maps':len(seen),
+            'computed_maps':report['computed_maps'],'reused_maps':report['reused_maps'],
+            'pending_maps':len(seen)-len(report['maps']),'array_bytes':report['array_bytes'],
+            'duration_seconds':time.perf_counter()-started})
+    progress()
     for target,names in sorted(by_target.items()):
         bound=bindings[target]
         job=read_json(safe_file(repository/'data/work/client/jobs',target+'.json'))
@@ -155,12 +174,15 @@ def rebuild(repository,catalog_path,ammunition_path,request_path,output,*,backen
             p=profiles[name];ph=content_hash(p)
             seed={'target':bound['target_sha256'],'ammo':ph,'tool_manifest':model['tool_manifest_sha256'],'tool_code':model['tool_code_sha256']}
             if backend=='cpu':seed['cpu_model']=model
+            if p.get('provenance',{}).get('range_rebuild'):seed['range_model']=model
             map_id=content_hash(seed);array=output/'arrays'/(map_id+'.npz');metafile=array.with_suffix('.json')
             common={'map_id':map_id,'target_id':target,'target_sha256':bound['target_sha256'],'ammo_id':name,
                     'ammo_profile_sha256':ph,'source_version':p['provenance']['client_version'],
                     'datamine_commit':p['provenance']['datamine_commit'],'array_file':'arrays/'+array.name,
                     'tool_manifest_sha256':model['tool_manifest_sha256'],'tool_code_sha256':model['tool_code_sha256']}
             if backend=='cpu':common['cpu_model']=model
+            if p.get('provenance',{}).get('range_rebuild'):
+                common.update(range_model=model,range_reference=p['provenance']['range_rebuild']['range_reference'],physical_distance_m=p['distance_m'])
             saved=read_json(metafile) if resume and metafile.is_file() and array.is_file() else None
             valid=bool(saved and all(saved.get(k)==v for k,v in common.items()) and verify_array((str(output),saved,memory_budget))['status']=='verified')
             if valid:report['reused_maps']+=1
@@ -172,7 +194,10 @@ def rebuild(repository,catalog_path,ammunition_path,request_path,output,*,backen
                     prepared=PreparedLayers(metadata,config)
                     if backend=='v2-cuda':
                         del prepared
-                        prepared=PreparedVehicle(metadata)
+                        if ranged:
+                            from .cuda_range import prepare
+                            prepared=prepare(metadata,VENDOR)
+                        else:prepared=PreparedVehicle(metadata)
                 if backend=='cpu':probability,charge,status,flags=prepared.calculate(p)
                 else:
                     probability,charge,status=prepared.calculate(p);flags=prepared.risk_flags(p)
@@ -192,9 +217,12 @@ def rebuild(repository,catalog_path,ammunition_path,request_path,output,*,backen
                 if check['status']!='verified':raise ValueError('Generated NPZ failed validation: '+str(check))
                 write_json(metafile,saved);report['computed_maps']+=1
             report['maps'].append({'map_id':map_id,'target':target,'profile':name,'distance_m':p['distance_m'],'array_sha256':saved['array_sha256'],'reused':valid})
+            report['array_bytes']+=array.stat().st_size
+            if len(report['maps'])%100==0:progress()
         if prepared is not None and backend=='v2-cuda':
             cp=prepared.cp;del prepared;cp.get_default_memory_pool().free_all_blocks()
     report.update(pending_maps=len(seen)-len(report['maps']),duration_seconds=time.perf_counter()-started,resources=usage())
     if report['pending_maps']:report['status']='partial'
     write_json(output/'run.json',report)
+    write_json(output/'progress.json',{k:v for k,v in report.items() if k!='maps'})
     return report

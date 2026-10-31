@@ -2,10 +2,11 @@ import copy
 from pathlib import Path
 import tempfile
 import unittest
-from test_forecast_range_rebuild import source_fixture,profile
+from test_forecast_range_rebuild import source_fixture,profile,ce_profile
 from wt_atlas.common import read_json,write_json,file_hash
 from wt_atlas.native_rebuild import rebuild,plan
 from wt_atlas.forecast.inventory import Inventory
+from wt_atlas.range_rebuild import source_range_profile
 
 
 class NativeRebuildTests(unittest.TestCase):
@@ -55,6 +56,32 @@ class NativeRebuildTests(unittest.TestCase):
     def test_geometry_mutation_cannot_reuse_cached_output(self):
         self.run_rebuild();self.raw.write_bytes(b'mutated source')
         with self.assertRaisesRegex(ValueError,'geometry unavailable'):self.run_rebuild(resume=True)
+
+    def test_exact_source_range_is_computed_and_tampered_derivation_is_rejected(self):
+        import numpy as np
+        original=profile();derived=source_range_profile(original,500)
+        write_json(self.ammo,[original,derived]);self.write_request((derived['name'],))
+        result=self.run_rebuild()
+        self.assertEqual(result['maps'][0]['distance_m'],500)
+        with np.load(next((self.output/'arrays').glob('*.npz')),allow_pickle=False) as values:
+            self.assertEqual(values['penetration_probability'].item(),0.)
+        self.assertEqual(self.run_rebuild(resume=True)['computed_maps'],0)
+        derived['penetration_mm']*=2
+        write_json(self.ammo,[original,derived]);self.write_request((derived['name'],))
+        with self.assertRaisesRegex(ValueError,'original source profile'):self.run_rebuild()
+
+    def test_ce_source_distance_is_revalidated_even_on_resume(self):
+        original,source=ce_profile(self.root/'captured')
+        derived=source_range_profile(original,1000,self.root/'captured')
+        write_json(self.ammo,[original,derived]);self.write_request((derived['name'],))
+        with self.assertRaisesRegex(ValueError,'captured source'):self.run_rebuild()
+        result=self.run_rebuild(source_root=self.root/'captured')
+        self.assertEqual(result['maps'][0]['distance_m'],1000)
+        self.assertEqual(result['computed_maps'],1)
+        self.assertEqual(self.run_rebuild(source_root=self.root/'captured',resume=True)['reused_maps'],1)
+        source.write_bytes(source.read_bytes()+b'\n// changed captured source\n')
+        with self.assertRaisesRegex(ValueError,'hash mismatch'):
+            self.run_rebuild(source_root=self.root/'captured',resume=True)
 
     def test_unavailable_yaw_and_mislabeled_range_are_rejected(self):
         request=read_json(self.request);request['candidate_rebuild_requests'][0]['required_yaws_deg']=[15]

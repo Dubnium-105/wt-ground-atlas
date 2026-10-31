@@ -23,13 +23,68 @@ MODEL = 'layered-v2-cpu-first-armor-range-1'
 MARKER = '.wt-range-rebuild'
 
 
-def source_range_profile(profile, distance):
+def ce_source_evidence(profile, source_root):
+    """Verify the exact projectile's constant jet penetration in captured BLK.
+
+    A scalar cumulativeDamage.armorPower supports conditional penetration at
+    impact, not a claim about flight range, arrival probability or damage.
+    """
+    from .native_binding.ordered_blk import parse_ordered_blk
+    provenance = profile.get('provenance', {})
+    path = provenance.get('source_weapon_path')
+    if source_root is None or not path or not provenance.get('source_weapon_sha256'):
+        raise ValueError('CE range requires the captured source weapon file')
+    source = safe_file(Path(source_root), path)
+    if file_hash(source) != provenance['source_weapon_sha256']:
+        raise ValueError('CE source weapon hash mismatch')
+    bullet = provenance.get('bullet_name')
+    bullet_type = provenance.get('bullet_type')
+    if not bullet or bullet_type not in ('heat_tank', 'heat_fs_tank', 'heat_grenade_tank', 'heat_mp_vt_tank'):
+        raise ValueError('Unsupported CE source projectile')
+    matches = []
+    def visit(block, location):
+        params = {p['name']: p['value'] for p in block['params']}
+        if params.get('bulletName') == bullet:
+            powers = [p['value'] for child in block['children'] if child['name'] == 'cumulativeDamage'
+                      for p in child['params'] if p['name'] == 'armorPower' and p['type'] in ('r', 'i')]
+            if params.get('bulletType') != bullet_type or len(powers) != 1 or powers[0] != profile['penetration_mm']:
+                raise ValueError('CE projectile does not match source constant penetration')
+            matches.append(location)
+        for i, child in enumerate(block['children']):
+            visit(child, location + '/' + child['name'] + '[' + str(i) + ']')
+    visit(parse_ordered_blk(source), '@root')
+    if not matches:
+        raise ValueError('Exact CE projectile absent from source')
+    return {'source_weapon_path': path, 'source_weapon_sha256': file_hash(source),
+            'bullet_name': bullet, 'bullet_type': bullet_type, 'block_paths': matches,
+            'parameter': 'cumulativeDamage.armorPower', 'penetration_mm': profile['penetration_mm']}
+
+
+def source_range_profile(profile, distance, source_root=None):
     if not number(distance) or distance < 0:
         raise ValueError('Invalid physical distance')
-    if profile.get('mode') != 'KE' or profile.get('reference_only'):
-        raise ValueError('A supported owned KE profile is required')
-    if profile.get('impact_distance_m') is not None:
+    if profile.get('mode') not in ('KE', 'CE') or profile.get('reference_only'):
+        raise ValueError('A supported owned KE or CE profile is required')
+    if profile.get('impact_distance_m') is not None or profile.get('provenance', {}).get('range_rebuild'):
         raise ValueError('Use an original reference profile, not a derived range profile')
+    provenance=profile.get('provenance',{})
+    if not provenance.get('penetration_source_ammo_ids') or not provenance.get('client_version') or not provenance.get('datamine_commit'):
+        raise ValueError('Exact ammunition ownership and source version are required')
+    if profile['mode'] == 'CE':
+        if (not number(profile.get('penetration_mm')) or profile['penetration_mm'] <= 0 or
+                profile.get('normalized_distance_curve')):
+            raise ValueError('CE constant source profile is invalid')
+        evidence = ce_source_evidence(profile, source_root)
+        result = copy.deepcopy(profile)
+        source_hash = content_hash(profile)
+        result.update(name=profile['name']+'_range_'+format(distance,'g').replace('.','p')+'_'+source_hash[:8],
+                      distance_m=float(distance))
+        result['provenance']['range_rebuild'] = {
+            'source_profile_sha256': source_hash, 'source_evidence': evidence,
+            'impact_penetration_mm': profile['penetration_mm'],
+            'range_reference': 'conditional_at_impact', 'model': 'layered-v2-ce-source-constant-1',
+            'method': 'fresh_ordered_geometry_calculation; source scalar CE penetration; no flight or hit-rate claim'}
+        return result
     curve = profile.get('normalized_distance_curve', [])
     reference = profile.get('distance_m')
     if (not number(reference) or not number(profile.get('penetration_mm')) or profile['penetration_mm']<=0 or
@@ -41,9 +96,6 @@ def source_range_profile(profile, distance):
     points = [row for row in curve if row[0]==distance]
     if len(points)!=1:
         raise ValueError('Requested distance is not an exact source table point')
-    provenance=profile.get('provenance',{})
-    if not provenance.get('penetration_source_ammo_ids') or not provenance.get('client_version') or not provenance.get('datamine_commit'):
-        raise ValueError('Exact ammunition ownership and source version are required')
     result=copy.deepcopy(profile)
     source_hash=content_hash(profile)
     result.update(name=profile['name']+'_range_'+format(distance,'g').replace('.','p')+'_'+source_hash[:8],

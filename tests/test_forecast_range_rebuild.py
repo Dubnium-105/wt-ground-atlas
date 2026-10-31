@@ -19,6 +19,15 @@ def profile():
         'provenance':{'client_version':'fixture','datamine_commit':'a'*40,
                       'penetration_source_ammo_ids':['fixture::round']}}
 
+
+def ce_profile(source_root):
+    source=Path(source_root)/'gamedata/fixture.blk';source.parent.mkdir(parents=True,exist_ok=True)
+    source.write_text('bullet {\n bulletName:t = "fixture_heat"\n bulletType:t = "heat_tank"\n cumulativeDamage {\n armorPower:r = 100\n }\n}\n',encoding='utf-8')
+    p=profile();p.update(mode='CE',distance_m=None,normalized_distance_curve=[])
+    p['provenance'].update(bullet_name='fixture_heat',bullet_type='heat_tank',
+        source_weapon_path='gamedata/fixture.blk',source_weapon_sha256=file_hash(source))
+    return p,source
+
 def source_fixture(root):
     data=root/'data/work/client';layers=data/'geometry';layers.mkdir(parents=True)
     rows=[(0,0,.7,.71,1.,np.inf),(0,1,2.,2.1,1.,np.inf)]
@@ -36,6 +45,25 @@ def source_fixture(root):
     return catalog,ammo,metadata,raw
 
 class RangeRebuildTests(unittest.TestCase):
+    def test_ce_range_requires_exact_source_scalar_and_preserves_unknown_flight(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            p,source=ce_profile(temporary);original=copy.deepcopy(p)
+            results=[source_range_profile(p,d,temporary) for d in (10,100,500,1000)]
+            self.assertEqual(p,original)
+            self.assertEqual([r['distance_m'] for r in results],[10,100,500,1000])
+            for r in results:
+                self.assertNotIn('impact_distance_m',r)
+                self.assertEqual(r['penetration_mm'],100)
+                self.assertEqual(r['provenance']['range_rebuild']['range_reference'],'conditional_at_impact')
+            with self.assertRaisesRegex(ValueError,'captured source'):source_range_profile(p,100)
+            changed=copy.deepcopy(p);changed['penetration_mm']=101
+            with self.assertRaisesRegex(ValueError,'constant penetration'):source_range_profile(changed,100,temporary)
+            changed=copy.deepcopy(p);changed['provenance']['bullet_name']='other'
+            with self.assertRaisesRegex(ValueError,'absent'):source_range_profile(changed,100,temporary)
+            with self.assertRaisesRegex(ValueError,'original reference'):source_range_profile(results[0],500,temporary)
+            source.write_text(source.read_text().replace('100','101'))
+            with self.assertRaisesRegex(ValueError,'hash mismatch'):source_range_profile(p,100,temporary)
+
     def test_only_native_source_points_and_exact_ownership_are_accepted(self):
         original=profile();before=copy.deepcopy(original);derived=source_range_profile(original,500)
         self.assertEqual(original,before)

@@ -235,3 +235,21 @@ python scripts/rebuild_native_maps.py --repository /data/source-repository --cat
 真实缺图规划发现 309 个方向已有自有原生档案，归并为 358 个任务；另外 64,836 个方向缺少该距离的精确自有档案。首轮 CUDA 重算完成全部 358 张，用时 124.229 秒、父进程峰值 RSS 1,100,562,432 字节。两组历史样本的全部数组数值一致，原始文件未修改。新结果必须与既有图集一起再次验收后才更新产品覆盖；单独生成这些图不解除全模式任务效果、SP、当前版本一致性和搜索收敛门槛。
 
 使用 `python scripts/assemble_native_atlas.py --base-index <已完成 preflight 的索引> --ammunition <完整原始弹药文件> --extra <新图目录> --out <不存在的新目录>` 原子组合数据。组合前复核基础元数据哈希/数组文件状态，并完整校验新增 NPZ；跨物理版本和重复物理身份直接拒绝。默认同卷硬链接，不改动来源；跨卷回退复制，`--copy` 可强制独立副本。硬链接属于离线工作数据而非不可变副本，来源的后续变化必须由 preflight/读取器重新校验。输出明确为 `assembled_requires_fresh_preflight`，需对新目录重新运行 `forecast_data.py preflight`，不能直接据目录文件数量宣称覆盖。
+
+## 指定距离的 CUDA 重算与客户端破甲弹来源
+
+`prepare_range_profiles.py` 保留全部原始档案，追加指定距离的派生档案。动能弹只接受源穿深曲线的精确节点；破甲弹要求提供解包后的 aces 目录，核对武器文件哈希、精确弹名、弹种和 `cumulativeDamage.armorPower`，全部一致后才生成条件穿透档案。不把固定聚能穿深解释为远距离命中率，也不导入穿后毁伤。暂不支持的嵌套火箭结构、参数不一致或缺少源文件均写入逐档案拒绝清单。
+
+```sh
+python scripts/prepare_range_profiles.py --ammunition /data/original-ammunition.json --source-root /data/extracted/aces.vromfs.bin_u --distances 10 100 500 1000 --out /data/range-ammunition.json --report reports/range-profiles.json
+python scripts/plan_native_rebuild.py --catalog /data/catalog.json --ammunition /data/range-ammunition.json --index /data/verified.sqlite --config /data/physical-scenarios.json --out /data/range-requests.json
+python scripts/rebuild_native_maps.py --repository /data/source-repository --catalog /data/catalog.json --ammunition /data/range-ammunition.json --requests /data/range-requests.json --source-root /data/extracted/aces.vromfs.bin_u --out /data/new-range-maps --backend v2-cuda --resume
+```
+
+物理规划配置包含 `matchmaking.spread_steps` 和 `scenarios`；每个场景必须给出 `physical_distance_m`、`yaw_deg`。按需枚举合法配对；生成图保留源几何中的全部角度，任何请求角度缺失都会拒绝。完整弹药输入必须包含派生档案的原始父档案，重算器按父档案内容哈希重新生成并逐字段比较，防止仅修改距离标签或穿深。破甲弹在断点恢复时也重新核对客户端文件。
+
+新 CUDA 适配器只修改动能弹的距离参考点：第一层装甲交点对应请求距离，内部后续距离继续使用 V2 顺序层模型。没有修改 vendored V2 文件；旧档案仍调用原核函数。适配器、派生规则、原核函数、源档案和几何均进入模型身份，相关代码变动需使用新输出目录。`progress.json` 每完成 100 张更新一次；`run.json` 保存完成或分批结束的实测结果。所有 NPZ 及元数据原子写入并验证，`--resume` 不依赖进度数字判断完成。
+
+可用 `verify_native_ranges.py --repository ... --catalog ... --ammunition <原始档案> --source-root ... --targets <目标 ID...> --profiles <源档案名...> --distances 100 500 1000 --out reports/range-parity.json` 对真实独立绑定几何运行 CPU/GPU 交叉检查。它同时抽查均匀网格和非空射线，比较状态、概率、所需穿深及材料风险标记；报告保留样本量和实际误差。该检查证明两种离线实现的一致性，不代表游戏实战校准。
+
+2026-10-31 的初次扩展核对 348 个动能弹、51 个破甲弹源档案，追加 1,248 个距离档案，另有 5 个破甲弹档案未通过直接源校验。12 组真实几何检查共 195,846 条采样射线，最大概率差 `1.4722347259521484e-5`。首批 1,000 张新图计算与验证完成，完整规划为 351,403 张；规划量和生成量不等于最终已发布覆盖。实测记录见 `reports/range-rebuild-progress.json`，完整生产数据保持在离线目录。
