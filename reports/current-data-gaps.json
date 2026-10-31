@@ -321,6 +321,7 @@
     "reports/ordered-belt-progress.json": "48afe13e315612fa41dbaf18525aa24d0103fc04e869b323a198bd2699c75b85",
     "reports/range-rebuild-progress.json": "16d2b5bd74bef13fc1b837689cd5bf6d229f5ec22eb4df9752fad34f66a96ced",
     "reports/root-rockets-progress.json": "d0fa7502587b6e85ed078f86d4e48c0023b99b338ae6946e835b5f9aa57c9139",
+    "reports\\aviation-source-reconciliation-progress.json": "3959e75fa816795cc5a670eb8b2fae3ae69372858e42c63a12b89ac6dc7f6486",
     "reports\\dual-use-missile-progress.json": "bbb1365da8854482355b1f735f51db4822dc9922f4b9991d9576a8724f09c3e3",
     "reports\\federated-eight-batch-progress.json": "95f226f48980b0f941af803a357746d2cc6b7fd219baf0dc82e6e276aca190b7",
     "reports\\federated-nine-batch-progress.json": "6ef7c77fb73b9a12f954a2e7b51b9ad87adf7d2ff2557b7b3c2015fcf9438828",
@@ -392,6 +393,9 @@
   },
   "rating_and_eligibility": {
     "historical_classification_candidates": {
+      "claims_disputed_by_captured_unit_page": [
+        "kor_2"
+      ],
       "historical_unused_candidates": [
         "kor_2"
       ],
@@ -451,6 +455,14 @@
         "ucav_orion",
         "ucav_wing_loong_i",
         "walrus_mk1"
+      ]
+    },
+    "source_conflicts": {
+      "report": "reports\\aviation-source-reconciliation-progress.json",
+      "report_sha256": "3959e75fa816795cc5a670eb8b2fae3ae69372858e42c63a12b89ac6dc7f6486",
+      "scope": "The historical article marks KOR-2 unused, whereas its exact captured official unit page says it was introduced in update 2.49. Ground RB eligibility remains unresolved.",
+      "unit_ids": [
+        "kor_2"
       ]
     },
     "unknown_count": 16,

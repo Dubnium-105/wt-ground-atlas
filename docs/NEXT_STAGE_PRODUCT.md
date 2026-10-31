@@ -446,6 +446,8 @@ BR 选项可通过 `allowed_source_preset_ids` 和 `allowed_primary_armament_ids
 
 官方[舰载侦察机说明](https://wiki.warthunder.com/mechanics/247-shipboard-reconnaissance-aircraft)将当前 16 个无 BR 条目中的 12 个标为舰载而非独立航空单位，将 KOR-2 标为当时未使用；官方[无人机介绍](https://warthunder.com/en/news/7840)描述了另三个条目对应的战场攻击无人机。它们提供进一步核对资格的线索，但旧文章本身不能证明当前版本所有相关条目的完整资格；在逐项绑定版本和适用模式之前，不会自动解除这些记录的门槛或填写虚构 BR。
 
+该旧舰载机说明与捕获的[官方 KOR-2 载具页面](https://wiki.warthunder.com/unit/kor_2)存在明确冲突：后者说明 KOR-2 已在 2.49 作为舰载侦察机加入。`scripts/audit_aviation_sources.py` 核对文章和逐车页面的精确来源哈希并报告此类冲突；它不会据此赋予 BR、推定陆战队列资格或自动排除载具。页面更新或来源哈希发生变化时必须重新审计。
+
 ## 改装添加的弹药与增量距离档案
 
 `scripts/recover_native_ammunition.py --primary-modifications` 会校验捕获的客户端武器界面脚本，并从独立改装的 `effects.commonWeapons` 中读取新增武器。不同改装之间的同名候选不会被任意合并；改装、武器槽前置要求、源文件哈希、本地化和弹药块均写入来源证明。当前仅恢复可验证的单射流 CE 弹药；改装新增的混合弹链与动能弹继续明确列为待验证。预测枚举会核对该证明、已解锁的改装，以及动态 BR 配置允许的主武器。单射流计算仍仅表示射流已经有效命中后的条件贯穿，不代表飞行、引信、命中或穿后毁伤。
