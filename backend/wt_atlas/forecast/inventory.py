@@ -17,7 +17,7 @@ import time
 import zipfile
 
 from .data import Atlas, canonical, digest, file_hash, number, read_json, safe_file, taxonomy
-from .profile_history import ProfileHistory
+from .profile_history import ProfileHistory, current_duplicate
 
 
 def stamp(path):
@@ -134,7 +134,7 @@ class Inventory:
                 input_key=digest([base_key,hashes.get(m.get('ammo_id')),target_keys.get(m.get('target_id'))])
                 source = safe_file(root, m['array_file'])
                 current_stamp = stamp(source)
-                if not force and old and (h, current_stamp, input_key) == (old[0], old[1], old[3]) and old[2] in ('metadata_valid', 'verified'):
+                if not force and old and (h, current_stamp, input_key) == (old[0], old[1], old[3]) and old[2] in ('metadata_valid', 'verified', 'historical_duplicate'):
                     self.db.execute('UPDATE maps SET generation=? WHERE path=?', (generation,key))
                     counts['incremental_hits'] += 1
                     continue
@@ -171,10 +171,21 @@ class Inventory:
                 counts['rejected'] += 1
             if sum(counts.values()) % 500 == 0: self.db.commit()
         self.db.execute('DELETE FROM maps WHERE generation != ?', (generation,))
+        self.db.execute("UPDATE maps SET status='metadata_valid' WHERE status='historical_duplicate'")
         self.db.execute("UPDATE maps SET selected=1 WHERE status IN ('metadata_valid','verified')")
-        # Distinct map IDs with the same target/ammo/range are not interchangeable.
-        self.db.execute('''UPDATE maps SET selected=0 WHERE (target,ammo,distance) IN
-          (SELECT target,ammo,distance FROM maps WHERE selected=1 GROUP BY target,ammo,distance HAVING count(*)>1)''')
+        # An exact current map may supersede an annotation-only archived copy
+        # with identical array and model identity. Every other collision stays
+        # quarantined. Archived copies are not counted as verified coverage.
+        duplicates=self.db.execute('''SELECT target,ammo,distance FROM maps WHERE selected=1
+            GROUP BY target,ammo,distance HAVING count(*)>1''').fetchall()
+        for key in duplicates:
+            rows=self.db.execute('SELECT path,metadata FROM maps WHERE selected=1 AND target=? AND ammo=? AND distance=?',key).fetchall()
+            maps=[json.loads(row[1]) for row in rows]
+            primary=current_duplicate(maps)
+            for (path,_),meta in zip(rows,maps):
+                if primary is None:self.db.execute('UPDATE maps SET selected=0 WHERE path=?',(path,))
+                elif meta['map_id']!=primary:
+                    self.db.execute("UPDATE maps SET selected=0,status='historical_duplicate' WHERE path=?",(path,))
         self.db.execute('INSERT OR REPLACE INTO settings VALUES (?,?)', ('root',str(root)))
         self.db.execute('INSERT OR REPLACE INTO settings VALUES (?,?)', ('profile_history',canonical(history.receipts)))
         self.db.commit()
@@ -227,6 +238,7 @@ class Inventory:
         for row in self.db.execute('SELECT id,meta_hash,status,selected FROM maps ORDER BY path'):
             h.update(canonical(list(row)).encode())
         return {'metadata_objects':sum(status.values()),'selected_maps':selected,'verified_arrays':verified,
+                'historical_duplicate_maps':status.get('historical_duplicate',0),
                 'annotation_reconciled_maps':self.db.execute("SELECT count(*) FROM maps WHERE selected=1 AND json_extract(metadata,'$.profile_reconciliation.kind') IS NOT NULL").fetchone()[0],
                 'selected_array_bytes':byte_count,'status_counts':status,'rejections':errors,
                 'ambiguous_maps':self.db.execute("SELECT count(*) FROM maps WHERE status IN ('metadata_valid','verified') AND selected=0").fetchone()[0],

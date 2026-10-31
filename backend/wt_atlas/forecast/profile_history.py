@@ -11,6 +11,30 @@ from .data import digest,file_hash,number,read_json
 MATCH_METHODS={'exact_projectile_name_and_physical_fields','exact_weapon_mount_and_unique_physical_fields'}
 
 
+def current_duplicate(maps):
+    """Select one exact current profile over equivalent archived annotations.
+
+    This is metadata selection, not verification of archived arrays. The selected
+    current file still requires the normal checksum and array validation. Two
+    current maps, historical-only duplicates, or any other differing field remain
+    ambiguous. In particular, an archive can never rescue a corrupt current file.
+    """
+    current=[m for m in maps if not m.get('profile_reconciliation')]
+    if len(maps)<2 or len(current)!=1:return None
+    primary=current[0]
+    ignored={'map_id','array_file','ammo_profile_sha256','metadata_sha256','profile_reconciliation'}
+    identity=lambda m:digest({k:v for k,v in m.items() if k not in ignored})
+    expected=identity(primary)
+    for item in maps:
+        if item is primary:continue
+        proof=item.get('profile_reconciliation',{})
+        if (proof.get('kind')!='exact_historical_profile_annotation_reconciliation' or
+            proof.get('active_profile_sha256')!=primary['ammo_profile_sha256'] or
+            proof.get('historical_profile_sha256')!=item['ammo_profile_sha256'] or
+            identity(item)!=expected):return None
+    return primary['map_id']
+
+
 def annotation_equivalence(before,after):
     a,b=copy.deepcopy(before),copy.deepcopy(after)
     if a.get('name')!=b.get('name') or a.get('mode') not in ('KE','CE') or a.get('reference_only'):

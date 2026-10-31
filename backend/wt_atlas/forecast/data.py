@@ -265,7 +265,7 @@ def patch_catalog(catalog: dict, patch: dict | None) -> tuple[dict, list[dict]]:
 class Atlas:
     """Index small metadata, load exactly one map on demand. No reference-slice fallback."""
     def __init__(self, root: Path, ammunition: Path, catalog: dict, *, index=None, memory_budget=512 * 1024**2, profile_history=None):
-        from .profile_history import ProfileHistory
+        from .profile_history import ProfileHistory, current_duplicate
         history=profile_history or ProfileHistory()
         self.root = root.resolve()
         self.memory_budget = memory_budget
@@ -285,6 +285,8 @@ class Atlas:
                 self._binding_index.setdefault(ammo_id, []).append(profile)
         self.meta = {}
         self.lookup = {}
+        candidates={}
+        self.historical_duplicates={}
         for path in ([] if index is not None else sorted((self.root / "arrays").glob("*.json"))):
             item = read_json(path)
             for key in ("map_id", "target_id", "target_sha256", "ammo_id", "ammo_profile_sha256",
@@ -303,7 +305,7 @@ class Atlas:
                 raise ValueError("Unsupported/reference-only ammunition")
             if not number(profile.get("distance_m")) or profile["distance_m"] < 0: raise ValueError("Unknown map physical distance")
             key = (item["target_id"], item["ammo_id"], profile["distance_m"])
-            if key in self.lookup or item["map_id"] in self.meta: raise ValueError("Ambiguous physical map identity")
+            if item["map_id"] in self.meta: raise ValueError("Ambiguous physical map identity")
             target = self.catalog.get(item["target_id"])
             if target:
                 client = target.get("client_collision") or target.get("source_attributes", {}).get("client", {})
@@ -316,7 +318,14 @@ class Atlas:
             item["metadata_sha256"] = file_hash(path)
             item.pop("images", None)  # PNG paths never enter physics or offline memory indices.
             self.meta[item["map_id"]] = item
-            self.lookup[key] = item["map_id"]
+            candidates.setdefault(key,[]).append(item)
+        for key,maps in candidates.items():
+            selected=maps[0]['map_id'] if len(maps)==1 else current_duplicate(maps)
+            if selected is None:raise ValueError('Ambiguous physical map identity')
+            self.lookup[key]=selected
+            for item in maps:
+                if item['map_id']!=selected:
+                    self.historical_duplicates[item['map_id']]={'superseded_by':selected,'metadata':self.meta.pop(item['map_id'])}
         if index is not None:
             self.meta, self.lookup = index.metadata, index.lookup
         elif not self.meta: raise ValueError("No V2 map metadata under atlas/arrays")

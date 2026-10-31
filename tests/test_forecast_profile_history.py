@@ -5,6 +5,7 @@ import tempfile
 import unittest
 import subprocess
 import sys
+import shutil
 from test_forecast import fixture,settings
 from wt_atlas.forecast.engine import Forecast,ShotCache
 from wt_atlas.forecast.data import Atlas,canonical,digest,file_hash
@@ -23,6 +24,64 @@ class ProfileHistoryTests(unittest.TestCase):
         self.ammo.write_text(canonical(self.after))
 
     def tearDown(self):self.temp.cleanup()
+
+    def add_current_map(self):
+        old_path=next(p for p in (self.atlas/'arrays').glob('*.json')
+                      if json.loads(p.read_text())['ammo_id']==self.before[0]['name'])
+        old=json.loads(old_path.read_text());current=copy.deepcopy(old)
+        current.update(map_id='current-map',ammo_profile_sha256=digest(self.after[0]),array_file='arrays/current-map.npz')
+        shutil.copyfile(self.atlas/old['array_file'],self.atlas/current['array_file'])
+        path=self.atlas/'arrays/current-map.json';path.write_text(canonical(current))
+        return old,current,path
+
+    def test_identical_history_does_not_remove_exact_current_coverage(self):
+        old,current,path=self.add_current_map();history=ProfileHistory([self.history_file])
+        atlas=Atlas(self.atlas,self.ammo,self.catalog,profile_history=history)
+        self.assertEqual(len(atlas.meta),16);self.assertIn(current['map_id'],atlas.meta)
+        self.assertNotIn(old['map_id'],atlas.meta)
+        index=Inventory(self.root/'duplicates.sqlite')
+        try:
+            for attempt in range(2):
+                result=index.sync(self.atlas,self.ammo,self.catalog,profile_history=history)
+                self.assertEqual(result['selected_maps'],16)
+                self.assertEqual(result['historical_duplicate_maps'],1)
+                self.assertEqual(result['ambiguous_maps'],0)
+            self.assertEqual(index.verify(self.atlas)['verified_arrays'],16)
+            # Current corruption must not fall back to the archived file.
+            (self.atlas/current['array_file']).write_bytes(b'corrupt')
+            index.sync(self.atlas,self.ammo,self.catalog,profile_history=history)
+            result=index.verify(self.atlas)
+            self.assertEqual(result['verified_arrays'],15)
+            self.assertEqual(result['rejections']['NPZ checksum failure'],1)
+            # Explicit removal of the current metadata restores independent history use.
+            path.unlink();result=index.sync(self.atlas,self.ammo,self.catalog,profile_history=history)
+            self.assertEqual(result['selected_maps'],16)
+            self.assertEqual(result['historical_duplicate_maps'],0)
+        finally:index.close()
+
+    def test_different_array_model_or_unknown_identity_remains_ambiguous(self):
+        old,current,path=self.add_current_map();history=ProfileHistory([self.history_file])
+        for field,value in [('array_sha256','f'*64),('tool_code_sha256','other-model'),('future_physical_input',12)]:
+            changed={**current,field:value};path.write_text(canonical(changed))
+            with self.subTest(field=field):
+                with self.assertRaisesRegex(ValueError,'Ambiguous'):Atlas(self.atlas,self.ammo,self.catalog,profile_history=history)
+                index=Inventory(self.root/'conflicts.sqlite')
+                try:
+                    result=index.sync(self.atlas,self.ammo,self.catalog,profile_history=history)
+                    self.assertEqual(result['ambiguous_maps'],2)
+                    self.assertEqual(result['historical_duplicate_maps'],0)
+                finally:index.close()
+
+    def test_two_current_maps_still_fail_even_with_matching_bytes(self):
+        old,current,path=self.add_current_map();history=ProfileHistory([self.history_file])
+        extra={**current,'map_id':'second-current'}
+        (path.parent/'second-current.json').write_text(canonical(extra))
+        with self.assertRaisesRegex(ValueError,'Ambiguous'):Atlas(self.atlas,self.ammo,self.catalog,profile_history=history)
+        index=Inventory(self.root/'double-current.sqlite')
+        try:
+            result=index.sync(self.atlas,self.ammo,self.catalog,profile_history=history)
+            self.assertEqual(result['ambiguous_maps'],3);self.assertEqual(result['selected_maps'],15)
+        finally:index.close()
 
     def test_exact_historical_hash_and_annotation_changes_preserve_npz(self):
         history=ProfileHistory([self.history_file]);before_hashes={p.name:file_hash(p) for p in (self.atlas/'arrays').iterdir()}
