@@ -1,9 +1,16 @@
 {
   "already_available": {
-    "batch_array_bytes_total": 77222609507,
-    "batch_map_total": 393995,
+    "batch_array_bytes_total": 92388601599,
+    "batch_map_total": 432659,
     "client_geometry_verified_vehicles": 1226,
     "generated_batches": {
+      "chemical": {
+        "array_bytes": 15165992092,
+        "computed_maps": 37664,
+        "planned_maps": 38664,
+        "reused_maps": 1000,
+        "status": "completed_and_standalone_arrays_verified"
+      },
       "main": {
         "array_bytes": 70075380408,
         "computed_maps": 350403,
@@ -27,19 +34,17 @@
       }
     },
     "live_main_preflight_status_counts": {
-      "metadata_valid": 164835,
-      "verified": 186568
+      "verified": 351403
     },
-    "main_preflight_complete_report_exists": false,
+    "main_preflight_complete_report_exists": true,
     "remaining_processing": [
-      "finish full main array verification",
-      "assemble and verify combined exact source bundle",
-      "measure complete bidirectional coverage",
+      "assemble four verified batches",
+      "run fresh combined array and bidirectional coverage preflight",
       "complete full candidate search and sensitivity acceptance"
     ],
-    "total_scope": "Three generated batches; not deduplicated global coverage and not verified final ranking input."
+    "total_scope": "Four generated and independently checked batches; combined atlas validation and global coverage remain pending."
   },
-  "collected_at": "2026-10-31T09:52:45.328986+00:00",
+  "collected_at": "2026-10-31T10:27:54.669184+00:00",
   "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
   "formal_rankings": 0,
   "ground_ammunition": {
@@ -231,21 +236,24 @@
     "data/snapshots/ammunition.ordered-belts-2.59.0.92.json": "5f49489fa1536f4d1a88ad35971c1bc6e597c98e1f721e7d36a7b4f837ea55f2",
     "data/snapshots/catalog.formal-chemical-projectiles-2.59.0.92.v13.json": "5b1108f012725fc8f4313112d4c7a67050cdf9f0113928cbba5647727cbf006b",
     "data/snapshots/catalog.formal-ordered-belts-2.59.0.92.v12.json": "28faf3ace71f1b4e2eba4a3f85f2aed91d9c0ca3231ed620e4d1fb83895d5b1b",
+    "reports/chemical-projectile-progress.json": "2818035eccf49643db4d6818d622e198aa07e657c88b53444dd186e2e2a32d82",
+    "reports/chemical-range-final-preflight-summary.json": "98efedffae2c77d3c30fff833677c1c73c7cb08a903e9d8405e9565716d3a9a6",
     "reports/formal-client-payloads-v9.json": "96477382d20116ad5d85ccfba5d0c867c95095b1278a64aa96ab356407cbcd4c",
     "reports/formal-ordered-belt-recovery.json": "1fcb213eb3eb6953ab4e464099f7b57a61507f0370440fa667ccebdd256f023d",
     "reports/formal-sp-components-v9.json": "01723940ff5f40fe31719bfa871c0a4e05c223a5b01cbad94a691f91b419a238",
+    "reports/main-range-final-preflight-summary.json": "704c41947fc6db6544a1946a5a19ccb1ad39fd84d21403ec97e674c2e3565838",
     "reports/main-range-generation-completion.json": "39da184536ff790dd9ac00b8e09352b8db57e4a5a9af328aec5b627639ee903f",
     "reports/native-sp-final-arithmetic.json": "6284a12b5dfaff73c8714e55f4c6250c2ed47ac75ed8b5363ce5227f42571692",
     "reports/ordered-belt-progress.json": "48afe13e315612fa41dbaf18525aa24d0103fc04e869b323a198bd2699c75b85",
     "reports/range-rebuild-progress.json": "16d2b5bd74bef13fc1b837689cd5bf6d229f5ec22eb4df9752fad34f66a96ced"
   },
   "ongoing_chemical_batch": {
-    "array_bytes": 8662763444,
-    "computed_maps": 22000,
-    "pending_maps": 15664,
+    "array_bytes": 15165992092,
+    "computed_maps": 37664,
+    "pending_maps": 0,
     "planned_maps": 38664,
     "reused_maps": 1000,
-    "status": "running"
+    "status": "completed_and_standalone_arrays_verified"
   },
   "ordered_belts": {
     "needed": "Per-projectile belt counts/order, first projectile, repeat behavior and multi-barrel timing. Imported equal-count belts still disclose assumed source block ordering.",
@@ -320,6 +328,16 @@
       "commit": "2423f3099e2a5ec3f31efdce87b9f4380ea761ec",
       "direct_changed_weapon_profile_hits": 12,
       "source_compatibility": "not established",
+      "source_tree_profile_counts": {
+        "changed_source": 12,
+        "unchanged_declared_blobs": 1951
+      },
+      "source_tree_report": "reports/version-source-audit-progress.json",
+      "source_tree_report_sha256": "f4fcda85076797a047d6af6c7025b1038564bd1d0d40e54d460796686f9c2cb0",
+      "source_tree_target_counts": {
+        "changed": 1,
+        "unchanged": 1225
+      },
       "version": "2.59.0.94"
     },
     "official_later_server_update_evidence": {
