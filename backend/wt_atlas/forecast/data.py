@@ -264,7 +264,9 @@ def patch_catalog(catalog: dict, patch: dict | None) -> tuple[dict, list[dict]]:
 
 class Atlas:
     """Index small metadata, load exactly one map on demand. No reference-slice fallback."""
-    def __init__(self, root: Path, ammunition: Path, catalog: dict, *, index=None, memory_budget=512 * 1024**2):
+    def __init__(self, root: Path, ammunition: Path, catalog: dict, *, index=None, memory_budget=512 * 1024**2, profile_history=None):
+        from .profile_history import ProfileHistory
+        history=profile_history or ProfileHistory()
         self.root = root.resolve()
         self.memory_budget = memory_budget
         raw = read_json(ammunition)
@@ -289,8 +291,11 @@ class Atlas:
                         "source_version", "datamine_commit", "array_file", "array_sha256"):
                 if not item.get(key): raise ValueError("Missing map identity: " + key)
             profile = self.profiles.get(item["ammo_id"])
-            if profile is None or digest(profile) != item["ammo_profile_sha256"]:
+            if profile is None:
                 raise ValueError("Exact ammunition profile hash mismatch")
+            proof=history.reconcile(item['ammo_profile_sha256'],profile)
+            if proof:item['profile_reconciliation']=proof
+            else:item.pop('profile_reconciliation',None)
             provenance = profile.get("provenance", {})
             if provenance.get("client_version") != item["source_version"] or provenance.get("datamine_commit") != item["datamine_commit"]:
                 raise ValueError("Map/profile version mismatch")

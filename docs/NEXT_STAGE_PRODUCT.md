@@ -196,3 +196,13 @@ Ground RB 按客户端 `economicRankTankHistorical` 优先、`economicRankHistor
 ## 原始样例归档验收
 
 `doctor` 另列 `sample_archives`，检查数据根及常用 `data/exports` 位置中的 `analysis-sample*.zip`，不会自动解压或把发现等同于验证。此次在原数据仓库的 `data/exports/analysis-sample-2.59.0.92.zip` 找到原归档，ZIP 哈希匹配合同；32 个 manifest 文件校验通过、源哈希未变，72 条诊断与 6 项历史检查点完全一致。见 `reports/original32-sample-verification.json`。该样例仍只有一个方向、原生 10 m，产生 0 条正式排名。
+
+## 精确历史弹药档案与注记差异
+
+旧图可以通过显式 `--profile-history <完整历史弹药 JSON>` 核对其原始档案。参数可重复，用于 `forecast_data.py inventory/preflight`、`build_forecast.py` 及统一 `build.py --forecast`；独立下一版使用自己的 `--planned-profile-history`。不提供历史档案时，任何档案哈希不符仍拒绝。
+
+核对先要求历史完整 JSON 的哈希精确等于物理图声明的 `ammo_profile_sha256`，再比较历史与当前完整档案。只允许空的 `catalog_physical_mismatches`、空的 `v2_equivalent_candidates` 注记，以及两种已定义精确匹配方法的描述变化。所有其他字段必须逐字规范化一致，包括弹药 ID、全部装备归属、源武器及其哈希、游戏版本、Datamine commit、距离、口径、穿深、斜率、跳弹曲线、机制、模型假设和未来新增字段。缺少历史全文、距离未知、非空歧义、参数或归属不同都不会通过。
+
+原始 JSON、NPZ、原图身份和原档案哈希均不修改。索引保存两份完整档案的哈希及历史文件哈希，shot 追踪同时输出 `source_profile_sha256`、`active_profile_sha256`、`profile_reconciliation`。改变或撤去历史输入会使索引和构建缓存失效；NPZ 校验、独立 GRP 绑定、版本隔离、双向覆盖与正式发布门禁照常执行。历史核对不是跨版本兼容证明，也不允许把近距图变成长距图。
+
+首次实盘审计在 103,263 张档案哈希不符的图中定位到 49,215 张仅含上述注记变化的图；其他 54,048 张继续保留拒绝。这个数量是可核对元数据，不等于已通过 NPZ 验收的图数。最终可用数以对应 preflight 报告为准。

@@ -17,6 +17,7 @@ import time
 import zipfile
 
 from .data import Atlas, canonical, digest, file_hash, number, read_json, safe_file, taxonomy
+from .profile_history import ProfileHistory
 
 
 def stamp(path):
@@ -102,7 +103,7 @@ class Inventory:
         self.db.commit()
         self.db.close()
 
-    def sync(self, root, ammunition, catalog, *, bindings=None, force=False):
+    def sync(self, root, ammunition, catalog, *, bindings=None, force=False, profile_history=None):
         started, cpu = time.perf_counter(), time.process_time()
         root = Path(root).resolve()
         profiles = read_json(Path(ammunition))
@@ -112,7 +113,8 @@ class Inventory:
         if len(by_vehicle) != len(catalog['vehicles']): raise ValueError('Duplicate vehicle identity')
         hashes = {k: digest(p) for k, p in by_profile.items()}
         bindings = bindings or {}
-        base_key=digest([str(root),file_hash(Path(__file__)),file_hash(Path(__file__).with_name('data.py')),file_hash(Path(__file__).parents[1]/'npz_io.py')])
+        history=profile_history or ProfileHistory()
+        base_key=digest([str(root),file_hash(Path(__file__)),file_hash(Path(__file__).with_name('data.py')),file_hash(Path(__file__).parents[1]/'npz_io.py'),file_hash(Path(__file__).with_name('profile_history.py')),history.signature])
         target_keys={k:digest([v.get('client_collision'),v.get('source_attributes',{}).get('client'),v.get('analysis_target_sha256'),bindings.get(k)]) for k,v in by_vehicle.items()}
         generation = time.time_ns()
         counts = Counter()
@@ -141,7 +143,9 @@ class Inventory:
                 if m['map_id'] != path.stem: raise ValueError('Map filename identity mismatch')
                 p = by_profile.get(m['ammo_id'])
                 if p is None: raise ValueError('profile_missing')
-                if hashes[m['ammo_id']] != m['ammo_profile_sha256']: raise ValueError('profile_hash_mismatch')
+                proof=history.reconcile(m['ammo_profile_sha256'],p)
+                if proof:m['profile_reconciliation']=proof
+                else:m.pop('profile_reconciliation',None)
                 if p.get('mode') not in ('KE','CE') or p.get('reference_only') or m.get('reference_only'): raise ValueError('unsupported_or_reference_ammunition')
                 prov = p.get('provenance', {})
                 if (prov.get('client_version'),prov.get('datamine_commit')) != (m['source_version'],m['datamine_commit']): raise ValueError('profile_version_mismatch')
@@ -172,6 +176,7 @@ class Inventory:
         self.db.execute('''UPDATE maps SET selected=0 WHERE (target,ammo,distance) IN
           (SELECT target,ammo,distance FROM maps WHERE selected=1 GROUP BY target,ammo,distance HAVING count(*)>1)''')
         self.db.execute('INSERT OR REPLACE INTO settings VALUES (?,?)', ('root',str(root)))
+        self.db.execute('INSERT OR REPLACE INTO settings VALUES (?,?)', ('profile_history',canonical(history.receipts)))
         self.db.commit()
         self.metrics = {**counts,'metadata_seconds':time.perf_counter()-started,'metadata_cpu_seconds':time.process_time()-cpu}
         return self.summary()
@@ -222,6 +227,7 @@ class Inventory:
         for row in self.db.execute('SELECT id,meta_hash,status,selected FROM maps ORDER BY path'):
             h.update(canonical(list(row)).encode())
         return {'metadata_objects':sum(status.values()),'selected_maps':selected,'verified_arrays':verified,
+                'annotation_reconciled_maps':self.db.execute("SELECT count(*) FROM maps WHERE selected=1 AND json_extract(metadata,'$.profile_reconciliation.kind') IS NOT NULL").fetchone()[0],
                 'selected_array_bytes':byte_count,'status_counts':status,'rejections':errors,
                 'ambiguous_maps':self.db.execute("SELECT count(*) FROM maps WHERE status IN ('metadata_valid','verified') AND selected=0").fetchone()[0],
                 'content_sha256':h.hexdigest(),'metrics':self.metrics}

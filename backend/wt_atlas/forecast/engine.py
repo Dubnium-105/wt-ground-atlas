@@ -271,6 +271,8 @@ class Forecast:
                       physical_distance_m=profile["distance_m"], yaw_deg=scenario["yaw_deg"],
                       source_binding=m["target_binding"], effect_sha256=effects_hash,
                       physical_map_sha256=m["array_sha256"], aim_cache_key=key,
+                      source_profile_sha256=m['ammo_profile_sha256'],active_profile_sha256=digest(profile),
+                      profile_reconciliation=m.get('profile_reconciliation'),
                       effect_status=self.effects.get(map_id, {}).get("status", "not_supplied"))
         self.cache.put(key, result)
         return result

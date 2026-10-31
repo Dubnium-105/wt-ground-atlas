@@ -21,6 +21,7 @@ from .inventory import Inventory, coverage, discover, bind_geometry
 from .versions import apply_version, invalidation, release_gate, selection_identity, snapshot
 from .resources import usage
 from .statistics import community_annotations
+from .profile_history import ProfileHistory
 
 
 def compact(row: dict) -> dict:
@@ -156,6 +157,8 @@ def build(args, root: Path) -> dict:
     if any(planned_inputs) and patch is not None:
         raise ValueError("Use a patch OR a complete planned snapshot, not ambiguous combined mutations")
     original_baseline=baseline
+    history=ProfileHistory(getattr(args,'profile_history',None) or [])
+    planned_history=ProfileHistory(getattr(args,'planned_profile_history',None) or [])
     baseline, planned, audit = apply_version(baseline, patch)
     index=None
     if getattr(args,'index',None):
@@ -164,9 +167,9 @@ def build(args, root: Path) -> dict:
         if getattr(args,'bindings',None):
             binding_report=read_json(Path(args.bindings))
             bindings,binding_errors=bind_geometry(Path(binding_report['repository']),Path(binding_report['jobs']),baseline)
-        if not getattr(args,'_reuse_index',False):index.sync(atlas_root,ammo_path,baseline,bindings=bindings,force=getattr(args,'force',False))
+        if not getattr(args,'_reuse_index',False):index.sync(atlas_root,ammo_path,baseline,bindings=bindings,force=getattr(args,'force',False),profile_history=history)
         if getattr(args,'preflight',False):index.verify(atlas_root,max_workers=args.max_workers,memory_budget=args.memory_budget*1024**2,resume=args.resume and not args.force)
-    atlas = Atlas(atlas_root, ammo_path, baseline,index=index,memory_budget=args.memory_budget*1024**2)
+    atlas = Atlas(atlas_root, ammo_path, baseline,index=index,memory_budget=args.memory_budget*1024**2,profile_history=history)
     planned_atlas = atlas;planned_index=None
     if all(planned_inputs):
         planned = read_json(Path(args.planned_catalog))
@@ -176,9 +179,9 @@ def build(args, root: Path) -> dict:
             if getattr(args,'planned_bindings',None):
                 br=read_json(Path(args.planned_bindings))
                 planned_bindings,_=bind_geometry(Path(br['repository']),Path(br['jobs']),planned)
-            if not getattr(args,'_reuse_index',False):planned_index.sync(Path(args.planned_atlas),Path(args.planned_ammunition),planned,bindings=planned_bindings,force=args.force)
+            if not getattr(args,'_reuse_index',False):planned_index.sync(Path(args.planned_atlas),Path(args.planned_ammunition),planned,bindings=planned_bindings,force=args.force,profile_history=planned_history)
             if args.preflight:planned_index.verify(Path(args.planned_atlas),max_workers=args.max_workers,memory_budget=args.memory_budget*1024**2,resume=args.resume and not args.force)
-        planned_atlas = Atlas(Path(args.planned_atlas), Path(args.planned_ammunition), planned,index=planned_index,memory_budget=args.memory_budget*1024**2)
+        planned_atlas = Atlas(Path(args.planned_atlas), Path(args.planned_ammunition), planned,index=planned_index,memory_budget=args.memory_budget*1024**2,profile_history=planned_history)
         planned["forecast_scenario"] = {"status": args.planned_status, "id": "separate_physical_snapshot"}
     has_planned = planned is not None or all(planned_inputs)
     cache = ShotCache(Path(args.cache))
@@ -187,6 +190,7 @@ def build(args, root: Path) -> dict:
     code_hashes = {p.name: file_hash(p) for p in sorted(Path(__file__).parent.glob("*.py"))}
     code_hashes['../npz_io.py'] = file_hash(Path(__file__).parents[1]/'npz_io.py')
     inputs = {"catalog": file_hash(catalog_path), "ammunition": file_hash(ammo_path), "config": file_hash(config_path),
+              'profile_history':history.signature,'planned_profile_history':planned_history.signature if all(planned_inputs) else None,
               "patch": digest(patch), "maps": digest(sorted((k, m["metadata_sha256"]) for k, m in atlas.meta.items())),
               "effects": file_hash(effects) if effects else None, "missions": file_hash(missions) if missions else None,
               "planned_effects":file_hash(Path(args.planned_effects)) if getattr(args,'planned_effects',None) else None,
@@ -343,6 +347,8 @@ def main(argv=None):
     parser.add_argument("--planned-catalog"); parser.add_argument("--planned-atlas"); parser.add_argument("--planned-ammunition")
     parser.add_argument("--planned-status", choices=["proposed", "announced", "released", "hypothetical"], default="proposed")
     parser.add_argument('--planned-effects');parser.add_argument('--planned-missions');parser.add_argument('--planned-bindings');parser.add_argument('--snapshot-info')
+    parser.add_argument('--profile-history',action='append',default=[])
+    parser.add_argument('--planned-profile-history',action='append',default=[])
     parser.add_argument('--index',default=str(root/'data/cache/forecast-metadata.sqlite'));parser.add_argument('--bindings');parser.add_argument('--preflight',action='store_true')
     parser.add_argument('--max-workers',type=int,default=2);parser.add_argument('--memory-budget',type=int,default=512,help='MiB for array workers')
     parser.add_argument('--resume',action='store_true');parser.add_argument('--force',action='store_true');parser.add_argument('--dry-run',action='store_true')
