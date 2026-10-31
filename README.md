@@ -10,6 +10,8 @@
 
 `npm run build` / `python build.py --forecast` 构建自动队列预测首页，统一发布到 `dist/site`。提供 `--research-site` 可将已有且通过校验的图鉴、逐车对抗、防护研究合并到 `/research/`。无真实输入时生成明确的诊断页，不生成假榜。旧研究独立构建仍可用 `npm run build:research`。
 
+产品默认配置为 `config/forecast.full-ground-rb.json`：八类任务、10/100/500/1000m × 24 方位、5/8/10 槽，首页默认普通技能/空地协同；`--all-profiles` 构建九种可切换情景。任务效果留空时采用显式假设，SP 与物理覆盖门禁仍保留。独立预测脚本和 `--sample-root` 保留原 `config/forecast.json`，也可用 `--config` 明确选择研究配置。
+
 完整的单条构建命令、九种技能/玩法情景、来源绑定、动态 BR、版本迁移、缓存、统计契约和回滚方法见 [产品手册](docs/NEXT_STAGE_PRODUCT.md)；实际测试、覆盖与发布阻塞见 [本次验收](docs/NEXT_STAGE_ACCEPTANCE.md)。生产数据不在仓库中，报告中的 10m 条件结果不是胜率或远距离预测。 当前 Wiki 目录可用 `scripts/update_forecast.py --refresh-wiki --before ... --catalog-output ...` 刷新到独立文件；该过程保留原物理来源，并显式隔离未重新核验的旧挂载和版本身份。
 
 ## 目录职责

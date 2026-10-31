@@ -9,6 +9,7 @@ from .data import number
 from .data import digest, canonical
 from .capabilities import spawn_cost, spawn_group
 from .rankings import build_views, select
+from .tasks import modeled_tasks
 
 
 def lower_tail(values: list[tuple[float, float]], mass: float) -> float:
@@ -103,6 +104,7 @@ class Optimizer:
     def __init__(self, engine):
         self.e = engine
         self.config = engine.config
+        self.tasks = tuple(sorted(modeled_tasks(self.config['spawn'])))
         self.evaluated = 0
         self.truncated = False
 
@@ -116,14 +118,22 @@ class Optimizer:
         cases = []
         for room, room_weight in self.e.rooms(nation, cap):
             for scenario in self.config["scenarios"]:
-                phases = self.config["spawn"]["phases"]
-                rows = [[self.e.mission(v["key"], task, room, scenario["id"]) for v in lineup] for task in phases]
+                rows = [[self.e.phase(v['key'], phase, room, scenario['id']) for v in lineup]
+                        for phase in range(len(self.e.phase_tasks))]
                 costs = [spawn_cost(v,self.config['spawn'],room) for v in lineup]
                 result = sortie_policy(rows, costs, self.config["spawn"], spawn_groups=[spawn_group(v) for v in lineup],
                     cost_function=lambda i,n:spawn_cost(lineup[i],self.config['spawn'],room,n))
                 result['task_evidence']=[sum(a['probability']*(rows[i][a['member_index']]['coverage'] if a['member_index'] is not None else 0.) for a in phase['actions']) for i,phase in enumerate(result['policy'])]
                 result['mission_keys']=[[r.get('mission_key') for r in phase] for phase in rows]
-                result['production_mission_coverage']={task:min(r.get('production_coverage',0.) for r in rows[i]) for i,task in enumerate(phases)}
+                task_rows = {task: [self.e.mission(v['key'],task,room,scenario['id']) for v in lineup] for task in self.tasks}
+                result['production_mission_coverage']={task:min(r.get('production_coverage',0.) for r in task_rows[task]) for task in self.tasks}
+                result['mission_coverage'] = {}
+                for task in self.tasks:
+                    weights = [weight * mix.get(task, 0.) for mix, weight in
+                               zip(self.e.phase_tasks, self.config['spawn']['phase_weights'])]
+                    result['mission_coverage'][task] = sum(weight * sum(a['probability'] *
+                        (task_rows[task][a['member_index']]['coverage'] if a['member_index'] is not None else 0.)
+                        for a in phase['actions']) for weight, phase in zip(weights, result['policy'])) / sum(weights)
                 # Defaults may supply task utility, never missing ground physics.
                 if result['assumed_coverage'] > 0:
                     result['physical_pair_coverage'] = min(
@@ -157,7 +167,7 @@ class Optimizer:
                 "assumed_mission_coverage":assumed, "physical_pair_coverage":physical,
                 "mission_policy":self.config.get('mission_policy',{'mode':'require_evidence'}),
                 "model_state_coverage":sum(r["weight"]*r["coverage"] for r in cases),
-                "production_mission_coverage":{task:sum(r["weight"]*r["production_mission_coverage"][task] for r in cases) for task in set(self.config["spawn"]["phases"])},
+                "production_mission_coverage":{task:sum(r["weight"]*r["production_mission_coverage"][task] for r in cases) for task in self.tasks},
                 "status": ("assumed_mission_prediction" if assumed else "uncalibrated_conditional_prediction") if eligible else "insufficient_paired_evidence",
                 "cases": cases, "endpoint": self.config.get("endpoint", "penetration"),
                 "composition": "ground_only" if all(v["domain"] == "ground" for v in lineup) else "combined_arms",
@@ -166,7 +176,7 @@ class Optimizer:
                 "uncertainty":{"physical_missing_interval":[100*aggregate('lower'),100*aggregate('upper')],
                     "includes_mission_assumptions":assumed>0,
                     "model_error":None,"out_of_sample_confidence_interval":None},
-                "mission_coverage":{task:sum(r['weight']*r['task_evidence'][i] for r in cases) for i,task in enumerate(self.config['spawn']['phases'])},
+                "mission_coverage":{task:sum(r['weight']*r['mission_coverage'][task] for r in cases) for task in self.tasks},
                 "global_optimum_guaranteed": False}
 
     def pareto(self,pool,cap):
@@ -183,7 +193,7 @@ class Optimizer:
             if len(group)==1:kept+=group;continue
             vectors={};costs={}
             for v in group:
-                rows=[self.e.mission(v['key'],task,room,s['id']) for room,_ in self.e.rooms(v['nation'],cap) for s in self.config['scenarios'] for task in set(self.config['spawn']['phases'])]
+                rows=[self.e.mission(v['key'],task,room,s['id']) for room,_ in self.e.rooms(v['nation'],cap) for s in self.config['scenarios'] for task in self.tasks]
                 vectors[v['key']]=[r['mean'] for r in rows] if all(r['coverage']>=1-1e-12 for r in rows) else None
                 costs[v['key']]=spawn_cost(v,self.config['spawn'],cap)
             for v in group:
@@ -203,7 +213,7 @@ class Optimizer:
         for removed,v in enumerate(lineup):
             without=0.;use=0.
             for case in result['cases']:
-                rows=[[self.e.mission(k,task,case['room_top_step'],case['scenario']) for k in result['keys']] for task in self.config['spawn']['phases']]
+                rows=[[self.e.phase(k,phase,case['room_top_step'],case['scenario']) for k in result['keys']] for phase in range(len(self.e.phase_tasks))]
                 costs=[None if i==removed else spawn_cost(x,self.config['spawn'],case['room_top_step']) for i,x in enumerate(lineup)]
                 policy=sortie_policy(rows,costs,self.config['spawn'],spawn_groups=[spawn_group(x) for x in lineup],
                     cost_function=lambda i,n:None if i==removed else spawn_cost(lineup[i],self.config['spawn'],case['room_top_step'],n))

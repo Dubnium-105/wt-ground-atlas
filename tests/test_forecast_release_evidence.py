@@ -89,23 +89,33 @@ class ReleaseEvidenceTests(unittest.TestCase):
         self.assertFalse(result['publishable'])
         self.assertIn('required_tasks_not_modeled',result['why_not_publishable'])
 
+    def test_native_anti_tank_needs_lineup_physics_not_external_mission_record(self):
+        cat,atlas,config,world,kwargs=self.gate_inputs()
+        config['publication']['required_tasks']=['anti_tank']
+        config['spawn']['phases']=['anti_tank','anti_tank']
+        world['boards']['2/all'][0]['production_mission_coverage']={'anti_tank':1.}
+        kwargs['missions']={};self.resign_fixture(cat,config,kwargs)
+        self.assertTrue(release_gate(cat,atlas,config,world,**kwargs)['publishable'])
+        world['boards']['2/all'][0]['production_mission_coverage']['anti_tank']=0.
+        self.assertIn('ranked_lineup_mission_evidence_incomplete',release_gate(cat,atlas,config,world,**kwargs)['why_not_publishable'])
+
     def test_declared_validation_without_delivery_evidence_stays_research_only(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);catalog,atlas_root,ammo=fixture(root)
-            config=settings();config['spawn']['phases']=['cas','cas']
+            config=settings();config['spawn']['phases']=['recon','recon']
             cache=ShotCache(root/'cache.sqlite')
             try:
                 engine=Forecast(catalog,Atlas(atlas_root,ammo,catalog),config,cache)
                 for own in engine.variants:
                     for enemy in engine.variants:
                         if own['nation']==enemy['nation']:continue
-                        engine.missions[(own['key'],enemy['vehicle_id'],config['scenarios'][0]['id'],'cas')]={
+                        engine.missions[(own['key'],enemy['vehicle_id'],config['scenarios'][0]['id'],'recon')]={
                             'lower':.6,'mean':.6,'upper':.6,'status':'validated',
                             'production_validated':False,'evidence_sha256':digest([own['key'],enemy['key']])}
                 keys=tuple(sorted(v['key'] for v in engine.variants if v['nation']=='a'))
                 result=Optimizer(engine).evaluate(keys)
                 self.assertGreater(result['evidence_coverage'],.8)
-                self.assertEqual(result['production_mission_coverage']['cas'],0.)
+                self.assertEqual(result['production_mission_coverage']['recon'],0.)
             finally:cache.close()
 
     def resign_fixture(self, catalog, config, kwargs):

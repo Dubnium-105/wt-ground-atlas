@@ -155,6 +155,10 @@ def main(argv=None):
     p.add_argument('--research-site',type=Path)
     p.add_argument('--forecast-output',type=Path,default=ROOT/'dist/forecast')
     a,remaining=p.parse_known_args(argv)
+    # The product opens on the full task model. Explicit research/sample builds
+    # retain their requested configuration and the original sample diagnostics.
+    if not any(x=='--config' or x.startswith('--config=') for x in remaining) and not any(x=='--sample-root' or x.startswith('--sample-root=') for x in remaining):
+        remaining=['--config',str(ROOT/'config/forecast.full-ground-rb.json'),*remaining]
     command=[sys.executable,str(ROOT/'scripts/build_forecast.py'),*remaining,'--out',str(a.forecast_output)]
     subprocess.run(command,check=True)
     if '--dry-run' in remaining:return

@@ -144,10 +144,13 @@ def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensi
     if config['publication']['scope']!='full_ground_rb':blockers.append('scope_is_limited_ground_research')
     tasks=config['publication'].get('required_tasks',['ground_control','anti_tank','recon','anti_helicopter','anti_air','cap','cas','sead'])
     evidence_tasks={r.get('task') for r in (missions or {}).values() if r.get('production_validated')}
-    if require_missions and not set(tasks)<=evidence_tasks:blockers.append('full_mode_mission_evidence_missing')
+    # Ground anti-tank evidence comes from exact bidirectional physical maps.
+    # Per-lineup coverage below still rejects missing air anti-tank delivery data.
+    if require_missions and not set(tasks)<=evidence_tasks|{'ground','anti_tank'}:blockers.append('full_mode_mission_evidence_missing')
     ranked_rows = publication_rows(world)
     if config['publication']['scope']=='full_ground_rb':
-        modeled={task for task,weight in zip(config['spawn']['phases'],config['spawn']['phase_weights']) if weight>0}
+        from .tasks import modeled_tasks
+        modeled=modeled_tasks(config['spawn'])
         if not set(tasks)<=modeled:blockers.append('required_tasks_not_modeled')
         threshold=config['search']['minimum_pair_coverage']
         if require_missions and any(not number(row.get('production_mission_coverage',{}).get(task)) or

@@ -22,6 +22,7 @@ from .versions import apply_version, invalidation, release_gate, selection_ident
 from .resources import usage
 from .statistics import community_annotations
 from .profile_history import ProfileHistory
+from .profiles import resolve, cohorts as ordered_cohorts
 
 
 def compact(row: dict) -> dict:
@@ -123,9 +124,8 @@ def build(args, root: Path) -> dict:
         if value:config['search'][name]=value.split(',') if name=='nations' else value
     if getattr(args,'slots',None):config['search']['slots']=args.slots
     if getattr(args,'max_evaluations',None):config['search']['max_evaluations']=args.max_evaluations
-    if getattr(args,'skill',None):config['population']=config['skill_profiles'][args.skill]
-    if getattr(args,'preference',None):config['spawn'].update(config['task_profiles'][args.preference])
-    validate_config(config)
+    config, selected = resolve(config, getattr(args,'skill',None), getattr(args,'preference',None))
+    args.skill, args.preference = selected
     if args.sample_root:
         sample = Path(args.sample_root).resolve()
         integrity = verify_manifest(sample)
@@ -332,6 +332,7 @@ def empty_build(args,root,config,found):
     report={'build_key':digest([config,found]),'sample_subset':False,'published_rankings':False,'research_rankings':False,
         'metadata_count':0,'catalog_vehicles':0,'physical_distances_m':[],'scenario_status':'not_provided','diagnostics':[],
         'release_readiness':{'current':gate},'coverage':{'discovered':found},'endpoint':config['endpoint'],
+        'skill_profile':args.skill,'task_preference':args.preference,'ranking_scope':config['publication']['scope'],
         'calibration_status':config['calibration_status'],'mission_policy':mission_policy(config),'limitations':['Provide a same-version catalog, ammunition profiles and V2 atlas.']}
     world={'boards':{f'{s}/{a}':[] for s in config['search']['slots'] for a in config['search']['acquisition_profiles']},'tables':[],'evaluations':0,'truncated_searches':0}
     if not getattr(args,'dry_run',False):package_site(Path(args.out),report,{'current':world},[],root)
@@ -374,7 +375,7 @@ def main(argv=None):
             if final.exists() and any(final.iterdir()) and not (final/'.wt-forecast-site').is_file():raise ValueError('Unmanaged forecast output')
             with tempfile.TemporaryDirectory(prefix='.profiles-',dir=final.parent) as temporary:
                 stage=Path(temporary)/'site';results=[];cohorts=[]
-                profiles=[('normal','ground')]+[(s,p) for s in ('novice','normal','expert') for p in ('ground','balanced','air_support') if (s,p)!=('normal','ground')]
+                profiles=ordered_cohorts(read_json(Path(args.config)), args.skill, args.preference)
                 for i,(skill,preference) in enumerate(profiles):
                     a=copy.copy(args);a.skill=skill;a.preference=preference;a._reuse_index=i>0
                     a.out=str(stage if i==0 else Path(temporary)/(skill+'-'+preference));a.reports=args.reports if i==0 else None

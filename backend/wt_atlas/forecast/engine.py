@@ -13,6 +13,7 @@ from . import MODEL_VERSION
 from .aim import integrate, regions, skill_nodes
 from .combat import duel, weapon_timing
 from .capabilities import loadout_errors, validate_mission
+from .tasks import phase_tasks, task_supported
 from .data import Atlas, br_step, canonical, digest, file_hash, number, read_json, safe_file, taxonomy
 from ..npz_io import load_npz_bounded
 
@@ -175,6 +176,7 @@ class Forecast:
         self.by_key = {v["key"]: v for v in self.variants}
         self.skills = skill_nodes(config["population"])
         self.enemy_skills = skill_nodes(config.get("opponent_population", config["population"]))
+        self.phase_tasks = phase_tasks(config['spawn'])
         self.aim_code_hash = digest({name:file_hash(Path(__file__).parent/name)
                                     for name in ('aim.py','data.py','engine.py','../npz_io.py')})
         self.effects_path, self.effects = effects_path, {}
@@ -395,14 +397,17 @@ class Forecast:
     @lru_cache(maxsize=50000)
     def mission(self, key: str, task: str, room_top: int, scenario_id: str) -> dict:
         v = self.by_key[key]
-        if task == "ground" and v["domain"] != "ground": return {"mean": 0., "lower": 0., "upper": 0., "coverage": 1., "production_coverage":1., "usable": False}
+        if not task_supported(v, task):
+            return {"mean": 0., "lower": 0., "upper": 0., "coverage": 1., "production_coverage":1.,
+                    "assumed_coverage":0., "usable": False, "reason":"task_domain_inapplicable"}
+        physical = task in ('ground', 'anti_tank') and v['domain'] == 'ground'
         domain = "air" if task in ("anti_air","anti_helicopter","cap") else "ground"
         enemies = self.opponents(v["nation"], room_top, domain)
         trace=[]
         totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "production_coverage":0., "assumed_coverage":0., "usable": True}
         if not enemies: return {**totals, "mean": .5, "upper": 1.}
         for enemy, weight in enemies:
-            if task == "ground":
+            if physical:
                 row = self.pair(key, enemy, scenario_id)
                 trace.append(row['pair_key'])
             else:
@@ -418,10 +423,27 @@ class Forecast:
                 if external:trace.append(external['evidence_sha256']);self.cache.evidence_put(external['evidence_sha256'],'external_mission',external)
                 row = {**external, "coverage": 1. if external['status']=='validated' else 0.} if external else {"mean": .5, "lower": 0., "upper": 1., "coverage": 0.}
                 totals['assumed_coverage'] += weight * float(bool(defaults and external and external['status']=='assumed'))
-            totals["production_coverage"]+=weight*(row["coverage"] if task=="ground" else float(bool(external and external.get("production_validated"))))
+            totals["production_coverage"]+=weight*(row["coverage"] if physical else float(bool(external and external.get("production_validated"))))
             for name in ("mean", "lower", "upper", "coverage"):
                 totals[name] += weight * row[name]
         totals['mission_key']=digest([key,task,room_top,scenario_id,trace,totals])
-        totals['evidence_trace']={'pair_keys':trace,'external_evidence':task!='ground'}
+        totals['evidence_trace']={'pair_keys':trace,'external_evidence':not physical}
         self.cache.evidence_put(totals['mission_key'],'mission',{**totals,'variant_key':key,'task':task,'room_top':room_top,'scenario':scenario_id})
+        return totals
+
+    @lru_cache(maxsize=50000)
+    def phase(self, key: str, phase: int, room_top: int, scenario_id: str) -> dict:
+        mix = self.phase_tasks[phase]
+        if len(mix) == 1:
+            return self.mission(key, next(iter(mix)), room_top, scenario_id)
+        rows = {task: self.mission(key, task, room_top, scenario_id) for task in mix}
+        totals = {field: sum(mix[t] * r.get(field, 0.) for t, r in rows.items())
+                  for field in ('mean', 'lower', 'upper', 'coverage', 'production_coverage', 'assumed_coverage')}
+        totals['usable'] = any(r['usable'] for r in rows.values())
+        trace = {task: {'weight': mix[task], 'mission_key': row.get('mission_key'),
+                        'reason': row.get('reason')} for task, row in rows.items()}
+        totals['mission_key'] = digest([key, phase, room_top, scenario_id, trace, totals])
+        totals['evidence_trace'] = {'task_mixture': trace, 'status': 'assumed_not_observed'}
+        self.cache.evidence_put(totals['mission_key'], 'sortie_phase', {**totals,
+            'variant_key': key, 'phase': phase, 'room_top': room_top, 'scenario': scenario_id})
         return totals

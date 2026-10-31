@@ -30,13 +30,18 @@ build_recommendations(research);load_script('build_web').build(research)
 assert.equal(setup.status,0,setup.stderr);
 const build=spawnSync(python,['build.py','--forecast','--all-profiles','--research-site',path.join(work,'research-project/dist/site'),'--catalog',path.join(work,'catalog.json'),'--ammunition',path.join(work,'ammo.json'),'--atlas',path.join(work,'v2'),'--config',path.join(work,'config.json'),'--scenario',path.join(work,'patch.json'),'--cache',path.join(work,'cache.sqlite'),'--index',path.join(work,'index.sqlite'),'--forecast-output',path.join(work,'forecast'),'--output',path.join(work,'site')],{cwd:root,encoding:'utf8'});
 assert.equal(build.status,0,build.stderr);
+// Exercise the product's actual default configuration without substituting the
+// legacy fixture config. Too few source vehicles must show diagnostics, not ranks.
+const fullBuild=spawnSync(python,['build.py','--forecast','--catalog',path.join(work,'catalog.json'),'--ammunition',path.join(work,'ammo.json'),'--atlas',path.join(work,'v2'),'--cache',path.join(work,'full-cache.sqlite'),'--index',path.join(work,'full-index.sqlite'),'--forecast-output',path.join(work,'full-forecast'),'--output',path.join(work,'full-site')],{cwd:root,encoding:'utf8'});
+assert.equal(fullBuild.status,0,fullBuild.stderr);
 const site=path.join(work,'site');
 const server=http.createServer(async(req,res)=>{
   try{
     const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
-    const relative=pathname.startsWith('/sub/')?pathname.slice(5):pathname.slice(1);
-    const filename=path.resolve(site,relative||'index.html');
-    if(!filename.startsWith(site+path.sep)){res.writeHead(403);res.end();return;}
+    const base=pathname.startsWith('/full/')?path.join(work,'full-site'):site;
+    const relative=pathname.startsWith('/sub/')?pathname.slice(5):pathname.startsWith('/full/')?pathname.slice(6):pathname.slice(1);
+    const filename=path.resolve(base,relative||'index.html');
+    if(!filename.startsWith(base+path.sep)){res.writeHead(403);res.end();return;}
     const data=await fs.readFile(filename);
     res.setHeader('Content-Type',({'.html':'text/html','.mjs':'text/javascript','.css':'text/css','.json':'application/json'})[path.extname(filename)]||'application/octet-stream');res.end(data);
   }catch{res.writeHead(404);res.end();}
@@ -72,10 +77,23 @@ try{
   await Promise.all([page.waitForURL('**/profiles/expert-balanced/index.html**'),page.locator('#preference').selectOption('balanced')]);await page.waitForSelector('html[data-ready="true"]');assert.equal(await page.locator('#preference').inputValue(),'balanced');
   await page.locator('#research-nav a').first().click();await page.waitForFunction(()=>window.__GROUNDOPS__?.ready);assert.equal(await page.evaluate(()=>window.__GROUNDOPS__.getState().view),'tree');
   await page.locator('.predictor-return').click();await page.waitForSelector('html[data-ready="true"]');
+  const fullPage=await browser.newPage();
+  await fullPage.goto(`http://127.0.0.1:${server.address().port}/full/index.html`);
+  await fullPage.waitForSelector('html[data-ready="true"]');
+  assert.equal(await fullPage.locator('#preference').inputValue(),'balanced');
+  assert.deepEqual(new Set(await fullPage.locator('#board option').evaluateAll(options=>options.map(o=>o.value.split('/')[0]))),new Set(['5','8','10']));
+  assert.equal(await fullPage.locator('.card:not(.movement)').count(),0);
+  const fullIndex=JSON.parse(await fs.readFile(path.join(work,'full-site/index.json'),'utf8'));
+  const fullReport=JSON.parse(await fs.readFile(path.join(work,'full-site',fullIndex.report.url),'utf8'));
+  assert.equal(fullReport.ranking_scope,'full_ground_rb');
+  assert.equal(fullReport.published_rankings,false);
+  assert.equal(fullReport.release_readiness.current.why_not_publishable.includes('required_tasks_not_modeled'),false);
+  assert.ok(fullReport.release_readiness.current.why_not_publishable.includes('spawn_rules_assumed'));
+  await fullPage.close();
   const broken=await browser.newPage();await broken.route('**/data/report.*.json',r=>r.fulfill({contentType:'application/json',body:'{}'}));await broken.goto(`http://127.0.0.1:${server.address().port}/sub/index.html`);await broken.getByRole('button',{name:'重试加载'}).waitFor();await broken.unroute('**/data/report.*.json');await broken.getByRole('button',{name:'重试加载'}).click();await broken.waitForSelector('html[data-ready="true"]');await broken.close();
   assert.deepEqual(errors,[]);
   if(process.env.FORECAST_SCREENSHOT)await page.screenshot({path:process.env.FORECAST_SCREENSHOT,fullPage:true});
-  console.log(JSON.stringify({status:'passed',automatic_ranking:true,independent_br_and_nation_views:true,lazy_view_shards:true,version_switch:true,nation_filter:true,subpath:true,mobile:true,cohort_switch:true,unified_research:true,hash_error_retry:true,raw_physics_initial_requests:0,page_errors:errors}));
+  console.log(JSON.stringify({status:'passed',automatic_ranking:true,full_mode_product_default:true,independent_br_and_nation_views:true,lazy_view_shards:true,version_switch:true,nation_filter:true,subpath:true,mobile:true,cohort_switch:true,unified_research:true,hash_error_retry:true,raw_physics_initial_requests:0,page_errors:errors}));
 }finally{
   await browser.close();await new Promise(resolve=>server.close(resolve));await fs.rm(work,{recursive:true,force:true});
 }

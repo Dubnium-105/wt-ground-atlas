@@ -35,7 +35,7 @@ class MissionDefaultTests(unittest.TestCase):
                 v=assumed.variants[0];context=(v['key'],'ground',v['br_step'],c['scenarios'][0]['id'])
                 for field in ('mean','lower','upper','coverage','production_coverage','assumed_coverage'):
                     self.assertEqual(strict.mission(*context)[field],assumed.mission(*context)[field])
-                row=assumed.mission(v['key'],'cas',v['br_step'],c['scenarios'][0]['id'])
+                row=assumed.mission(v['key'],'recon',v['br_step'],c['scenarios'][0]['id'])
                 self.assertEqual((row['lower'],row['mean'],row['upper']),(0.,.5,1.))
                 self.assertEqual((row['coverage'],row['production_coverage'],row['assumed_coverage']),(0.,0.,1.))
                 trace=cache.evidence_get(row['evidence_trace']['pair_keys'][0])['value']
@@ -50,11 +50,11 @@ class MissionDefaultTests(unittest.TestCase):
                 c=settings();c['mission_policy']=defaults();atlas=Atlas(atlas_root,ammo,catalog)
                 e=Forecast(catalog,atlas,c,cache);own=e.variants[0]
                 records=[dict(variant_key=own['key'],target_vehicle_id=v['vehicle_id'],scenario_id=c['scenarios'][0]['id'],
-                    task='cas',lower=.6,mean=.7,upper=.8,source_version='synthetic-only',source='synthetic test observation',status='validated')
+                    task='recon',lower=.6,mean=.7,upper=.8,source_version='synthetic-only',source='synthetic test observation',status='validated')
                     for v in e.variants if v['nation']!=own['nation']]
                 path=root/'missions.json';path.write_text(json.dumps({'records':records}),encoding='utf-8')
                 e=Forecast(catalog,atlas,c,cache,missions_path=path)
-                row=e.mission(own['key'],'cas',own['br_step'],c['scenarios'][0]['id'])
+                row=e.mission(own['key'],'recon',own['br_step'],c['scenarios'][0]['id'])
                 self.assertAlmostEqual(row['mean'],.7);self.assertEqual(row['coverage'],1.)
                 self.assertEqual(row['assumed_coverage'],0.);self.assertEqual(row['production_coverage'],0.)
                 records[0]['source_version']='other-version';path.write_text(json.dumps({'records':records}),encoding='utf-8')
@@ -65,7 +65,7 @@ class MissionDefaultTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);catalog,atlas_root,ammo=fixture(root);cache=ShotCache(root/'cache.sqlite')
             try:
-                c=settings();c['mission_policy']=defaults();c['spawn']['phases']=['cas','cas']
+                c=settings();c['mission_policy']=defaults();c['spawn']['phases']=['recon','recon']
                 atlas=Atlas(atlas_root,ammo,catalog);e=Forecast(catalog,atlas,c,cache)
                 keys=tuple(sorted(v['key'] for v in e.variants if v['nation']=='a'))
                 row=Optimizer(e).evaluate(keys)
@@ -84,7 +84,7 @@ class MissionDefaultTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);catalog,atlas_root,ammo=fixture(root);cache=ShotCache(root/'cache.sqlite')
             try:
-                c=settings();c['mission_policy']=defaults();c['spawn']['phases']=['cas','cas']
+                c=settings();c['mission_policy']=defaults();c['spawn']['phases']=['recon','recon']
                 e=Forecast(catalog,Atlas(atlas_root,ammo,catalog),c,cache)
                 keys=tuple(sorted(v['key'] for v in e.variants if v['nation']=='a'))
                 before=Optimizer(e).evaluate(keys)
