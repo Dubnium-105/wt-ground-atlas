@@ -100,6 +100,16 @@
     },
     "excluded_system_components": 10,
     "independent_ground_catalog_entries": 1216,
+    "kinetic_missile_research": {
+      "batch_planned_maps": 776,
+      "batch_status_at_report": "running",
+      "batch_target_count": 194,
+      "production_profiles_added": 0,
+      "report": "reports/kinetic-missile-points-progress.json",
+      "report_sha256": "11fcf3a95091f1198841a5c61c39119fa8336cee0b8bf3e836b8976e312566f0",
+      "scope": "Four exact distance points; isolated 194-target research batch is running. Reference-only profiles do not change production coverage or rankings.",
+      "source_min_distance_m": 400
+    },
     "latest_incremental_scope": "Only selections not already owned in the previous source profile bundle; do not add these counts to the earlier full scan.",
     "latest_incremental_unresolved_reasons": {
       "ambiguous_localized_mounted_selection": 7,

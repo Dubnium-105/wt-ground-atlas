@@ -15,3 +15,10 @@ backend/wt_atlas/aviation_source_audit.py -text
 scripts/audit_aviation_sources.py -text
 reports/four-batch-combined-preflight-summary.json -text
 reports/remaining-ammunition-by-vehicle-v17.json -text
+backend/wt_atlas/kinetic_missile_points.py -text
+backend/wt_atlas/research_maps.py -text
+backend/wt_atlas/kinetic_research_batch.py -text
+scripts/rebuild_kinetic_research_batch.py -text
+scripts/prepare_kinetic_missile_points.py -text
+scripts/verify_kinetic_missile_points.py -text
+reports/kinetic-missile-points-progress.json -text
