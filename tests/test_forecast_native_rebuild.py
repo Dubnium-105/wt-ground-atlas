@@ -118,4 +118,26 @@ class NativeRebuildTests(unittest.TestCase):
             self.assertEqual(result['candidate_rebuild_requests'],[{'target_vehicle_id':target,'profile_id':attacker+'_profile','attacker_ids':[attacker],'required_yaws_deg':[0.]}])
         finally:index.close()
 
+    def test_profile_selection_does_not_skip_new_ammunition_when_another_has_maps(self):
+        from test_forecast import fixture,settings
+        root=self.root/'selected-world';root.mkdir();catalog,atlas,ammo=fixture(root)
+        config=root/'config.json';write_json(config,settings())
+        attacker=catalog['vehicles'][0];profiles=read_json(ammo)
+        extra=copy.deepcopy(next(p for p in profiles if p['name']==attacker['id']+'_profile'))
+        extra['name']='selected-new-profile'
+        extra_ammo=copy.deepcopy(attacker['ammo'][0]);extra_ammo['id']=attacker['id']+'::new'
+        extra['provenance']['penetration_source_ammo_ids']=[extra_ammo['id']]
+        attacker['ammo'].append(extra_ammo);write_json(root/'catalog.json',catalog);write_json(ammo,[*profiles,extra])
+        index=Inventory(root/'inventory.sqlite')
+        try:
+            index.sync(atlas,ammo,catalog);index.verify(atlas)
+            self.assertEqual(plan(root/'catalog.json',ammo,root/'inventory.sqlite',config)['candidate_request_count'],0)
+            result=plan(root/'catalog.json',ammo,root/'inventory.sqlite',config,profile_names={extra['name']})
+            self.assertGreater(result['candidate_request_count'],0)
+            self.assertEqual({r['profile_id'] for r in result['candidate_rebuild_requests']},{extra['name']})
+            self.assertTrue(all(r['attacker_ids']==[attacker['id']] for r in result['candidate_rebuild_requests']))
+            with self.assertRaisesRegex(ValueError,'exact profile'):
+                plan(root/'catalog.json',ammo,root/'inventory.sqlite',config,profile_names={'absent'})
+        finally:index.close()
+
 if __name__=='__main__':unittest.main()

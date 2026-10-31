@@ -31,6 +31,9 @@ def ce_source_evidence(profile, source_root):
     """
     from .native_binding.ordered_blk import parse_ordered_blk
     provenance = profile.get('provenance', {})
+    if provenance.get('chemical_energy'):
+        from .chemical_projectiles import source_evidence
+        return source_evidence(profile, source_root)
     path = provenance.get('source_weapon_path')
     if source_root is None or not path or not provenance.get('source_weapon_sha256'):
         raise ValueError('CE range requires the captured source weapon file')

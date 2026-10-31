@@ -24,7 +24,7 @@ VENDOR=ROOT/'backend/vendor/grp_probability_v2'
 MARKER='.wt-native-rebuild'
 
 
-def plan(catalog_path,ammunition_path,index_path,config_path):
+def plan(catalog_path,ammunition_path,index_path,config_path,*,profile_names=None):
     """Plan exact missing pairs against a verified inventory, without opening NPZ.
 
     A plan never establishes new coverage. Rebuild repeats source checks and
@@ -34,8 +34,12 @@ def plan(catalog_path,ammunition_path,index_path,config_path):
     class EmptyIndex:
         metadata={};lookup={}
     atlas=Atlas(Path(index_path).parent,ammunition_path,catalog,index=EmptyIndex())
+    selected_profiles=set(profile_names) if profile_names is not None else None
+    if selected_profiles is not None and (not selected_profiles or selected_profiles-atlas.profiles.keys()):
+        raise ValueError('Select existing exact profile names')
     grounds=[v for v in catalog['vehicles'] if v.get('kind')=='ground' and number(v.get('br',{}).get('current')) and v.get('system_role')!='component']
-    owned={v['id']:{p['name']:p for _,p in atlas.bindings(v)} for v in grounds}
+    owned={v['id']:{p['name']:p for _,p in atlas.bindings(v)
+                   if selected_profiles is None or p['name'] in selected_profiles} for v in grounds}
     db=sqlite3.connect(Path(index_path).resolve().as_uri()+'?mode=ro',uri=True)
     try:
         if db.execute("SELECT count(*) FROM maps WHERE selected=1 AND status!='verified'").fetchone()[0]:
@@ -58,10 +62,11 @@ def plan(catalog_path,ammunition_path,index_path,config_path):
                 for p in native:
                     key=(target['id'],p['name']);requests[key].add(attacker['id']);required_yaws[key].add(yaw)
     return {'schema_version':'1.0.0','catalog_sha256':file_hash(catalog_path),'ammunition_sha256':file_hash(ammunition_path),
+        'selected_profile_names':sorted(selected_profiles) if selected_profiles is not None else None,
         'config_sha256':file_hash(config_path),'inventory':str(Path(index_path).resolve()),'existing_verified_maps':len(available),
         'counts':dict(counts),'vehicles_without_exact_owned_profile':missing,'candidate_request_count':len(requests),
         'candidate_rebuild_requests':[{'target_vehicle_id':t,'profile_id':p,'attacker_ids':sorted(ids),'required_yaws_deg':sorted(required_yaws[(t,p)])} for (t,p),ids in sorted(requests.items())],
-        'scope':'Configured native distances/yaws only; plan is not computed or published coverage; fresh independent geometry/version validation is required.'}
+        'scope':'Configured native distances/yaws and selected profiles only; missing-profile counts refer to that selection. Plan is not computed or published coverage; fresh independent geometry/version validation is required.'}
 
 
 def rebuild(repository,catalog_path,ammunition_path,request_path,output,*,backend='cpu',
@@ -139,6 +144,8 @@ def rebuild(repository,catalog_path,ammunition_path,request_path,output,*,backen
     if ranged:model.update(range_adapter_sha256=file_hash(Path(__file__).with_name('cuda_range.py')) if backend=='v2-cuda' else model['cpu_code_sha256'],range_reference='first_armor_intersection')
     if any(profiles[n].get('provenance',{}).get('range_rebuild') for _,n in seen):
         model['range_profile_code_sha256']=file_hash(Path(__file__).with_name('range_rebuild.py'))
+    if any(profiles[n].get('provenance',{}).get('chemical_energy') for _,n in seen):
+        model['chemical_profile_code_sha256']=file_hash(Path(__file__).with_name('chemical_projectiles.py'))
     identity={'model':model,'versions':[list(v) for v in sorted(versions)],
               'adapter_sha256':file_hash(__file__)}
     if (output/MARKER).exists() and read_json(output/MARKER)!=identity:raise ValueError('Native output model/version changed; use a new directory')

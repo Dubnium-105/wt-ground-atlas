@@ -18,6 +18,7 @@ def main():
     parser.add_argument('--selector-rules', action='store_true', help='Verify client modification effects and ground cannon display rules')
     parser.add_argument('--structural-projectiles', action='store_true', help='Retain exact weapon/selector/block/hash identities for unnamed source projectiles')
     parser.add_argument('--ordered-belts', action='store_true', help='Bind ordered mixed selections to exact existing homogeneous source-projectile profiles')
+    parser.add_argument('--chemical-energy', action='store_true', help='Recover exact single shaped-charge jets; retain old profiles and reject tandem, HESH and EFP semantics')
     args = parser.parse_args()
     inputs = {p.resolve() for p in (args.catalog, args.ammunition, args.capture, args.language_capture)}
     outputs = {p.resolve() for p in (args.out, args.out_catalog, args.report)}
@@ -26,7 +27,7 @@ def main():
     catalog, ammunition, report = recover(args.catalog, args.ammunition, args.capture,
         args.language_capture, args.wiki_root, args.rules_root, vehicle_ids=set(args.vehicles or []),
         default_belts=args.default_belts, selector_rules=args.selector_rules, structural_projectiles=args.structural_projectiles,
-        ordered_belts=args.ordered_belts)
+        ordered_belts=args.ordered_belts, chemical_energy=args.chemical_energy)
     write_json(args.out, ammunition); write_json(args.out_catalog, catalog)
     report.update(output_ammunition_sha256=file_hash(args.out), output_catalog_sha256=file_hash(args.out_catalog))
     write_json(args.report, report)

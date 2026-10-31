@@ -14,8 +14,6 @@ import math
 from pathlib import Path
 import re
 
-from lxml import html
-
 from .common import content_hash, file_hash, read_json
 from .forecast.data import number, safe_file
 from .native_binding.ordered_blk import as_json, parse_ordered_blk
@@ -152,6 +150,7 @@ class MountedAmmunition:
 
 def wiki_tables(raw):
     """Read tables within each weapon section, retaining maximum-only semantics."""
+    from lxml import html
     from .sources import cls, text, scalar
     document = html.fromstring(raw.decode('utf-8'))
     tables = {}
@@ -332,6 +331,9 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
         if not bindings: continue
         if (provenance.get('client_version'), provenance.get('datamine_commit')) != (version, commit):
             raise ValueError('Existing recovered profile has a different source version')
+        if provenance.get('chemical_energy'):
+            from .chemical_projectiles import source_evidence
+            source_evidence(profile, adapter.root)
         expected = list(provenance.get('source_hashes', {}).items())
         for binding in bindings.values():
             if binding.get('default_belt_rules') and binding['default_belt_rules'] != adapter.default_rules:
@@ -369,7 +371,7 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
             checked.add(key)
 
 
-def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False, selector_rules=False, structural_projectiles=False, ordered_belts=False):
+def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False, selector_rules=False, structural_projectiles=False, ordered_belts=False, chemical_energy=False):
     from .forecast.rule_snapshot import verify_capture
     catalog = read_json(catalog_path); existing = read_json(ammunition_path)
     capture = read_json(capture_path); language = read_json(language_path)
@@ -402,7 +404,15 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
                 'dispersion': adapter.read(root + 'damage_system.blk').get('pierceDispersion')}
     response['hashes'] = {root + name: adapter.sources[root + name] for name in
                          ('slope_effect.blk', 'ricochet.blk', 'damage_system.blk')}
-    owned = {a for p in existing for a in p.get('provenance', {}).get('penetration_source_ammo_ids', [])}
+    owned = set(); legacy_ce_rejections=[]
+    for profile in existing:
+        if chemical_energy and profile.get('mode')=='CE':
+            from .range_rebuild import ce_source_evidence
+            try: ce_source_evidence(profile, adapter.root)
+            except ValueError as error:
+                legacy_ce_rejections.append({'profile':profile['name'],'reason':str(error)})
+                continue
+        owned.update(profile.get('provenance', {}).get('penetration_source_ammo_ids', []))
     profiles = []; records = []; vehicle_errors = []
     for vehicle in catalog['vehicles']:
         if vehicle.get('kind') != 'ground' or (vehicle_ids and vehicle['id'] not in vehicle_ids): continue
@@ -428,7 +438,11 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
                     record.update(status='ordered_belt_recovered', ordered_belt=belt)
                     records.append(record)
                     continue
-                profile = ke_profile(ammo, binding, tables, wiki_source, response, version, commit)
+                if chemical_energy and all(not str(b.get('bulletType','')).startswith(('ap','sap')) for b in binding['bullets']):
+                    from .chemical_projectiles import ce_profile
+                    profile = ce_profile(ammo, binding, tables, wiki_source, response, version, commit)
+                else:
+                    profile = ke_profile(ammo, binding, tables, wiki_source, response, version, commit)
                 profiles.append(profile); record.update(status='profile_recovered', profile=profile['name'])
                 # Preserve the Wiki's exact parent-weapon timing for previously
                 # untyped belt entries; do not infer a primary gun by position.
@@ -459,6 +473,8 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
         'selector_rules': selection_rules['evidence'] if selection_rules else None,
         'structural_projectiles': structural_projectiles,
         'ordered_belts': ordered_belts,
+        'chemical_energy': chemical_energy,
+        'legacy_ce_source_rejections': legacy_ce_rejections,
         'source_files': adapter.sources, 'localization_files': localization.sources,
         'counts': {'examined_ammunition': len(records), 'recovered_profiles': len(profiles),
             'recovered_ordered_belts': sum(r['status'] == 'ordered_belt_recovered' for r in records),
@@ -469,5 +485,5 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
         'unresolved_reasons': dict(Counter(r['reason'] for r in records if r['status'] == 'unresolved')),
         'records': records, 'vehicle_errors': vehicle_errors, 'source_rejections': adapter.rejections,
         'computed_maps': 0, 'formal_rankings': 0,
-        'scope': 'Source-backed homogeneous KE profiles and optional ordered component reuse; no belt maximum is treated as every shot.'}
+        'scope': 'Source-backed homogeneous KE and optional single-jet CE profiles and ordered component reuse; no belt maximum is treated as every shot. CE is conditional on an active jet, with no flight, fuze or damage claim.'}
     return catalog, combined, report
