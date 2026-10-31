@@ -149,6 +149,8 @@ def rebuild(repository,catalog_path,ammunition_path,request_path,output,*,backen
         model['chemical_profile_code_sha256']=file_hash(Path(__file__).with_name('chemical_projectiles.py'))
     if any(profiles[n].get('provenance',{}).get('nested_missile_adapter') for _,n in seen):
         model['nested_missile_profile_code_sha256']=file_hash(Path(__file__).with_name('nested_missile_jet.py'))
+    if any(profiles[n].get('provenance',{}).get('dual_use_missile_adapter') for _,n in seen):
+        model['dual_use_missile_profile_code_sha256']=file_hash(Path(__file__).with_name('dual_use_missile_jet.py'))
     historical=sorted({profiles[n].get('provenance',{}).get('range_rebuild',{}).get('source_evidence',{}).get('adapter_sha256')
                        for _,n in seen} - {None,model.get('chemical_profile_code_sha256')})
     if historical:model['historical_chemical_adapter_sha256']=historical

@@ -31,6 +31,10 @@ def ce_source_evidence(profile, source_root, *, historical_adapter_sha256=None):
     """
     from .native_binding.ordered_blk import parse_ordered_blk
     provenance = profile.get('provenance', {})
+    if provenance.get('dual_use_missile_adapter'):
+        if historical_adapter_sha256:raise ValueError('Dual-use missile evidence cannot use a historical chemical adapter')
+        from .dual_use_missile_jet import source_evidence
+        return source_evidence(profile, source_root)
     if provenance.get('nested_missile_adapter'):
         if historical_adapter_sha256:raise ValueError('Nested missile evidence cannot use a historical chemical adapter')
         from .nested_missile_jet import source_evidence
@@ -103,7 +107,7 @@ def source_range_profile(profile, distance, source_root=None, *, expected_eviden
             raise ValueError('Invalid expected source evidence')
         expected_adapter=(expected_evidence or {}).get('adapter_sha256')
         evidence = ce_source_evidence(profile, source_root,
-            historical_adapter_sha256=expected_adapter if not provenance.get('nested_missile_adapter') else None)
+            historical_adapter_sha256=expected_adapter if not (provenance.get('nested_missile_adapter') or provenance.get('dual_use_missile_adapter')) else None)
         if expected_evidence is not None and evidence!=expected_evidence:
             raise ValueError('Recorded chemical source evidence mismatch')
         result = copy.deepcopy(profile)

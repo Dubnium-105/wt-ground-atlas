@@ -1,0 +1,44 @@
+{
+  "cpu_cuda_parity": {
+    "all_include_partial_probabilities": true,
+    "checks": 4,
+    "max_probability_delta": 5.960464477539063e-08,
+    "report": "reports/dual-use-cpu-cuda-crosscheck.json",
+    "sampled_rays": 65276,
+    "sha256": "95292abdc7cbd037113a331678930c1c1d2f41fccba7e1828483b42daa369865"
+  },
+  "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+  "endpoint": "conditional_penetration_only_flight_activation_and_fragmentation_not_modeled",
+  "formal_rankings": 0,
+  "game_probability_validated": false,
+  "incremental_catalog_and_ammunition_replay_byte_identical": true,
+  "map_status_at_report": "generation_running_independent_preflight_queued",
+  "new_ground_vehicles_with_source_profile": 2,
+  "new_range_profiles": 4,
+  "new_source_profiles": 1,
+  "planned_maps": 680,
+  "prior_range_profiles_preserved": 2013,
+  "profile": "recovered_80b8d514401454daec4821ab",
+  "publishable": false,
+  "schema_version": "1.0.0",
+  "selections": [
+    "uk_adats_m113a3::MIM-146",
+    "us_adats_bradley::MIM-146"
+  ],
+  "source_minimum_distance_m": 30,
+  "source_sha256": {
+    "ammunition": "f39cfade1f05424041f145705fbd21cc09dea5f4290e36e20cb4e91b91716fa2",
+    "catalog": "3a402261ab45bd1812759230470ad8c714a4915045ad89d42de5b0b33a0fd9c1",
+    "range_ammunition": "2f4dbb4f7788e0225771988752a98b70dc7477212215b4ed1625150914ddb22b",
+    "recovery_report": "783a0217813c9c23f1410597eca44edb8a25625f2af18575680d17d345505e17"
+  },
+  "source_version": "2.59.0.92",
+  "tests": {
+    "node": 64,
+    "playwright": "passed",
+    "python": 428,
+    "sample_diagnostic_build": "passed_zero_rankings",
+    "smoke": 4
+  },
+  "v16_ce_range_profiles_replayed": 380
+}

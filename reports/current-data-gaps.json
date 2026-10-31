@@ -81,6 +81,14 @@
       "recovered_profiles": 35,
       "recovered_vehicles": 67
     },
+    "dual_use_missile_recovery": {
+      "additional_ground_vehicles_with_source_profile": 2,
+      "full_maps_status": "generation_running_preflight_queued",
+      "new_owned_selections": 2,
+      "planned_maps": 680,
+      "report": "reports\\dual-use-missile-progress.json",
+      "report_sha256": "18996ec04a914b98d0f686b17539ead2685fb8ca0006540082b2257fe52a4511"
+    },
     "excluded_system_components": 10,
     "independent_ground_catalog_entries": 1216,
     "latest_incremental_scope": "Only selections not already owned in the previous source profile bundle; do not add these counts to the earlier full scan.",
@@ -103,10 +111,10 @@
       "new_owned_selections": 1,
       "planned_maps": 1068,
       "report": "reports\\nested-missile-progress.json",
-      "report_sha256": "5f75295c1dde9e995ab145f874899f73fc94e7b9d70ab44b19681c1a8808a339",
+      "report_sha256": "775a6f4635840d3d339aa70da88db4f92bf642cf6ed714178a08fcbcacffa659",
       "verified_arrays": 1068
     },
-    "profile_gap_catalog_scope": "v16 nested missile source recovery; native range maps remain under generation and validation",
+    "profile_gap_catalog_scope": "v17 dual-use missile source recovery; native range maps remain under generation and validation",
     "remaining_breakdown": {
       "counts_overlap": true,
       "distinct_vehicles": 151,
@@ -229,7 +237,6 @@
       "sw_veak_40",
       "uk_9a33bm2",
       "uk_9a35_m",
-      "uk_adats_m113a3",
       "uk_as_90_mk_2",
       "uk_bosvark",
       "uk_centurion_mk_5_avre_era",
@@ -247,7 +254,6 @@
       "uk_vickers_gbt_155",
       "uk_vickers_mk_6_aa_mk_1",
       "uk_ystervark_spaa",
-      "us_adats_bradley",
       "us_losat_ccv",
       "us_m109a1",
       "us_m163_vulcan",
@@ -289,14 +295,16 @@
       "ussr_zsu_23_4m2",
       "ussr_zsu_23_4m4"
     ],
-    "without_profile_count": 150
+    "without_profile_count": 148
   },
   "input_sha256": {
     "data/snapshots/ammunition.chemical-projectiles-2.59.0.92.json": "3df4ba0d20023b999e002a3dde48641799800f46461497878f415e9646f1ac50",
+    "data/snapshots/ammunition.dual-use-missiles-2.59.0.92.json": "f39cfade1f05424041f145705fbd21cc09dea5f4290e36e20cb4e91b91716fa2",
     "data/snapshots/ammunition.nested-missiles-2.59.0.92.json": "bc514b056bf470a58ef98cd74fa1772887e18a894a726ea4d67ba0f40a64abfb",
     "data/snapshots/ammunition.ordered-belts-2.59.0.92.json": "5f49489fa1536f4d1a88ad35971c1bc6e597c98e1f721e7d36a7b4f837ea55f2",
     "data/snapshots/ammunition.root-rockets-2.59.0.92.json": "9f501e5dc55cf634fb4ff7ed51f4e9b3a9bd901ccc3abb98405e9aac24301f18",
     "data/snapshots/catalog.formal-chemical-projectiles-2.59.0.92.v13.json": "5b1108f012725fc8f4313112d4c7a67050cdf9f0113928cbba5647727cbf006b",
+    "data/snapshots/catalog.formal-dual-use-missiles-2.59.0.92.v17.json": "3a402261ab45bd1812759230470ad8c714a4915045ad89d42de5b0b33a0fd9c1",
     "data/snapshots/catalog.formal-nested-missiles-2.59.0.92.v16.json": "57f37880087b9cd1abc6c39dd1eeb1e03cf69c3341c230fb2a1d9d6adc0bb777",
     "data/snapshots/catalog.formal-ordered-belts-2.59.0.92.v12.json": "28faf3ace71f1b4e2eba4a3f85f2aed91d9c0ca3231ed620e4d1fb83895d5b1b",
     "data/snapshots/catalog.formal-root-rockets-2.59.0.92.v15.json": "e6541fdef1e2a61472b72c9378a262926a1085bc7f7279e923bd84bfe0ea1325",
@@ -312,11 +320,12 @@
     "reports/ordered-belt-progress.json": "48afe13e315612fa41dbaf18525aa24d0103fc04e869b323a198bd2699c75b85",
     "reports/range-rebuild-progress.json": "16d2b5bd74bef13fc1b837689cd5bf6d229f5ec22eb4df9752fad34f66a96ced",
     "reports/root-rockets-progress.json": "d0fa7502587b6e85ed078f86d4e48c0023b99b338ae6946e835b5f9aa57c9139",
+    "reports\\dual-use-missile-progress.json": "18996ec04a914b98d0f686b17539ead2685fb8ca0006540082b2257fe52a4511",
     "reports\\federated-eight-batch-progress.json": "95f226f48980b0f941af803a357746d2cc6b7fd219baf0dc82e6e276aca190b7",
     "reports\\federated-original-coverage-progress.json": "242057547296578dc920c4672aba0f005bbddd5dffc66b3a2ebb9f896a67cf90",
     "reports\\federated-seven-batch-progress.json": "9c25eeafdc27d75d7601eae47b14ec20b5a77c090ba2e092e7b9054afd0a81fe",
     "reports\\five-batch-assembly-progress.json": "ef444d27f4d668d5bec10955850e62b6099b8875b34943c83ae01765c3494455",
-    "reports\\nested-missile-progress.json": "5f75295c1dde9e995ab145f874899f73fc94e7b9d70ab44b19681c1a8808a339",
+    "reports\\nested-missile-progress.json": "775a6f4635840d3d339aa70da88db4f92bf642cf6ed714178a08fcbcacffa659",
     "reports\\remaining-ammunition-gap-breakdown.json": "0aa746887f04f82760f0c02b2251925c0cce278d7596e4ad75b4eef2f3d0e6c5",
     "reports\\root-rockets-progress.json": "7ef6f5e7fa8af4ae5b5b095771732194936cd6d4315cc5af4c855287afa6123d"
   },
@@ -347,7 +356,7 @@
     "needed": "Resolve selected internal belts and source presets/mount relations. Quarantined entries include invalid or unavailable configurations and are not all missing data."
   },
   "provisional_federated_coverage": {
-    "catalog_scope": "v16; includes independently verified nested missile batch",
+    "catalog_scope": "v16; excludes v17 dual-use missile source profile and its pending maps",
     "counts": {
       "available_bidirectional_pairs": 18170688,
       "available_forward_pairs": 20625984,

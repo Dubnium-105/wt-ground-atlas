@@ -76,7 +76,7 @@
   "new_source_profiles": 1,
   "outer_bullet_caliber_mm": 125,
   "planned_maps": 1068,
-  "prior_ce_range_profiles_replayed": 380,
+  "prior_ce_range_profiles_replayed": 376,
   "prior_range_profiles_preserved": 2008,
   "profile": "recovered_23abfd27bab7158788f3a25a",
   "publishable": false,
@@ -96,5 +96,6 @@
     "python": 424,
     "sample_diagnostic_build": "passed_zero_rankings",
     "smoke": 4
-  }
+  },
+  "v16_ce_range_profiles_replayed_including_new": 380
 }

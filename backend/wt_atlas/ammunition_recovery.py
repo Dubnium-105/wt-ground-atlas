@@ -376,6 +376,8 @@ def consolidate(profiles):
             identity['projectile_block']='root_rocket'
         if binding.get('nested_missile_rules'):
             identity['nested_missile_adapter']='nested-missile-jet-v1'
+        if provenance.get('dual_use_missile_adapter'):
+            identity['dual_use_missile_adapter']=provenance['dual_use_missile_adapter']
         key = content_hash(identity)
         name = 'recovered_' + key[:24]; renamed[profile['name']] = name
         if name not in groups:
@@ -458,7 +460,8 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
             checked.add(key)
 
 
-def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False, selector_rules=False, structural_projectiles=False, ordered_belts=False, chemical_energy=False, primary_modifications=False, root_rockets=False, nested_missiles=False):
+def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False, selector_rules=False, structural_projectiles=False, ordered_belts=False, chemical_energy=False, primary_modifications=False, root_rockets=False, nested_missiles=False, dual_use_missiles=False):
+    if dual_use_missiles and not chemical_energy:raise ValueError('Dual-use missile recovery requires chemical energy verification')
     from .forecast.rule_snapshot import verify_capture
     catalog = read_json(catalog_path); existing = read_json(ammunition_path)
     capture = read_json(capture_path); language = read_json(language_path)
@@ -531,7 +534,12 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
                     records.append(record)
                     continue
                 if chemical_energy and all(not str(b.get('bulletType','')).startswith(('ap','sap')) for b in binding['bullets']):
-                    if binding.get('nested_missile_rules'):
+                    if (dual_use_missiles and len(binding['bullets'])==1 and
+                        binding['bullets'][0].get('bulletType')=='atgm_tank' and
+                        isinstance(binding['bullets'][0].get('rocket'),dict) and
+                        binding['bullets'][0]['rocket'].get('bulletType')=='sam_tank'):
+                        from .dual_use_missile_jet import ce_profile
+                    elif binding.get('nested_missile_rules'):
                         from .nested_missile_jet import ce_profile
                     else:
                         from .chemical_projectiles import ce_profile
@@ -574,6 +582,7 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
         'primary_armament_rules': primary_rules,
         'root_rockets': root_rockets,
         'nested_missiles': nested_missiles,
+        'dual_use_missiles': dual_use_missiles,
         'legacy_ce_source_rejections': legacy_ce_rejections,
         'source_files': adapter.sources, 'localization_files': localization.sources,
         'counts': {'examined_ammunition': len(records), 'recovered_profiles': len(profiles),
