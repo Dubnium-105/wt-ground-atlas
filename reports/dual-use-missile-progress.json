@@ -10,6 +10,39 @@
   "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
   "endpoint": "conditional_penetration_only_flight_activation_and_fragmentation_not_modeled",
   "formal_rankings": 0,
+  "full_preflight": {
+    "binding_error_count": 0,
+    "blockers": [
+      "incomplete_bidirectional_native_coverage"
+    ],
+    "duration_seconds": 127.12406389997341,
+    "inventory": {
+      "ambiguous_maps": 0,
+      "annotation_reconciled_maps": 0,
+      "content_sha256": "b1340c9aedbb2d07098cd91fa32e80e2b23984d5122850ef5d1c4242f9c626dd",
+      "historical_duplicate_maps": 0,
+      "metadata_objects": 680,
+      "metrics": {
+        "array_seconds": 9.654269399936311,
+        "arrays_checked": 680,
+        "memory_budget_bytes": 536870912,
+        "metadata_cpu_seconds": 0.859375,
+        "metadata_rebuilt": 680,
+        "metadata_seconds": 3.7608906000386924,
+        "workers": 2
+      },
+      "rejections": {},
+      "selected_array_bytes": 383358292,
+      "selected_maps": 680,
+      "status_counts": {
+        "verified": 680
+      },
+      "verified_arrays": 680
+    },
+    "report_sha256": "ecbc1043d894614ef5532bfef62b2541d452371704f4c9a2fc212b22fc82cbfd",
+    "report_status": "blocked",
+    "scope": "Standalone dual-use missile batch; combined full-array preflight is still required."
+  },
   "game_probability_validated": false,
   "generation": {
     "array_bytes": 383358292,
@@ -36,7 +69,7 @@
     "reused_maps": 0
   },
   "incremental_catalog_and_ammunition_replay_byte_identical": true,
-  "map_status_at_report": "generation_completed_independent_preflight_running",
+  "map_status_at_report": "generation_completed_and_standalone_arrays_verified",
   "new_ground_vehicles_with_source_profile": 2,
   "new_range_profiles": 4,
   "new_source_profiles": 1,

@@ -83,11 +83,12 @@
     },
     "dual_use_missile_recovery": {
       "additional_ground_vehicles_with_source_profile": 2,
-      "full_maps_status": "generation_completed_independent_preflight_running",
+      "full_maps_status": "completed_and_standalone_arrays_verified",
       "new_owned_selections": 2,
       "planned_maps": 680,
       "report": "reports\\dual-use-missile-progress.json",
-      "report_sha256": "3acc948c207e037ebddff8a22f1b6d5eb0acbe8cc53c20e6ad33aeabe48ed16a"
+      "report_sha256": "bbb1365da8854482355b1f735f51db4822dc9922f4b9991d9576a8724f09c3e3",
+      "verified_arrays": 680
     },
     "excluded_system_components": 10,
     "independent_ground_catalog_entries": 1216,
@@ -320,8 +321,9 @@
     "reports/ordered-belt-progress.json": "48afe13e315612fa41dbaf18525aa24d0103fc04e869b323a198bd2699c75b85",
     "reports/range-rebuild-progress.json": "16d2b5bd74bef13fc1b837689cd5bf6d229f5ec22eb4df9752fad34f66a96ced",
     "reports/root-rockets-progress.json": "d0fa7502587b6e85ed078f86d4e48c0023b99b338ae6946e835b5f9aa57c9139",
-    "reports\\dual-use-missile-progress.json": "3acc948c207e037ebddff8a22f1b6d5eb0acbe8cc53c20e6ad33aeabe48ed16a",
+    "reports\\dual-use-missile-progress.json": "bbb1365da8854482355b1f735f51db4822dc9922f4b9991d9576a8724f09c3e3",
     "reports\\federated-eight-batch-progress.json": "95f226f48980b0f941af803a357746d2cc6b7fd219baf0dc82e6e276aca190b7",
+    "reports\\federated-nine-batch-progress.json": "6ef7c77fb73b9a12f954a2e7b51b9ad87adf7d2ff2557b7b3c2015fcf9438828",
     "reports\\federated-original-coverage-progress.json": "242057547296578dc920c4672aba0f005bbddd5dffc66b3a2ebb9f896a67cf90",
     "reports\\federated-seven-batch-progress.json": "9c25eeafdc27d75d7601eae47b14ec20b5a77c090ba2e092e7b9054afd0a81fe",
     "reports\\five-batch-assembly-progress.json": "ef444d27f4d668d5bec10955850e62b6099b8875b34943c83ae01765c3494455",
@@ -357,19 +359,19 @@
     "needed": "Resolve selected internal belts and source presets/mount relations. Quarantined entries include invalid or unavailable configurations and are not all missing data."
   },
   "provisional_federated_coverage": {
-    "catalog_scope": "v16; excludes v17 dual-use missile source profile and its pending maps",
+    "catalog_scope": "v17; includes independently verified dual-use missile batch",
     "counts": {
-      "available_bidirectional_pairs": 18170688,
-      "available_forward_pairs": 20625984,
-      "missing_direction_or_distance": 2815488,
-      "missing_owned_ammunition": 2815488,
+      "available_bidirectional_pairs": 18217344,
+      "available_forward_pairs": 20654688,
+      "missing_direction_or_distance": 2786784,
+      "missing_owned_ammunition": 2786784,
       "required_directed_pairs": 23441472
     },
     "independent_arrays_rechecked": false,
     "publishable": false,
-    "report": "reports\\federated-eight-batch-progress.json",
+    "report": "reports\\federated-nine-batch-progress.json",
     "scope": "Provisional coverage planning from previously verified index snapshots; source arrays and assembled atlas are not rechecked here. The matrix uses base catalog BR and does not establish unlocked or dynamic-mount eligibility.",
-    "sha256": "95f226f48980b0f941af803a357746d2cc6b7fd219baf0dc82e6e276aca190b7"
+    "sha256": "6ef7c77fb73b9a12f954a2e7b51b9ad87adf7d2ff2557b7b3c2015fcf9438828"
   },
   "publishable": false,
   "range_profile_source_conflicts": {
