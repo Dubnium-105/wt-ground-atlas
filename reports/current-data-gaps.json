@@ -1,7 +1,7 @@
 {
   "already_available": {
-    "batch_array_bytes_total": 92388601599,
-    "batch_map_total": 432659,
+    "batch_array_bytes_total": 92756384783,
+    "batch_map_total": 433435,
     "client_geometry_verified_vehicles": 1226,
     "generated_batches": {
       "chemical": {
@@ -25,6 +25,13 @@
         "reused_maps": 0,
         "status": "completed"
       },
+      "primary_modification": {
+        "array_bytes": 367783184,
+        "computed_maps": 744,
+        "planned_maps": 776,
+        "reused_maps": 32,
+        "status": "completed_and_standalone_arrays_verified"
+      },
       "recovered": {
         "array_bytes": 6925298706,
         "computed_maps": 40828,
@@ -38,24 +45,25 @@
     },
     "main_preflight_complete_report_exists": true,
     "remaining_processing": [
-      "assemble four verified batches",
-      "run fresh combined array and bidirectional coverage preflight",
+      "complete fresh combined array and bidirectional preflight for 432659 earlier maps",
+      "complete assembly and combined validation of the 776 additional maps with earlier results",
       "complete full candidate search and sensitivity acceptance"
     ],
-    "total_scope": "Four generated and independently checked batches; combined atlas validation and global coverage remain pending."
+    "total_scope": "Five generated and independently checked batches; 432659-map combined preflight and 433435-map updated assembly are running. Final combined acceptance remains pending."
   },
-  "collected_at": "2026-10-31T11:02:08.220991+00:00",
+  "collected_at": "2026-10-31T11:07:13.420387+00:00",
   "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
   "formal_rankings": 0,
   "ground_ammunition": {
     "conditional_primary_recovery": {
       "additional_ground_vehicles_with_profile": 0,
       "id": "us_lav_ad::M247",
-      "maps_status": "running",
+      "maps_status": "completed_and_standalone_arrays_verified",
       "new_owned_selections": 1,
       "report": "reports/primary-ammunition-progress.json",
-      "report_sha256": "ccbd5024f4e1061a3f7556c7675e34922b9b3d9bf423419e2c5bd3ca9089e7eb",
-      "required_modification": "lav_ad_hydra_70"
+      "report_sha256": "fe329a2692c28a1bbb4630660befd010e995966c24af27aa1a190c887c1af11d",
+      "required_modification": "lav_ad_hydra_70",
+      "verified_arrays": 776
     },
     "counts": {
       "exactly_bound_selections": 2029,
@@ -68,6 +76,19 @@
     },
     "excluded_system_components": 10,
     "independent_ground_catalog_entries": 1216,
+    "latest_incremental_scope": "Only selections not already owned in the previous source profile bundle; do not add these counts to the earlier full scan.",
+    "latest_incremental_unresolved_reasons": {
+      "ambiguous_localized_mounted_selection": 7,
+      "chemical_multiple_or_directed_charge_unsupported": 9,
+      "chemical_single_jet_type_unsupported": 1490,
+      "conditional_ordered_belt_source_revalidation_unavailable": 1,
+      "exact_localized_mounted_selection_missing": 846,
+      "native_generic_kinetic_mechanism_not_verified": 5,
+      "native_response_preset_missing": 1,
+      "ordered_belt_component_counts_missing": 330,
+      "ordered_belt_component_profile_missing": 103,
+      "ordered_belt_unequal_component_counts_require_native_sequence": 12
+    },
     "needed": "Exact vehicle/weapon/selector/projectile ownership, supported mechanism, individual projectile penetration versus distance/angle and source identity. Unresolved imports do not prove external files are absent.",
     "scope_note": "Having one exact profile does not establish complete ammunition choices, native distance maps or bidirectional coverage.",
     "unresolved_reasons": {
@@ -286,8 +307,9 @@
   "range_profile_source_conflicts": {
     "needed": "Resolve source projectile identity and chemical penetration parameter semantics before generating fresh range profiles. Existing input ownership must not be rewritten.",
     "new_source_owned_replacements": 14,
-    "note": "Five legacy profiles remain unchanged and rejected; 14 of their selections now have independently recovered profiles. LAV-AD M247 has a newly source-bound replacement pending completion and combined preflight of its new physical maps.",
-    "remaining_owned_ammo_ids": [
+    "note": "Five legacy profiles remain unchanged and rejected; 15 of their selections now have independently recovered replacements. The LAV-AD replacement has 776 individually verified maps but awaits final combined-atlas validation.",
+    "remaining_owned_ammo_ids": [],
+    "replacement_pending_combined_atlas_ids": [
       "us_lav_ad::M247"
     ],
     "unique_profiles": [

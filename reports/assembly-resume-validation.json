@@ -1,1 +1,49 @@
-{"assembly_status":"running","code_sha256":"2cc238cc8025e5885c8f4b2bfe1cd8794fe9d80919b19f87c4c52bf261130a23","collected_at":"2026-10-31T10:28:05.567363+00:00","formal_rankings":0,"identity_collision_count":0,"identity_scope":"input index identities and completed chemical run manifest; not a combined atlas preflight","planned_maps":432659,"publishable":false,"schema_version":"1.0.0","source_index_count":4,"tests":{"atlas_assembly_module":{"passed":9},"log_sha256":{"node":"8cab4660663e9d94a8b3344db982deec40e826446414647d0121bf0e045d2654","playwright":"9fdbc64b5e733a79f49235eb4b544dfc2c8ef024b8e510d6f24a828d6fbc83fd","python":"4e451c02082e002a76c47ad10310e5bed64fb56700ee7e226996ebda00ba9746","site_smoke":"217db804e638534317f383c898c71bebffba665cfb6fe3c61f65617de1b56b88"},"node":{"passed":64},"playwright":{"page_errors":[],"raw_physics_initial_requests":0,"status":"passed"},"python":{"passed":386,"seconds":50.482},"site_smoke":{"passed":4},"version_source_module":{"passed":4}}}
+{
+  "assembly_marker_sha256": "111acccd234299d45d33ea948a41d53da64d6b2f3b4190834f4c02b557ef5c13",
+  "assembly_status": "completed_requires_full_preflight",
+  "code_sha256": "2cc238cc8025e5885c8f4b2bfe1cd8794fe9d80919b19f87c4c52bf261130a23",
+  "collected_at": "2026-10-31T11:07:13.416515+00:00",
+  "combined_preflight_status": "running",
+  "completed_maps": 432659,
+  "copied_arrays": 0,
+  "duration_seconds": 2508.5632901999634,
+  "formal_rankings": 0,
+  "hardlinked_arrays": 432659,
+  "identity_collision_count": 0,
+  "identity_scope": "input index identities and completed chemical run manifest; not a combined atlas preflight",
+  "planned_maps": 432659,
+  "publishable": false,
+  "schema_version": "1.0.0",
+  "source_index_count": 4,
+  "tests": {
+    "atlas_assembly_module": {
+      "passed": 9
+    },
+    "log_sha256": {
+      "node": "8cab4660663e9d94a8b3344db982deec40e826446414647d0121bf0e045d2654",
+      "playwright": "9fdbc64b5e733a79f49235eb4b544dfc2c8ef024b8e510d6f24a828d6fbc83fd",
+      "python": "4e451c02082e002a76c47ad10310e5bed64fb56700ee7e226996ebda00ba9746",
+      "site_smoke": "217db804e638534317f383c898c71bebffba665cfb6fe3c61f65617de1b56b88"
+    },
+    "node": {
+      "passed": 64
+    },
+    "playwright": {
+      "page_errors": [],
+      "raw_physics_initial_requests": 0,
+      "status": "passed"
+    },
+    "python": {
+      "passed": 386,
+      "seconds": 50.482
+    },
+    "site_smoke": {
+      "passed": 4
+    },
+    "version_source_module": {
+      "passed": 4
+    }
+  },
+  "v2_assembly_status": "running",
+  "v2_planned_maps": 433435
+}
