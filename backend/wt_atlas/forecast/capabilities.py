@@ -2,7 +2,7 @@
 from .data import digest, number
 import re
 from .mount_rules import check_mounts, verified_empty_preset
-from ..primary_armament import weapon_summary
+from ..primary_armament import weapon_summary, configuration_id
 
 TASKS={'ground','anti_tank','ground_control','recon','anti_helicopter','anti_air','cap','cas','sead'}
 
@@ -32,12 +32,17 @@ def loadout_errors(loadout,vehicle,option,*,unlocked=None,require_unlocked=False
     if vehicle.get('mount_rule') is not None and not verified_empty_preset(loadout):
         errors.extend(check_mounts(loadout.get('mounts'),vehicle['mount_rule'])['errors'])
     if 'primary_armament_sha256' in loadout:
-        primary=vehicle.get('default_primary_armament')
+        primary=vehicle.get('primary_armaments',{}).get(loadout.get('primary_armament_id'))
+        if primary is None and loadout.get('primary_armament_id')=='':primary=vehicle.get('default_primary_armament')
         if (not isinstance(primary,dict) or loadout.get('primary_armament_id')!=primary.get('id') or
             digest(primary)!=loadout['primary_armament_sha256'] or primary.get('source_version')!=loadout.get('source_version') or
             loadout.get('fixed_weapons')!=weapon_summary(primary.get('weapons',[]))):
             errors.append('primary_armament_identity_mismatch')
     if loadout.get('legal') is not True:errors.append('loadout_not_verified_legal')
+    if 'source_preset_id' in loadout and loadout.get('id')!=configuration_id(loadout['source_preset_id'],loadout.get('primary_armament_id','')):
+        errors.append('carried_configuration_identity_mismatch')
+    if any(name in vehicle.get('primary_armaments',{}) and name!=loadout.get('primary_armament_id') for name in loadout.get('required_enabled_modification_ids',[])):
+        errors.append('incompatible_required_primary_selection')
     weapons=loadout.get('weapons',[])
     stations=[w['station'] for w in weapons if w.get('station') is not None]
     if len(stations)!=len(set(stations)):errors.append('mutually_exclusive_station')
@@ -56,7 +61,11 @@ def loadout_errors(loadout,vehicle,option,*,unlocked=None,require_unlocked=False
         if known_mass>capacity:errors.append('payload_capacity_exceeded')
     for field,chosen in [('allowed_loadout_ids',[loadout.get('id')]),('allowed_weapon_ids',ids)]:
         if field in option and any(x not in option[field] for x in chosen):errors.append('forbidden_by_rating_configuration')
+    for field,value in [('allowed_source_preset_ids',loadout.get('source_preset_id',loadout.get('id'))),
+                        ('allowed_primary_armament_ids',loadout.get('primary_armament_id',''))]:
+        if field in option and value not in option[field]:errors.append('forbidden_by_rating_configuration')
     required=set(option.get('required_modification_ids',[]))|set(loadout.get('required_modification_ids',[]))
+    if loadout.get('primary_armament_id'):required.add(loadout['primary_armament_id'])
     if require_unlocked and (unlocked is None or not required<=set(unlocked)):errors.append('modifications_unavailable')
     return sorted(set(errors))
 

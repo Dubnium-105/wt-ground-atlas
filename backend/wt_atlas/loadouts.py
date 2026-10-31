@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 from .sources import fetch_bytes
 from .common import content_hash
-from .primary_armament import default_declarations, is_empty_preset, weapon_summary
+from .primary_armament import primary_declarations, is_empty_preset, weapon_summary, configuration_id
 
 
 def array(value):
@@ -161,11 +161,8 @@ class DatamineLoadouts:
         exact['flight_envelopes'] = {k:v for k,v in seeker.items() if k.startswith('table')}
         return [exact]
 
-    def enrich(self, vehicle):
-        vehicle = copy.deepcopy(vehicle)
-        path = self.dm['flightmodels_directory'] + '/' + vehicle['id'] + '.blkx'
-        model = self.read(path)
-        declarations,ignored=default_declarations(model)
+    def primary_armament(self, model, path, selection=''):
+        declarations,ignored=primary_declarations(model,selection)
         fixed=[]
         for declaration in declarations:
             weapon=declaration['weapon']
@@ -177,12 +174,31 @@ class DatamineLoadouts:
                 if any(not isinstance(m,str) or not m for m in mods):raise ValueError('Unsupported primary modification requirement')
                 row['required_modification_ids']=mods
                 fixed.append(row)
-        primary={'id':'','selection':'default_primary_modification','weapons':fixed,
+        primary={'id':selection,'selection':'selected_primary_modification' if selection else 'default_primary_modification','weapons':fixed,
                  'ignored_dummy_declarations':ignored,'model_path':self.resolve_path(path),
                  'model_decoded_sha256':content_hash(model),'source_version':self.dm['version'],
                  'available_other_primary_modifications':sorted(k for k,m in model.get('modifications',{}).items()
                     if isinstance(m,dict) and m.get('effects',{}).get('commonWeapons') is not None)}
+        if selection:
+            definition=model['modifications'][selection]
+            primary['source_modification']={k:copy.deepcopy(v) for k,v in definition.items() if k!='effects'}
+            primary['additional_source_effects']={k:copy.deepcopy(v) for k,v in definition['effects'].items() if k!='commonWeapons'}
+            primary['additional_effects_evaluation']='source_parameters_retained; not_converted_to_mission_effectiveness'
+            primary['source_modification_sha256']=content_hash(definition)
+        return primary
+
+    def enrich(self, vehicle):
+        vehicle = copy.deepcopy(vehicle)
+        path = self.dm['flightmodels_directory'] + '/' + vehicle['id'] + '.blkx'
+        model = self.read(path)
+        primary=self.primary_armament(model,path)
+        fixed=primary['weapons']
         vehicle['default_primary_armament']=primary
+        vehicle['primary_armaments']={'':primary}
+        for selection in primary['available_other_primary_modifications']:
+            try:vehicle['primary_armaments'][selection]=self.primary_armament(model,path,selection)
+            except (ValueError,KeyError,OSError) as error:
+                self.errors.append({'vehicle_id':vehicle['id'],'primary_armament_id':selection,'error':str(error)})
         fixed_summary=weapon_summary(fixed)
         slots = {}
         for s in array(model.get('WeaponSlots',{}).get('WeaponSlot')):
@@ -238,6 +254,7 @@ class DatamineLoadouts:
                             grouped[key]['ammunition_count']=total+w['ammunition_count'] if total is not None and w['ammunition_count'] is not None else None
                 normalized = list(grouped.values())
                 outputs.append({'id':preset['name'], 'name':' + '.join(f"{w['count']}×{w['name']}" for w in normalized) if normalized else 'No external stores',
+                    'source_preset_id':preset['name'],
                     'legal':True, 'weapons':normalized, 'mounts':declared,
                     'external_store_state':'source_declared_empty' if empty else 'source_declared_carried_items',
                     'primary_armament_id':'','primary_armament_sha256':content_hash(primary),'fixed_weapons':fixed_summary,
@@ -248,6 +265,18 @@ class DatamineLoadouts:
                         'version_compatibility':'pinned-Datamine; Wiki-game-commit-unpublished'}})
             except Exception as exc:
                 self.errors.append({'vehicle_id':vehicle['id'], 'preset':preset.get('name'), 'error':str(exc)})
+        alternatives=[]
+        for loadout in outputs:
+            for selection,armament in vehicle['primary_armaments'].items():
+                if not selection:continue
+                option=copy.deepcopy(loadout)
+                option.update(id=configuration_id(loadout['id'],selection),
+                    primary_armament_id=selection,primary_armament_sha256=content_hash(armament),
+                    fixed_weapons=weapon_summary(armament['weapons']),
+                    required_modification_ids=sorted({selection}|{m for w in option['weapons']+armament['weapons'] for m in w.get('required_modification_ids',[])}))
+                alternatives.append(option)
+        outputs.extend(alternatives)
+        if len({l['id'] for l in outputs})!=len(outputs):raise ValueError('Ambiguous carried configuration identity')
         if outputs:
             vehicle['loadouts'].extend(outputs)
             vehicle['missing'] = [s for s in vehicle['missing'] if s!='aviation.verified_simultaneous_loadout']

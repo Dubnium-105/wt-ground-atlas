@@ -1,6 +1,7 @@
-"""Captured-client default primary armament and explicit empty secondary presets."""
+"""Captured-client primary armament selections and explicit empty secondary presets."""
 import hashlib
 from pathlib import Path
+from urllib.parse import quote
 from .common import file_hash
 from .forecast.data import safe_file
 
@@ -23,7 +24,7 @@ def verified_rules(capture,version):
         if lf!=expected:raise ValueError('Unreviewed primary armament script: '+name)
         scripts[name]={'sha256':hashlib.sha256(raw).hexdigest(),'lf_sha256':lf}
     return {'source_version':version,'gui_pack_sha256':pack['sha256'],'scripts':scripts,
-            'scope':'getCommonWeapons_default_primary_and_additive_fixed_preset'}
+            'scope':'getCommonWeapons_selected_primary_and_additive_fixed_preset'}
 
 
 def array(value):
@@ -34,13 +35,20 @@ def weapon_summary(weapons):
     return [{k:row[k] for k in ('id','name','type','count','ammunition_count','ammunition_selection_status','ammunition_quantity_status') if k in row} for row in weapons]
 
 
-def default_declarations(model):
-    """Port getCommonWeapons(..., primaryMod="") and getWeaponsByTypes.
+def configuration_id(preset,primary=''):
+    return preset+'::primary='+quote(primary,safe='') if primary else preset
 
-    Primary modifications replace commonWeapons and are separate selections.
-    This function deliberately resolves the explicit default selection only.
-    """
-    common=model.get('commonWeapons')
+
+def primary_declarations(model,selection=''):
+    """Select one declared commonWeapons block, never add alternative guns."""
+    if selection:
+        definition=model.get('modifications',{}).get(selection)
+        if not isinstance(definition,dict) or not isinstance(definition.get('effects',{}).get('commonWeapons'),dict):
+            raise ValueError('Primary modification absent from source')
+        if definition.get('invertEnableLogic',False) is not False:
+            raise ValueError('Unsupported inverted primary modification')
+        common=definition['effects']['commonWeapons']
+    else:common=model.get('commonWeapons')
     if common is None:return [],[]
     if not isinstance(common,dict):raise ValueError('Invalid common weapons block')
     slots={s['index']:s for s in array(model.get('WeaponSlots',{}).get('WeaponSlot'))}
@@ -70,6 +78,30 @@ def default_declarations(model):
                 row={'weapon':weapon,'block':'WeaponPilons','selection_index':i,'source_weapon_index':j}
                 (ignored if weapon.get('dummy') else declarations).append(row)
     return declarations,ignored
+
+
+def default_declarations(model):
+    return primary_declarations(model)
+
+
+def modification_requirements(unit,names):
+    """Purchased prerequisites are distinct from simultaneously enabled guns.
+
+    prevModification is retained in source metadata; it is a tree/display link,
+    not substituted for an explicit reqModification prerequisite.
+    """
+    definitions=unit.get('modifications',{});resolved=set();visiting=set()
+    def visit(name):
+        if not isinstance(name,str) or not name:raise ValueError('Invalid modification prerequisite')
+        if name in visiting:raise ValueError('Cyclic modification prerequisites')
+        if name in resolved:return
+        definition=definitions.get(name)
+        if not isinstance(definition,dict):raise ValueError('Modification prerequisite absent from shop')
+        visiting.add(name)
+        for dependency in array(definition.get('reqModification')):visit(dependency)
+        visiting.remove(name);resolved.add(name)
+    for name in names:visit(name)
+    return sorted(resolved)
 
 
 EMPTY_PRESET_DIRECTIVES={'hideNodes','HideNodes','hideDmParts','HideDmParts',

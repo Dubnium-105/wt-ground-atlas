@@ -110,7 +110,7 @@ def audit_vehicle_mounts(vehicle,unit,source):
     if rule is not None:vehicle['mount_rule']=rule
     rows=[]
     for loadout in vehicle.get('loadouts',[]):
-        preset=unit.get('weapons',{}).get(loadout['id'])
+        preset=unit.get('weapons',{}).get(loadout.get('source_preset_id',loadout['id']))
         row={'loadout_id':loadout['id'],'source_preset_present':isinstance(preset,dict),
              'promoted_legal':False,'errors':[]}
         if isinstance(preset,dict) and declared_empty_preset(loadout):

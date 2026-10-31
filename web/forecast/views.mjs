@@ -14,7 +14,7 @@ export function payloadItemLabel(item) {
 
 export function payloadSummary(loadout) {
   const stores=loadout.external_store_state==='source_declared_empty' ? '无额外挂载' : (loadout.weapons || []).map(payloadItemLabel).join('，') || '外挂信息缺失';
-  const fixed=loadout.primary_armament_id==='' ? `；默认固定武备：${(loadout.fixed_weapons || []).map(payloadItemLabel).join('，') || '来源未声明固定武器'}` : '';
+  const fixed=typeof loadout.primary_armament_id==='string' ? `；${loadout.primary_armament_id ? '主武器改装 '+loadout.primary_armament_id : '默认固定武备'}：${(loadout.fixed_weapons || []).map(payloadItemLabel).join('，') || '来源未声明固定武器'}` : '';
   return stores+fixed;
 }
 

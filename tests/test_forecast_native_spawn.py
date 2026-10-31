@@ -152,11 +152,18 @@ class NativeSpawnTests(unittest.TestCase):
             catalog = {'snapshot': {'datamine_reference': 'a'*40, 'datamine_game_version': 'test'},
                 'vehicles': [{'id': 'unit', 'rule_snapshot_reference': {'binding': {'source_id': 'unit'}},
                 'loadouts': [{'id': 'bombs', 'legal': True, 'source_status': 'official_verified', 'source_version': 'test'},
-                            {'id': 'unverified', 'legal': False, 'spawn_cost_components': {'stale': True}}]}]}
+                            {'id': 'unverified', 'legal': False, 'spawn_cost_components': {'stale': True}},
+                            {'id': 'bombs::primary=gun-upgrade', 'source_preset_id': 'bombs',
+                             'primary_armament_id': 'gun-upgrade', 'primary_armament_sha256': 'b'*64,
+                             'legal': True, 'source_status': 'official_verified', 'source_version': 'test'}]}]}
             path = root / 'catalog.json'; write_json(path, catalog); before = file_hash(path)
             with patch('wt_atlas.forecast.native_spawn.verify_capture', return_value=receipt), patch('wt_atlas.forecast.native_spawn.RANKS_SCRIPT_SHA256', file_hash(source / RANKS_PATH)), patch('wt_atlas.forecast.native_spawn.MATH_SCRIPT_SHA256', file_hash(source / 'gui.vromfs.bin_u/std/math.nut')):
                 result, report = import_components(path, source, capture_path)
-            self.assertEqual(file_hash(path), before); self.assertEqual(report['complete_multipliers'], 1)
+            self.assertEqual(file_hash(path), before); self.assertEqual(report['complete_multipliers'], 2)
+            components=result['vehicles'][0]['loadouts'][2]['spawn_cost_components']
+            self.assertEqual(components['source_preset_id'], 'bombs')
+            self.assertEqual(components['primary_armament_id'], 'gun-upgrade')
+            self.assertEqual(components['combined_multiplier'], result['vehicles'][0]['loadouts'][0]['spawn_cost_components']['combined_multiplier'])
             self.assertNotIn('spawn_cost_components', result['vehicles'][0]['loadouts'][1])
             self.assertNotIn('spawn_rule', result['vehicles'][0]); self.assertEqual(report['generated_final_costs'], 0)
             with patch('wt_atlas.forecast.native_spawn.verify_capture', return_value=receipt):

@@ -12,7 +12,7 @@ from wt_atlas.common import read_json,write_json,file_hash
 from wt_atlas.forecast.capabilities import loadout_errors
 from wt_atlas.forecast.mount_rules import check_mounts
 from wt_atlas.forecast.engine import enumerate_variants
-from wt_atlas.primary_armament import default_declarations,verified_rules
+from wt_atlas.primary_armament import default_declarations,verified_rules,configuration_id,modification_requirements
 from test_forecast_client_payloads import blk,SOURCE
 
 
@@ -92,6 +92,7 @@ class PrimaryArmamentTests(unittest.TestCase):
         self.assertEqual(sum(w['ammunition_count'] for w in p['weapons']),200)
 
     def test_fixed_slot_resolution_and_required_modification(self):
+        self.unit['modifications']={'gun-upgrade':{}}
         self.model['commonWeapons']={'Weapon':{'slot':0,'preset':'internal'}}
         self.model['WeaponSlots']={'WeaponSlot':{'index':0,'WeaponPreset':{
             'name':'internal','reqModification':'gun-upgrade','Weapon':self.weapon}}}
@@ -101,6 +102,79 @@ class PrimaryArmamentTests(unittest.TestCase):
         self.assertIn('modifications_unavailable',loadout_errors(l,v,{},unlocked=[],require_unlocked=True))
         self.model['commonWeapons']['Weapon']['preset']='absent'
         with self.assertRaisesRegex(ValueError,'primary mount preset missing'):self.verify()
+
+    def primary_options(self):
+        self.model['modifications']={
+            'first':{'effects':{'commonWeapons':{'Weapon':{**self.weapon,'bullets':300}}}},
+            'second':{'reqModification':'first','effects':{
+                'commonWeapons':{'Weapon':{**self.weapon,'bullets':600}},
+                'enginesInfraRedBrightnessMult':.5}}}
+        self.unit['modifications']={'first':{},'second':{'reqModification':'first'}}
+
+    def test_primary_choices_cross_product_presets_without_mixing_guns(self):
+        self.primary_options()
+        self.model['weapon_presets']['preset']=[self.model['weapon_presets']['preset'],{'name':'q','blk':'other.blk'}]
+        self.put('other.blk',{});self.unit['weapons']['q']={}
+        v,r=self.verify();self.assertEqual(r['verified'],6)
+        expected={'':200,'first':300,'second':600}
+        for l in v['loadouts']:
+            self.assertEqual(l['id'],configuration_id(l['source_preset_id'],l['primary_armament_id']))
+            self.assertEqual(sum(w['ammunition_count'] for w in l['fixed_weapons']),expected[l['primary_armament_id']])
+            self.assertEqual(loadout_errors(l,v,{}),[])
+        variants,_=enumerate_variants({'vehicles':[v]},object())
+        self.assertEqual(len({x['key'] for x in variants}),6)
+        effects=v['primary_armaments']['second']['additional_source_effects']
+        self.assertEqual(effects,{'enginesInfraRedBrightnessMult':.5})
+        self.assertNotIn('mission_effectiveness',v['primary_armaments']['second'])
+
+    def test_purchased_prerequisite_does_not_enable_another_primary(self):
+        self.primary_options();v,_=self.verify()
+        l=next(l for l in v['loadouts'] if l['primary_armament_id']=='second')
+        self.assertEqual(l['required_modification_ids'],['first','second'])
+        self.assertEqual(l['required_enabled_modification_ids'],['second'])
+        self.assertIn('modifications_unavailable',loadout_errors(l,v,{},unlocked=['second'],require_unlocked=True))
+        self.assertEqual(loadout_errors(l,v,{},unlocked=['first','second'],require_unlocked=True),[])
+
+    def test_payload_required_primary_is_not_satisfied_by_purchased_ancestor(self):
+        self.primary_options();self.unit['weapons']['p']['reqModification']='first'
+        v,r=self.verify();self.assertEqual(r['verified'],1)
+        self.assertEqual(v['loadouts'][0]['primary_armament_id'],'first')
+        self.assertEqual(sum('incompatible_required_primary_selection' in x['errors'] for x in r['records']),2)
+
+    def test_source_or_shop_primary_prerequisite_errors_preserve_default(self):
+        for mode in ('missing','mismatch','cycle','inverted'):
+            with self.subTest(mode=mode):
+                self.primary_options()
+                if mode=='missing':self.unit['modifications'].pop('second')
+                elif mode=='mismatch':self.unit['modifications']['second']={}
+                elif mode=='cycle':self.unit['modifications']['first']['reqModification']='second'
+                else:self.model['modifications']['second']['invertEnableLogic']=True
+                v,r=self.verify()
+                self.assertTrue(any(l['primary_armament_id']=='' for l in v['loadouts']))
+                self.assertFalse(any(l['primary_armament_id']=='second' for l in v['loadouts']))
+                self.assertTrue(r['parser_errors'] or any(x['errors'] for x in r['records']))
+
+    def test_alternative_source_identity_and_primary_hash_are_checked(self):
+        self.primary_options();v,_=self.verify()
+        l=next(l for l in v['loadouts'] if l['primary_armament_id']=='second')
+        forged=copy.deepcopy(l);forged['source_preset_id']='other'
+        self.assertIn('carried_configuration_identity_mismatch',loadout_errors(forged,v,{}))
+        forged=copy.deepcopy(l);forged['primary_armament_id']='first'
+        self.assertIn('primary_armament_identity_mismatch',loadout_errors(forged,v,{}))
+
+    def test_dynamic_br_selects_exact_primary_without_changing_preset(self):
+        self.primary_options();v,_=self.verify()
+        v['rating_configurations']={'ground_rb':{'status':'official_verified','source':{'url':'https://example.test/rules'},'options':[
+            {'id':'low','br':{'current':3.0},'allowed_source_preset_ids':['p'],'allowed_primary_armament_ids':['']},
+            {'id':'high','br':{'current':4.0},'allowed_source_preset_ids':['p'],'allowed_primary_armament_ids':['second']}]}}
+        variants,_=enumerate_variants({'vehicles':[v]},object())
+        self.assertEqual({(x['rating_configuration_id'],x['loadout']['primary_armament_id']) for x in variants},
+                         {('low',''),('high','second')})
+
+    def test_prerequisite_tree_does_not_treat_display_link_as_purchase_rule(self):
+        self.assertEqual(modification_requirements({'modifications':{'selected':{'prevModification':'absent'}}},['selected']),['selected'])
+        with self.assertRaisesRegex(ValueError,'absent from shop'):
+            modification_requirements({'modifications':{'selected':{'reqModification':'absent'}}},['selected'])
 
     def test_legacy_pylons_deduplicate_exact_declarations_and_skip_dummies(self):
         self.model['commonWeapons']['Weapon'].append(copy.deepcopy(self.weapon))

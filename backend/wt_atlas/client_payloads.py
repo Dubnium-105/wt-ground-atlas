@@ -11,7 +11,7 @@ from .loadouts import DatamineLoadouts,array
 from .native_binding.ordered_blk import parse_ordered_blk, as_json
 from .forecast.data import safe_file
 from .forecast.mount_rules import audit_vehicle_mounts
-from .primary_armament import verified_rules as verify_primary_rules
+from .primary_armament import verified_rules as verify_primary_rules, modification_requirements
 
 
 class CapturedPayloads(DatamineLoadouts):
@@ -55,11 +55,27 @@ class CapturedPayloads(DatamineLoadouts):
         audit=audit_vehicle_mounts(candidate,shop_unit,source)
         records=[];verified=[]
         for loadout in candidate['loadouts']:
+            source_preset=loadout.get('source_preset_id',loadout['id'])
+            primary_id=loadout.get('primary_armament_id','')
+            primary=candidate['primary_armaments'][primary_id]
             # Unsupported source constraints return a vehicle-level audit and
             # deliberately omit per-loadout checks. Keep that rejection explicit.
             check=loadout.get('mount_rule_audit',{'errors':[],
-                'source_preset_present':isinstance(shop_unit.get('weapons',{}).get(loadout['id']),dict)})
+                'source_preset_present':isinstance(shop_unit.get('weapons',{}).get(source_preset),dict)})
             errors=list(check['errors'])
+            shop_preset=shop_unit.get('weapons',{}).get(source_preset,{})
+            enabled_requirements=set(loadout.get('required_modification_ids',[]))|set(array(shop_preset.get('reqModification')))
+            if any(name in candidate['primary_armaments'] and name!=primary_id for name in enabled_requirements):
+                errors.append('incompatible_required_primary_selection')
+            try:
+                if primary_id:
+                    if primary_id not in shop_unit.get('modifications',{}):raise ValueError('Primary modification absent from shop')
+                    source_req=array(primary['source_modification'].get('reqModification'))
+                    if source_req!=array(shop_unit['modifications'][primary_id].get('reqModification')):
+                        raise ValueError('Primary modification prerequisites differ between sources')
+                loadout['required_modification_ids']=modification_requirements(shop_unit,enabled_requirements)
+            except ValueError as error:errors.append('primary_modification_source_invalid:'+str(error))
+            loadout['required_enabled_modification_ids']=sorted(enabled_requirements)
             model=self.read('gamedata/flightmodels/'+vehicle['id']+'.blk')
             slots={s['index']:{p['name']:p for p in array(s.get('WeaponPreset'))}
                    for s in array(model.get('WeaponSlots',{}).get('WeaponSlot'))}
@@ -72,7 +88,7 @@ class CapturedPayloads(DatamineLoadouts):
             if audit['status']=='unsupported_source_constraints':errors.append('unsupported_source_constraints')
             if candidate.get('mount_rule') and not loadout.get('mounts') and check.get('status')!='source_empty_preset_checked':
                 errors.append('mount_selection_missing')
-            if any(not isinstance(w.get('count'),int) or isinstance(w['count'],bool) or w['count']<=0 for w in loadout['weapons']+candidate['default_primary_armament']['weapons']):
+            if any(not isinstance(w.get('count'),int) or isinstance(w['count'],bool) or w['count']<=0 for w in loadout['weapons']+primary['weapons']):
                 errors.append('source_weapon_count_invalid')
             row={'loadout_id':loadout['id'],'status':'rejected' if errors else 'verified_client_payload',
                  'errors':sorted(set(errors))}

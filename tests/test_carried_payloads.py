@@ -134,6 +134,7 @@ class CarriedPayloadTests(unittest.TestCase):
                 self.assertIn('unsupported carried',r['parser_errors'][0]['error'])
 
     def test_mount_modification_is_required_by_ownership_filter(self):
+        self.unit['modifications']={'gun-pod':{}}
         l=self.payload({'blk':'gun.blk','trigger':'cannon','reqModification':'gun-pod'})
         self.assertEqual(l['required_modification_ids'],['gun-pod'])
         self.assertIn('modifications_unavailable',loadout_errors(l,self.verified_vehicle,{},unlocked=[],require_unlocked=True))

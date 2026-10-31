@@ -21,6 +21,12 @@ test('declared empty stores remain distinct from missing data and fixed armament
 
 const row=(id, nation, br, score, extra={})=>({lineup_key:id,nation,actual_br:br,score,rankable:true,evidence_coverage:1,members:[{vehicle_id:id}],...extra});
 
+test('selected primary modification is displayed with its own fixed armament', () => {
+  const text=payloadSummary({primary_armament_id:'gun-upgrade',weapons:[],fixed_weapons:[{id:'cannon',type:'gun',count:1,ammunition_count:60}]});
+  assert.match(text,/主武器改装 gun-upgrade/);assert.match(text,/cannon × 1/);assert.match(text,/弹药 60 发/);
+  assert.doesNotMatch(text,/默认固定武备/);
+});
+
 test('BR and nation groups are selected before parent de-duplication',()=>{
   const low=row('same','a',9.3,40), high=row('same','a',9.7,80), other=row('b','b',9.3,50);
   assert.deepEqual(new Set(selectRows([low,high,other],'br').map(r=>r.actual_br)),new Set([9.3,9.7]));

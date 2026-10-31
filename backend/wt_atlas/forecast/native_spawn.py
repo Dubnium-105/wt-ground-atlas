@@ -221,11 +221,15 @@ def import_components(catalog_path, rules_root, capture_path):
             try:
                 # No mission flag is assumed from the vehicle's role. The exact
                 # weapon-dependent category is provided separately as a scenario.
-                components = cost_components(rules, source_id, unit, loadout['id'])
-                scenario = cost_components(rules, source_id, unit, loadout['id'],
+                preset_id=loadout.get('source_preset_id',loadout['id'])
+                components = cost_components(rules, source_id, unit, preset_id)
+                scenario = cost_components(rules, source_id, unit, preset_id,
                     mission={'useSpawnTypeByWeaponForSpawnScore': True})
                 components['weapon_category_when_mission_flag_enabled'] = scenario['spawn_group']
                 components['source'] = source
+                components['source_preset_id']=preset_id
+                components['primary_armament_id']=loadout.get('primary_armament_id')
+                components['primary_armament_sha256']=loadout.get('primary_armament_sha256')
                 loadout['spawn_cost_components'] = components
                 row.update(status=components['status'], complete_multiplier=components['combined_multiplier'] is not None,
                            weapon_multiplier=components['weapon_multiplier'])
