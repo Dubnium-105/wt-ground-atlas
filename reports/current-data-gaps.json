@@ -352,6 +352,8 @@
     "data/snapshots/catalog.formal-root-rockets-2.59.0.92.v15.json": "e6541fdef1e2a61472b72c9378a262926a1085bc7f7279e923bd84bfe0ea1325",
     "reports/chemical-projectile-progress.json": "2818035eccf49643db4d6818d622e198aa07e657c88b53444dd186e2e2a32d82",
     "reports/chemical-range-final-preflight-summary.json": "98efedffae2c77d3c30fff833677c1c73c7cb08a903e9d8405e9565716d3a9a6",
+    "reports/federated-delivery-coverage-v17.json": "8b7a0999c272d730188cc16e1dfb022a27f67e59e94b5821903418f3e934e8ff",
+    "reports/federated-delivery-progress.json": "07a85024c5851ffc7170cfd0700c3e1856a5c6a1441d89a8f0182e67d850a082",
     "reports/federated-original-coverage-progress.json": "b1aa601f7a80666d618502396f202ac741d10943c9411ff488df807464d2adb3",
     "reports/formal-client-payloads-v9.json": "96477382d20116ad5d85ccfba5d0c867c95095b1278a64aa96ab356407cbcd4c",
     "reports/formal-ordered-belt-recovery.json": "1fcb213eb3eb6953ab4e464099f7b57a61507f0370440fa667ccebdd256f023d",
@@ -402,6 +404,25 @@
       "with_verified_payloads": 1454
     },
     "needed": "Resolve selected internal belts and source presets/mount relations. Quarantined entries include invalid or unavailable configurations and are not all missing data."
+  },
+  "provisional_delivery_aware_coverage": {
+    "counts": {
+      "available_bidirectional_pairs": 17820576,
+      "available_forward_pairs": 20418960,
+      "missing_direction_or_distance": 3022512,
+      "missing_owned_ammunition": 2786784,
+      "required_directed_pairs": 23441472
+    },
+    "difference_from_unfiltered": {
+      "affected_attacker_vehicles": 37,
+      "fewer_bidirectional_scenarios": 396768,
+      "fewer_forward_scenarios": 235728
+    },
+    "publishable": false,
+    "report": "reports/federated-delivery-progress.json",
+    "report_sha256": "07a85024c5851ffc7170cfd0700c3e1856a5c6a1441d89a8f0182e67d850a082",
+    "scope": "Planning from separately verified indexes, base catalog BR and source-declared bound filtering only. Arrays and assembled atlas are not rechecked; surviving choices do not prove launch, flight, activation, hit, dynamic loadout eligibility or final ranking.",
+    "source_arrays_rechecked": false
   },
   "provisional_federated_coverage": {
     "catalog_scope": "v17; includes independently verified dual-use missile batch",

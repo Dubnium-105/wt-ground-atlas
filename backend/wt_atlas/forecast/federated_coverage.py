@@ -4,6 +4,7 @@ No arrays are read here. This audit helps plan missing work and cannot promote
 an assembled atlas or replace its fresh full-array preflight.
 """
 from pathlib import Path
+import hashlib
 import json
 import re
 import sqlite3
@@ -27,6 +28,18 @@ class CachedUnion:
     def close(self):self.db.close()
 
 
+class SourceBoundsAtlas:
+    """Retain complete owned/belt identities while withholding conflicted maps."""
+    def __init__(self, atlas, distances):
+        from .delivery import delivery_issue
+        self.atlas = atlas; distances = set(distances)
+        blocked = {p['name'] for p in atlas.profiles.values()
+                   if p.get('distance_m') in distances and delivery_issue(p, p['distance_m'])}
+        self.lookup = {key: value for key, value in atlas.lookup.items() if key[1] not in blocked}
+
+    def __getattr__(self, name): return getattr(self.atlas, name)
+
+
 def _snapshot(path):
     path=Path(path).resolve();wal=Path(str(path)+'-wal')
     if wal.exists() and wal.stat().st_size:
@@ -34,7 +47,7 @@ def _snapshot(path):
     return file_hash(path)
 
 
-def audit(catalog_path,ammunition_path,config_path,index_paths):
+def audit(catalog_path,ammunition_path,config_path,index_paths,*,delivery_aware=False):
     """Join exact selected identities; return planning evidence, never release readiness."""
     paths=[Path(p).resolve() for p in index_paths]
     if not paths or len(set(paths))!=len(paths):raise ValueError('Distinct source indexes required')
@@ -95,7 +108,11 @@ def audit(catalog_path,ammunition_path,config_path,index_paths):
         if len(versions)!=1 or not union.lookup:raise ValueError('Mixed or empty physical source versions')
         union.db.commit()
         atlas=Atlas(paths[0].parent,input_paths[1],catalog,index=union)
-        result=coverage(catalog,atlas,config,union)
+        selected_atlas=SourceBoundsAtlas(atlas, {s['physical_distance_m'] for s in config['scenarios']}) if delivery_aware else atlas
+        result=coverage(catalog,selected_atlas,config,union)
+        if delivery_aware:
+            result['pair_count_semantics'] += '; maps outside explicit source distance bounds are withheld without removing ownership or ordered-belt identities; remaining delivery is not independently verified'
+            result['delivery_bounds_applied'] = True
         if any(file_hash(Path(p))!=h for p,h in input_hashes.items()) or any(_snapshot(p)!=index_hashes[str(p)] for p in paths):
             raise ValueError('Coverage input changed during audit')
         result.update({'scope':'Provisional coverage planning from previously verified index snapshots; source arrays and assembled atlas are not rechecked here. The matrix uses base catalog BR and does not establish unlocked or dynamic-mount eligibility.',
@@ -103,5 +120,9 @@ def audit(catalog_path,ammunition_path,config_path,index_paths):
             'ammunition':input_hashes[str(input_paths[1])],'config':input_hashes[str(input_paths[2])]},
             'physical_source':list(next(iter(versions))),'source_arrays_rechecked':False,
             'formal_rankings':0,'publishable':False})
+        if delivery_aware:
+            result['scope'] += ' Source-declared range conflicts are excluded from attack choices; surviving choices still do not prove flight, activation or hits.'
+            files = ('federated_coverage.py', 'delivery.py', 'inventory.py', 'data.py', 'engine.py', 'belts.py', 'profile_history.py', '../npz_io.py')
+            result['code_sha256_lf'] = {name: hashlib.sha256((Path(__file__).parent / name).read_bytes().replace(b'\r\n', b'\n')).hexdigest() for name in files}
         return result
     finally:union.close()

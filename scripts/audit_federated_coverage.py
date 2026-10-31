@@ -15,6 +15,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ('catalog','ammunition','config','out'):parser.add_argument('--'+name,type=Path,required=True)
     parser.add_argument('--index',type=Path,action='append',required=True)
+    parser.add_argument('--delivery-aware',action='store_true',help='Withhold choices outside source-declared missile distance bounds; do not assume remaining flight is verified')
     args=parser.parse_args()
     if args.out.resolve() in {p.resolve() for p in (args.catalog,args.ammunition,args.config,*args.index)}:
         raise ValueError('Keep coverage output separate from source inputs')
@@ -26,7 +27,7 @@ def main():
         finally:db.close()
         if not root or args.out.resolve().is_relative_to(Path(root[0]).resolve()):
             raise ValueError('Keep coverage output outside every source atlas')
-    report=audit(args.catalog,args.ammunition,args.config,args.index)
+    report=audit(args.catalog,args.ammunition,args.config,args.index,delivery_aware=args.delivery_aware)
     write_json(args.out,report)
     print(json.dumps({k:report[k] for k in ('counts','blockers','source_arrays_rechecked','publishable')},indent=2))
 

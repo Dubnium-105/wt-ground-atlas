@@ -29,3 +29,5 @@ backend/wt_atlas/kinetic_research_audit.py -text
 scripts/audit_kinetic_research_batch.py -text
 scripts/verify_real_missile_delivery.py -text
 reports/missile-delivery-real-check.json -text
+reports/federated-delivery-progress.json -text
+reports/federated-delivery-coverage-v17.json -text

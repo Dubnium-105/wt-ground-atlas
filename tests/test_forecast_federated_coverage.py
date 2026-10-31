@@ -8,8 +8,9 @@ import tempfile
 import unittest
 
 from test_forecast import fixture,settings
-from wt_atlas.common import write_json
-from wt_atlas.forecast.federated_coverage import audit
+from wt_atlas.common import content_hash,write_json
+from wt_atlas.forecast.belts import projectile_groups
+from wt_atlas.forecast.federated_coverage import audit,SourceBoundsAtlas
 
 
 class FederatedCoverageTests(unittest.TestCase):
@@ -48,6 +49,45 @@ class FederatedCoverageTests(unittest.TestCase):
         result=self.run_audit()
         self.assertLess(result['counts']['available_bidirectional_pairs'],result['counts']['required_directed_pairs'])
         self.assertIn('incomplete_bidirectional_native_coverage',result['blockers'])
+
+    def test_source_distance_filter_withholds_choices_without_claiming_no_ownership(self):
+        profiles=json.loads(self.ammunition.read_text(encoding='utf8'));profile=profiles[0]
+        profile['provenance']['chemical_energy']={'source_min_distance_m':30.,'source_max_distance_m':4000.}
+        write_json(self.ammunition,profiles)
+        for index in self.indexes:
+            with closing(sqlite3.connect(index)) as db:
+                for rowid,raw in db.execute('SELECT rowid,metadata FROM maps WHERE ammo=?',(profile['name'],)).fetchall():
+                    meta=json.loads(raw);meta['ammo_profile_sha256']=content_hash(profile)
+                    db.execute('UPDATE maps SET metadata=? WHERE rowid=?',(json.dumps(meta),rowid))
+                db.commit()
+        original=self.run_audit()
+        result=audit(self.root/'catalog.json',self.ammunition,self.config,self.indexes,delivery_aware=True)
+        self.assertEqual(original['counts']['available_forward_pairs'],8)
+        self.assertEqual(result['counts']['available_forward_pairs'],6)
+        self.assertEqual(result['counts']['available_bidirectional_pairs'],4)
+        self.assertEqual(result['inventory']['verified_arrays'],16)
+        self.assertTrue(result['delivery_bounds_applied']);self.assertFalse(result['publishable'])
+        self.assertEqual(result['counts'].get('missing_owned_ammunition',0),0)
+        self.assertIn('delivery is not independently verified',result['pair_count_semantics'])
+
+    def test_bound_filter_preserves_ordered_belt_component_identity(self):
+        provenance={'chemical_energy':{'source_min_distance_m':30.},'client_version':'v','datamine_commit':'c',
+                    'recovery_bindings':{'owner':{'projectile_sha256':'projectile'}}}
+        outside={'name':'belt-base','mode':'CE','distance_m':10.,'provenance':provenance}
+        inside={'name':'belt-at-100','mode':'CE','distance_m':100.,'provenance':{**provenance,
+                'range_rebuild':{'source_profile_sha256':content_hash(outside)}}}
+        ammo={'id':'belt','ordered_belt':{'source_version':'v','datamine_commit':'c','projectiles':[
+            {'profile_name':'belt-base','profile_sha256':content_hash(outside),'projectile_sha256':'projectile'}]}}
+        class FakeAtlas:
+            profiles={'belt-base':outside,'belt-at-100':inside}
+            lookup={('target','belt-base',10.):'outside-map',('target','belt-at-100',100.):'inside-map'}
+            def bindings(self, vehicle):return [(ammo,outside),(ammo,inside)]
+        source=FakeAtlas();filtered=SourceBoundsAtlas(source,{10.,100.})
+        self.assertEqual(filtered.bindings({}),source.bindings({}))
+        self.assertEqual([p['name'] for p in projectile_groups(ammo,[p for _,p in filtered.bindings({})])[0]],
+                         ['belt-base','belt-at-100'])
+        self.assertNotIn(('target','belt-base',10.),filtered.lookup)
+        self.assertIn(('target','belt-at-100',100.),filtered.lookup)
 
     def test_unverified_or_duplicate_identities_are_rejected(self):
         with closing(sqlite3.connect(self.indexes[0])) as db:
