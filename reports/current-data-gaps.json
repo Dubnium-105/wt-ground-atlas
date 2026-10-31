@@ -117,10 +117,10 @@
     "profile_gap_catalog_scope": "v17 dual-use missile source recovery; native range maps remain under generation and validation",
     "remaining_breakdown": {
       "counts_overlap": true,
-      "distinct_vehicles": 151,
-      "report": "reports\\remaining-ammunition-gap-breakdown.json",
-      "report_sha256": "0aa746887f04f82760f0c02b2251925c0cce278d7596e4ad75b4eef2f3d0e6c5",
-      "scope": "v15 before nested missile recovery; category counts overlap"
+      "distinct_vehicles": 148,
+      "report": "reports\\remaining-ammunition-gap-v17.json",
+      "report_sha256": "ba300f6a3e02d5fd11d32f83ca0f8b503c6577af9992cf263f6e21566faee6ba",
+      "scope": "v17 after dual-use missile recovery"
     },
     "root_rocket_recovery": {
       "additional_ground_vehicles_with_source_profile": 4,
@@ -327,6 +327,7 @@
     "reports\\five-batch-assembly-progress.json": "ef444d27f4d668d5bec10955850e62b6099b8875b34943c83ae01765c3494455",
     "reports\\nested-missile-progress.json": "775a6f4635840d3d339aa70da88db4f92bf642cf6ed714178a08fcbcacffa659",
     "reports\\remaining-ammunition-gap-breakdown.json": "0aa746887f04f82760f0c02b2251925c0cce278d7596e4ad75b4eef2f3d0e6c5",
+    "reports\\remaining-ammunition-gap-v17.json": "ba300f6a3e02d5fd11d32f83ca0f8b503c6577af9992cf263f6e21566faee6ba",
     "reports\\root-rockets-progress.json": "7ef6f5e7fa8af4ae5b5b095771732194936cd6d4315cc5af4c855287afa6123d"
   },
   "ongoing_chemical_batch": {
