@@ -1,8 +1,9 @@
 """Resolve mounted ammunition through exact client localization and selectors.
 
 The native ordered belt remains evidence, not a single maximum-penetration
-projectile. Only homogeneous KE selections yield V2 profiles here. Mixed belts
-and CE projectiles are retained with explicit reasons for further processing.
+projectile. Homogeneous KE selections yield V2 profiles; ordered mixed selections
+can reference those exact immutable component profiles. Unsupported components
+and CE projectiles retain explicit reasons for further processing.
 """
 from collections import Counter, OrderedDict
 import copy
@@ -368,7 +369,7 @@ def verify_existing_recovery(profiles, adapter, localization, wiki_root, version
             checked.add(key)
 
 
-def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False, selector_rules=False, structural_projectiles=False):
+def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_root, rules_root, *, vehicle_ids=None, default_belts=False, selector_rules=False, structural_projectiles=False, ordered_belts=False):
     from .forecast.rule_snapshot import verify_capture
     catalog = read_json(catalog_path); existing = read_json(ammunition_path)
     capture = read_json(capture_path); language = read_json(language_path)
@@ -391,6 +392,10 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
     adapter = MountedAmmunition(pack['extracted'], localization, default_rules=default_rules, selector_rules=selection_rules,
                                structural_projectiles=structural_projectiles)
     verify_existing_recovery(existing, adapter, localization, wiki_root, version, commit)
+    from .ordered_belt_recovery import component_index, recover_belt, verify_existing_belts
+    has_belts = any(a.get('ordered_belt') for v in catalog['vehicles'] for a in v.get('ammo', []))
+    components = component_index(existing, adapter) if ordered_belts or has_belts else {}
+    if has_belts: verify_existing_belts(catalog, components, adapter, wiki_root, version, commit)
     root = 'gamedata/damage_model/'
     response = {'slope': adapter.read(root + 'slope_effect.blk'),
                 'ricochet': adapter.read(root + 'ricochet.blk'),
@@ -418,6 +423,11 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
                     ('bulletName', 'bulletType', 'mass', 'caliber', 'speed', 'damageCaliber',
                      'slopeEffectPreset', 'ricochetPreset', 'armorpower', 'cumulativeDamage')}
                     for b in binding['bullets']]
+                if ordered_belts and len({content_hash(b) for b in binding['bullets']}) > 1:
+                    belt = recover_belt(vehicle, ammo, binding, components, version, commit, wiki_source)
+                    record.update(status='ordered_belt_recovered', ordered_belt=belt)
+                    records.append(record)
+                    continue
                 profile = ke_profile(ammo, binding, tables, wiki_source, response, version, commit)
                 profiles.append(profile); record.update(status='profile_recovered', profile=profile['name'])
                 # Preserve the Wiki's exact parent-weapon timing for previously
@@ -448,8 +458,10 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
         'default_belt_rules': default_rules,
         'selector_rules': selection_rules['evidence'] if selection_rules else None,
         'structural_projectiles': structural_projectiles,
+        'ordered_belts': ordered_belts,
         'source_files': adapter.sources, 'localization_files': localization.sources,
         'counts': {'examined_ammunition': len(records), 'recovered_profiles': len(profiles),
+            'recovered_ordered_belts': sum(r['status'] == 'ordered_belt_recovered' for r in records),
             'new_profiles': len(combined) - len(existing),
             'recovered_ammunition': recovered_ammunition,
             'recovered_vehicles': len({r['vehicle_id'] for r in records if r['status'] == 'profile_recovered'}),
@@ -457,5 +469,5 @@ def recover(catalog_path, ammunition_path, capture_path, language_path, wiki_roo
         'unresolved_reasons': dict(Counter(r['reason'] for r in records if r['status'] == 'unresolved')),
         'records': records, 'vehicle_errors': vehicle_errors, 'source_rejections': adapter.rejections,
         'computed_maps': 0, 'formal_rankings': 0,
-        'scope': 'Source-backed homogeneous KE profiles; ordered mixed belts retained without treating maximum penetration as every shot.'}
+        'scope': 'Source-backed homogeneous KE profiles and optional ordered component reuse; no belt maximum is treated as every shot.'}
     return catalog, combined, report

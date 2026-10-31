@@ -14,7 +14,7 @@ import time
 from . import MODEL_VERSION
 from .aim import skill_nodes
 from .data import Atlas, canonical, digest, file_hash, mission_policy, patch_catalog, read_json, validate_config, verify_manifest
-from .engine import variant_profiles, Forecast, ShotCache
+from .engine import variant_profiles, variant_projectiles, Forecast, ShotCache
 from .search import Optimizer
 from .rankings import table_candidates
 from .inventory import Inventory, coverage, discover, bind_geometry
@@ -231,7 +231,9 @@ def build(args, root: Path) -> dict:
                                 "physical_distance_m": atlas.profiles[meta["ammo_id"]]["distance_m"],
                                 "aiming_distance_m": atlas.profiles[meta["ammo_id"]]["distance_m"]}
                     for skill in args.diagnostic_skills:
-                        shot = engine.shot(attackers[0], targets[0], scenario, skill)
+                        projectile_index = next(i for i, group in enumerate(variant_projectiles(attackers[0]))
+                                                if any(p['name']==meta['ammo_id'] for p in group))
+                        shot = engine.shot(attackers[0], targets[0], scenario, skill, projectile_index=projectile_index)
                         diagnostics.append({k: v for k, v in shot.items() if k != "aim_points"})
         if has_planned:
             before, after = optimizers["current"], optimizers["planned"]

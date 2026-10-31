@@ -10,6 +10,7 @@ from .data import digest, canonical
 from .capabilities import spawn_cost, spawn_group
 from .rankings import build_views, select
 from .tasks import modeled_tasks
+from .belts import projectile_groups
 
 
 def lower_tail(values: list[tuple[float, float]], mass: float) -> float:
@@ -159,6 +160,13 @@ class Optimizer:
                      loadout=v.get('loadout'),ammo_profile_sha256=digest(v['profile']) if v.get('profile') else None,
                      ammo_profiles_by_distance=[{'distance_m':p['distance_m'],'profile_id':p['name'],'sha256':digest(p)} for p in v.get('profiles',())],
                      source=v['vehicle'].get('source_url'),taxonomy_original={'kind':v['vehicle'].get('kind'),'role':v['vehicle'].get('role')})
+            belt=(v.get('ammo') or {}).get('ordered_belt')
+            if belt:
+                m['ammo_profile_sha256']=None  # One component hash never identifies the complete belt.
+                m['ordered_belt']={'proof_sha256':digest(belt),'firing_order_status':belt['firing_order_status'],
+                    'projectiles':[{**ref,'declared_bullet_name':identity.get('declared_bullet_name'),
+                        'profiles_by_distance':[{'distance_m':p['distance_m'],'profile_id':p['name'],'sha256':digest(p)} for p in group]}
+                        for ref,identity,group in zip(belt['projectiles'],belt['binding']['projectile_identities'],projectile_groups(v['ammo'],v['profiles']))]}
         return {"keys": list(keys), "members": members, "lineup_size": len(members), "nation": nation,
                 "actual_br": round(cap / self.config["matchmaking"]["br_step_denominator"], 1),
                 "score": 100 * estimate if eligible else None, "estimate": 100 * estimate,

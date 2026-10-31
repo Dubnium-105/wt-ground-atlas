@@ -1,5 +1,11 @@
 // Selection uses complete offline view shards or the requested search tables.
 // The global representative limit must never become an input to another view.
+export function ammunitionSummary(member) {
+  const label=member.ammo_id || '无已核验弹药';
+  const sequence=member.ordered_belt?.projectiles;
+  return sequence?.length ? `${label}；${sequence.length} 个源弹块逐弹计算，首发与循环顺序采用假设` : label;
+}
+
 export function payloadItemLabel(item) {
   const labels = {gun:'机炮／机枪',fuel_tank:'副油箱',targeting_pod:'瞄准吊舱',countermeasure_dispenser:'干扰弹发射器',torpedo:'鱼雷',booster:'助推器',undercarriage:'起落架'};
   const details = [];

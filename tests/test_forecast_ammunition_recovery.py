@@ -88,6 +88,49 @@ class AmmunitionRecoveryTests(unittest.TestCase):
         self.assertEqual([b['bulletName'] for b in binding['bullets']], ['round_m20', 'other'])
         with self.assertRaisesRegex(ValueError, 'mixed_belt'): self.profile(binding=binding)
 
+    def test_component_index_rechecks_the_complete_raw_projectile(self):
+        from wt_atlas.ordered_belt_recovery import component_index
+        from wt_atlas.common import content_hash
+        p = self.profile(); adapter = self.adapter()
+        index = component_index([p], adapter)
+        self.assertEqual(list(index), [content_hash(self.bullet)])
+        forged = copy.deepcopy(p)
+        next(iter(forged['provenance']['recovery_bindings'].values()))['projectile_sha256'] = '0'*64
+        with self.assertRaisesRegex(ValueError, 'raw projectile source'):
+            component_index([forged], adapter)
+        self.weapon['belt']['bullet'] = {**self.bullet,'speed':1200.}
+        self.put('gamedata/weapons/gun.blk',self.weapon)
+        with self.assertRaisesRegex(ValueError, 'raw projectile source'):
+            component_index([p], self.adapter())
+
+    def test_ordered_reuse_rejects_missing_component_and_unequal_counts(self):
+        from wt_atlas.ordered_belt_recovery import recover_belt
+        binding = self.binding(); first = {**self.bullet,'bulletCount':2}
+        second = {**first,'bulletName':'other','mass':.06}
+        binding['bullets'] = [first,second]
+        before = copy.deepcopy(self.ammo)
+        with self.assertRaisesRegex(ValueError, 'component_profile_missing'):
+            recover_belt({'id':'vehicle'},self.ammo,binding,{},'test','a'*40,self.source)
+        self.assertEqual(self.ammo,before)
+        second['bulletCount'] = 1
+        with self.assertRaisesRegex(ValueError, 'unequal_component_counts'):
+            recover_belt({'id':'vehicle'},self.ammo,binding,{},'test','a'*40,self.source)
+        self.assertEqual(self.ammo,before)
+
+    def test_incremental_belt_receipt_is_recreated_not_trusted(self):
+        from wt_atlas.ordered_belt_recovery import component_index, recover_belt, verify_existing_belts
+        self.bullet['bulletCount'] = 2; self.put('gamedata/weapons/gun.blk',self.weapon)
+        path = self.root/'gamedata/weapons/gun.blk'
+        path.write_text(path.read_text().replace('bulletCount:r','bulletCount:i'))
+        profile = self.profile(); adapter = self.adapter(); components = component_index([profile],adapter)
+        vehicle = {'id':'vehicle','ammo':[self.ammo]}
+        recover_belt(vehicle,self.ammo,self.binding(),components,'test','a'*40,self.source)
+        with patch('wt_atlas.ammunition_recovery.verify_wiki',return_value=({},self.source)):
+            verify_existing_belts({'vehicles':[vehicle]},components,adapter,self.root,'test','a'*40)
+            self.ammo['ordered_belt']['projectiles'][0]['profile_sha256'] = '0'*64
+            with self.assertRaisesRegex(ValueError,'Existing ordered belt source changed'):
+                verify_existing_belts({'vehicles':[vehicle]},components,adapter,self.root,'test','a'*40)
+
     def test_matching_component_name_cannot_select_a_mixed_belt(self):
         self.weapon.pop('bullet'); self.weapon.pop('belt'); self.put('gamedata/weapons/gun.blk', self.weapon)
         adapter = self.adapter()

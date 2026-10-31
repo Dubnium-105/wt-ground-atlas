@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {selectRows, tableRows, filterMovements, migrationSummaries, payloadItemLabel, payloadSummary} from '../web/forecast/views.mjs';
+import {selectRows, tableRows, filterMovements, migrationSummaries, payloadItemLabel, payloadSummary, ammunitionSummary} from '../web/forecast/views.mjs';
+
+test('mixed ammunition discloses component calculation and assumed firing order',()=>{
+  assert.equal(ammunitionSummary({ammo_id:'round'}),'round');
+  assert.equal(ammunitionSummary({}),'无已核验弹药');
+  assert.match(ammunitionSummary({ammo_id:'belt',ordered_belt:{projectiles:[{},{}]}}),/belt；2 个源弹块逐弹计算，首发与循环顺序采用假设/);
+});
 
 test('payload display separates devices, ammunition and unresolved consumables', () => {
   const gun=payloadItemLabel({id:'gun',type:'gun',count:1,ammunition_count:150,ammunition_selection_status:'not_selected',mass_complete:false});

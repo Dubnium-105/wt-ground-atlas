@@ -394,12 +394,14 @@ class Atlas:
         return data
 
     def bindings(self, vehicle: dict) -> list[tuple[dict, dict]]:
+        from .belts import ordered_bindings
         result = []
         for ammo in vehicle.get("ammo", []):
+            if ammo.get('ordered_belt'): continue  # Components are a complete selection, never alternatives.
             for p in self._binding_index.get(ammo["id"], []):
                 if ammo["id"] in p.get("provenance", {}).get("penetration_source_ammo_ids", []):
                     client = vehicle.get("source_attributes", {}).get("client", {})
                     if client.get("source_version") != p["provenance"].get("client_version"): continue
                     if p.get("mode") not in ("KE", "CE") or p.get("reference_only"): continue
                     result.append((ammo, p))
-        return result
+        return result + ordered_bindings(vehicle, self.profiles)

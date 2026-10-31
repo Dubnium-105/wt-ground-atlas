@@ -307,6 +307,19 @@ def coverage(catalog, atlas, config, index=None):
     from .data import br_step
     grounds = [v for v in vehicles if v.get('kind')=='ground' and number(v.get('br',{}).get('current')) and v.get('system_role')!='component']
     bound = {v['id']:atlas.bindings(v) for v in grounds}
+    from .engine import ammunition_payloads
+    from .belts import projectile_groups
+    requirements = {}
+    distances = {s['physical_distance_m'] for s in config['scenarios']}
+    for vehicle_id, bindings in bound.items():
+        payloads = [projectile_groups(ammo, profiles) for ammo, profiles, _ in ammunition_payloads(bindings)]
+        requirements[vehicle_id] = {}
+        for distance in distances:
+            choices = []
+            for component_groups in payloads:
+                matching = [[p['name'] for p in group if p['distance_m']==distance] for group in component_groups]
+                if all(len(names)==1 for names in matching): choices.append(tuple(names[0] for names in matching))
+            requirements[vehicle_id][distance] = choices
     # One index query per map, then bounded set membership in the pair loop.
     available = set(atlas.lookup)
     angle_sets={}
@@ -317,6 +330,9 @@ def coverage(catalog, atlas, config, index=None):
         if key not in available:return False
         angles=angle_sets.get(key)
         return angles is not None and yaw in angles
+    def has_selection(attacker_id, target_id, distance, yaw):
+        return any(all(has_slice((target_id,p,distance),yaw) for p in choice)
+                   for choice in requirements[attacker_id][distance])
     if index is None:
         for key,map_id in atlas.lookup.items():
             declared=atlas.meta[map_id].get('angles_deg')
@@ -331,8 +347,8 @@ def coverage(catalog, atlas, config, index=None):
             for scenario in config['scenarios']:
                 item['required_directed_pairs']+=1
                 d=scenario['physical_distance_m']
-                forward=any(has_slice((b['id'],p,d),scenario['yaw_deg']) for p in profiles)
-                reverse=any(has_slice((a['id'],p['name'],d),scenario['yaw_deg']) for _,p in bound[b['id']])
+                forward=has_selection(a['id'],b['id'],d,scenario['yaw_deg'])
+                reverse=has_selection(b['id'],a['id'],d,scenario['yaw_deg'])
                 if not profiles: item['missing_owned_ammunition']+=1
                 if not forward: item['missing_direction_or_distance']+=1
                 if forward: item['available_forward_pairs']+=1
@@ -341,7 +357,7 @@ def coverage(catalog, atlas, config, index=None):
     report={'schema_version':'1.0.0','catalog_vehicles':len(vehicles),'ammunition_profiles':len(atlas.profiles),
         'physical_distances_m':sorted({p['distance_m'] for p in atlas.profiles.values() if number(p.get('distance_m'))}),
         'groups':[{'nation':k[0],'br':k[1],'domain':k[2],'class':k[3],'count':v} for k,v in sorted(groups.items(),key=lambda x:str(x[0]))],
-        'counts':dict(totals),'matrix':rows,'pair_count_semantics':'vehicle directions per configured scenario; any exact owned supported round; only exact verified or explicitly declared yaw slices count; any missing angle metadata is unavailable',
+        'counts':dict(totals),'matrix':rows,'pair_count_semantics':'vehicle directions per configured scenario; any exact owned supported selection with every ordered component present; only exact verified or explicitly declared yaw slices count; any missing angle metadata is unavailable',
         'sample_subset':catalog.get('sample_subset',False),'inventory':index.summary() if index else None}
     report['blockers']=[]
     if catalog.get('sample_subset'): report['blockers'].append('sample_subset')

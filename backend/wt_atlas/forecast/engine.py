@@ -12,6 +12,7 @@ import numpy as np
 from . import MODEL_VERSION
 from .aim import integrate, regions, skill_nodes
 from .combat import duel, weapon_timing
+from .belts import projectile_groups
 from .capabilities import loadout_errors, validate_mission
 from .tasks import phase_tasks, task_supported
 from .data import Atlas, br_step, canonical, digest, file_hash, number, read_json, safe_file, taxonomy
@@ -23,6 +24,10 @@ def variant_profiles(variant: dict) -> tuple:
     return tuple(variant.get('profiles', (variant['profile'],) if variant.get('profile') else ()))
 
 
+def variant_projectiles(variant: dict) -> tuple:
+    return projectile_groups(variant.get('ammo'), variant_profiles(variant))
+
+
 def ammunition_payloads(bindings):
     grouped = {}
     for ammo, profile in bindings:
@@ -30,9 +35,10 @@ def ammunition_payloads(bindings):
         if not number(distance) or distance < 0:
             continue  # Unknown physical distance cannot support a modeled shot.
         stored_ammo, by_distance = grouped.setdefault(ammo['id'], (ammo, {}))
-        if distance in by_distance and digest(by_distance[distance]) != digest(profile):
+        key = profile['name'] if ammo.get('ordered_belt') else distance
+        if key in by_distance and digest(by_distance[key]) != digest(profile):
             raise ValueError('Ambiguous ammunition distance: ' + ammo['id'] + ' at ' + str(distance))
-        by_distance[distance] = profile
+        by_distance[key] = profile
     return [(ammo, tuple(profiles[d] for d in sorted(profiles)), None)
             for ammo, profiles in grouped.values()]
 
@@ -228,10 +234,13 @@ class Forecast:
             self.effect_array = (identity, array)
         return self.effect_array[1][angle_index], digest(row)
 
-    def shot(self, attacker: dict, target: dict, scenario: dict, skill: float) -> dict | None:
+    def shot(self, attacker: dict, target: dict, scenario: dict, skill: float, *, projectile_index=0) -> dict | None:
         if attacker["vehicle"].get("forecast_physics_invalidated") or target["vehicle"].get("forecast_physics_invalidated"):
             return None
-        profiles = [p for p in variant_profiles(attacker) if p['distance_m'] == scenario['physical_distance_m']]
+        groups = variant_projectiles(attacker)
+        if not isinstance(projectile_index, int) or isinstance(projectile_index, bool) or not 0 <= projectile_index < len(groups):
+            raise ValueError('Invalid projectile sequence index')
+        profiles = [p for p in groups[projectile_index] if p['distance_m'] == scenario['physical_distance_m']]
         if len(profiles) != 1: return None  # Never substitute another physical range.
         profile = profiles[0]
         map_id = self.atlas.map_for(target["vehicle_id"], profile["name"], scenario["physical_distance_m"])
@@ -243,6 +252,8 @@ class Forecast:
         stabilized = bool(stabilized) if stabilized is not None else None
         # No BR or lineup in a physical/aim cache key. All physical and aim identities are included.
         identity = {"map": m, "profile_sha256": digest(profile), "aim": self.config["aim"],
+                    "catalog_ammo_id":attacker['ammo_id'], "projectile_index":projectile_index,
+                    "ordered_belt":attacker['ammo'].get('ordered_belt'),
                     "code": self.aim_code_hash, "skill": skill, "gun": gun, "stabilized": stabilized,
                     "context": {k: scenario[k] for k in ("physical_distance_m", "aiming_distance_m", "yaw_deg",
                     "own_velocity_xy_m_s", "target_velocity_xy_m_s", "target_angular_velocity_xy_rad_s")},
@@ -271,6 +282,8 @@ class Forecast:
         result = integrate(p, s, pitch, skill, scenario, self.config["aim"], gun_control=gun,
                            stabilized=stabilized, effects=effects, prepared=self._features[1])
         result.update(map_id=map_id, target_id=target["vehicle_id"], ammo_profile_id=profile["name"],
+                      projectile_index=projectile_index, projectile_sequence_length=len(groups),
+                      ordered_belt_sha256=digest(attacker['ammo']['ordered_belt']) if attacker['ammo'].get('ordered_belt') else None,
                       catalog_ammo_id=attacker["ammo_id"], source_version=m["source_version"],
                       physical_distance_m=profile["distance_m"], yaw_deg=scenario["yaw_deg"],
                       source_binding=m["target_binding"], effect_sha256=effects_hash,
@@ -288,39 +301,45 @@ class Forecast:
         endpoint = self.config.get("endpoint", "penetration")
         totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "first_fire": 0.}
         missing = set(); trace = set();timing_trace=[]
+        if any((v.get('ammo') or {}).get('ordered_belt') for v in (a, b)):
+            missing.add('assumed_belt_start_and_repeating_source_order')
         for sa, wa in self.skills:
             for sb, wb in self.enemy_skills:
                 weight = wa * wb
-                pa, pb = self.shot(a, b, scenario, sa), self.shot(b, a, scenario, sb)
+                pa = [self.shot(a, b, scenario, sa, projectile_index=i) for i in range(len(variant_projectiles(a)))]
+                pb = [self.shot(b, a, scenario, sb, projectile_index=i) for i in range(len(variant_projectiles(b)))]
                 ta = weapon_timing(a["vehicle"], a["ammo"] or {}, sa, scenario, self.config["timing"])
                 tb = weapon_timing(b["vehicle"], b["ammo"] or {}, sb, scenario, self.config["timing"])
-                timing_trace.append({'skill_a':sa,'skill_b':sb,'weight':weight,'a':ta,'b':tb})
-                if pa is None or pb is None or not ta["valid"] or not tb["valid"]:
+                timing_trace.append({'skill_a':sa,'skill_b':sb,'weight':weight,'a':ta,'b':tb,
+                    'a_projectile_shot_keys':[p['aim_cache_key'] if p else None for p in pa],
+                    'b_projectile_shot_keys':[p['aim_cache_key'] if p else None for p in pb]})
+                trace.update(p['aim_cache_key'] for p in pa + pb if p is not None)
+                missing.update(ta['missing'] + tb['missing'])
+                if any(p is None for p in pa + pb) or not ta["valid"] or not tb["valid"]:
                     missing.add("one_or_both_directions_or_timing_missing")
                     totals["mean"] += weight * .5; totals["upper"] += weight
                     continue
-                trace.update((pa['aim_cache_key'],pb['aim_cache_key']))
-                missing.update(ta["missing"] + tb["missing"])
                 if endpoint == "damage":
-                    if pa["lethality"] is None or pb["lethality"] is None:
+                    if any(p['lethality'] is None for p in pa + pb):
                         missing.add("post_penetration_kernel_missing")
                         totals["mean"] += weight * .5; totals["upper"] += weight; continue
-                    qa, qb = pa["lethality"]["outcomes"], pb["lethality"]["outcomes"]
+                    qa, qb = [p['lethality']['outcomes'] for p in pa], [p['lethality']['outcomes'] for p in pb]
                     # Unknown joint damage outcomes cannot be reduced to independent scalar endpoints.
-                    uncertain = max(pa["lethality"]["unknown_mass"], pb["lethality"]["unknown_mass"])
+                    uncertain = max(p['lethality']['unknown_mass'] for p in pa + pb)
                     outcome = duel(ta, tb, qa, qb, scenario["horizon_s"], self.config["timing"], endpoint=endpoint)
                     lower, upper = (0., 1.) if uncertain > 1e-12 else (outcome["score"], outcome["score"])
                 else:
-                    outcome = duel(ta, tb, [0, 0, pa["mean"]], [0, 0, pb["mean"]], scenario["horizon_s"], self.config["timing"])
-                    if pa['unknown_mass']==0 and pb['unknown_mass']==0:
+                    outcomes = lambda shots, field: [[0, 0, p[field]] for p in shots]
+                    outcome = duel(ta, tb, outcomes(pa,'mean'), outcomes(pb,'mean'), scenario["horizon_s"], self.config["timing"])
+                    if all(p['unknown_mass']==0 for p in pa + pb):
                         lower=upper=outcome['score']
                     else:
-                        lower = duel(ta, tb, [0, 0, pa["lower"]], [0, 0, pb["upper"]], scenario["horizon_s"], self.config["timing"])["score"]
-                        upper = duel(ta, tb, [0, 0, pa["upper"]], [0, 0, pb["lower"]], scenario["horizon_s"], self.config["timing"])["score"]
+                        lower = duel(ta, tb, outcomes(pa,'lower'), outcomes(pb,'upper'), scenario["horizon_s"], self.config["timing"])["score"]
+                        upper = duel(ta, tb, outcomes(pa,'upper'), outcomes(pb,'lower'), scenario["horizon_s"], self.config["timing"])["score"]
                 totals["mean"] += weight * outcome["score"]
                 totals["lower"] += weight * lower; totals["upper"] += weight * upper
-                unknown_a = pa["lethality"]["unknown_mass"] if endpoint == "damage" else pa["unknown_mass"]
-                unknown_b = pb["lethality"]["unknown_mass"] if endpoint == "damage" else pb["unknown_mass"]
+                unknown_a = max(p['lethality']['unknown_mass'] if endpoint == 'damage' else p['unknown_mass'] for p in pa)
+                unknown_b = max(p['lethality']['unknown_mass'] if endpoint == 'damage' else p['unknown_mass'] for p in pb)
                 totals["coverage"] += weight * min(1 - unknown_a, 1 - unknown_b)
                 totals["first_fire"] += weight * outcome["first_fire_probability"][0]
         result={**totals, "score": totals["mean"] if totals["coverage"] > 0 else None,
