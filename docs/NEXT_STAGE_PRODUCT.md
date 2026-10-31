@@ -265,3 +265,17 @@ python scripts/import_client_payloads.py --catalog /data/catalog.rules.json --ca
 只有客户端明确声明、精确挂点和依赖关系通过、完整所选武器可解析且数量明确的固定预设才标为合法。容器明确的子弹数量作用于其引用的单个弹体资源；顶层发射器没有数量时仍拒绝。内嵌弹体的发射器保留其显式数量。循环容器、未知携带触发器、缺少 shop 预设、互斥配置和不支持的来源约束均不能被静默忽略。未通过的旧挂载继续隔离，并保留在新目录中供审计。
 
 这一步验证实际携带配置，不生成任务命中率或 SP，不改变全局快照的发布状态。导入器将 `client_payload_sources` 留作离线来源追踪；静态站点仍应由现有构建器选择发布字段，不能将完整客户端目录或概率数组发布到首页。当前验收摘要见 `reports/client-payload-progress.json`。
+
+## 用客户端本地化 ID 恢复缺失弹药
+
+```sh
+python scripts/recover_native_ammunition.py --catalog /data/catalog.payloads.json --ammunition /data/original-ammunition.json --capture /data/client-capture.json --language-capture /data/language-capture.json --rules-root /data/pinned-rules --wiki-root /data/wiki --out /data/recovered-ammunition.json --out-catalog /data/catalog.ammunition.json --report reports/ammunition-recovery.json
+```
+
+语言捕获记录包含 `version`、`saved`、`source_sha256`、`extracted`；最后一个路径下必须有 `lang/units_modifications.csv` 和 `lang/units_weaponry.csv`。命令验证原包哈希、版本和固定 Datamine 身份，按精确载具 ID 读取实际 `commonWeapons`，只接受该车明确声明的弹药选择器或默认弹丸。选择器的本地化 ID、弹丸 ID 与 Wiki 名称必须精确对应，不做口径、名称片段或武器位置推断。`--vehicles <ID...>` 可限定独立批次。
+
+导入器重新核对已缓存 Wiki 页面的原始 SHA-256、所属武器和完整穿深表。弹链为单一弹丸时，其最大穿深表才能用于该弹丸；混合弹链保留有序成员、挂载、选择器和源哈希，并报告缺少逐弹参数，不能把最大值赋给每一发。重复身份、同名但不同挂载来源、未知机制、子口径弹缺少伤害口径、源表冲突均拒绝。全口径动能弹沿用明确标记的 V2 弹丸口径假设，不声称客户端显式提供了 `damageCaliber`。
+
+相同完整弹丸定义与全部物理输入可以合并计算，但每个弹药 ID 的载具、挂载、语言和 Wiki 证明独立保存在 `recovery_bindings`。任意证明变化都会改变档案内容哈希。增量输入包含此前恢复的档案时，先核对其来源；源文件、语言或 Wiki 变更会要求从原始档案重新恢复，不静默沿用旧绑定。输出目录另存，现有原始弹药和正在重算的输入均保持不变。
+
+恢复的档案可直接交给 `prepare_range_profiles.py`、原 V2 读取器和现有原生补算器。该步骤只建立计算输入，不增加已验收图数或正式榜单数。2026-10-31 首次全目录审计恢复 97 辆载具的 114 条弹药绑定，合并为 34 份物理档案，其中 87 辆此前没有合格的自有档案。新增 102 份距离档案后，24 组真实几何 CPU/GPU 对照比较 391,284 条射线，最大概率差约 `1.5795230865478516e-5`。完整输出与缺口见本地 `reports/formal-ammunition-recovery.json`，轻量验收摘要见 `reports/ammunition-recovery-progress.json`。
