@@ -5,6 +5,7 @@ import json
 import os
 import shutil
 import tempfile
+import time
 from pathlib import Path
 
 
@@ -36,7 +37,17 @@ def atomic_write(path, data):
         stream.write(data)
         stream.flush()
         os.fsync(stream.fileno())
-    temp.replace(path)
+    # Windows readers briefly deny delete-sharing during an ordinary read.
+    # Keep the old destination intact and retry only the atomic replacement;
+    # never fall back to truncating a visible progress or publication file.
+    for attempt in range(6):
+        try:
+            temp.replace(path)
+            break
+        except PermissionError as error:
+            if getattr(error, 'winerror', None) not in (5, 32, 33) or attempt == 5:
+                raise
+            time.sleep(.01 * 2**attempt)
 
 
 def write_json(path, value):
