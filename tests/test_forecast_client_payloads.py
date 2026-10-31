@@ -135,7 +135,7 @@ class ClientPayloadTests(unittest.TestCase):
         v['rule_snapshot_reference']={'binding':{'source_id':'plane'}}
         write_json(catalog,{'vehicles':[v]})
         config=self.root/'config.json';write_json(config,{'datamine':{'external_weapon_triggers':['aam']}})
-        with patch('wt_atlas.forecast.rule_snapshot.verify_capture',return_value={}):
+        with patch('wt_atlas.forecast.rule_snapshot.verify_capture',return_value={}), patch('wt_atlas.client_payloads.verify_primary_rules',return_value={'scope':'synthetic'}):
             result,report=import_payloads(catalog,capture,rules,'a'*40,config)
             self.assertEqual(report['counts']['verified_loadouts'],1)
             self.assertNotIn('source_status',result['snapshot'])

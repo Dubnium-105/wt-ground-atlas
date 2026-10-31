@@ -1,14 +1,21 @@
 // Selection uses complete offline view shards or the requested search tables.
 // The global representative limit must never become an input to another view.
 export function payloadItemLabel(item) {
-  const labels = {gun:'机炮／机枪',fuel_tank:'副油箱',targeting_pod:'瞄准吊舱',countermeasure_dispenser:'干扰弹发射器',torpedo:'鱼雷',booster:'助推器'};
+  const labels = {gun:'机炮／机枪',fuel_tank:'副油箱',targeting_pod:'瞄准吊舱',countermeasure_dispenser:'干扰弹发射器',torpedo:'鱼雷',booster:'助推器',undercarriage:'起落架'};
   const details = [];
   if (Number.isFinite(item.ammunition_count)) details.push(item.type === 'countermeasure_dispenser' ? `装填量 ${item.ammunition_count}` : `弹药 ${item.ammunition_count} 发`);
+  if (item.ammunition_quantity_status === 'ambiguous_repeated_parameter') details.push('弹药数量未核实');
   if (item.ammunition_selection_status === 'not_selected') details.push(item.type === 'countermeasure_dispenser' ? '干扰弹类型未选择' : '弹链未选择');
   if (item.consumable_state === 'fuel_load_not_selected') details.push('燃油量未选择');
   if (item.consumable_state === 'propellant_state_not_selected') details.push('推进剂状态未选择');
   if (item.mass_complete === false) details.push('满载质量未核实');
   return `${labels[item.type] ? labels[item.type]+' ' : ''}${item.name || item.id} × ${item.count}${details.length ? '（'+details.join('；')+'）' : ''}`;
+}
+
+export function payloadSummary(loadout) {
+  const stores=loadout.external_store_state==='source_declared_empty' ? '无额外挂载' : (loadout.weapons || []).map(payloadItemLabel).join('，') || '外挂信息缺失';
+  const fixed=loadout.primary_armament_id==='' ? `；默认固定武备：${(loadout.fixed_weapons || []).map(payloadItemLabel).join('，') || '来源未声明固定武器'}` : '';
+  return stores+fixed;
 }
 
 export function tableRows(table, view) {

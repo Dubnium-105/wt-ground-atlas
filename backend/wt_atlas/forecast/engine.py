@@ -95,7 +95,7 @@ def enumerate_variants(catalog: dict, atlas: Atlas, config: dict | None = None) 
                     has_policy = any(k in option for k in ("allowed_loadout_ids", "allowed_weapon_ids", "allowed_ammo_ids"))
                     if not has_policy: continue
                     if "allowed_loadout_ids" in option and (loadout is None or loadout["id"] not in option["allowed_loadout_ids"]): continue
-                    if "allowed_weapon_ids" in option and (loadout is None or any(w["id"] not in option["allowed_weapon_ids"] for w in loadout["weapons"])): continue
+                    if "allowed_weapon_ids" in option and (loadout is None or any(w["id"] not in option["allowed_weapon_ids"] for w in loadout["weapons"]+loadout.get('fixed_weapons',[]))): continue
                     if "allowed_ammo_ids" in option and (ammo is None or ammo["id"] not in option["allowed_ammo_ids"]): continue
                 identity = {"vehicle_id": vehicle["id"], "mode": "ground_rb", "version": version, "rating_configuration_id": option["id"],
                             "ammo_id": ammo["id"] if ammo else None, "loadout_id": loadout["id"] if loadout else None}

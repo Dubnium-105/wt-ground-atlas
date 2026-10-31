@@ -11,6 +11,7 @@ from .loadouts import DatamineLoadouts,array
 from .native_binding.ordered_blk import parse_ordered_blk, as_json
 from .forecast.data import safe_file
 from .forecast.mount_rules import audit_vehicle_mounts
+from .primary_armament import verified_rules as verify_primary_rules
 
 
 class CapturedPayloads(DatamineLoadouts):
@@ -69,8 +70,9 @@ class CapturedPayloads(DatamineLoadouts):
                     errors.append('unsupported_carried_weapon_trigger')
             if not check['source_preset_present']:errors.append('source_shop_preset_missing')
             if audit['status']=='unsupported_source_constraints':errors.append('unsupported_source_constraints')
-            if candidate.get('mount_rule') and not loadout.get('mounts'):errors.append('mount_selection_missing')
-            if any(not isinstance(w.get('count'),int) or isinstance(w['count'],bool) or w['count']<=0 for w in loadout['weapons']):
+            if candidate.get('mount_rule') and not loadout.get('mounts') and check.get('status')!='source_empty_preset_checked':
+                errors.append('mount_selection_missing')
+            if any(not isinstance(w.get('count'),int) or isinstance(w['count'],bool) or w['count']<=0 for w in loadout['weapons']+candidate['default_primary_armament']['weapons']):
                 errors.append('source_weapon_count_invalid')
             row={'loadout_id':loadout['id'],'status':'rejected' if errors else 'verified_client_payload',
                  'errors':sorted(set(errors))}
@@ -119,9 +121,11 @@ def import_payloads(catalog_path,capture_path,rules_root,commit,config_path):
     if as_json(parse_ordered_blk(client_wpcost))!=shop:
         raise ValueError('Pinned rules differ from the captured client')
     config=read_json(config_path)
+    primary_rules=verify_primary_rules(capture,version)
     adapter=CapturedPayloads(packs['aces.vromfs.bin']['extracted'],version,commit,config['datamine']['external_weapon_triggers'])
     catalog=read_json(catalog_path);rows=[]
     source={'version':version,'commit':commit,'client_capture_sha256':file_hash(capture_path),
+        'primary_armament_rules':primary_rules,
         'client_source':'client://'+packs['aces.vromfs.bin']['sha256']+'/aces.vromfs.bin',
         'wpcost_sha256':file_hash(rules_root/WPCOST_PATH),
         'wpcost_url':'https://raw.githubusercontent.com/gszabi99/War-Thunder-Datamine/'+commit+'/'+WPCOST_PATH}
@@ -133,6 +137,10 @@ def import_payloads(catalog_path,capture_path,rules_root,commit,config_path):
             catalog['vehicles'][i],row=adapter.verify(vehicle,shop[source_id],source)
             rows.append(row)
         except (ValueError,KeyError,OSError) as error:
+            quarantined=copy.deepcopy(vehicle)
+            for loadout in quarantined.get('loadouts',[]):
+                loadout.update(legal=False,source_status='unvalidated',refresh_blocker='captured_client_refresh_failed')
+            catalog['vehicles'][i]=quarantined
             rows.append({'vehicle_id':vehicle['id'],'verified':0,'quarantined':len(vehicle.get('loadouts',[])),
                          'error':str(error)})
     report={'schema_version':'1.0.0','source':source,'vehicles':rows,

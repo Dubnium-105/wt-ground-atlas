@@ -4,10 +4,24 @@ These constraints establish allowed mount combinations only. They do not prove
 the nested weapons' physical properties, flight envelope or mission effects.
 """
 from collections import Counter
+import re
 
 
 def _integer(value):
     return isinstance(value,int) and not isinstance(value,bool) and value>0
+
+
+def declared_empty_preset(loadout):
+    return (loadout.get('external_store_state')=='source_declared_empty' and
+            loadout.get('mounts')==[] and loadout.get('weapons')==[] and
+            bool(re.fullmatch('[0-9a-f]{64}',str(loadout.get('provenance',{}).get('preset_decoded_sha256','')))))
+
+
+def verified_empty_preset(loadout):
+    audit=loadout.get('mount_rule_audit',{})
+    return (declared_empty_preset(loadout) and audit.get('status')=='source_empty_preset_checked' and
+            audit.get('source_preset_present') is True and loadout.get('source_status')=='official_verified' and
+            audit.get('source_version')==loadout.get('source_version') and not audit.get('errors'))
 
 
 def import_mount_rule(unit,source):
@@ -99,7 +113,9 @@ def audit_vehicle_mounts(vehicle,unit,source):
         preset=unit.get('weapons',{}).get(loadout['id'])
         row={'loadout_id':loadout['id'],'source_preset_present':isinstance(preset,dict),
              'promoted_legal':False,'errors':[]}
-        if rule is not None and loadout.get('mounts'):
+        if isinstance(preset,dict) and declared_empty_preset(loadout):
+            row['status']='source_empty_preset_checked'
+        elif rule is not None and loadout.get('mounts'):
             row.update(check_mounts(loadout['mounts'],rule))
             row['status']='source_constraints_rejected' if row['errors'] else 'source_constraints_checked'
         else:row['status']='payload_unverified' if isinstance(preset,dict) else 'source_preset_missing'

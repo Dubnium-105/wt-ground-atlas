@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {selectRows, tableRows, filterMovements, migrationSummaries, payloadItemLabel} from '../web/forecast/views.mjs';
+import {selectRows, tableRows, filterMovements, migrationSummaries, payloadItemLabel, payloadSummary} from '../web/forecast/views.mjs';
 
 test('payload display separates devices, ammunition and unresolved consumables', () => {
   const gun=payloadItemLabel({id:'gun',type:'gun',count:1,ammunition_count:150,ammunition_selection_status:'not_selected',mass_complete:false});
@@ -8,6 +8,15 @@ test('payload display separates devices, ammunition and unresolved consumables',
   const fuel=payloadItemLabel({id:'tank',type:'fuel_tank',count:2,consumable_state:'fuel_load_not_selected',mass_complete:false});
   assert.match(fuel,/副油箱 tank × 2/);assert.match(fuel,/燃油量未选择/);assert.match(fuel,/满载质量未核实/);
   assert.equal(payloadItemLabel({id:'bomb',count:3}),'bomb × 3');
+  const unknown=payloadItemLabel({id:'gun',type:'gun',count:1,ammunition_count:null,ammunition_quantity_status:'ambiguous_repeated_parameter'});
+  assert.match(unknown,/弹药数量未核实/);assert.doesNotMatch(unknown,/弹药 0 发/);
+});
+
+test('declared empty stores remain distinct from missing data and fixed armament', () => {
+  const text=payloadSummary({external_store_state:'source_declared_empty',primary_armament_id:'',weapons:[],fixed_weapons:[{id:'gun',type:'gun',count:2,ammunition_count:200}]});
+  assert.match(text,/无额外挂载/);assert.match(text,/默认固定武备/);assert.match(text,/gun × 2/);assert.match(text,/弹药 200 发/);
+  assert.equal(payloadSummary({}),'外挂信息缺失');
+  assert.equal(payloadSummary({weapons:[{id:'bomb',count:2}]}),'bomb × 2');
 });
 
 const row=(id, nation, br, score, extra={})=>({lineup_key:id,nation,actual_br:br,score,rankable:true,evidence_coverage:1,members:[{vehicle_id:id}],...extra});

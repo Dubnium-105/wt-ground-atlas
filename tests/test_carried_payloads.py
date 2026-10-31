@@ -33,6 +33,7 @@ class CarriedPayloadTests(unittest.TestCase):
         return CapturedPayloads(self.root,'fixture','a'*40,self.triggers).verify(self.vehicle,self.unit,SOURCE)
     def payload(self,weapons):
         v,r=self.verify(weapons);self.assertEqual(r['verified'],1,r)
+        self.verified_vehicle=v
         return v['loadouts'][0]
 
     def test_gun_quantity_is_not_ammunition_and_mount_mass_overrides_resource(self):
@@ -60,6 +61,20 @@ class CarriedPayloadTests(unittest.TestCase):
         self.assertEqual(len(l['weapons']),3)
         self.assertEqual(sum(g['ammunition_count'] for g in l['weapons']),375)
         self.assertEqual(sum(g['mass_kg']*g['count'] for g in l['weapons']),522)
+
+    def test_conflicting_repeated_ammunition_counts_remain_unknown_not_summed(self):
+        source={'blk':'gun.blk','trigger':'gunner0','bullets':[460,250]}
+        l=self.payload([source,copy.deepcopy(source)])
+        w=l['weapons'][0]
+        self.assertEqual(w['count'],2);self.assertIsNone(w['ammunition_count'])
+        self.assertIsNone(w['ammunition_per_unit'])
+        self.assertEqual(w['declared_ammunition_quantities'],[460,250])
+        self.assertEqual(w['ammunition_quantity_status'],'ambiguous_repeated_parameter')
+
+    def test_identical_repeated_counts_do_not_duplicate_ammunition(self):
+        w=self.payload({'blk':'gun.blk','trigger':'gunner0','bullets':[250,250]})['weapons'][0]
+        self.assertEqual(w['count'],1);self.assertEqual(w['ammunition_count'],250)
+        self.assertEqual(w['declared_ammunition_quantities'],[250,250])
 
     def test_fuel_tank_is_retained_without_fuel_or_attack_estimate(self):
         w=self.payload({'blk':'tank.blk','trigger':'fuel tanks','bullets':2})['weapons'][0]
@@ -121,14 +136,14 @@ class CarriedPayloadTests(unittest.TestCase):
     def test_mount_modification_is_required_by_ownership_filter(self):
         l=self.payload({'blk':'gun.blk','trigger':'cannon','reqModification':'gun-pod'})
         self.assertEqual(l['required_modification_ids'],['gun-pod'])
-        self.assertIn('modifications_unavailable',loadout_errors(l,self.vehicle,{},unlocked=[],require_unlocked=True))
-        self.assertEqual(loadout_errors(l,self.vehicle,{},unlocked=['gun-pod'],require_unlocked=True),[])
+        self.assertIn('modifications_unavailable',loadout_errors(l,self.verified_vehicle,{},unlocked=[],require_unlocked=True))
+        self.assertEqual(loadout_errors(l,self.verified_vehicle,{},unlocked=['gun-pod'],require_unlocked=True),[])
 
     def test_known_device_mass_still_blocks_overload_with_other_mass_unknown(self):
         l=self.payload({'blk':'tank.blk','trigger':'fuel tanks','bullets':2})
         l['weapons'].append({'id':'unknown','count':1,'mass_kg':None})
-        self.assertIn('payload_capacity_exceeded',loadout_errors(l,{'max_payload_kg':80},{}) )
-        self.assertEqual(loadout_errors(l,{'max_payload_kg':100},{}),[])
+        self.assertIn('payload_capacity_exceeded',loadout_errors(l,{**self.verified_vehicle,'max_payload_kg':80},{}) )
+        self.assertEqual(loadout_errors(l,{**self.verified_vehicle,'max_payload_kg':100},{}),[])
 
 
 if __name__=='__main__':unittest.main()

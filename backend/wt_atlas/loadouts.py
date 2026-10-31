@@ -12,6 +12,8 @@ import hashlib
 import json
 from pathlib import Path
 from .sources import fetch_bytes
+from .common import content_hash
+from .primary_armament import default_declarations, is_empty_preset, weapon_summary
 
 
 def array(value):
@@ -27,7 +29,8 @@ def carried_device(weapon, data, resolved):
     trigger = weapon.get('trigger')
     types = {'fuel tanks':('fuel_tank','fuelTankGun'),
              'targetingPod':('targeting_pod','targetingPodGun'),
-             'boosters':('booster','boosterGun')}
+             'boosters':('booster','boosterGun'),
+             'undercarriage':('undercarriage','undercarriageGun')}
     if trigger in types:
         typ, flag = types[trigger]
         payload = data.get('payload')
@@ -40,10 +43,10 @@ def carried_device(weapon, data, resolved):
                 'type':typ,'count':count,'count_semantics':'devices',
                 'combat_delivery':False,'mass_kg':payload.get('mass'),
                 'mass_semantics':'configured_payload_mass',
-                'mass_complete':typ=='targeting_pod',
+                'mass_complete':typ in ('targeting_pod','undercarriage'),
                 'consumable_state':{'fuel_tank':'fuel_load_not_selected',
                     'booster':'propellant_state_not_selected'}.get(typ,'not_applicable')}
-    if trigger not in ('cannon','additional gun','machine gun','gunner1','gunner2','countermeasures'):
+    if trigger not in ('cannon','additional gun','machine gun','countermeasures',*(f'gunner{i}' for i in range(10))):
         return None
     # The native cannon flag is optional (e.g. Ksp m/22 and Browning .30).
     # The explicit mounted gun trigger and projectile definitions identify a gun.
@@ -51,12 +54,20 @@ def carried_device(weapon, data, resolved):
     if ('cannon' in data and not isinstance(data['cannon'],bool)) or not projectiles or any(not isinstance(b,dict) or not b for b in projectiles) or data.get('container'):
         raise ValueError('unsupported carried gun or dispenser schema')
     rounds = weapon.get('bullets',data.get('bullets'))
-    if not isinstance(rounds,int) or isinstance(rounds,bool) or rounds<0:
+    declared_rounds=rounds if isinstance(rounds,list) else [rounds]
+    if not declared_rounds or any(not isinstance(n,int) or isinstance(n,bool) or n<0 for n in declared_rounds):
         raise ValueError('carried ammunition quantity unknown or invalid')
+    # Repeated BLK parameters are preserved by the decoder. They are neither
+    # multiple guns nor additive ammunition containers. Differing native values
+    # remain unresolved until the runtime lookup precedence is proven.
+    ambiguous=len(set(declared_rounds))>1
+    rounds=None if ambiguous else declared_rounds[0]
     countermeasure = trigger=='countermeasures'
     return {'id':Path(resolved).stem,'type':'countermeasure_dispenser' if countermeasure else 'gun',
             'count':1,'count_semantics':'devices','combat_delivery':not countermeasure,
             'ammunition_per_unit':rounds,'ammunition_count':rounds,
+            'ammunition_quantity_status':'ambiguous_repeated_parameter' if ambiguous else 'declared',
+            'declared_ammunition_quantities':declared_rounds,
             'ammunition_count_source':'mount.bullets' if 'bullets' in weapon else 'resource.bullets',
             'ammunition_selection_status':'not_selected',
             'mass_kg':weapon.get('mass',data.get('mass')),'mass_complete':False,
@@ -154,6 +165,25 @@ class DatamineLoadouts:
         vehicle = copy.deepcopy(vehicle)
         path = self.dm['flightmodels_directory'] + '/' + vehicle['id'] + '.blkx'
         model = self.read(path)
+        declarations,ignored=default_declarations(model)
+        fixed=[]
+        for declaration in declarations:
+            weapon=declaration['weapon']
+            if weapon.get('trigger') not in self.dm['external_weapon_triggers']:
+                raise ValueError('Unsupported fixed armament trigger')
+            for row in self.weapons(weapon):
+                row['source_declaration']={k:v for k,v in declaration.items() if k!='weapon'}
+                mods=array(weapon.get('reqModification'))+declaration.get('required_modification_ids',[])
+                if any(not isinstance(m,str) or not m for m in mods):raise ValueError('Unsupported primary modification requirement')
+                row['required_modification_ids']=mods
+                fixed.append(row)
+        primary={'id':'','selection':'default_primary_modification','weapons':fixed,
+                 'ignored_dummy_declarations':ignored,'model_path':self.resolve_path(path),
+                 'model_decoded_sha256':content_hash(model),'source_version':self.dm['version'],
+                 'available_other_primary_modifications':sorted(k for k,m in model.get('modifications',{}).items()
+                    if isinstance(m,dict) and m.get('effects',{}).get('commonWeapons') is not None)}
+        vehicle['default_primary_armament']=primary
+        fixed_summary=weapon_summary(fixed)
         slots = {}
         for s in array(model.get('WeaponSlots',{}).get('WeaponSlot')):
             slots[s['index']] = {p['name']:p for p in array(s.get('WeaponPreset'))}
@@ -163,8 +193,7 @@ class DatamineLoadouts:
             try:
                 data = self.read(preset['blk'])
                 declared = array(data.get('Weapon'))
-                if not declared:
-                    continue
+                empty=is_empty_preset(data)
                 all_weapons, used_slots = [], set()
                 for selection_index,selection in enumerate(declared):
                     if 'slot' in selection:
@@ -191,7 +220,7 @@ class DatamineLoadouts:
                                 raise ValueError('unsupported mount modification requirement')
                             if mods:leaf['required_modification_ids']=mods
                         all_weapons.extend(leaves)
-                if not all_weapons: continue
+                if not all_weapons and not empty: continue
                 grouped = {}
                 for w in all_weapons:
                     # Identical names do not imply identical quantities, mass,
@@ -204,13 +233,18 @@ class DatamineLoadouts:
                     else:
                         grouped[key]['count'] += w['count']; grouped[key]['hardpoints'].append(w['hardpoint'])
                         grouped[key]['mount_assignments'].extend(w['mount_assignments'])
-                        if 'ammunition_count' in w:grouped[key]['ammunition_count']+=w['ammunition_count']
+                        if 'ammunition_count' in w:
+                            total=grouped[key]['ammunition_count']
+                            grouped[key]['ammunition_count']=total+w['ammunition_count'] if total is not None and w['ammunition_count'] is not None else None
                 normalized = list(grouped.values())
-                outputs.append({'id':preset['name'], 'name':' + '.join(f"{w['count']}×{w['name']}" for w in normalized),
+                outputs.append({'id':preset['name'], 'name':' + '.join(f"{w['count']}×{w['name']}" for w in normalized) if normalized else 'No external stores',
                     'legal':True, 'weapons':normalized, 'mounts':declared,
-                    'required_modification_ids':sorted({m for w in normalized for m in w.get('required_modification_ids',[])}),
+                    'external_store_state':'source_declared_empty' if empty else 'source_declared_carried_items',
+                    'primary_armament_id':'','primary_armament_sha256':content_hash(primary),'fixed_weapons':fixed_summary,
+                    'required_modification_ids':sorted({m for w in normalized+fixed for m in w.get('required_modification_ids',[])}),
                     'spawn_cost':None, 'provenance':{'method':'declared-Datamine-preset-with-recursive-container-counts',
                         'commit':self.dm['ref'], 'game_version':self.dm['version'], 'path':self.resolve_path(preset['blk']),
+                        'preset_decoded_sha256':content_hash(data),
                         'version_compatibility':'pinned-Datamine; Wiki-game-commit-unpublished'}})
             except Exception as exc:
                 self.errors.append({'vehicle_id':vehicle['id'], 'preset':preset.get('name'), 'error':str(exc)})

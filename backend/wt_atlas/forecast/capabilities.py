@@ -1,7 +1,8 @@
 """Evidence for independent tasks, complete carried payloads and sortie costs."""
 from .data import digest, number
 import re
-from .mount_rules import check_mounts
+from .mount_rules import check_mounts, verified_empty_preset
+from ..primary_armament import weapon_summary
 
 TASKS={'ground','anti_tank','ground_control','recon','anti_helicopter','anti_air','cap','cas','sead'}
 
@@ -28,13 +29,19 @@ def loadout_errors(loadout,vehicle,option,*,unlocked=None,require_unlocked=False
     errors=[]
     if vehicle.get('mount_rule_audit',{}).get('status')=='unsupported_source_constraints':
         errors.append('unsupported_source_mount_constraints')
-    if vehicle.get('mount_rule') is not None:
+    if vehicle.get('mount_rule') is not None and not verified_empty_preset(loadout):
         errors.extend(check_mounts(loadout.get('mounts'),vehicle['mount_rule'])['errors'])
+    if 'primary_armament_sha256' in loadout:
+        primary=vehicle.get('default_primary_armament')
+        if (not isinstance(primary,dict) or loadout.get('primary_armament_id')!=primary.get('id') or
+            digest(primary)!=loadout['primary_armament_sha256'] or primary.get('source_version')!=loadout.get('source_version') or
+            loadout.get('fixed_weapons')!=weapon_summary(primary.get('weapons',[]))):
+            errors.append('primary_armament_identity_mismatch')
     if loadout.get('legal') is not True:errors.append('loadout_not_verified_legal')
     weapons=loadout.get('weapons',[])
     stations=[w['station'] for w in weapons if w.get('station') is not None]
     if len(stations)!=len(set(stations)):errors.append('mutually_exclusive_station')
-    ids={w.get('id') for w in weapons}
+    ids={w.get('id') for w in weapons+loadout.get('fixed_weapons',[])}
     if None in ids:errors.append('weapon_identity_missing')
     for w in weapons:
         if not isinstance(w.get('count'),int) and (not number(w.get('count')) or int(w['count'])!=w['count']):errors.append('invalid_weapon_count')

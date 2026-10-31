@@ -83,7 +83,16 @@
       "gunner2",
       "countermeasures",
       "torpedoes",
-      "boosters"
+      "boosters",
+      "undercarriage",
+      "gunner0",
+      "gunner3",
+      "gunner4",
+      "gunner5",
+      "gunner6",
+      "gunner7",
+      "gunner8",
+      "gunner9"
     ]
   },
   "changes": {
