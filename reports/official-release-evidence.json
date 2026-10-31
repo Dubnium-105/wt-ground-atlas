@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "collected_at": "2026-10-31T01:36:27.590504+00:00",
+  "release": {
+    "game_version": "2.59.0.92",
+    "source_status": "released",
+    "effective_date": "2026-10-29",
+    "source": {
+      "url": "https://warthunder.com/en/game/changelog/current/1913",
+      "sha256": "3bd53db8f44bf4e173ec36b5bd586c8be7502380346954686aed5a115585f4bd",
+      "bytes": 88822,
+      "path": "data\\raw\\official-release-2026-10-31\\3bd53db8f44bf4e173ec36b5bd586c8be7502380346954686aed5a115585f4bd.html",
+      "collected_at": "2026-10-31T01:34:31.266175+00:00"
+    },
+    "scope": "Official release identity only; not a claim that all catalog and physical inputs form a coherent current snapshot."
+  },
+  "server_update": {
+    "effective_date": "2026-10-30",
+    "source": {
+      "url": "https://warthunder.com/en/game/changelog/current/1914",
+      "sha256": "102ae9b4cac415d5e99ec8291a6034575aa4557771e1e82d5beba6a57928b298",
+      "bytes": 89124,
+      "path": "data\\raw\\official-release-2026-10-31\\102ae9b4cac415d5e99ec8291a6034575aa4557771e1e82d5beba6a57928b298.html",
+      "collected_at": "2026-10-31T01:35:34.915828+00:00"
+    },
+    "ground_rb_changes": [
+      {
+        "vehicle_id": "n1k2_j",
+        "old": 6.7,
+        "new": 6.3
+      },
+      {
+        "vehicle_id": "n1k2_jko",
+        "old": 6.7,
+        "new": 6.3
+      },
+      {
+        "vehicle_id": "spitfire_mk18e",
+        "old": 6.7,
+        "new": 6.3
+      },
+      {
+        "vehicle_id": "yak-3u",
+        "old": 6.7,
+        "new": 6.3
+      }
+    ],
+    "loadout_change": {
+      "vehicle_family": "F-102A",
+      "constraint": "AIM-26B and FFAR cannot be carried concurrently"
+    },
+    "client_version_claim": null,
+    "datamine_full_commit_release_claim": false
+  },
+  "consistency_check": {
+    "four_ground_rb_changes_match_pinned_2_59_0_94_import": true,
+    "f102a_exclusion_matches_imported_mount_rules": true
+  },
+  "not_established": [
+    "All files of Datamine 2423f3099e2a5ec3f31efdce87b9f4380ea761ec are deployed",
+    "2.59.0.92 physics is interchangeable with 2.59.0.94 physics",
+    "Native shop_get_spawn_score base SP costs",
+    "Full-mode mission effectiveness"
+  ],
+  "formal_rankings": 0,
+  "publishable": false
+}

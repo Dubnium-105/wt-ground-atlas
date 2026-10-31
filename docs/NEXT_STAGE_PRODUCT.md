@@ -210,3 +210,18 @@ Ground RB 按客户端 `economicRankTankHistorical` 优先、`economicRankHistor
 全目录检查进一步发现，这 49,215 张历史图均已有当前档案对应的副本，声明的数组 SHA-256 相同，因此不能计为新增覆盖。选择器仅在存在唯一当前完整档案、历史注记证明有效、数组哈希及其余模型/目标/来源字段完全相同时保留当前图。历史副本在索引中标为 `historical_duplicate`，单列 `historical_duplicate_maps`，不计入已验证图数。选择后仍必须对当前 NPZ 执行完整校验；当前图损坏不会自动改选历史图。两个当前图、只有历史档案的重复图，或任意模型、数组和未知字段冲突仍按歧义隔离。撤去当前元数据后，历史图才可按普通独立输入重新验收。
 
 重复档案修正新增三项回归：当前覆盖在增量扫描中保持、损坏不回退且显式撤去当前元数据可恢复历史验收；数组/模型/未来字段冲突拒绝；两个当前图即便字节相同也不自动择优。全套 `npm test` 为 58 项 Node.js 和 183 项 Python 测试。Windows 上 11 GiB 发布边界测试会实际分配空间，避免并行重复启动全套测试，可将该命令的 `TEMP`/`TMP` 指向空间充足的临时目录。
+
+## 自动补算已有完整输入的原生配对
+
+```sh
+python scripts/plan_native_rebuild.py --catalog /data/catalog.json --ammunition /data/ammunition.json --index data/cache/verified.sqlite --config config/forecast.audit.json --out reports/native-rebuild-plan.json
+python scripts/rebuild_native_maps.py --repository /data/source-repository --catalog /data/catalog.json --ammunition /data/ammunition.json --requests reports/native-rebuild-plan.json --out /data/new-native-maps --backend cpu --resume
+```
+
+规划器只读已经完成数组验收的索引，自动枚举合法 BR 邻域中的跨国有向配对，检查精确自有弹药、原生距离和 yaw。输出去重后的目标/弹药任务、实际装备方 ID 和所需角度；没有自有原生档案的方向单列，不能通过别车弹药填充。它不接收人工队列，也不会把待计算任务计入覆盖。
+
+重算器先校验请求中的目录与弹药文件哈希，重新绑定原始 GRP、配置和有序层数据，再用完整原始档案计算。输出必须位于源仓库之外，单目录限一个物理源版本；未知距离、参考弹、伪标远距、非自有弹药、缺角度或变更几何都会拒绝。缺角度需要先重建几何，不能把其他 yaw 改名。支持有界解码、原子 NPZ/元数据写入、`--limit` 分批与 `--resume` 完整数组复核；损坏生成缓存会重算。输入概率图读取数始终为 0。
+
+默认使用现有 CPU 层模型；已安装 CuPy/CUDA 的环境可显式选择 `--backend v2-cuda`，调用仓库现有 V2 CUDA 实现。两种后端保留各自代码和数值配置身份，不伪造相同哈希。当前检出的 CRLF 与历史 LF 代码字节不同，因此即使数组数值完全一致，也分别记录代码、map 和 NPZ 哈希。输出仍是条件穿透模型，不能标为实测击毁率。
+
+真实缺图规划发现 309 个方向已有自有原生档案，归并为 358 个任务；另外 64,836 个方向缺少该距离的精确自有档案。首轮 CUDA 重算完成全部 358 张，用时 124.229 秒、父进程峰值 RSS 1,100,562,432 字节。两组历史样本的全部数组数值一致，原始文件未修改。新结果必须与既有图集一起再次验收后才更新产品覆盖；单独生成这些图不解除全模式任务效果、SP、当前版本一致性和搜索收敛门槛。
