@@ -16,6 +16,7 @@ from .belts import projectile_groups
 from .capabilities import loadout_errors, validate_mission
 from .tasks import phase_tasks, task_supported
 from .data import Atlas, br_step, canonical, digest, file_hash, number, read_json, safe_file, taxonomy
+from .delivery import delivery_issue
 from ..npz_io import load_npz_bounded
 
 
@@ -198,7 +199,7 @@ class Forecast:
         self.enemy_skills = skill_nodes(config.get("opponent_population", config["population"]))
         self.phase_tasks = phase_tasks(config['spawn'])
         self.aim_code_hash = digest({name:file_hash(Path(__file__).parent/name)
-                                    for name in ('aim.py','data.py','engine.py','../npz_io.py')})
+                                    for name in ('aim.py','data.py','delivery.py','engine.py','../npz_io.py')})
         self.effects_path, self.effects = effects_path, {}
         self.effect_array = (None, None)
         if effects_path:
@@ -257,6 +258,8 @@ class Forecast:
         profiles = [p for p in groups[projectile_index] if p['distance_m'] == scenario['physical_distance_m']]
         if len(profiles) != 1: return None  # Never substitute another physical range.
         profile = profiles[0]
+        if delivery_issue(profile, scenario['physical_distance_m']):
+            return None  # An impact map does not establish missile delivery outside source declarations.
         map_id = self.atlas.map_for(target["vehicle_id"], profile["name"], scenario["physical_distance_m"])
         if map_id is None: return None
         m = self.atlas.meta[map_id]
@@ -315,6 +318,12 @@ class Forecast:
         endpoint = self.config.get("endpoint", "penetration")
         totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "first_fire": 0.}
         missing = set(); trace = set();timing_trace=[]
+        for variant in (a, b):
+            for group in variant_projectiles(variant):
+                for profile in group:
+                    if profile.get('distance_m') == scenario['physical_distance_m']:
+                        issue = delivery_issue(profile, scenario['physical_distance_m'])
+                        if issue: missing.add(issue)
         if any((v.get('ammo') or {}).get('ordered_belt') for v in (a, b)):
             missing.add('assumed_belt_start_and_repeating_source_order')
         for sa, wa in self.skills:

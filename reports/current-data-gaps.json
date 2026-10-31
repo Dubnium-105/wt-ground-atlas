@@ -102,12 +102,13 @@
     "independent_ground_catalog_entries": 1216,
     "kinetic_missile_research": {
       "batch_planned_maps": 776,
-      "batch_status_at_report": "running",
+      "batch_status_at_report": "completed_and_independently_verified",
       "batch_target_count": 194,
+      "batch_verified_arrays": 776,
       "production_profiles_added": 0,
       "report": "reports/kinetic-missile-points-progress.json",
-      "report_sha256": "11fcf3a95091f1198841a5c61c39119fa8336cee0b8bf3e836b8976e312566f0",
-      "scope": "Four exact distance points; isolated 194-target research batch is running. Reference-only profiles do not change production coverage or rankings.",
+      "report_sha256": "d3b704b3268c8ed22843af45a9fee817fa3d939e0a94b35fa2232b82b1431c31",
+      "scope": "Four exact distance points; all 194-target research arrays independently verified. Reference-only profiles do not change production coverage or rankings.",
       "source_min_distance_m": 400
     },
     "latest_incremental_scope": "Only selections not already owned in the previous source profile bundle; do not add these counts to the earlier full scan.",
@@ -122,6 +123,18 @@
       "ordered_belt_component_counts_missing": 330,
       "ordered_belt_component_profile_missing": 103,
       "ordered_belt_unequal_component_counts_require_native_sequence": 12
+    },
+    "missile_delivery_bounds": {
+      "affected_profiles": 48,
+      "distinct_ammo_ids": 82,
+      "distinct_vehicles": 71,
+      "profile_counts_by_distance_m": {
+        "10.0": 45,
+        "100.0": 3
+      },
+      "report": "reports/missile-delivery-bounds-progress.json",
+      "report_sha256": "7f149280da1462f1200c56c95f974139d7f42de3043b92041833769dc22e835f",
+      "scope": "Source-profile audit only; overlaps other gaps and does not establish actual firing impossibility, map availability or dynamic eligibility. Outside-source distances remain unknown and block eligible formal publication."
     },
     "needed": "Exact vehicle/weapon/selector/projectile ownership, supported mechanism, individual projectile penetration versus distance/angle and source identity. Unresolved imports do not prove external files are absent.",
     "nested_missile_recovery": {
@@ -335,6 +348,7 @@
     "reports/formal-sp-components-v9.json": "01723940ff5f40fe31719bfa871c0a4e05c223a5b01cbad94a691f91b419a238",
     "reports/main-range-final-preflight-summary.json": "704c41947fc6db6544a1946a5a19ccb1ad39fd84d21403ec97e674c2e3565838",
     "reports/main-range-generation-completion.json": "39da184536ff790dd9ac00b8e09352b8db57e4a5a9af328aec5b627639ee903f",
+    "reports/missile-delivery-bounds-progress.json": "7f149280da1462f1200c56c95f974139d7f42de3043b92041833769dc22e835f",
     "reports/native-sp-final-arithmetic.json": "6284a12b5dfaff73c8714e55f4c6250c2ed47ac75ed8b5363ce5227f42571692",
     "reports/ordered-belt-progress.json": "48afe13e315612fa41dbaf18525aa24d0103fc04e869b323a198bd2699c75b85",
     "reports/range-rebuild-progress.json": "16d2b5bd74bef13fc1b837689cd5bf6d229f5ec22eb4df9752fad34f66a96ced",

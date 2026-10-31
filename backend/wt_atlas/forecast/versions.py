@@ -2,6 +2,7 @@
 from __future__ import annotations
 from datetime import datetime
 from .data import digest, patch_catalog, number, mission_policy
+from .delivery import delivery_issue
 from .rankings import table_candidates
 
 STATUSES={'released','announced','proposed','hypothetical','unknown'}
@@ -107,6 +108,22 @@ def source_audit(catalog, config, version, variants, rows):
             if config['spawn'].get('status') == 'official_verified' and 'spawn_rule' in loadout:
                 if not sourced(loadout['spawn_rule'] or {}):
                     blockers.add('loadout_spawn_provenance_incomplete')
+    # A complete array inventory alone cannot establish delivery at distances
+    # outside the native missile's declarations. Do not remove such variants
+    # to make the global ranking denominator look complete.
+    configured_distances = {s['physical_distance_m'] for s in config.get('scenarios', [])}
+    delivery_gaps = {}
+    for variant in variants:
+        profiles = variant.get('profiles', (variant['profile'],) if variant.get('profile') else ())
+        for profile in profiles:
+            distance = profile.get('distance_m')
+            if distance not in configured_distances: continue
+            issue = delivery_issue(profile, distance)
+            if issue:
+                blockers.add(issue)
+                key = (variant['vehicle_id'], variant.get('ammo_id') or '', profile.get('name') or '', distance, issue)
+                delivery_gaps[key] = {'vehicle_id': variant['vehicle_id'], 'ammo_id': variant.get('ammo_id'),
+                    'profile_id': profile.get('name'), 'distance_m': distance, 'reason': issue}
     by_key = {v['key']: v for v in variants}
     if len(by_key) != len(variants): blockers.add('ambiguous_variant_identity')
     selected = set()
@@ -127,7 +144,8 @@ def source_audit(catalog, config, version, variants, rows):
     return {'blockers': sorted(blockers), 'checked_vehicles': checked,
             'excluded_component_ids': sorted(excluded), 'unknown_rating_or_eligibility_ids': sorted(unknown_ratings), 'checked_legal_loadouts': legal,
             'quarantined_loadouts': quarantined, 'verified_ranked_configurations': len(selected),
-            'unknown_opponent_configurations': sum(not v.get('selection_ready') for v in variants)}
+            'unknown_opponent_configurations': sum(not v.get('selection_ready') for v in variants),
+            'delivery_unverified_profiles': [delivery_gaps[key] for key in sorted(delivery_gaps)]}
 
 
 def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensitivity=None,sensitivity_inputs=None,variants=None):

@@ -72,6 +72,14 @@
     "angles_per_map": 24,
     "base_catalog_br_only": true,
     "checkpoint_resume_verified": true,
+    "checks_with_partial_probability": 734,
+    "compressed_array_bytes": 181335062,
+    "independent_code_sha256": {
+      "audit": "e50925e0a8347e4a164b4a927a5b154bc7b8be464f749b0f39e2695e7d1054df",
+      "summary": "2d6817c05c0d3fc3fa94578a296dc4e562c3534eb452baa5e5c045b0ee66a3ae"
+    },
+    "independent_report_sha256": "855f5348282cc8fdaf670344451fa5df58833715e8ce531a2cbcdc6b34972465",
+    "independent_verification_seconds": 21.06884960003663,
     "input_sha256": {
       "ammunition": "802915fb4ebbfec220240f24539fd10322e1d2e9cc87ef00dfd37a70e4ac7d24",
       "bindings": "4ca8ad497a492f3f069111c4cd1ed187596fe23be1d6583d3ccb151752597952",
@@ -79,15 +87,18 @@
       "config": "fb6c9a2c39db7e1597796eee65d2a8fbb1d558137d15442bac5c64f5b9448de6",
       "source-report": "43b2db4f7f2c0d7f420e834d664cedc686ee458e2b93c8c16980523b8dacd701"
     },
+    "max_probability_delta": 2.4605542421340942e-06,
     "plan_sha256": "a7ae822117b06b80a5ba202c905b10028a9cb537a7439ae0082d8463295d4692",
     "planned_maps": 776,
     "planner_sha256": "a160dbade9c6d71400529b68d1c35538089f1976f0213bae55e7c6bb0fe35f18",
     "publishable": false,
     "reference_only": true,
     "runner_sha256": "980af74f22f3959603405f2680da8a7bbda410e75cde5a8684946a7931300c73",
+    "sampled_rays": 12669464,
     "scope": "Real source-matched research calculations; 10 m and 100 m are below the source-declared minimum, and none of these conditional maps enters production.",
-    "status_at_capture": "running",
-    "target_count": 194
+    "status_at_capture": "completed_and_independently_verified",
+    "target_count": 194,
+    "verified_arrays": 776
   },
   "offline_research_maps": {
     "all_arrays_validated": true,

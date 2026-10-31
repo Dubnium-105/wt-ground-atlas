@@ -70,6 +70,16 @@ class ReleaseEvidenceTests(unittest.TestCase):
         self.assertFalse(result['publishable'])
         self.assertIn('ranked_lineup_mission_evidence_incomplete',result['why_not_publishable'])
 
+    def test_conditional_map_outside_declared_missile_range_blocks_formal_release(self):
+        cat,atlas,config,world,kwargs=self.gate_inputs()
+        self.assertTrue(release_gate(cat,atlas,config,world,**kwargs)['publishable'])
+        atlas.bindings=lambda vehicle:[(vehicle['ammo'][0],{'name':'fixture-profile','distance_m':10.,
+            'provenance':{'chemical_energy':{'source_min_distance_m':30.,'source_max_distance_m':4000.}}})]
+        result=release_gate(cat,atlas,config,world,**kwargs)
+        self.assertFalse(result['publishable'])
+        self.assertIn('delivery_unverified_outside_source_distance_bounds',result['why_not_publishable'])
+        self.assertEqual(result['source_audit']['delivery_unverified_profiles'][0]['distance_m'],10.)
+
     def test_sensitivity_report_is_invalidated_by_physics_and_content_changes(self):
         cat,atlas,config,world,kwargs=self.gate_inputs()
         report=kwargs['sensitivity'];report['inputs_sha256']='original-maps'

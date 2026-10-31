@@ -22,3 +22,8 @@ scripts/rebuild_kinetic_research_batch.py -text
 scripts/prepare_kinetic_missile_points.py -text
 scripts/verify_kinetic_missile_points.py -text
 reports/kinetic-missile-points-progress.json -text
+backend/wt_atlas/forecast/delivery.py -text
+scripts/audit_missile_delivery_bounds.py -text
+reports/missile-delivery-bounds-progress.json -text
+backend/wt_atlas/kinetic_research_audit.py -text
+scripts/audit_kinetic_research_batch.py -text

@@ -30,6 +30,22 @@ build_recommendations(research);load_script('build_web').build(research)
 assert.equal(setup.status,0,setup.stderr);
 const build=spawnSync(python,['build.py','--forecast','--all-profiles','--research-site',path.join(work,'research-project/dist/site'),'--catalog',path.join(work,'catalog.json'),'--ammunition',path.join(work,'ammo.json'),'--atlas',path.join(work,'v2'),'--config',path.join(work,'config.json'),'--scenario',path.join(work,'patch.json'),'--cache',path.join(work,'cache.sqlite'),'--index',path.join(work,'index.sqlite'),'--forecast-output',path.join(work,'forecast'),'--output',path.join(work,'site')],{cwd:root,encoding:'utf8'});
 assert.equal(build.status,0,build.stderr);
+// Give the full-mode fixture a real-shaped but synthetic missile bound. The
+// corresponding NPZ remains a conditional impact map, not delivery proof.
+const missileFixture=spawnSync(python,['-c',`
+import json,sys
+from pathlib import Path
+sys.path.insert(0, str(Path('backend').resolve()))
+from wt_atlas.forecast.data import digest
+p=Path(sys.argv[1]); path=p/'ammo.json'; profiles=json.loads(path.read_text())
+profile=profiles[0]; profile['provenance']['chemical_energy']={'source_min_distance_m':30.,'source_max_distance_m':4000.,'flight_and_activation_modeled':False}
+path.write_text(json.dumps(profiles))
+for metadata in (p/'v2/arrays').glob('*.json'):
+    row=json.loads(metadata.read_text())
+    if row['ammo_id']==profile['name']:
+        row['ammo_profile_sha256']=digest(profile); metadata.write_text(json.dumps(row))
+`,work],{cwd:root,encoding:'utf8'});
+assert.equal(missileFixture.status,0,missileFixture.stderr);
 // Exercise the product's actual default configuration without substituting the
 // legacy fixture config. Too few source vehicles must show diagnostics, not ranks.
 const fullBuild=spawnSync(python,['build.py','--forecast','--catalog',path.join(work,'catalog.json'),'--ammunition',path.join(work,'ammo.json'),'--atlas',path.join(work,'v2'),'--cache',path.join(work,'full-cache.sqlite'),'--index',path.join(work,'full-index.sqlite'),'--forecast-output',path.join(work,'full-forecast'),'--output',path.join(work,'full-site')],{cwd:root,encoding:'utf8'});
@@ -89,6 +105,12 @@ try{
   assert.equal(fullReport.published_rankings,false);
   assert.equal(fullReport.release_readiness.current.why_not_publishable.includes('required_tasks_not_modeled'),false);
   assert.ok(fullReport.release_readiness.current.why_not_publishable.includes('spawn_rules_assumed'));
+  assert.ok(fullReport.release_readiness.current.why_not_publishable.includes('delivery_unverified_outside_source_distance_bounds'));
+  assert.match(await fullPage.locator('#coverage').innerText(),/部分导弹的场景距离超出来源声明范围，投射能力尚未核验/);
+  assert.match(await fullPage.locator('#coverage').innerText(),/图表覆盖不代表导弹飞行或投射能力已核验/);
+  await fullPage.locator('#coverage details summary').click();
+  await fullPage.locator('#coverage details li').first().waitFor();
+  assert.match(await fullPage.locator('#coverage details').innerText(),/synthetic_a_0.*10 米/);
   await fullPage.close();
   const broken=await browser.newPage();await broken.route('**/data/report.*.json',r=>r.fulfill({contentType:'application/json',body:'{}'}));await broken.goto(`http://127.0.0.1:${server.address().port}/sub/index.html`);await broken.getByRole('button',{name:'重试加载'}).waitFor();await broken.unroute('**/data/report.*.json');await broken.getByRole('button',{name:'重试加载'}).click();await broken.waitForSelector('html[data-ready="true"]');await broken.close();
   assert.deepEqual(errors,[]);
