@@ -170,3 +170,9 @@ python scripts/update_forecast.py --refresh-wiki --before /data/wt/data/snapshot
 旧目录及原始 GRP/NPZ 不被覆盖。相同 ID 的弹药、几何、物理构型和客户端来源只按原记录保留；国家/平台冲突直接拒绝。目录页不能证明旧航空预设、自选 BR 规则和 SP 仍然合法，因此旧规则保留为审计证据并暂停进入当前搜索，等待当前版本的完整挂载/规则来源重新验证。未知配置仍以未知状态保留在对手环境中。
 
 Wiki 不提供游戏版本标记，刷新成功仍为 `source_status=unknown`，不会填入本地客户端版本或打开正式榜。`--offline` 使用上次完整且哈希校验通过的捕获，保留原采集时间；`--dry-run` 只核对缓存并输出差异，不改写目录。任意一个目录抓取失败时，旧完整捕获清单与输出目录保持原样。`config/sources.json` 的 `wiki.catalog_max_bytes` 控制单目录响应上限。
+
+## 按来源声明的出击类别累计重生费用
+
+`spawn_rule` 新增 `spawn_group`、`respawn_model="power_of_count"`、`respawn_power`。这一模型使用 `(1 + 同类别先前出击次数) ** respawn_power`，对应固定客户端脚本 `get_spawn_score_type_mul`。实际携带挂载上的规则优先于车辆规则；制空与对地挂载可以声明不同类别，不再被统一的 `air` 计数误加价。车辆所属平台和出击计费类别是不同字段。
+
+出处：[2.59.0.92 固定脚本](https://github.com/gszabi99/War-Thunder-Datamine/blob/af0cce561a73704e30c1df66eff06209bcc3f035/gui.vromfs.bin_u/globals/ranks_common_shared.nut)，捕获 SHA-256 `f4ba585b2260289bb7eb4b9e8d62b9357b6c1d6e36e7a4b44a67c21660008c9e`。脚本中的类别可受任务与实际武器影响，因此导入规则必须给出已核对的 `spawn_group`；不会仅凭车辆分类自动标为官方规则。基础费用、房间修正、武器加价和任务覆盖仍须独立验证。既有 `respawn_multiplier` 保持原语义，两种计数模型不可同时声明。

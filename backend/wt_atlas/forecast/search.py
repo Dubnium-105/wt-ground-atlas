@@ -7,7 +7,7 @@ from functools import lru_cache
 
 from .data import number
 from .data import digest, canonical
-from .capabilities import spawn_cost
+from .capabilities import spawn_cost, spawn_group
 from .rankings import build_views, select
 
 
@@ -25,7 +25,7 @@ def lower_tail(values: list[tuple[float, float]], mass: float) -> float:
     return result / mass
 
 
-def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict, *, domains=None, cost_function=None) -> dict:
+def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict, *, domains=None, spawn_groups=None, cost_function=None) -> dict:
     """Optimize expected phase rewards under point gains, one sortie per vehicle.
 
     The point transition is exogenous and labelled in config; utility is never
@@ -33,6 +33,9 @@ def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict,
     """
     weights, gains = config["phase_weights"], config["point_gains"]
     if len(rows) != len(weights) or any(len(r) != len(costs) for r in rows): raise ValueError("Policy shape mismatch")
+    groups=spawn_groups if spawn_groups is not None else domains
+    if cost_function and (groups is None or len(groups)!=len(costs)):
+        raise ValueError('Spawn category shape mismatch')
     for cost in costs:
         if cost is not None and (not isinstance(cost, int) or isinstance(cost, bool) or cost < 0):
             raise ValueError("Spawn costs must be known nonnegative integer points")
@@ -50,7 +53,7 @@ def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict,
         for i, cost in enumerate(costs):
             item = rows[phase][i]
             if cost_function:
-                previous=sum(bool(used & (1<<j)) for j in range(len(costs)) if domains[j]==domains[i])
+                previous=sum(bool(used & (1<<j)) for j in range(len(costs)) if groups[j]==groups[i])
                 cost=cost_function(i,previous)
             if used & (1 << i) or cost is None or cost > points or not item.get("usable", True): continue
             expected = [weights[phase] * item[k] for k in ("mean", "lower", "upper", "coverage")]
@@ -75,7 +78,7 @@ def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict,
             evidence_coverage+=mass*weights[phase]*rows[phase][chosen]['coverage']
             cost=costs[chosen]
             if cost_function:
-                previous=sum(bool(used & (1<<j)) for j in range(len(costs)) if domains[j]==domains[chosen])
+                previous=sum(bool(used & (1<<j)) for j in range(len(costs)) if groups[j]==groups[chosen])
                 cost=cost_function(chosen,previous)
             for gain in gains:
                 state=(used | (1<<chosen),min(config['max_points'],points-cost+gain['points']))
@@ -115,7 +118,7 @@ class Optimizer:
                 phases = self.config["spawn"]["phases"]
                 rows = [[self.e.mission(v["key"], task, room, scenario["id"]) for v in lineup] for task in phases]
                 costs = [spawn_cost(v,self.config['spawn'],room) for v in lineup]
-                result = sortie_policy(rows, costs, self.config["spawn"], domains=[v['domain'] for v in lineup],
+                result = sortie_policy(rows, costs, self.config["spawn"], spawn_groups=[spawn_group(v) for v in lineup],
                     cost_function=lambda i,n:spawn_cost(lineup[i],self.config['spawn'],room,n))
                 result['task_evidence']=[sum(a['probability']*(rows[i][a['member_index']]['coverage'] if a['member_index'] is not None else 0.) for a in phase['actions']) for i,phase in enumerate(result['policy'])]
                 result['mission_keys']=[[r.get('mission_key') for r in phase] for phase in rows]
@@ -189,7 +192,7 @@ class Optimizer:
             for case in result['cases']:
                 rows=[[self.e.mission(k,task,case['room_top_step'],case['scenario']) for k in result['keys']] for task in self.config['spawn']['phases']]
                 costs=[None if i==removed else spawn_cost(x,self.config['spawn'],case['room_top_step']) for i,x in enumerate(lineup)]
-                policy=sortie_policy(rows,costs,self.config['spawn'],domains=[x['domain'] for x in lineup],
+                policy=sortie_policy(rows,costs,self.config['spawn'],spawn_groups=[spawn_group(x) for x in lineup],
                     cost_function=lambda i,n:None if i==removed else spawn_cost(lineup[i],self.config['spawn'],case['room_top_step'],n))
                 without+=case['weight']*policy['mean']
                 use+=case['weight']*sum(a['probability'] for phase in case['policy'] for a in phase['actions'] if a['member_index']==removed)
