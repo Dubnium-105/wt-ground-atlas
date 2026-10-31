@@ -270,5 +270,15 @@
     "opponent_skill_mean_shift": 0.5,
     "search_budget_multiplier": 2,
     "seed_offset": 1
+  },
+  "mission_policy": {
+    "schema_version": "1.0.0",
+    "mode": "assumed_defaults",
+    "status": "assumed_not_observed",
+    "default_interval": {
+      "lower": 0.0,
+      "mean": 0.5,
+      "upper": 1.0
+    }
   }
 }

@@ -132,7 +132,8 @@
     {
       "id": "missions",
       "path": "data/raw/next-stage/missions.json",
-      "needed": "records: variant_key,target_vehicle_id,scenario_id,task,lower,mean,upper,source_version,source,status; validated evidence includes loadout_id,flight_conditions,radar_conditions,target_countermeasures,source_sha256. No maximum-range-to-hit-rate conversion."
+      "needed": "Optional under mission_policy.mode=assumed_defaults. Future imported records retain the following contract: records: variant_key,target_vehicle_id,scenario_id,task,lower,mean,upper,source_version,source,status; validated evidence includes loadout_id,flight_conditions,radar_conditions,target_countermeasures,source_sha256. No maximum-range-to-hit-rate conversion.",
+      "optional_for_current_penetration_model": true
     },
     {
       "id": "damage",
@@ -456,6 +457,22 @@
     },
     "public_deployment": "blocked_missing_hosting_target_and_probability_CDN"
   },
-  "remaining_local_validation_after_inputs": "Run an adequately budgeted full-mode search and sensitivity acceptance after missing same-version evidence is supplied; the current all-nation run is deliberately bounded and 550 baseline tables are truncated.",
-  "native_data_progress": "reports/native-data-progress.json"
+  "remaining_local_validation_after_inputs": "Run an adequately budgeted full-mode search and sensitivity acceptance after remaining source/physical/SP/payload inputs are supplied. Mission and battle records are optional under the default policy. The recorded full build predates this policy update and has 550 truncated baseline tables.",
+  "native_data_progress": "reports/native-data-progress.json",
+  "mission_policy_update": {
+    "decision": "mission and battle records optional; use explicit default priors",
+    "policy": {
+      "schema_version": "1.0.0",
+      "mode": "assumed_defaults",
+      "status": "assumed_not_observed",
+      "default_interval": {
+        "lower": 0.0,
+        "mean": 0.5,
+        "upper": 1.0
+      }
+    },
+    "validation_report": "reports/mission-default-policy.json",
+    "prior_full_build_results_unchanged": true,
+    "prior_full_build_gate_precedes_this_policy": true
+  }
 }

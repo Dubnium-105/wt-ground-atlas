@@ -94,6 +94,22 @@ def validate_sensitivity_policy(policy):
     return policy
 
 
+def mission_policy(c: dict) -> dict:
+    """Legacy configurations stay strict; configured priors never become observations."""
+    policy = c.get('mission_policy', {'mode': 'require_evidence'})
+    if not isinstance(policy, dict) or policy.get('mode') not in ('require_evidence', 'assumed_defaults'):
+        raise ValueError('Invalid mission policy')
+    if policy['mode'] == 'assumed_defaults':
+        interval = policy.get('default_interval', {})
+        if policy.get('schema_version') != '1.0.0' or policy.get('status') != 'assumed_not_observed':
+            raise ValueError('Mission defaults must remain versioned assumptions')
+        if not isinstance(interval, dict) or any(not number(interval.get(k)) for k in ('lower', 'mean', 'upper')):
+            raise ValueError('Invalid default mission interval')
+        if not 0 <= interval['lower'] <= interval['mean'] <= interval['upper'] <= 1:
+            raise ValueError('Invalid default mission interval')
+    return policy
+
+
 def validate_config(c: dict) -> None:
     for key in ("aim", "population", "timing", "matchmaking", "spawn", "search", "scenarios", "publication"):
         if key not in c:
@@ -107,6 +123,7 @@ def validate_config(c: dict) -> None:
         elif isinstance(x, float) and not math.isfinite(x):
             raise ValueError("Non-finite config")
     visit(c)
+    mission_policy(c)
     for key, v in c["aim"].items():
         if not number(v) or v < 0:
             raise ValueError("Invalid aim parameter: " + key)

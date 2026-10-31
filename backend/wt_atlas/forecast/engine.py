@@ -187,6 +187,8 @@ class Forecast:
                     raise ValueError('Effect array checksum')
                 self.effects[row["map_id"]] = row
         self.missions_path = missions_path
+        from .data import mission_policy
+        self.mission_policy = mission_policy(config)
         self.missions = {}
         if missions_path:
             for row in read_json(missions_path)["records"]:
@@ -397,7 +399,7 @@ class Forecast:
         domain = "air" if task in ("anti_air","anti_helicopter","cap") else "ground"
         enemies = self.opponents(v["nation"], room_top, domain)
         trace=[]
-        totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "production_coverage":0., "usable": True}
+        totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "production_coverage":0., "assumed_coverage":0., "usable": True}
         if not enemies: return {**totals, "mean": .5, "upper": 1.}
         for enemy, weight in enemies:
             if task == "ground":
@@ -405,8 +407,17 @@ class Forecast:
                 trace.append(row['pair_key'])
             else:
                 external = self.missions.get((key, self.by_key[enemy]["vehicle_id"], scenario_id, task))
+                defaults = self.mission_policy['mode'] == 'assumed_defaults'
+                if defaults and (not external or external['status'] in ('missing', 'unvalidated')):
+                    external = {**self.mission_policy['default_interval'], 'status':'assumed',
+                                'source':'configured_prior_not_observation', 'production_validated':False,
+                                'variant_key':key, 'target_vehicle_id':self.by_key[enemy]['vehicle_id'],
+                                'scenario_id':scenario_id, 'task':task,
+                                'policy_sha256':digest(self.mission_policy)}
+                    external['evidence_sha256'] = digest(external)
                 if external:trace.append(external['evidence_sha256']);self.cache.evidence_put(external['evidence_sha256'],'external_mission',external)
                 row = {**external, "coverage": 1. if external['status']=='validated' else 0.} if external else {"mean": .5, "lower": 0., "upper": 1., "coverage": 0.}
+                totals['assumed_coverage'] += weight * float(bool(defaults and external and external['status']=='assumed'))
             totals["production_coverage"]+=weight*(row["coverage"] if task=="ground" else float(bool(external and external.get("production_validated"))))
             for name in ("mean", "lower", "upper", "coverage"):
                 totals[name] += weight * row[name]

@@ -13,7 +13,7 @@ import time
 
 from . import MODEL_VERSION
 from .aim import skill_nodes
-from .data import Atlas, canonical, digest, file_hash, patch_catalog, read_json, validate_config, verify_manifest
+from .data import Atlas, canonical, digest, file_hash, mission_policy, patch_catalog, read_json, validate_config, verify_manifest
 from .engine import variant_profiles, Forecast, ShotCache
 from .search import Optimizer
 from .rankings import table_candidates
@@ -296,13 +296,14 @@ def build(args, root: Path) -> dict:
                   "scenario_audit": audit, "diagnostics": diagnostics,
                   "rejected_variants": engines["current"].rejected,
                   "calibration_status": config["calibration_status"], "endpoint": config.get("endpoint", "penetration"),
+                  "mission_policy":mission_policy(config),
                   "population": config["population"], "matchmaking": config["matchmaking"], "spawn_assumptions": config["spawn"],
                   "ranking_scope": config["publication"]["scope"],
                   "limitations": ["Conditional source-model estimates, not actual kills or win rates.",
                     "Only supplied physical distances and yaw slices are used; no range rescaling from required-charge maps.",
                     "No-reference-slice substitution. Every attack direction needs its own owned-ammunition map.",
                     "Catalog geometry equivalence is not inferred from target_sha256; binding strength is reported.",
-                    "Air/AA/recon tasks require versioned mission evidence; absent evidence is not zero or free capability.",
+                    "Missing task records use explicitly configured assumed intervals when enabled; they are not observations and do not fill physical coverage.",
                     "Beam/exchange search has an explicit work budget, not a global optimality guarantee.",
                     "Intervals bound missing map effects, not statistical confidence or all model error."]}
         package_site(out, report, worlds, migrations, root)
@@ -331,7 +332,7 @@ def empty_build(args,root,config,found):
     report={'build_key':digest([config,found]),'sample_subset':False,'published_rankings':False,'research_rankings':False,
         'metadata_count':0,'catalog_vehicles':0,'physical_distances_m':[],'scenario_status':'not_provided','diagnostics':[],
         'release_readiness':{'current':gate},'coverage':{'discovered':found},'endpoint':config['endpoint'],
-        'calibration_status':config['calibration_status'],'limitations':['Provide a same-version catalog, ammunition profiles and V2 atlas.']}
+        'calibration_status':config['calibration_status'],'mission_policy':mission_policy(config),'limitations':['Provide a same-version catalog, ammunition profiles and V2 atlas.']}
     world={'boards':{f'{s}/{a}':[] for s in config['search']['slots'] for a in config['search']['acquisition_profiles']},'tables':[],'evaluations':0,'truncated_searches':0}
     if not getattr(args,'dry_run',False):package_site(Path(args.out),report,{'current':world},[],root)
     return {'out':args.out,'ranked_counts':{'current':0},'release_readiness':gate,'publication':'input_diagnostics_only'}

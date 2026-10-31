@@ -68,7 +68,11 @@ client_version, datamine_commit, plan
 
 ### 任务、毁伤与校准
 
-`--missions` 文件为 `records[]`。每条要求 `variant_key/target_vehicle_id/scenario_id/task/lower/mean/upper/source_version/source/status`。合法 task 为 ground、anti_tank、ground_control、recon、anti_helicopter、anti_air、cap、cas、sead；数值必须有序且在 [0,1]。生产任务还要求 evidence 的 `loadout_id/flight_conditions/radar_conditions/target_countermeasures/source_sha256`。条件对象中记录导引头、包线、飞行状态、雷达与反制适用性；`measurement=maximum_range` 不能充当任务效果。所有提供的数字是外部证据输入，程序不会从射程推断命中率。
+`--missions` 可省略，或提供空 `records[]`。按用户于 2026-10-31 确认的策略，默认配置启用 `mission_policy.mode=assumed_defaults`：缺少非地面物理任务记录时使用 `default_interval={lower:0,mean:0.5,upper:1}`，状态固定为 `assumed_not_observed`。0.5 是可配置的中性先验，不是命中率、胜率或实测效果。默认任务占比、真实证据覆盖与独立地面物理覆盖分开输出；任务先验不能补齐缺失的物理图。已有有效记录优先，记录更新及先验变化均进入缓存身份。`ground` 仍直接使用双向物理交战模型。
+
+后续网站用户反馈与其他来源可整理成 `--missions` 的 `records[]`。每条要求 `variant_key/target_vehicle_id/scenario_id/task/lower/mean/upper/source_version/source/status`。合法 task 为 ground、anti_tank、ground_control、recon、anti_helicopter、anti_air、cap、cas、sead；数值必须有序且在 [0,1]。计入已核验生产任务证据还要求 evidence 的 `loadout_id/flight_conditions/radar_conditions/target_countermeasures/source_sha256`。条件对象中记录导引头、包线、飞行状态、雷达与反制适用性；`measurement=maximum_range` 不能充当任务效果。默认策略不放宽导入记录的来源、版本和数值检查。
+
+需要严格证据准入时设置 `mission_policy.mode=require_evidence`；旧配置未声明此段时保留严格行为。默认模式不再因缺少任务记录而单独阻断条件模型排名，但其他来源、物理覆盖、任务建模、SP、挂载、搜索及敏感性门禁继续有效。实战记录可留空，校准保持 `uncalibrated`，不自动收集或上传用户反馈。
 
 `--effects` 同样使用 records。每条为 `map_id/map_array_sha256/source/source_version/status`，以及 `array_file/array_sha256`。NPZ `conditional_outcomes` 形状为 `[angle,height,width,3]`，三个互斥增量为火力失能、机动失能、终止，总和 ≤1。validated 必须与原图和版本匹配；`constant:[...]` 仅允许 assumed 的敏感性核。缺核保留未知区间，penetration 不会被改名 damage。
 
@@ -123,7 +127,7 @@ release-readiness 独立列 algorithm_ready、data_ready、publishable。正式�
 
 ## 逐队列发布证据（后续审计修正）
 
-等待出击具有已知的零收益，但不产生任务观测。出击策略分别返回 model_state_coverage 对应的状态覆盖和 evidence_coverage 对应的实际任务证据；队列准入使用后者。production_mission_coverage 进一步按成员、敌方分布、房间和场景汇总携带配置绑定的来源证据，只有 validated 且提供 delivery evidence 的任务记录计入生产覆盖。全局存在某类任务记录不能替代入榜队列自己的证据。
+等待出击具有已知的零收益，但不产生任务观测。出击策略分别返回 model_state_coverage、evidence_coverage 和 assumed_mission_coverage。严格策略按实际证据准入；默认策略可使用显式任务假设，同时独立检查 physical_pair_coverage，避免用先验填补缺失物理方向。production_mission_coverage 仍仅统计 validated 且提供 delivery evidence 的任务记录。全局存在某类任务记录不能替代入榜队列自己的证据。
 
 完整模式配置必须明确设置 publication.scope=full_ground_rb、publication.required_tasks，并把所有所需任务放进正权重的 spawn.phases；默认配置维持原生距离地面研究身份。完整模式对每个入榜队列逐任务检查 minimum_pair_coverage；假设性或未配置的任务不放行。缺少官方 SP/BR、版本身份等其他门禁仍独立阻止发布。
 

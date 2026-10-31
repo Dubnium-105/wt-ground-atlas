@@ -67,7 +67,7 @@ def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict,
         return best
     value = solve(0, 0, config["initial_points"])
     # Policy occupancy is marginalized over the declared SP transitions.
-    active={(0,config['initial_points']):1.};actions=[];evidence_coverage=0.
+    active={(0,config['initial_points']):1.};actions=[];evidence_coverage=0.;assumed_coverage=0.
     for phase in range(len(rows)):
         following={};occupancy={}
         for (used,points),mass in active.items():
@@ -76,6 +76,7 @@ def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict,
             if chosen is None:
                 following[(used,points)]=following.get((used,points),0.)+mass;continue
             evidence_coverage+=mass*weights[phase]*rows[phase][chosen]['coverage']
+            assumed_coverage+=mass*weights[phase]*rows[phase][chosen].get('assumed_coverage',0.)
             cost=costs[chosen]
             if cost_function:
                 previous=sum(bool(used & (1<<j)) for j in range(len(costs)) if groups[j]==groups[chosen])
@@ -87,7 +88,7 @@ def sortie_policy(rows: list[list[dict]], costs: list[int | None], config: dict,
         active=following
     return dict(zip(("mean", "lower", "upper", "coverage", "first_action"), value), states=visits,
                 status=config["status"], probability_model="declared_exogenous_point_gains",policy=actions,
-                evidence_coverage=evidence_coverage)
+                evidence_coverage=evidence_coverage,assumed_coverage=assumed_coverage)
 
 
 def feasible(lineup: tuple[dict, ...], slots: int) -> bool:
@@ -123,6 +124,13 @@ class Optimizer:
                 result['task_evidence']=[sum(a['probability']*(rows[i][a['member_index']]['coverage'] if a['member_index'] is not None else 0.) for a in phase['actions']) for i,phase in enumerate(result['policy'])]
                 result['mission_keys']=[[r.get('mission_key') for r in phase] for phase in rows]
                 result['production_mission_coverage']={task:min(r.get('production_coverage',0.) for r in rows[i]) for i,task in enumerate(phases)}
+                # Defaults may supply task utility, never missing ground physics.
+                if result['assumed_coverage'] > 0:
+                    result['physical_pair_coverage'] = min(
+                        (self.e.mission(v['key'],'ground',room,scenario['id'])['coverage']
+                         for v in lineup if v['domain']=='ground'), default=0.)
+                else:
+                    result['physical_pair_coverage'] = result['evidence_coverage']
                 result.update(weight=room_weight * scenario["weight"], room_top_step=room, scenario=scenario["id"])
                 cases.append(result)
         risk = self.config["search"]["risk_aversion"]
@@ -131,7 +139,9 @@ class Optimizer:
             tail = lower_tail([(r[key], r["weight"]) for r in cases], self.config["search"]["tail_mass"])
             return (1 - risk) * expected + risk * tail
         coverage = sum(r["weight"] * r["evidence_coverage"] for r in cases)
-        eligible = coverage >= self.config["search"]["minimum_pair_coverage"]
+        assumed = sum(r['weight'] * r['assumed_coverage'] for r in cases)
+        physical = sum(r['weight'] * r['physical_pair_coverage'] for r in cases)
+        eligible = min(coverage + assumed, physical) >= self.config["search"]["minimum_pair_coverage"]
         estimate = aggregate("mean")
         members = [{k: v[k] for k in ("vehicle_id", "rating_configuration_id", "ammo_id", "loadout_id", "key", "br", "classification")} for v in lineup]
         for m,v in zip(members,lineup):
@@ -144,14 +154,17 @@ class Optimizer:
                 "score": 100 * estimate if eligible else None, "estimate": 100 * estimate,
                 "lower": 100 * aggregate("lower"), "upper": 100 * aggregate("upper"),
                 "evidence_coverage": coverage, "rankable": eligible,
+                "assumed_mission_coverage":assumed, "physical_pair_coverage":physical,
+                "mission_policy":self.config.get('mission_policy',{'mode':'require_evidence'}),
                 "model_state_coverage":sum(r["weight"]*r["coverage"] for r in cases),
                 "production_mission_coverage":{task:sum(r["weight"]*r["production_mission_coverage"][task] for r in cases) for task in set(self.config["spawn"]["phases"])},
-                "status": "uncalibrated_conditional_prediction" if eligible else "insufficient_paired_evidence",
+                "status": ("assumed_mission_prediction" if assumed else "uncalibrated_conditional_prediction") if eligible else "insufficient_paired_evidence",
                 "cases": cases, "endpoint": self.config.get("endpoint", "penetration"),
                 "composition": "ground_only" if all(v["domain"] == "ground" for v in lineup) else "combined_arms",
                 "uptier_lower_utility": 100 * min((c["lower"] for c in cases if c["room_top_step"] > cap), default=min(c["lower"] for c in cases)),
                 "lineup_key":digest([getattr(self.e,'build_key',None),keys,self.config,cases]),
                 "uncertainty":{"physical_missing_interval":[100*aggregate('lower'),100*aggregate('upper')],
+                    "includes_mission_assumptions":assumed>0,
                     "model_error":None,"out_of_sample_confidence_interval":None},
                 "mission_coverage":{task:sum(r['weight']*r['task_evidence'][i] for r in cases) for i,task in enumerate(self.config['spawn']['phases'])},
                 "global_optimum_guaranteed": False}

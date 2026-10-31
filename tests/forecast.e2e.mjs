@@ -19,7 +19,7 @@ from site_fixture import create_fixture,build_recommendations,load_script
 p=Path(sys.argv[1]);catalog,_,_=fixture(p)
 catalog.update(schema_version='1.0.0',nations=[{'id':n,'label':'Fixture '+n} for n in ('a','b')])
 (p/'catalog.json').write_text(json.dumps(catalog))
-c=settings();c['search']['global_limit']=1;c['skill_profiles']={k:{**v,'nodes':1,'sd':0} for k,v in c['skill_profiles'].items()}
+c=settings();c['mission_policy']=json.loads(Path('config/forecast.json').read_text(encoding='utf-8'))['mission_policy'];c['search']['global_limit']=1;c['skill_profiles']={k:{**v,'nodes':1,'sd':0} for k,v in c['skill_profiles'].items()}
 (p/'config.json').write_text(json.dumps(c))
 (p/'patch.json').write_text(json.dumps({'id':'synthetic-patch','status':'proposed','entries':[{'vehicle_id':'synthetic_a_0','field':'br','old':9.3,'new':9.7}]}))
 research=create_fixture(p/'research-project')
@@ -49,6 +49,8 @@ try{
   await page.goto(`http://127.0.0.1:${server.address().port}/sub/index.html`);
   await page.waitForSelector('html[data-ready="true"]');
   assert.equal(await page.locator('#version').inputValue(),'planned');
+  assert.match(await page.locator('#status').innerText(),/任务记录可留空：使用默认假设/);
+  assert.match(await page.locator('#status').innerText(),/模型保持未校准/);
   assert.ok(await page.locator('.card').count()>0,'automatic recommendations require no manual lineup');
   assert.equal(await page.locator('.card:not(.movement)').count(),1,'global limit is applied only to representatives');
   assert.equal(requests.some(url=>url.includes('.view.')),false,'independent views load on demand');

@@ -1,7 +1,7 @@
 """Auditable snapshot states and layer-specific invalidation decisions."""
 from __future__ import annotations
 from datetime import datetime
-from .data import digest, patch_catalog, number
+from .data import digest, patch_catalog, number, mission_policy
 from .rankings import table_candidates
 
 STATUSES={'released','announced','proposed','hypothetical','unknown'}
@@ -59,6 +59,8 @@ def selection_identity(variant):
 
 def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensitivity=None,sensitivity_inputs=None):
     info=snapshot(catalog); blockers=[]
+    policy=mission_policy(config)
+    require_missions=policy['mode']=='require_evidence'
     synthetic=catalog.get('test_fixture') is True
     if synthetic:blockers.append('synthetic_fixture_not_production')
     if catalog.get('sample_subset'):blockers.append('sample_subset')
@@ -75,7 +77,7 @@ def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensi
     if config['publication']['scope']!='full_ground_rb':blockers.append('scope_is_limited_ground_research')
     tasks=config['publication'].get('required_tasks',['ground_control','anti_tank','recon','anti_helicopter','anti_air','cap','cas','sead'])
     evidence_tasks={r.get('task') for r in (missions or {}).values() if r.get('production_validated')}
-    if not set(tasks)<=evidence_tasks:blockers.append('full_mode_mission_evidence_missing')
+    if require_missions and not set(tasks)<=evidence_tasks:blockers.append('full_mode_mission_evidence_missing')
     ranked_rows = [r for rows in world['boards'].values() for r in rows]
     ranked_rows += [r for t in world.get('tables', []) if not t['budget_exhausted']
                     for r in table_candidates(t) if r.get('rankable')]
@@ -83,7 +85,7 @@ def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensi
         modeled={task for task,weight in zip(config['spawn']['phases'],config['spawn']['phase_weights']) if weight>0}
         if not set(tasks)<=modeled:blockers.append('required_tasks_not_modeled')
         threshold=config['search']['minimum_pair_coverage']
-        if any(not number(row.get('production_mission_coverage',{}).get(task)) or
+        if require_missions and any(not number(row.get('production_mission_coverage',{}).get(task)) or
                not threshold<=row['production_mission_coverage'][task]<=1
                for row in ranked_rows for task in tasks):
             blockers.append('ranked_lineup_mission_evidence_incomplete')
@@ -112,4 +114,6 @@ def release_gate(catalog,atlas,config,world,*,inventory=None,missions=None,sensi
     return {'algorithm_ready':True,'data_ready':not any(b for b in blockers if b not in ('search_budget_truncated','sensitivity_not_verified')),
             'publishable':not blockers,'why_not_publishable':blockers,'snapshot':info,
             'calibration_status':config['calibration_status'],'empirical_win_rate_validated':False,
+            'mission_policy':policy,'mission_evidence_required':require_missions,
+            'prediction_basis':'evidence_required' if require_missions else 'explicit_mission_assumptions',
             'research_candidates':sum(len(x) for x in world['boards'].values())}
