@@ -1,11 +1,13 @@
 import copy
+import gzip
 import hashlib
 import json
 from pathlib import Path
 import tempfile
 import unittest
 
-from wt_atlas.common import file_hash
+from wt_atlas.common import content_hash,file_hash
+from wt_atlas.system_batch_study import build_batch
 from wt_atlas.system_study import build_study
 from site_fixture import load_script
 
@@ -85,6 +87,30 @@ class SystemStudyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'overlaps product output'):
             load_script('build_product').compose(self.root/'forecast',output,system_reports=[report],
                 system_catalog=self.catalog,system_ammunition=self.ammunition,system_bindings=self.bindings,system_config=self.config)
+
+    def test_completed_batch_is_sharded_and_corruption_or_incomplete_batch_rejected(self):
+        request={'attacker_id':'enemy','ammo_id':'ammo','system_id':'base'}
+        plan=self.root/'plan.json';plan.write_text(json.dumps({'requests':[request]}),encoding='utf8')
+        batch=self.root/'batch';batch.mkdir()
+        identity={'publishable':False,'plan_sha256':file_hash(plan),'skill_profile':'normal',
+                  'input_sha256':self.report['input_sha256'],'source_code_sha256_lf':self.report['source_code_sha256_lf'],
+                  'runtime':{'python':'fixture'}}
+        marker=batch/'.wt-system-batch.json';marker.write_text(json.dumps(identity),encoding='utf8')
+        progress=batch/'progress.json';progress.write_text(json.dumps({'status':'complete','total':1,'processed':1}),encoding='utf8')
+        key=content_hash({'batch_identity':identity,'request':request})
+        report=batch/(key+'.json');checksum=batch/(key+'.sha256')
+        row={**self.report,'batch_job_key':key,'runtime':identity['runtime']}
+        report.write_text(json.dumps(row),encoding='utf8');checksum.write_text(json.dumps(file_hash(report)),encoding='utf8')
+        def build():return build_batch(batch,plan,self.catalog,self.ammunition,self.bindings,self.config,self.root,self.root/'shards')
+        manifest=build();self.assertEqual(manifest['candidate_count'],1);self.assertFalse(manifest['publishable'])
+        descriptor=manifest['choices'][0]['data'];raw=(self.root/'shards'/Path(descriptor['url']).name).read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(),descriptor['sha256'])
+        self.assertEqual(json.loads(gzip.decompress(raw))['systems'][0]['system_id'],'base')
+        report.write_text('{}',encoding='utf8')
+        with self.assertRaisesRegex(ValueError,'checksum'):build()
+        report.write_text(json.dumps(row),encoding='utf8');checksum.write_text(json.dumps(file_hash(report)),encoding='utf8')
+        progress.write_text(json.dumps({'status':'running','total':1,'processed':1}),encoding='utf8')
+        with self.assertRaisesRegex(ValueError,'incomplete'):build()
 
 
 if __name__=='__main__':unittest.main()

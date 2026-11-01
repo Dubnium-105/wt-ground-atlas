@@ -11,13 +11,11 @@ from .forecast.aim import skill_nodes
 from .forecast.system_physics import declared_members, unknown_exposure_bounds
 
 
-def build_study(report_paths, catalog_path, ammunition_path, bindings_path, config_path, root):
-    root=Path(root).resolve(); catalog_path=Path(catalog_path).resolve()
+def prepare_study(catalog_path, ammunition_path, bindings_path, config_path):
+    catalog_path=Path(catalog_path).resolve()
     ammunition_path=Path(ammunition_path).resolve()
     bindings_path=Path(bindings_path).resolve()
     config_path=Path(config_path).resolve()
-    paths=[Path(p).resolve() for p in report_paths]
-    if not paths or len(set(paths))!=len(paths):raise ValueError('Missing or duplicate system research reports')
     catalog=read_json(catalog_path);version=catalog['snapshot']['client_source']['version']
     catalog_sha=file_hash(catalog_path);ammunition_sha=file_hash(ammunition_path);bindings_sha=file_hash(bindings_path);config_sha=file_hash(config_path)
     bindings=read_json(bindings_path).get('bindings',{})
@@ -27,8 +25,19 @@ def build_study(report_paths, catalog_path, ammunition_path, bindings_path, conf
             len({s['id'] for s in config['scenarios']})!=len(config['scenarios'])):raise ValueError('Duplicate or missing configured scenario')
     profiles=read_json(ammunition_path);profile_by_name={p['name']:p for p in profiles}
     if len(profiles)!=len(profile_by_name):raise ValueError('Duplicate system research profile')
-    systems=[];identities=None;scenario_keys=None;seen=set();hashes={}
     vehicles={v['id']:v for v in catalog.get('vehicles',[])}
+    return locals()
+
+
+def build_study(report_paths, catalog_path, ammunition_path, bindings_path, config_path, root, *, _context=None):
+    root=Path(root).resolve();paths=[Path(p).resolve() for p in report_paths]
+    if not paths or len(set(paths))!=len(paths):raise ValueError('Missing or duplicate system research reports')
+    ctx=_context or prepare_study(catalog_path,ammunition_path,bindings_path,config_path)
+    catalog_path,ammunition_path,bindings_path,config_path=(ctx[k] for k in ('catalog_path','ammunition_path','bindings_path','config_path'))
+    catalog,version,catalog_sha,ammunition_sha,bindings_sha,config_sha=(ctx[k] for k in ('catalog','version','catalog_sha','ammunition_sha','bindings_sha','config_sha'))
+    bindings,config,expected_scenarios,profile_by_name,vehicles=(ctx[k] for k in ('bindings','config','expected_scenarios','profile_by_name','vehicles'))
+    common={catalog_path:catalog_sha,ammunition_path:ammunition_sha,bindings_path:bindings_sha,config_path:config_sha}
+    systems=[];identities=None;scenario_keys=None;seen=set();hashes={}
     def label(identifier):return html.unescape(str(vehicles[identifier].get('name') or identifier))
     for path in paths:
         before=file_hash(path);report=read_json(path);inputs=report.get('input_sha256',{});code=report.get('source_code_sha256_lf',{})
@@ -45,7 +54,7 @@ def build_study(report_paths, catalog_path, ammunition_path, bindings_path, conf
         if len(config_keys)!=1 or inputs[config_keys[0]]!=config_sha:raise ValueError('System research configuration mismatch')
         for name,sha in inputs.items():
             source=Path(name.replace('\\','/'));source=source if source.is_absolute() else root/source
-            if file_hash(source)!=sha:raise ValueError('System research input changed')
+            if (common[source.resolve()] if _context and source.resolve() in common else file_hash(source))!=sha:raise ValueError('System research input changed')
         for name,sha in code.items():
             source=safe_file(root,name)
             if hashlib.sha256(source.read_bytes().replace(b'\r\n',b'\n')).hexdigest()!=sha:
@@ -108,7 +117,7 @@ def build_study(report_paths, catalog_path, ammunition_path, bindings_path, conf
                          'profile_id':row.get('profile_id'),'members':members})
         if not rows or keys!=expected_scenarios or scenario_keys is not None and keys!=scenario_keys:raise ValueError('System research scenarios differ')
         scenario_keys=keys;systems.append({'system_id':system,'name':label(system),'report_sha256':before,'rows':rows});hashes[str(path)]=before
-    if any(file_hash(Path(path))!=sha for path,sha in hashes.items()) or file_hash(catalog_path)!=catalog_sha or file_hash(ammunition_path)!=ammunition_sha or file_hash(bindings_path)!=bindings_sha or file_hash(config_path)!=config_sha:
+    if any(file_hash(Path(path))!=sha for path,sha in hashes.items()) or not _context and any(file_hash(path)!=sha for path,sha in common.items()):
         raise ValueError('System research source changed during packaging')
     return {'schema_version':'1.0.0','source_version':version,'catalog_sha256':catalog_sha,'ammunition_sha256':ammunition_sha,'bindings_sha256':bindings_sha,'config_sha256':config_sha,
             'attacker_id':identities[0],'attacker_name':label(identities[0]),'ammo_id':identities[1],
