@@ -1,0 +1,77 @@
+{
+  "angles_per_map": 24,
+  "code_sha256_lf": {
+    "backend/wt_atlas/component_native_planning.py": "41d6bca32eeef29e3ba284e24e47b4c7d49b42b5d4ce7fb9e98447ad59160e28",
+    "backend/wt_atlas/forecast/system_physics.py": "404a542b5dffc188acbe4bb7eea630322725b07ca1b47b7cede8d4604fd535e3",
+    "scripts/evaluate_system_member_bounds.py": "3ba468a1366711fcd01f1ec916537e7e4df6944ebde2b929f19c2cb4db775d56",
+    "scripts/plan_system_component_maps.py": "d1169314d933919753dcb80d0e99836d24e23b1ab30c9712382191a81ee090b2"
+  },
+  "components": 10,
+  "cpu_cuda_crosscheck": {
+    "checks": 8,
+    "max_probability_delta": 5.960464477539063e-08,
+    "report": "reports/system-component-range-crosscheck.json",
+    "report_sha256": "59798db3b65db101b251f200494c0e875758e979b678eda4f2555b33f90b4cf9",
+    "sampled_rays": 130944
+  },
+  "distances_m": [
+    10.0,
+    100.0,
+    500.0,
+    1000.0
+  ],
+  "excluded_attacker_profile_target_cases_outside_delivery_bounds": 56,
+  "formal_rankings": 0,
+  "input_sha256": {
+    "ammunition": "2f4dbb4f7788e0225771988752a98b70dc7477212215b4ed1625150914ddb22b",
+    "catalog": "3a402261ab45bd1812759230470ad8c714a4915045ad89d42de5b0b33a0fd9c1",
+    "original_requests": "1f191d41e68a8aa01f1368a962d330a05f2bf6be9bea896ef6a76f3781ed4e12",
+    "physical_scenarios": "fb6c9a2c39db7e1597796eee65d2a8fbb1d558137d15442bac5c64f5b9448de6",
+    "prior_federated_audit": "6ef7c77fb73b9a12f954a2e7b51b9ad87adf7d2ff2557b7b3c2015fcf9438828",
+    "rechecked_requests": "56250d51b31bb51770533c7358bf4a597b56c45f541f360a7bae95125d732b68"
+  },
+  "new_batch": {
+    "ambiguous_maps": 0,
+    "array_bytes": 402101447,
+    "binding_error_count": 0,
+    "computed_maps": 1701,
+    "duration_seconds": 156.13658379996195,
+    "planned_maps": 1721,
+    "preflight_duration_seconds": 94.18242080009077,
+    "preflight_report_sha256": "a7abbe5dbf5ee2b8aa387f3ba086b034d875ff44e9b53dabf8691f7d05e5a7d7",
+    "rejections": {},
+    "resources": {
+      "cpu_seconds": 144.421875,
+      "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+      "peak_rss_bytes": 1437511680
+    },
+    "reused_maps": 20,
+    "verified_arrays": 1721
+  },
+  "previous_nine_source_indexes_component_maps": 0,
+  "publishable": false,
+  "schema_version": "1.0.0",
+  "scope": "Source-owned ground projectile impact maps against 10 system component types within parent base-BR and nation planning scope; no system-level damage, target-selection distribution, dynamic BR, flight or combat validation is inferred.",
+  "source_version": "2.59.0.92",
+  "system_member_bounds": {
+    "all_members_source_bound": true,
+    "report": "reports/system-member-bounds.json",
+    "report_sha256": "463272b9929881e483103687c3471fe52e8ad1aed807342a07cf63b1e8d1223d",
+    "scenarios": 96,
+    "target_selection_weights": "unknown_and_may_depend_on_skill"
+  },
+  "targets": {
+    "fr_samp_t_launcher": 178,
+    "germ_iris_slm_launcher": 178,
+    "it_samp_t_launcher": 178,
+    "jp_type_03_chusam_launcher": 174,
+    "jp_type_81_tansam_launcher": 218,
+    "sw_nasams_launcher": 170,
+    "uk_sky_sabre_launcher": 162,
+    "us_nasams_launcher": 146,
+    "us_sl_amraam_launcher": 158,
+    "ussr_buk_m3_launcher": 163
+  },
+  "verified_component_array_bytes": 403157655,
+  "verified_component_maps_including_first_batch": 1725
+}

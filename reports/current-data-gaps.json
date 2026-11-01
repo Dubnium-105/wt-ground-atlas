@@ -56,6 +56,15 @@
       "verified_arrays_at_restart": 1890,
       "watcher_pid": 20864
     },
+    "system_component_targets": {
+      "aggregated_system_damage_implemented": false,
+      "components": 10,
+      "report": "reports/system-components-progress.json",
+      "report_sha256": "e7e7b8859ebbea6c6fdecfd23997987deac123f225e48f0b7b684360821210ea",
+      "scope": "Source-owned ground projectile impact maps against 10 system component types within parent base-BR and nation planning scope; no system-level damage, target-selection distribution, dynamic BR, flight or combat validation is inferred.",
+      "system_target_distribution_verified": false,
+      "verified_component_maps": 1725
+    },
     "total_scope": "Five-batch combined full-array preflight passed array and binding checks but is blocked by incomplete bidirectional coverage. Seven-batch verification resumed after a process-pool failure; eight- and nine-batch work is queued sequentially. Final combined acceptance remains pending."
   },
   "collected_at": "2026-10-31T11:26:03.310791+00:00",
@@ -393,6 +402,7 @@
     "reports/random-ground-reinforcements-evidence.json": "bd528eb2a6240834a05c9121c5044069b96c214057d732d0cb593f58e878f25c",
     "reports/range-rebuild-progress.json": "16d2b5bd74bef13fc1b837689cd5bf6d229f5ec22eb4df9752fad34f66a96ced",
     "reports/root-rockets-progress.json": "d0fa7502587b6e85ed078f86d4e48c0023b99b338ae6946e835b5f9aa57c9139",
+    "reports/system-components-progress.json": "e7e7b8859ebbea6c6fdecfd23997987deac123f225e48f0b7b684360821210ea",
     "reports\\aviation-source-reconciliation-progress.json": "3959e75fa816795cc5a670eb8b2fae3ae69372858e42c63a12b89ac6dc7f6486",
     "reports\\dual-use-missile-progress.json": "bbb1365da8854482355b1f735f51db4822dc9922f4b9991d9576a8724f09c3e3",
     "reports\\federated-eight-batch-progress.json": "95f226f48980b0f941af803a357746d2cc6b7fd219baf0dc82e6e276aca190b7",

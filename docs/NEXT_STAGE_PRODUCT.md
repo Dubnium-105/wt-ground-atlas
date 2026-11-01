@@ -511,3 +511,16 @@ python scripts/import_exported_bullet_points.py --capture /data/capture.json --d
 ## 多批索引的临时覆盖规划
 
 `scripts/audit_federated_coverage.py` 接受一个目录、弹药档案、场景配置和多个 `--index`，只合并已完成数组验证的离线索引。它拒绝活动 WAL、未验证数组、重复对抗身份、来源版本或弹药哈希冲突，并在执行前后核对输入文件哈希。结果只用于选择后续计算任务：它没有重读所有原始数组，矩阵采用基础目录 BR，不能证明动态挂载或用户解锁资格，也不会解除正式发布门槛。
+
+## 多车系统的组件目标
+
+`scripts/plan_system_component_maps.py` 读取官方图鉴中的主车／组件关系，以主车**基础 BR**和国家限定缺图规划。它重新绑定组件几何，检查已有图的弹药档案、版本、元数据与数组哈希，并排除超出来源声明投送距离的弹药情景；组件仍不是独立队列选择，动态 BR 与系统实战作用不由该规划推断。生成的请求可交给现有 `scripts/rebuild_native_maps.py --resume` 离线计算。
+
+```sh
+python scripts/plan_system_component_maps.py --catalog /data/catalog.json --ammunition /data/ammunition.json --config /data/physical-scenarios.json --bindings /data/geometry-bindings.json --index /data/verified-index.sqlite --out /data/component-requests.json
+python scripts/rebuild_native_maps.py --repository /data/source-repository --catalog /data/catalog.json --ammunition /data/ammunition.json --requests /data/component-requests.json --source-root /data/extracted/aces.vromfs.bin_u --out /data/component-maps --backend v2-cuda --resume
+```
+
+本地对 10 个发射车类型计算并独立验证了 1,725 张组件目标图，覆盖来源支持的四个距离与每图 24 个方位；其中新增批次 1,721 张、约 402 MB，剩余 4 张来自先前独立验证的试算。相同来源的既有九个索引中没有这些组件目标图。新批次 GPU 计算耗时 156.14 秒，独立预检 94.18 秒，数组和几何绑定均无拒绝。M829A2 对 Buk 主车和发射车的 8 组真实几何 CPU／CUDA 对照覆盖 130,944 条采样射线，最大差约 5.96×10⁻⁸；该对照不能证明游戏实战校准。详见 `reports/system-components-progress.json` 与 `reports/system-component-range-crosscheck.json`。
+
+`scripts/evaluate_system_member_bounds.py` 可以对已验证的各成员目标图按现有瞄准模型计算条件穿透区间。由于选择哪个成员作为目标的分布未知，结果不提供均值，并允许目标选择随技能变化；缺失地图时相应范围为 `[0,1]`。Buk 示例在四个距离、24 个方位共 96 个情景中检查了主车与发射车，结果和来源哈希见 `reports/system-member-bounds.json`。这不是整套系统失效、击毁或胜率，也不会解除全服发布门禁。
