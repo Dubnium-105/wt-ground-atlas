@@ -79,6 +79,15 @@ class AimTests(unittest.TestCase):
         self.assertAlmostEqual(sum(x * w for x, w in nodes), 0.)
         self.assertAlmostEqual(sum(x * x * w for x, w in nodes), 1.)
 
+    def test_certain_penetration_remains_a_valid_interval_after_rounding(self):
+        config=json.loads((Path(__file__).resolve().parents[1]/'config/forecast.full-ground-rb.json').read_text(encoding='utf8'))
+        p=np.ones((10,10),dtype=np.float32);s=np.full(p.shape,3,dtype=np.uint8)
+        result=integrate(p,s,.2,0.,config['scenarios'][0],config['aim'])
+        self.assertLessEqual(0.,result['lower'])
+        self.assertLessEqual(result['lower'],result['mean'])
+        self.assertLessEqual(result['mean'],result['upper'])
+        self.assertLessEqual(result['upper'],1.)
+
     def test_impact_mass_and_distinct_unknown_semantics(self):
         p = np.full((4, 4), np.nan, np.float32)
         status = np.array([[0, 0, 0, 0], [1, 2, 3, 3], [1, 3, 3, 0], [0, 0, 0, 0]], np.uint8)
