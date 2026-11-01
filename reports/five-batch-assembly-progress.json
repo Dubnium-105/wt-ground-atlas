@@ -1,0 +1,22 @@
+{
+  "ammunition_sha256": "67d8143453499533326fc9a82c6dd7926b9c382947bac6378d24726412e6e085",
+  "copied_arrays": 0,
+  "duration_seconds": 2628.4276513999794,
+  "formal_rankings": 0,
+  "fresh_preflight": "queued_after_earlier_preflight",
+  "hardlinked_arrays": 433435,
+  "includes_original_10m_index": false,
+  "includes_root_rocket_batch": false,
+  "maps": 433435,
+  "new_maps": 82032,
+  "publishable": false,
+  "resumable": true,
+  "schema_version": "1.0.0",
+  "shared_bytes_require_hash_invalidation": true,
+  "source_files_modified": false,
+  "source_version": [
+    "2.59.0.92",
+    "af0cce561a73704e30c1df66eff06209bcc3f035"
+  ],
+  "status": "assembled_requires_fresh_preflight"
+}

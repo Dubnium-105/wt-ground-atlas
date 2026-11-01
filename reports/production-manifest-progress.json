@@ -1,0 +1,116 @@
+{
+  "code_sha256": {
+    "backend/wt_atlas/client_manifest.py": "83eb45b8d7fa372fe8b6b0e9b1fa1a8461d5ae41dbcd8caf759be00d2d89f79f",
+    "scripts/audit_client_manifest.py": "b98cc1d4485565e67a40353b381f02a87947cfdce6e7708c2d3891d04b27f032"
+  },
+  "detailed_audit_sha256": "9446f01fe9f9dd74d7c5bc6b7ceb277b91a014a62b5ea031fbf7f73191786064",
+  "grp_counts": {
+    "matched": 938
+  },
+  "grp_total_bytes": 2410235991,
+  "installed_manifest_matches": true,
+  "inventory_file_sha256": "63b7a0c58ee12009b6df855f95d52326866da4375686157b89444e8c7c78e0d5",
+  "inventory_version_matches": true,
+  "manifest_file_entries": 24049,
+  "manifest_hashed_files": 12025,
+  "packs": [
+    {
+      "actual": {
+        "bytes": 18865384,
+        "sha1": "54018cada3ff964715e6473f01f6b42251157fd9",
+        "sha256": "ef7e4861050d4213b2759f3fb817cc78868f777943afc76608642efe25d7b285"
+      },
+      "official": {
+        "bytes": 18865384,
+        "sha1": "54018cada3ff964715e6473f01f6b42251157fd9"
+      },
+      "path": "aces.vromfs.bin",
+      "status": "matched"
+    },
+    {
+      "actual": {
+        "bytes": 1150240,
+        "sha1": "9b94e2956fb8cdd086b9526adf824fd7b5ec9bfd",
+        "sha256": "9994fca943fe6dc64465b60692d3a15ae8ceaeb2abf0827757565be081a87cf0"
+      },
+      "official": {
+        "bytes": 1150240,
+        "sha1": "9b94e2956fb8cdd086b9526adf824fd7b5ec9bfd"
+      },
+      "path": "char.vromfs.bin",
+      "status": "matched"
+    },
+    {
+      "actual": {
+        "bytes": 4078791,
+        "sha1": "bc0949a96b5602809213aaf1d360334aeed6183c",
+        "sha256": "1162cd40e5d29a65b7e68e9e2f1c589a4239bf87cf9bde62fa30e14d396b0ccd"
+      },
+      "official": {
+        "bytes": 4078791,
+        "sha1": "bc0949a96b5602809213aaf1d360334aeed6183c"
+      },
+      "path": "gui.vromfs.bin",
+      "status": "matched"
+    }
+  ],
+  "promoted_release_status": false,
+  "publishable": false,
+  "schema_version": "1.0.0",
+  "scope": "Manifest byte identity for cached GRPs; active resource and geometry bindings require their independent proofs",
+  "source": {
+    "collected_at": "2026-10-31T10:30:44.146967+00:00",
+    "descriptor_url": "https://yupmaster.gaijinent.com/yuitem/get_version_yup.php?proj=warthunder&tag=",
+    "files": {
+      "descriptor.txt": {
+        "bytes": 448,
+        "sha256": "364639c9929362227d31f81f35cabe094548d2f9705df589a0e6d2696aee0f6a"
+      },
+      "manifest.yup": {
+        "bytes": 9917174,
+        "sha256": "9c100a150d735dad8f411fccb48cec7c5a78b410c4ff09e1af9b03d7f0e575aa"
+      },
+      "version.txt": {
+        "bytes": 9,
+        "sha256": "367c7e25f215a8402cfb7563bd1995dd2427e874d05cb0d05da32e018e5d5b9d"
+      }
+    },
+    "manifest_url": "https://aws-yup-distr-01.gaijinent.com/454b14cb28649486a7dc53fc59132e505aad30be.yup",
+    "schema_version": "1.0.0",
+    "version": "2.59.0.92",
+    "version_url": "https://yupmaster.gaijinent.com/yuitem/get_version.php?proj=warthunder&tag="
+  },
+  "tests": {
+    "client_manifest_module": {
+      "passed": 8
+    },
+    "diagnostic_product_build": {
+      "publishable": false,
+      "ranked_count": 0,
+      "static_total_bytes": 585402,
+      "status": "passed"
+    },
+    "log_sha256": {
+      "node": "b4b2f7278bb5526b1bd1e95b7f7a22b42b9f490c5d8b16c432158f9bd35be332",
+      "playwright": "9fdbc64b5e733a79f49235eb4b544dfc2c8ef024b8e510d6f24a828d6fbc83fd",
+      "python": "18bd24531e42875870d1d52d0fc525add106cee2df228b61bddf943967bfd448",
+      "site_smoke": "217db804e638534317f383c898c71bebffba665cfb6fe3c61f65617de1b56b88",
+      "static_build": "deb00b50ca57cc0a2cd81555781caaa69dfb29d64b2d818b1b2ec7a9d38029b4"
+    },
+    "node": {
+      "passed": 64
+    },
+    "playwright": {
+      "page_errors": [],
+      "raw_physics_initial_requests": 0,
+      "status": "passed"
+    },
+    "python": {
+      "passed": 395
+    },
+    "site_smoke": {
+      "passed": 4
+    }
+  },
+  "vehicles_matching_manifest": 1226
+}

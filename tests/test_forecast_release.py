@@ -20,6 +20,15 @@ from site_lib import validate_site
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_product_help_does_not_build_or_compose(self):
+        with tempfile.TemporaryDirectory() as t:
+            r=Path(t)
+            run=subprocess.run([sys.executable,'build.py','--forecast','--forecast-output',str(r/'forecast'),
+                                '--output',str(r/'site'),'--help'],cwd=ROOT,capture_output=True,text=True,encoding='utf-8')
+            self.assertEqual(run.returncode,0,run.stderr)
+            self.assertIn('--catalog',run.stdout)
+            self.assertFalse((r/'forecast').exists());self.assertFalse((r/'site').exists())
+
     def test_same_client_version_timing_patch_isolates_evidence_keys(self):
         with tempfile.TemporaryDirectory() as t:
             r=Path(t);cat,root,ammo=fixture(r);cache=ShotCache(r/'cache.sqlite');atlas=Atlas(root,ammo,cat);cfg=settings()

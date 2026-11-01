@@ -1,0 +1,123 @@
+{
+  "code_sha256_lf": {
+    "../npz_io.py": "d14a8f7a1f18171919095d1634de35625f954b376a509f1dd49e82adea80ed2c",
+    "belts.py": "92a828c8e9f37627447bd386a8cfc15605df1142e398acde138c5bcbfba1adba",
+    "data.py": "ae69764bfca5899b544412f0f0bbf05e0162853e4e3da9df865fb18c308af679",
+    "delivery.py": "8044472a0570b00404cf1f48505d12a5bf03f2c9762b45b8c55d5a6b8d6f0c76",
+    "engine.py": "8cbc5b21bcbba8fb0baa2d6d019317b42def88277f258aef154dc13eb624dec3",
+    "federated_coverage.py": "69f4f040c4bd7364bd3cc7069e0c3de0232321198c65dd486666f21d9a33a5d7",
+    "inventory.py": "e24903e2b4e17bd98c3b8de00f104a95a879f35fbec887d9a304ff351114fbea",
+    "profile_history.py": "d15c115dfd8d6b4fd08c42a59b4239a444970f330a1a416bb1cfc48b11fbd91f"
+  },
+  "counts": {
+    "available_bidirectional_pairs": 17820576,
+    "available_forward_pairs": 20418960,
+    "missing_direction_or_distance": 3022512,
+    "missing_owned_ammunition": 2786784,
+    "required_directed_pairs": 23441472
+  },
+  "delivery_bounds_applied": true,
+  "difference_from_unfiltered": {
+    "affected_attacker_vehicles": 37,
+    "fewer_bidirectional_scenarios": 396768,
+    "fewer_forward_scenarios": 235728
+  },
+  "formal_rankings": 0,
+  "full_report": "reports/federated-delivery-coverage-v17.json",
+  "full_report_sha256": "8b7a0999c272d730188cc16e1dfb022a27f67e59e94b5821903418f3e934e8ff",
+  "input_sha256": {
+    "ammunition": "2f4dbb4f7788e0225771988752a98b70dc7477212215b4ed1625150914ddb22b",
+    "catalog": "3a402261ab45bd1812759230470ad8c714a4915045ad89d42de5b0b33a0fd9c1",
+    "config": "fb6c9a2c39db7e1597796eee65d2a8fbb1d558137d15442bac5c64f5b9448de6"
+  },
+  "largest_reductions": [
+    {
+      "fewer_forward_scenarios": 12528,
+      "vehicle_id": "uk_fv102_striker"
+    },
+    {
+      "fewer_forward_scenarios": 12528,
+      "vehicle_id": "uk_ratel_zt3"
+    },
+    {
+      "fewer_forward_scenarios": 11184,
+      "vehicle_id": "uk_fv438_swingfire"
+    },
+    {
+      "fewer_forward_scenarios": 6600,
+      "vehicle_id": "cn_cm_25"
+    },
+    {
+      "fewer_forward_scenarios": 6600,
+      "vehicle_id": "it_c13_tua"
+    },
+    {
+      "fewer_forward_scenarios": 6600,
+      "vehicle_id": "it_m113a1_tow"
+    },
+    {
+      "fewer_forward_scenarios": 6552,
+      "vehicle_id": "fr_vcac_mephisto"
+    },
+    {
+      "fewer_forward_scenarios": 6504,
+      "vehicle_id": "germ_jaguar_2"
+    },
+    {
+      "fewer_forward_scenarios": 6504,
+      "vehicle_id": "sw_udes_33"
+    },
+    {
+      "fewer_forward_scenarios": 6408,
+      "vehicle_id": "ussr_9p149"
+    }
+  ],
+  "previous_full_report_sha256": "9824d59bcdf881dce49a75789d132954b30c1fa5dcff1fb92eb7223d57b5bee7",
+  "publishable": false,
+  "schema_version": "1.0.0",
+  "scope": "Planning from separately verified indexes, base catalog BR and source-declared bound filtering only. Arrays and assembled atlas are not rechecked; surviving choices do not prove launch, flight, activation, hit, dynamic loadout eligibility or final ranking.",
+  "selected_previously_verified_maps": 541546,
+  "source_arrays_rechecked": false,
+  "source_indexes": [
+    {
+      "index_sha256": "6bb7ba25442144df870035acadcc94cbeff4f895d78ed31d7b046fa5cf023130",
+      "verified_selections": 97779
+    },
+    {
+      "index_sha256": "4f0ad1a498e92413548daf00b7de562576c02f84a1ac871b6272b1653989f086",
+      "verified_selections": 351403
+    },
+    {
+      "index_sha256": "6be35541542dfe047edaee8d7aacd59610e0caf809cd076890b5eaf760bdbee7",
+      "verified_selections": 40928
+    },
+    {
+      "index_sha256": "78a0356a110b12c43f90314951b46c72f900b49eba6d7a5f4042295b98df3dba",
+      "verified_selections": 1664
+    },
+    {
+      "index_sha256": "b5aea4437164cd9bd1e28a689e50c589f5b8d1fefcfe98473a070a0aacd5143a",
+      "verified_selections": 38664
+    },
+    {
+      "index_sha256": "d4317ffc32f76fc343bcbde11498d5fda5828ab414bc51c6c136556486d72ee7",
+      "verified_selections": 776
+    },
+    {
+      "index_sha256": "5488b0f171b15dd0c5db82f9da39b829bd552f2c7524fd826ef17c1dadfc6cff",
+      "verified_selections": 8584
+    },
+    {
+      "index_sha256": "1181021bc87755884c38af2ab12aa2231a4d3ebe6b74375c87cccab41ac7c0bd",
+      "verified_selections": 1068
+    },
+    {
+      "index_sha256": "bff3b9cd8ec316201249838b5619f128e3c22f5bcf52bad7d6988edf806cfcf3",
+      "verified_selections": 680
+    }
+  ],
+  "source_version": [
+    "2.59.0.92",
+    "af0cce561a73704e30c1df66eff06209bcc3f035"
+  ]
+}

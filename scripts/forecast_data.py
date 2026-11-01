@@ -11,6 +11,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'backend'))
 from wt_atlas.forecast.data import Atlas, canonical, read_json, verify_manifest
 from wt_atlas.forecast.inventory import Inventory, bind_geometry, coverage, discover
+from wt_atlas.forecast.profile_history import ProfileHistory
 
 
 def main(argv=None):
@@ -26,6 +27,7 @@ def main(argv=None):
     p.add_argument('--memory-budget',type=int,default=512,help='MiB shared by array workers')
     p.add_argument('--resume',action='store_true')
     p.add_argument('--force',action='store_true')
+    p.add_argument('--profile-history',type=Path,action='append',default=[],help='Complete historical profile JSON; only exact annotation-only changes may reconcile')
     p.add_argument('--limit',type=int)
     a=p.parse_args(argv)
     started=time.perf_counter()
@@ -51,7 +53,9 @@ def main(argv=None):
                 bindings,binding_errors=bind_geometry(Path(binding_report['repository']),Path(binding_report['jobs']),catalog)
                 report['binding_errors']=binding_errors
             index=Inventory(a.index)
-            report['inventory']=index.sync(a.atlas,a.ammunition,catalog,bindings=bindings,force=a.force)
+            history=ProfileHistory(a.profile_history)
+            report['profile_history']=history.receipts
+            report['inventory']=index.sync(a.atlas,a.ammunition,catalog,bindings=bindings,force=a.force,profile_history=history)
             if a.command=='preflight':
                 report['inventory']=index.verify(a.atlas,max_workers=a.max_workers,memory_budget=a.memory_budget*1024**2,resume=a.resume and not a.force,limit=a.limit)
             atlas=Atlas(a.atlas,a.ammunition,catalog,index=index)

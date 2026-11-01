@@ -1,0 +1,66 @@
+{
+  "assembled_atlas_status_at_report": "seven_batch_assembling_eighth_batch_queued",
+  "counts": {
+    "available_bidirectional_pairs": 18170688,
+    "available_forward_pairs": 20625984,
+    "missing_direction_or_distance": 2815488,
+    "missing_owned_ammunition": 2815488,
+    "required_directed_pairs": 23441472
+  },
+  "formal_rankings": 0,
+  "full_report_sha256": "9bbc23f1e3cad94ea9db8ab5efd2f4ea34a5614975148ad7dacb58c5ec754294",
+  "input_sha256": {
+    "ammunition": "047fedff0a314ef7d85a09162ec394be1be8b7cbe6f62e8e61bcadf947be7068",
+    "catalog": "57f37880087b9cd1abc6c39dd1eeb1e03cf69c3341c230fb2a1d9d6adc0bb777",
+    "config": "fb6c9a2c39db7e1597796eee65d2a8fbb1d558137d15442bac5c64f5b9448de6"
+  },
+  "limitations": "Index-only planning from individually verified arrays; base catalog BR does not establish unlocked or dynamic mount eligibility. Full assembled-array preflight remains required.",
+  "nested_missile_batch_included": true,
+  "new_bidirectional_scenarios_since_seven_batch_audit": 46656,
+  "new_forward_scenarios_since_seven_batch_audit": 25632,
+  "publishable": false,
+  "schema_version": "1.0.0",
+  "scope": "Provisional coverage planning from previously verified index snapshots; source arrays and assembled atlas are not rechecked here. The matrix uses base catalog BR and does not establish unlocked or dynamic-mount eligibility.",
+  "selected_maps": 540866,
+  "source_arrays_rechecked": false,
+  "source_indexes": [
+    {
+      "index_sha256": "6bb7ba25442144df870035acadcc94cbeff4f895d78ed31d7b046fa5cf023130",
+      "verified_selections": 97779
+    },
+    {
+      "index_sha256": "4f0ad1a498e92413548daf00b7de562576c02f84a1ac871b6272b1653989f086",
+      "verified_selections": 351403
+    },
+    {
+      "index_sha256": "6be35541542dfe047edaee8d7aacd59610e0caf809cd076890b5eaf760bdbee7",
+      "verified_selections": 40928
+    },
+    {
+      "index_sha256": "78a0356a110b12c43f90314951b46c72f900b49eba6d7a5f4042295b98df3dba",
+      "verified_selections": 1664
+    },
+    {
+      "index_sha256": "b5aea4437164cd9bd1e28a689e50c589f5b8d1fefcfe98473a070a0aacd5143a",
+      "verified_selections": 38664
+    },
+    {
+      "index_sha256": "d4317ffc32f76fc343bcbde11498d5fda5828ab414bc51c6c136556486d72ee7",
+      "verified_selections": 776
+    },
+    {
+      "index_sha256": "5488b0f171b15dd0c5db82f9da39b829bd552f2c7524fd826ef17c1dadfc6cff",
+      "verified_selections": 8584
+    },
+    {
+      "index_sha256": "1181021bc87755884c38af2ab12aa2231a4d3ebe6b74375c87cccab41ac7c0bd",
+      "verified_selections": 1068
+    }
+  ],
+  "source_version": [
+    "2.59.0.92",
+    "af0cce561a73704e30c1df66eff06209bcc3f035"
+  ],
+  "vehicles_with_any_missing_forward_direction": 150,
+  "vehicles_without_owned_ranged_profile": 150
+}

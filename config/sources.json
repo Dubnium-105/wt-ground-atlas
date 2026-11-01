@@ -55,7 +55,8 @@
     "user_agent": "WT-Ground-Atlas/1.0 (public offline snapshot builder; conditional cache)",
     "regular_status_code": 0,
     "modification_state": "reference",
-    "crew_state": "aces"
+    "crew_state": "aces",
+    "catalog_max_bytes": 8388608
   },
   "datamine": {
     "repository": "https://github.com/gszabi99/War-Thunder-Datamine",
@@ -72,7 +73,26 @@
       "atgm",
       "aam",
       "guided bombs",
-      "guided_rockets"
+      "guided_rockets",
+      "fuel tanks",
+      "targetingPod",
+      "cannon",
+      "additional gun",
+      "machine gun",
+      "gunner1",
+      "gunner2",
+      "countermeasures",
+      "torpedoes",
+      "boosters",
+      "undercarriage",
+      "gunner0",
+      "gunner3",
+      "gunner4",
+      "gunner5",
+      "gunner6",
+      "gunner7",
+      "gunner8",
+      "gunner9"
     ]
   },
   "changes": {

@@ -12,13 +12,21 @@ import numpy as np
 from . import MODEL_VERSION
 from .aim import integrate, regions, skill_nodes
 from .combat import duel, weapon_timing
+from .belts import projectile_groups
 from .capabilities import loadout_errors, validate_mission
+from .tasks import phase_tasks, task_supported
 from .data import Atlas, br_step, canonical, digest, file_hash, number, read_json, safe_file, taxonomy
+from .delivery import delivery_issue
+from ..npz_io import load_npz_bounded
 
 
 def variant_profiles(variant: dict) -> tuple:
     """Physical datasets are contexts of a selected round, not extra loadouts."""
     return tuple(variant.get('profiles', (variant['profile'],) if variant.get('profile') else ()))
+
+
+def variant_projectiles(variant: dict) -> tuple:
+    return projectile_groups(variant.get('ammo'), variant_profiles(variant))
 
 
 def ammunition_payloads(bindings):
@@ -28,9 +36,10 @@ def ammunition_payloads(bindings):
         if not number(distance) or distance < 0:
             continue  # Unknown physical distance cannot support a modeled shot.
         stored_ammo, by_distance = grouped.setdefault(ammo['id'], (ammo, {}))
-        if distance in by_distance and digest(by_distance[distance]) != digest(profile):
+        key = profile['name'] if ammo.get('ordered_belt') else distance
+        if key in by_distance and digest(by_distance[key]) != digest(profile):
             raise ValueError('Ambiguous ammunition distance: ' + ammo['id'] + ' at ' + str(distance))
-        by_distance[distance] = profile
+        by_distance[key] = profile
     return [(ammo, tuple(profiles[d] for d in sorted(profiles)), None)
             for ammo, profiles in grouped.values()]
 
@@ -82,21 +91,40 @@ def enumerate_variants(catalog: dict, atlas: Atlas, config: dict | None = None) 
                     if mass_known and number(capacity) and sum(w["mass_kg"] * w["count"] for w in weapons) > capacity: continue
                     payloads.append((None, None, loadout))
             # Keep unknown configurations in the opponent population rather than erase them.
-            if not payloads: payloads = [(None, None, None)]
+            if not payloads:
+                payloads = [(None, None, None)]
+                rejected.append({'vehicle_id':vehicle['id'],'rating_configuration_id':option['id'],
+                    'reason':'unknown_owned_ammunition_configuration' if domain=='ground' else 'no_verified_legal_carried_loadout',
+                    'scope':'own_selection','opponent_population_retained':True})
             for ammo, profiles, loadout in payloads:
                 profiles = profiles or ()
                 profile = profiles[0] if profiles else None
+                primary = None
+                if domain == 'ground' and ammo and profiles:
+                    proofs=[p.get('provenance',{}).get('recovery_bindings',{}).get(ammo['id']) for p in profiles]
+                    conditional=[p for p in proofs if isinstance(p,dict) and p.get('primary_modification_id')]
+                    if conditional:
+                        binding=ammo.get('native_ammunition_binding');primary=conditional[0].get('primary_modification_id')
+                        required=conditional[0].get('required_modification_ids')
+                        if (not isinstance(required,list) or not all(isinstance(x,str) and x for x in required) or
+                            primary not in required or any(p!=binding for p in proofs)):
+                            rejected.append({'vehicle_id':vehicle['id'],'ammo_id':ammo['id'],'reason':'primary_ammunition_binding_mismatch'});continue
+                        if ownership.get('require_unlocked') and (unlocked is None or not set(required)<=set(unlocked)):
+                            rejected.append({'vehicle_id':vehicle['id'],'ammo_id':ammo['id'],'reason':'modifications_unavailable'});continue
                 if block is not None:
-                    has_policy = any(k in option for k in ("allowed_loadout_ids", "allowed_weapon_ids", "allowed_ammo_ids"))
+                    has_policy = any(k in option for k in ("allowed_loadout_ids", "allowed_weapon_ids", "allowed_ammo_ids", "allowed_source_preset_ids", "allowed_primary_armament_ids"))
                     if not has_policy: continue
                     if "allowed_loadout_ids" in option and (loadout is None or loadout["id"] not in option["allowed_loadout_ids"]): continue
-                    if "allowed_weapon_ids" in option and (loadout is None or any(w["id"] not in option["allowed_weapon_ids"] for w in loadout["weapons"])): continue
+                    if "allowed_weapon_ids" in option and (loadout is None or any(w["id"] not in option["allowed_weapon_ids"] for w in loadout["weapons"]+loadout.get('fixed_weapons',[]))): continue
                     if "allowed_ammo_ids" in option and (ammo is None or ammo["id"] not in option["allowed_ammo_ids"]): continue
+                    if domain=='ground' and "allowed_primary_armament_ids" in option and (primary or '') not in option['allowed_primary_armament_ids']: continue
                 identity = {"vehicle_id": vehicle["id"], "mode": "ground_rb", "version": version, "rating_configuration_id": option["id"],
                             "ammo_id": ammo["id"] if ammo else None, "loadout_id": loadout["id"] if loadout else None}
+                if primary:identity['primary_modification_id']=primary
                 variants.append({**identity, "key": digest(identity), "vehicle": vehicle, "ammo": ammo,
                                  "profile": profile, "profiles": profiles, "loadout": loadout, "nation": vehicle["nation"],
                                  "br": br, "br_step": br_step(br), "domain": domain,
+                                 "selection_ready": bool(ammo and profiles) if domain=='ground' else loadout is not None,
                                  "classification": taxonomy(vehicle), "system_id": vehicle.get("system_id")})
     return sorted(variants, key=lambda v: v["key"]), rejected
 
@@ -169,7 +197,9 @@ class Forecast:
         self.by_key = {v["key"]: v for v in self.variants}
         self.skills = skill_nodes(config["population"])
         self.enemy_skills = skill_nodes(config.get("opponent_population", config["population"]))
-        self.aim_code_hash = file_hash(Path(__file__).with_name("aim.py"))
+        self.phase_tasks = phase_tasks(config['spawn'])
+        self.aim_code_hash = digest({name:file_hash(Path(__file__).parent/name)
+                                    for name in ('aim.py','data.py','delivery.py','engine.py','../npz_io.py')})
         self.effects_path, self.effects = effects_path, {}
         self.effect_array = (None, None)
         if effects_path:
@@ -180,6 +210,8 @@ class Forecast:
                     raise ValueError('Effect array checksum')
                 self.effects[row["map_id"]] = row
         self.missions_path = missions_path
+        from .data import mission_policy
+        self.mission_policy = mission_policy(config)
         self.missions = {}
         if missions_path:
             for row in read_json(missions_path)["records"]:
@@ -201,21 +233,33 @@ class Forecast:
             if row.get('status')!='assumed':raise ValueError('Constant damage kernel must remain assumed')
             q = np.array(row["constant"], dtype=float)
             if q.shape != (3,): raise ValueError("Invalid effect vector")
+            if not np.all(np.isfinite(q)) or np.any(q < 0) or q.sum() > 1+1e-8:
+                raise ValueError('Invalid effect probability mass')
             return np.broadcast_to(q, shape + (3,)), digest(row)
         source = safe_file(self.effects_path.parent, row["array_file"])
         if file_hash(source) != row["array_sha256"]: raise ValueError("Effect array checksum")
-        if self.effect_array[0] != map_id:
-            with np.load(source, allow_pickle=False) as data:
-                array = data["conditional_outcomes"].copy()
-            self.effect_array = (map_id, array)
+        identity = (map_id, row['array_sha256'])
+        if self.effect_array[0] != identity:
+            array = load_npz_bounded(source, ('conditional_outcomes',), self.atlas.memory_budget)['conditional_outcomes']
+            physical_shape = self.atlas.load(map_id)['penetration_probability'].shape
+            if array.shape != physical_shape+(3,) or array.dtype.kind != 'f' or physical_shape[1:] != shape:
+                raise ValueError('Invalid effect array layout')
+            if not np.all(np.isfinite(array)) or np.any(array < 0) or np.any(array.sum(axis=-1) > 1+1e-8):
+                raise ValueError('Invalid effect probability mass')
+            self.effect_array = (identity, array)
         return self.effect_array[1][angle_index], digest(row)
 
-    def shot(self, attacker: dict, target: dict, scenario: dict, skill: float) -> dict | None:
+    def shot(self, attacker: dict, target: dict, scenario: dict, skill: float, *, projectile_index=0) -> dict | None:
         if attacker["vehicle"].get("forecast_physics_invalidated") or target["vehicle"].get("forecast_physics_invalidated"):
             return None
-        profiles = [p for p in variant_profiles(attacker) if p['distance_m'] == scenario['physical_distance_m']]
+        groups = variant_projectiles(attacker)
+        if not isinstance(projectile_index, int) or isinstance(projectile_index, bool) or not 0 <= projectile_index < len(groups):
+            raise ValueError('Invalid projectile sequence index')
+        profiles = [p for p in groups[projectile_index] if p['distance_m'] == scenario['physical_distance_m']]
         if len(profiles) != 1: return None  # Never substitute another physical range.
         profile = profiles[0]
+        if delivery_issue(profile, scenario['physical_distance_m']):
+            return None  # An impact map does not establish missile delivery outside source declarations.
         map_id = self.atlas.map_for(target["vehicle_id"], profile["name"], scenario["physical_distance_m"])
         if map_id is None: return None
         m = self.atlas.meta[map_id]
@@ -225,6 +269,8 @@ class Forecast:
         stabilized = bool(stabilized) if stabilized is not None else None
         # No BR or lineup in a physical/aim cache key. All physical and aim identities are included.
         identity = {"map": m, "profile_sha256": digest(profile), "aim": self.config["aim"],
+                    "catalog_ammo_id":attacker['ammo_id'], "projectile_index":projectile_index,
+                    "ordered_belt":attacker['ammo'].get('ordered_belt'),
                     "code": self.aim_code_hash, "skill": skill, "gun": gun, "stabilized": stabilized,
                     "context": {k: scenario[k] for k in ("physical_distance_m", "aiming_distance_m", "yaw_deg",
                     "own_velocity_xy_m_s", "target_velocity_xy_m_s", "target_angular_velocity_xy_rad_s")},
@@ -253,10 +299,14 @@ class Forecast:
         result = integrate(p, s, pitch, skill, scenario, self.config["aim"], gun_control=gun,
                            stabilized=stabilized, effects=effects, prepared=self._features[1])
         result.update(map_id=map_id, target_id=target["vehicle_id"], ammo_profile_id=profile["name"],
+                      projectile_index=projectile_index, projectile_sequence_length=len(groups),
+                      ordered_belt_sha256=digest(attacker['ammo']['ordered_belt']) if attacker['ammo'].get('ordered_belt') else None,
                       catalog_ammo_id=attacker["ammo_id"], source_version=m["source_version"],
                       physical_distance_m=profile["distance_m"], yaw_deg=scenario["yaw_deg"],
                       source_binding=m["target_binding"], effect_sha256=effects_hash,
                       physical_map_sha256=m["array_sha256"], aim_cache_key=key,
+                      source_profile_sha256=m['ammo_profile_sha256'],active_profile_sha256=digest(profile),
+                      profile_reconciliation=m.get('profile_reconciliation'),
                       effect_status=self.effects.get(map_id, {}).get("status", "not_supplied"))
         self.cache.put(key, result)
         return result
@@ -268,39 +318,51 @@ class Forecast:
         endpoint = self.config.get("endpoint", "penetration")
         totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "first_fire": 0.}
         missing = set(); trace = set();timing_trace=[]
+        for variant in (a, b):
+            for group in variant_projectiles(variant):
+                for profile in group:
+                    if profile.get('distance_m') == scenario['physical_distance_m']:
+                        issue = delivery_issue(profile, scenario['physical_distance_m'])
+                        if issue: missing.add(issue)
+        if any((v.get('ammo') or {}).get('ordered_belt') for v in (a, b)):
+            missing.add('assumed_belt_start_and_repeating_source_order')
         for sa, wa in self.skills:
             for sb, wb in self.enemy_skills:
                 weight = wa * wb
-                pa, pb = self.shot(a, b, scenario, sa), self.shot(b, a, scenario, sb)
+                pa = [self.shot(a, b, scenario, sa, projectile_index=i) for i in range(len(variant_projectiles(a)))]
+                pb = [self.shot(b, a, scenario, sb, projectile_index=i) for i in range(len(variant_projectiles(b)))]
                 ta = weapon_timing(a["vehicle"], a["ammo"] or {}, sa, scenario, self.config["timing"])
                 tb = weapon_timing(b["vehicle"], b["ammo"] or {}, sb, scenario, self.config["timing"])
-                timing_trace.append({'skill_a':sa,'skill_b':sb,'weight':weight,'a':ta,'b':tb})
-                if pa is None or pb is None or not ta["valid"] or not tb["valid"]:
+                timing_trace.append({'skill_a':sa,'skill_b':sb,'weight':weight,'a':ta,'b':tb,
+                    'a_projectile_shot_keys':[p['aim_cache_key'] if p else None for p in pa],
+                    'b_projectile_shot_keys':[p['aim_cache_key'] if p else None for p in pb]})
+                trace.update(p['aim_cache_key'] for p in pa + pb if p is not None)
+                missing.update(ta['missing'] + tb['missing'])
+                if any(p is None for p in pa + pb) or not ta["valid"] or not tb["valid"]:
                     missing.add("one_or_both_directions_or_timing_missing")
                     totals["mean"] += weight * .5; totals["upper"] += weight
                     continue
-                trace.update((pa['aim_cache_key'],pb['aim_cache_key']))
-                missing.update(ta["missing"] + tb["missing"])
                 if endpoint == "damage":
-                    if pa["lethality"] is None or pb["lethality"] is None:
+                    if any(p['lethality'] is None for p in pa + pb):
                         missing.add("post_penetration_kernel_missing")
                         totals["mean"] += weight * .5; totals["upper"] += weight; continue
-                    qa, qb = pa["lethality"]["outcomes"], pb["lethality"]["outcomes"]
+                    qa, qb = [p['lethality']['outcomes'] for p in pa], [p['lethality']['outcomes'] for p in pb]
                     # Unknown joint damage outcomes cannot be reduced to independent scalar endpoints.
-                    uncertain = max(pa["lethality"]["unknown_mass"], pb["lethality"]["unknown_mass"])
+                    uncertain = max(p['lethality']['unknown_mass'] for p in pa + pb)
                     outcome = duel(ta, tb, qa, qb, scenario["horizon_s"], self.config["timing"], endpoint=endpoint)
                     lower, upper = (0., 1.) if uncertain > 1e-12 else (outcome["score"], outcome["score"])
                 else:
-                    outcome = duel(ta, tb, [0, 0, pa["mean"]], [0, 0, pb["mean"]], scenario["horizon_s"], self.config["timing"])
-                    if pa['unknown_mass']==0 and pb['unknown_mass']==0:
+                    outcomes = lambda shots, field: [[0, 0, p[field]] for p in shots]
+                    outcome = duel(ta, tb, outcomes(pa,'mean'), outcomes(pb,'mean'), scenario["horizon_s"], self.config["timing"])
+                    if all(p['unknown_mass']==0 for p in pa + pb):
                         lower=upper=outcome['score']
                     else:
-                        lower = duel(ta, tb, [0, 0, pa["lower"]], [0, 0, pb["upper"]], scenario["horizon_s"], self.config["timing"])["score"]
-                        upper = duel(ta, tb, [0, 0, pa["upper"]], [0, 0, pb["lower"]], scenario["horizon_s"], self.config["timing"])["score"]
+                        lower = duel(ta, tb, outcomes(pa,'lower'), outcomes(pb,'upper'), scenario["horizon_s"], self.config["timing"])["score"]
+                        upper = duel(ta, tb, outcomes(pa,'upper'), outcomes(pb,'lower'), scenario["horizon_s"], self.config["timing"])["score"]
                 totals["mean"] += weight * outcome["score"]
                 totals["lower"] += weight * lower; totals["upper"] += weight * upper
-                unknown_a = pa["lethality"]["unknown_mass"] if endpoint == "damage" else pa["unknown_mass"]
-                unknown_b = pb["lethality"]["unknown_mass"] if endpoint == "damage" else pb["unknown_mass"]
+                unknown_a = max(p['lethality']['unknown_mass'] if endpoint == 'damage' else p['unknown_mass'] for p in pa)
+                unknown_b = max(p['lethality']['unknown_mass'] if endpoint == 'damage' else p['unknown_mass'] for p in pb)
                 totals["coverage"] += weight * min(1 - unknown_a, 1 - unknown_b)
                 totals["first_fire"] += weight * outcome["first_fire_probability"][0]
         result={**totals, "score": totals["mean"] if totals["coverage"] > 0 else None,
@@ -377,24 +439,53 @@ class Forecast:
     @lru_cache(maxsize=50000)
     def mission(self, key: str, task: str, room_top: int, scenario_id: str) -> dict:
         v = self.by_key[key]
-        if task == "ground" and v["domain"] != "ground": return {"mean": 0., "lower": 0., "upper": 0., "coverage": 1., "production_coverage":1., "usable": False}
+        if not task_supported(v, task):
+            return {"mean": 0., "lower": 0., "upper": 0., "coverage": 1., "production_coverage":1.,
+                    "assumed_coverage":0., "usable": False, "reason":"task_domain_inapplicable"}
+        physical = task in ('ground', 'anti_tank') and v['domain'] == 'ground'
         domain = "air" if task in ("anti_air","anti_helicopter","cap") else "ground"
         enemies = self.opponents(v["nation"], room_top, domain)
         trace=[]
-        totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "production_coverage":0., "usable": True}
+        totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "production_coverage":0., "assumed_coverage":0., "usable": True}
         if not enemies: return {**totals, "mean": .5, "upper": 1.}
         for enemy, weight in enemies:
-            if task == "ground":
+            if physical:
                 row = self.pair(key, enemy, scenario_id)
                 trace.append(row['pair_key'])
             else:
                 external = self.missions.get((key, self.by_key[enemy]["vehicle_id"], scenario_id, task))
+                defaults = self.mission_policy['mode'] == 'assumed_defaults'
+                if defaults and (not external or external['status'] in ('missing', 'unvalidated')):
+                    external = {**self.mission_policy['default_interval'], 'status':'assumed',
+                                'source':'configured_prior_not_observation', 'production_validated':False,
+                                'variant_key':key, 'target_vehicle_id':self.by_key[enemy]['vehicle_id'],
+                                'scenario_id':scenario_id, 'task':task,
+                                'policy_sha256':digest(self.mission_policy)}
+                    external['evidence_sha256'] = digest(external)
                 if external:trace.append(external['evidence_sha256']);self.cache.evidence_put(external['evidence_sha256'],'external_mission',external)
                 row = {**external, "coverage": 1. if external['status']=='validated' else 0.} if external else {"mean": .5, "lower": 0., "upper": 1., "coverage": 0.}
-            totals["production_coverage"]+=weight*(row["coverage"] if task=="ground" else float(bool(external and external.get("production_validated"))))
+                totals['assumed_coverage'] += weight * float(bool(defaults and external and external['status']=='assumed'))
+            totals["production_coverage"]+=weight*(row["coverage"] if physical else float(bool(external and external.get("production_validated"))))
             for name in ("mean", "lower", "upper", "coverage"):
                 totals[name] += weight * row[name]
         totals['mission_key']=digest([key,task,room_top,scenario_id,trace,totals])
-        totals['evidence_trace']={'pair_keys':trace,'external_evidence':task!='ground'}
+        totals['evidence_trace']={'pair_keys':trace,'external_evidence':not physical}
         self.cache.evidence_put(totals['mission_key'],'mission',{**totals,'variant_key':key,'task':task,'room_top':room_top,'scenario':scenario_id})
+        return totals
+
+    @lru_cache(maxsize=50000)
+    def phase(self, key: str, phase: int, room_top: int, scenario_id: str) -> dict:
+        mix = self.phase_tasks[phase]
+        if len(mix) == 1:
+            return self.mission(key, next(iter(mix)), room_top, scenario_id)
+        rows = {task: self.mission(key, task, room_top, scenario_id) for task in mix}
+        totals = {field: sum(mix[t] * r.get(field, 0.) for t, r in rows.items())
+                  for field in ('mean', 'lower', 'upper', 'coverage', 'production_coverage', 'assumed_coverage')}
+        totals['usable'] = any(r['usable'] for r in rows.values())
+        trace = {task: {'weight': mix[task], 'mission_key': row.get('mission_key'),
+                        'reason': row.get('reason')} for task, row in rows.items()}
+        totals['mission_key'] = digest([key, phase, room_top, scenario_id, trace, totals])
+        totals['evidence_trace'] = {'task_mixture': trace, 'status': 'assumed_not_observed'}
+        self.cache.evidence_put(totals['mission_key'], 'sortie_phase', {**totals,
+            'variant_key': key, 'phase': phase, 'room_top': room_top, 'scenario': scenario_id})
         return totals

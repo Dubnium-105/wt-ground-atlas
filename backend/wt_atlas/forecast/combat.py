@@ -13,15 +13,20 @@ def weapon_timing(vehicle: dict, ammo: dict, skill: float, scenario: dict, c: di
     if vehicle.get("forecast_timing_unverified"):
         return {"valid": False, "missing": ["ambiguous_patched_weapon_timing"]}
     weapon = ammo.get("weapon_profile") or vehicle.get("firepower", {})
+    belt = ammo.get('ordered_belt')
+    if belt and len(belt['binding'].get('mounts', [])) != 1:
+        return {'valid':False, 'missing':['multiple_mount_firing_schedule_unverified']}
     missing = []
     typ = weapon.get("reload_type")
-    if typ == "manual":
+    rpm = weapon.get('fire_rate_rpm'); magazine = weapon.get('belt_capacity')
+    automatic_burst = typ == 'automatic' or (number(rpm) and rpm > 0 and number(magazine) and magazine > 1)
+    # Manual magazine replacement is distinct from automatic fire within it.
+    if automatic_burst:
+        reload = 60.0 / rpm if number(rpm) and rpm > 0 else weapon.get('autoload_s')
+    elif typ == "manual":
         reload = weapon.get("reload_ace_s")
     elif typ == "autoloader":
         reload = weapon.get("autoload_s")
-    elif typ == "automatic":
-        rpm = weapon.get("fire_rate_rpm")
-        reload = 60.0 / rpm if number(rpm) and rpm > 0 else weapon.get("autoload_s")
     else:
         reload = None  # A missile launch interval is not its reload time.
     if not number(reload) or reload <= 0:
@@ -49,7 +54,7 @@ def weapon_timing(vehicle: dict, ammo: dict, skill: float, scenario: dict, c: di
     first = arrival + acquire + slew + aim
     cycle = max(reload, c["reaim_s"] * math.exp(-c["aim_skill"] * skill))
     # Automatic weapons fire within one tracking burst at their real cadence.
-    if typ == "automatic": cycle = reload
+    if automatic_burst: cycle = reload
     reverse = mobility.get("reverse_kmh")
     exposure = scenario["horizon_s"]
     if scenario["cover_distance_m"] > 0:
@@ -63,6 +68,7 @@ def weapon_timing(vehicle: dict, ammo: dict, skill: float, scenario: dict, c: di
     return {"valid": True, "first_s": first, "cycle_s": cycle, "exposure_end_s": exposure,
             "ready_capacity": capacity, "arrival_s": arrival, "acquire_s": acquire,
             "aim_s": aim, "slew_s": slew, "reload_s": reload,
+            "cadence_source": "within_magazine_rpm" if automatic_burst else "single_round_reload",
             "missing": missing, "status": "uncalibrated_timing_generator"}
 
 
@@ -80,41 +86,63 @@ def _matrix(q: list[float], endpoint: str) -> np.ndarray:
     return matrix
 
 
-def duel(a: dict, b: dict, qa: list[float], qb: list[float], horizon: float, c: dict,
+def _projectiles(q, endpoint):
+    """Accept a homogeneous round or an explicitly ordered repeating sequence."""
+    if not isinstance(q, (list, tuple)) or not q:
+        raise ValueError('Empty or invalid projectile sequence')
+    rows = [q] if number(q[0]) else q
+    if any(not isinstance(row, (list, tuple)) for row in rows):
+        raise ValueError('Invalid projectile sequence')
+    matrices = [_matrix(row, endpoint) for row in rows]
+    return np.asarray(rows, dtype=float), matrices
+
+
+def duel(a: dict, b: dict, qa: list, qb: list, horizon: float, c: dict,
          *, endpoint: str = "penetration") -> dict:
     """Exact finite-state propagation under declared independent-shot assumptions.
 
     For penetration mode, qa=[0,0,E_shot] is a terminal protected-target event,
     NOT destruction. For damage mode the supplied post-penetration kernel is used.
+    Nested qa/qb lists are source-ordered belts, repeated until ammunition or
+    exposure ends. Each burst starts at the first declared projectile. No belt
+    maximum or average replaces the individual shot probabilities.
     Simultaneous shots use pre-event shooter states, avoiding order advantage.
     """
     if endpoint not in ("penetration", "damage"): raise ValueError("Unsupported endpoint")
     if not number(horizon) or horizon<=0:raise ValueError('Invalid horizon')
     if not a.get("valid") or not b.get("valid"):
         return {"score": None, "reason": "missing_weapon_timing"}
-    ma, mb = _matrix(qa, endpoint), _matrix(qb, endpoint)
+    qa, ma = _projectiles(qa, endpoint); qb, mb = _projectiles(qb, endpoint)
     events = []
     for side, t in enumerate((a, b)):
         if any(not number(t[k]) or t[k]<0 for k in ('cycle_s','first_s','exposure_end_s')):raise ValueError('Invalid event timing')
         if t['ready_capacity'] is not None and (not isinstance(t['ready_capacity'],int) or isinstance(t['ready_capacity'],bool) or t['ready_capacity']<1):raise ValueError('Invalid ammunition capacity')
         if t["cycle_s"] <= 0: raise ValueError("Invalid cadence")
+        if t['cycle_s'] <= c['simultaneous_tolerance_s']:
+            raise ValueError('Simultaneous tolerance must be smaller than firing cadence')
         count = max(0, math.floor((horizon - t["first_s"]) / t["cycle_s"]) + 1)
         if t["ready_capacity"] is not None: count = min(count, t["ready_capacity"])
         if count > c["max_events"]: raise ValueError("Event budget exceeded; do not silently cap automatic fire")
-        events.extend((t["first_s"] + k * t["cycle_s"], side) for k in range(count))
+        events.extend((t["first_s"] + k * t["cycle_s"], side, k) for k in range(count))
     events.sort()
-    if endpoint == 'penetration' and qa[:2] == [0,0] and qb[:2] == [0,0]:
+    assumptions = ['conditional independent shots', 'fixed map for each projectile while firing',
+        'source order repeats from first projectile at burst start', 'no repair during horizon']
+    if endpoint == 'penetration' and not np.any(qa[:,:2]) and not np.any(qb[:,:2]):
         # Absorbing first-event model: vectorized survival has the same simultaneous
         # semantics as the joint-state propagation, at O(events) rather than 25
         # matrix transitions per event. Damage still uses the full state model.
-        groups=[];i=0
+        groups=[];probabilities=[];i=0
         while i<len(events):
-            t=events[i][0];sides=set()
+            t=events[i][0];sides={}
             while i<len(events) and abs(events[i][0]-t)<=c['simultaneous_tolerance_s']:
-                sides.add(events[i][1]);i+=1
-            if t<=a['exposure_end_s'] and t<=b['exposure_end_s']:groups.append((0 in sides,1 in sides))
+                sides[events[i][1]]=events[i][2];i+=1
+            if t<=a['exposure_end_s'] and t<=b['exposure_end_s']:
+                groups.append((0 in sides,1 in sides))
+                probabilities.append((qa[sides[0]%len(qa),2] if 0 in sides else 0.,
+                                      qb[sides[1]%len(qb),2] if 1 in sides else 0.))
         fire=np.asarray(groups,dtype=float).reshape((-1,2))
-        pa=fire[:,0]*qa[2];pb=fire[:,1]*qb[2]
+        probability=np.asarray(probabilities,dtype=float).reshape((-1,2))
+        pa,pb=probability[:,0],probability[:,1]
         survival=(1-pa)*(1-pb)
         prior=np.concatenate(([1.],np.cumprod(survival)))
         wins=float(np.sum(prior[:-1]*pa*(1-pb)));losses=float(np.sum(prior[:-1]*pb*(1-pa)))
@@ -124,19 +152,19 @@ def duel(a: dict, b: dict, qa: list[float], qb: list[float], horizon: float, c: 
         return {'score':wins+.5*(ties+pending),'a_only':wins,'b_only':losses,'both':ties,'unresolved':pending,
             'expected_shots':(prior[:-1,None]*fire).sum(axis=0).tolist(),'first_fire_probability':first,
             'state_mass':state.tolist(),'endpoint':endpoint,'kill_probability':None,
-            'assumptions':['conditional independent shots','fixed per-shot map while firing','no repair during horizon']}
+            'projectile_sequence_lengths':[len(qa),len(qb)], 'assumptions':assumptions}
     state = np.zeros((5, 5)); state[0, 0] = 1.0
     shots = [0.0, 0.0]
     i = 0
     first_probability = [0.0, 0.0]
     if events:
         t0 = events[0][0]
-        first_sides = {side for time, side in events if abs(time - t0) <= c["simultaneous_tolerance_s"]}
+        first_sides = {side for time, side, _ in events if abs(time - t0) <= c["simultaneous_tolerance_s"]}
         for side in first_sides: first_probability[side] = 1 / len(first_sides)
     while i < len(events):
-        time = events[i][0]; sides = set()
+        time = events[i][0]; sides = {}
         while i < len(events) and abs(events[i][0] - time) <= c["simultaneous_tolerance_s"]:
-            sides.add(events[i][1]); i += 1
+            sides[events[i][1]] = events[i][2]; i += 1
         updated = np.zeros_like(state)
         for sa, sb in zip(*np.nonzero(state)):
             probability = state[sa, sb]
@@ -145,8 +173,8 @@ def duel(a: dict, b: dict, qa: list[float], qb: list[float], horizon: float, c: 
             exposed_b = time <= b["exposure_end_s"] or (sb < 4 and bool(sb & 2))
             fire_a = 0 in sides and sa < 4 and not sa & 1 and sb < 4 and exposed_a and exposed_b
             fire_b = 1 in sides and sb < 4 and not sb & 1 and sa < 4 and exposed_a and exposed_b
-            target_a = mb[sa] if fire_b else np.eye(5)[sa]
-            target_b = ma[sb] if fire_a else np.eye(5)[sb]
+            target_a = mb[sides[1] % len(mb)][sa] if fire_b else np.eye(5)[sa]
+            target_b = ma[sides[0] % len(ma)][sb] if fire_a else np.eye(5)[sb]
             updated += probability * np.outer(target_a, target_b)
             shots[0] += probability * fire_a; shots[1] += probability * fire_b
         state = updated
@@ -162,4 +190,4 @@ def duel(a: dict, b: dict, qa: list[float], qb: list[float], horizon: float, c: 
             "both": ties, "unresolved": pending, "expected_shots": shots,
             "first_fire_probability": first_probability, "state_mass": state.tolist(),
             "endpoint": endpoint, "kill_probability": float(state[:, 4].sum()) if endpoint == "damage" else None,
-            "assumptions": ["conditional independent shots", "fixed per-shot map while firing", "no repair during horizon"]}
+            "projectile_sequence_lengths": [len(qa), len(qb)], "assumptions": assumptions}

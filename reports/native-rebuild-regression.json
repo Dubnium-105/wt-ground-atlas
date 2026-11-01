@@ -1,0 +1,161 @@
+{
+  "status": "passed_numerical_parity",
+  "rows": [
+    {
+      "target": "uk_khalid",
+      "map_id_equal": false,
+      "source_array_sha256": "ba9afb7436c1d78f74cf31b8702209a3674d4f087fe7c5514796023e3c71e3a7",
+      "generated_array_sha256": "7b529dd50f99fdfe43f91c4dd0c06555f11d6fb2f354c730e10c4129256d915d",
+      "keys_equal": true,
+      "array_values_equal": {
+        "penetration_probability": true,
+        "model_required_charge_mm": true,
+        "status": true,
+        "material_response_flags": true,
+        "angles_deg": true,
+        "pixel_pitch_m": true,
+        "world_width_m": true,
+        "top_y_m": true,
+        "bottom_y_m": true,
+        "center_xz_m": true
+      }
+    },
+    {
+      "target": "ussr_bmp_2m",
+      "map_id_equal": false,
+      "source_array_sha256": "64f1034a65a8fe1b0cd5d6c5bb3cc6214044533a333176488cb6e763994ffc4a",
+      "generated_array_sha256": "8d98669012f7c16a79359013f9b0537570d63bc832d1fab16427b39719fd71a0",
+      "keys_equal": true,
+      "array_values_equal": {
+        "penetration_probability": true,
+        "model_required_charge_mm": true,
+        "status": true,
+        "material_response_flags": true,
+        "angles_deg": true,
+        "pixel_pitch_m": true,
+        "world_width_m": true,
+        "top_y_m": true,
+        "bottom_y_m": true,
+        "center_xz_m": true
+      }
+    }
+  ],
+  "generation": {
+    "computed_maps": 2,
+    "duration_seconds": 2.9526454999577254,
+    "endpoint": "conditional_penetration",
+    "game_probability_validated": false,
+    "input_ammunition_sha256": "43f5c96215fce06a75f9fbbb900e597db466e4cbfd9319bcba27a83e4b0a02c8",
+    "input_catalog_sha256": "b7e3df3f63356353569087fd9c5fcacba61a3dde423daf552000645251dbcca9",
+    "maps": [
+      {
+        "array_sha256": "7b529dd50f99fdfe43f91c4dd0c06555f11d6fb2f354c730e10c4129256d915d",
+        "distance_m": 10.0,
+        "map_id": "9565d033149aa301767ab9a69c2f147bd62c4b8887968667112b11ad72940a17",
+        "profile": "ammo_0095e8262d84725e596d",
+        "reused": false,
+        "target": "uk_khalid"
+      },
+      {
+        "array_sha256": "8d98669012f7c16a79359013f9b0537570d63bc832d1fab16427b39719fd71a0",
+        "distance_m": 10.0,
+        "map_id": "5ea6cb1706c404c2f51b127ecfe2ea745859efc27845c920b33bf5c8ab99b9ad",
+        "profile": "ammo_0095e8262d84725e596d",
+        "reused": false,
+        "target": "ussr_bmp_2m"
+      }
+    ],
+    "model": {
+      "backend": "v2-cuda",
+      "tool_code_sha256": "58f1bf518f58f16386ff8ee9851673aa7d588a380545656df643c3cef9e9ad3b",
+      "tool_manifest_sha256": "38b35c2418cd1731fb1fc00c194482d464dedb41e9291ee775ea23866499542c"
+    },
+    "pending_maps": 0,
+    "planned_maps": 2,
+    "raw_sources_modified": false,
+    "requests_sha256": "ab1a24f14fc35fb380a9a12cdc7563f0556818914d34aa9920997b269dc0f000",
+    "resources": {
+      "cpu_seconds": 2.875,
+      "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+      "peak_rss_bytes": 847552512
+    },
+    "reused_maps": 0,
+    "source_probability_maps_read": 0,
+    "status": "completed"
+  },
+  "tool_source_comparison": [
+    {
+      "path": "grp_probability.py",
+      "source_sha256": "5f6518a4582a46b7c22a9a416273004afc576c17cc85afb47458d1865dfe0bf4",
+      "active_sha256": "c4a31fc8c3af715645fbb5d408b82a99ee2dfae2dbeb95258e0ac2cce5f53d3b",
+      "only_line_endings": true
+    },
+    {
+      "path": "lib/grp_export.py",
+      "source_sha256": "fc54a38b5cc3eec9eed9a303581648b7bc086a21dde10af3e89972c8f0f5ebf3",
+      "active_sha256": "55c01d99f4dc9a275b7bbf3d2de993a846bb82fbcbe8ad3c06ca8fd4868199ed",
+      "only_line_endings": true
+    },
+    {
+      "path": "lib/wt_armor/gpu_local_geometry.py",
+      "source_sha256": "aa0ff26df482dff97f6ef5c1c3f1639bf1c99a669eaa0b5809ddfaa362f4df58",
+      "active_sha256": "b72ef59bd5fb98ea9ef95a48d1f4245ca52b420bcf0e42d6e9008da25b30cc79",
+      "only_line_endings": true
+    },
+    {
+      "path": "lib/wt_armor/gpu_slope.py",
+      "source_sha256": "4540c45c386ff85e1dfd8ecc2f554c40e32ac305b5962733eb442d0871303fc1",
+      "active_sha256": "565101a131b11171cd650b188a9f68cf4d966123b569ee42b279ccaa87fe588e",
+      "only_line_endings": true
+    },
+    {
+      "path": "lib/wt_armor/layered_penetration_v2.py",
+      "source_sha256": "4d1715936294a72e93a1a0a7eeb108da333e3d0bea17776eba7cbc7ecf96936d",
+      "active_sha256": "448345c4d1f500cbbe9c96fef1eccf003c3dc2fbd3408ce88c61c0ee7ce63190",
+      "only_line_endings": true
+    },
+    {
+      "path": "lib/wt_armor/native_blas_chunk.py",
+      "source_sha256": "9640417e7cc56294e570b04f1fb6a75ff02304cd5309eda2b1faf11e81669be5",
+      "active_sha256": "b3645ebcc009a761cc999d66c58754130c85eb22a2ee5a06b1d31a9cb27a6114",
+      "only_line_endings": true
+    },
+    {
+      "path": "lib/wt_armor/native_bvh_reference.py",
+      "source_sha256": "1f84a1a2f92d9e96a667b324f9815c910c645da07b2dd7e99a80934990567071",
+      "active_sha256": "26a1a633dd8b100a2a639e29693c61f326bd6982b6cedf3dea83f7a6b1a7d019",
+      "only_line_endings": true
+    },
+    {
+      "path": "lib/wt_armor/native_loaded_blas.py",
+      "source_sha256": "c241a5a41158ba700e12196842e8d21be57642604885b644d291ec47337d7172",
+      "active_sha256": "313cb08826365920029bb31d125449371c5cd4984b161404e914e3670887c2c7",
+      "only_line_endings": true
+    },
+    {
+      "path": "lib/wt_armor/native_loaded_bvh.py",
+      "source_sha256": "abd1f6f36b2ebb8c3ba1db14a0ba5726ed2c0f4534358768d7196617c9025077",
+      "active_sha256": "451114b8a2e66bf7049e1d83d556294b9ffc9bfd631d5ff641e3f6543845cd61",
+      "only_line_endings": true
+    },
+    {
+      "path": "lib/wt_armor/native_loaded_ray.py",
+      "source_sha256": "e4c85f6958713d5ae274146e4740a079f5d45e6200274ee8a2073a2d9d93158d",
+      "active_sha256": "ac56ab2f1a317eccc91cd2ee59911d11a5792d9ee0371cefcc0c4e6166783ef3",
+      "only_line_endings": true
+    },
+    {
+      "path": "lib/wt_armor/native_quantized_bvh.py",
+      "source_sha256": "346b46571b0be4d1a3e525a9459b7407215f9678a4456050b06b14e7e5c8de8b",
+      "active_sha256": "ebf7f30ae7c445ff643d58c25e76f5f7d6c67c379adc7be6c31675814f2ff775",
+      "only_line_endings": true
+    },
+    {
+      "path": "lib/wt_armor/simplified_penetration.py",
+      "source_sha256": "7b496105e99811b00fe51d58c9dce97da1b773de1378510b135185fdd78a654e",
+      "active_sha256": "497af4278e50a9b9b9d93a942959c9ff703e9e19cb6ba0fa5bc832ae5f447036",
+      "only_line_endings": true
+    }
+  ],
+  "artifact_identity_note": "Current checkout preserves its own byte hashes (CRLF differs from original LF). NPZ archive ordering also differs. Neither map IDs nor NPZ hashes are relabeled as historical."
+}

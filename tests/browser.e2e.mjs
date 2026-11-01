@@ -12,6 +12,8 @@ const dataRoot=process.env.GROUNDOPS_DATA_ROOT||root;
 const qa=JSON.parse(await fs.readFile(path.join(root,'config/qa.json'),'utf8'));
 const config=JSON.parse(await fs.readFile(path.join(dataRoot,'config/model.json'),'utf8'));
 const catalog=JSON.parse(await fs.readFile(path.join(dataRoot,'data/snapshots/catalog.json'),'utf8'));
+const scenarioSource=JSON.parse(await fs.readFile(path.join(dataRoot,'data/snapshots/changes.json'),'utf8'));
+const futureAvailable=scenarioSource.entries.length>0&&!['released','unknown','unavailable','not_imported'].includes(scenarioSource.status);
 const base=process.env.GROUNDOPS_TEST_URL||qa.base_url;
 const screenshots=path.join(root,qa.screenshot_directory);await fs.mkdir(screenshots,{recursive:true});
 const results=[],requests=[],failures=[],pageErrors=[];
@@ -66,6 +68,14 @@ try{
     await page.screenshot({path:path.join(screenshots,'overview-desktop.png'),fullPage:false});
   });
   await run('Primary navigation, scoped version filters and pagination',async()=>{
+    if(!futureAvailable){
+      await navigateTo('versions');
+      assert.match(await page.locator('#workspace').innerText(),/未提供下一版方案/);
+      assert.equal(await page.locator('#planned-top-lineups').count(),0);
+      assert.equal(await page.locator('[data-version="planned"]').isDisabled(),true);
+      assert.equal(await page.locator('[data-action="import-scenario"]').count(),1);
+      await navigateTo('overview');return;
+    }
     assert.equal(await page.locator('.primary-nav a').count(),2);
     assert.equal(await page.locator('.lineup-option').count(),3);
     assert.equal(await page.locator('.lineup-option [data-candidate]').count(),3);
@@ -145,6 +155,13 @@ try{
     await page.waitForFunction(()=>window.__GROUNDOPS__.getState().nation==='ussr'&&document.querySelector('.selection-context')?.textContent.includes('苏联'));
   });
   await run('New-version adoption and split review keep their own version and members',async()=>{
+    if(!futureAvailable){
+      await page.goto(base+'?version=planned#versions');
+      await page.waitForFunction(()=>window.__GROUNDOPS__?.ready);
+      assert.equal(await page.evaluate(()=>window.__GROUNDOPS__.getState().version),'current');
+      assert.equal(await page.locator('#planned-top-lineups').count(),0);
+      await navigateTo('overview');return;
+    }
     await navigateTo('versions');await page.waitForSelector('#planned-top-lineups [data-candidate]');
     const planned=JSON.parse(await page.locator('#planned-top-lineups [data-candidate]').first().getAttribute('data-candidate'));
     await page.locator('#planned-top-lineups [data-candidate]').first().click();

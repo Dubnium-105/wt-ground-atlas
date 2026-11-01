@@ -1,0 +1,72 @@
+{
+  "counts": {
+    "available_bidirectional_pairs": 17948160,
+    "available_forward_pairs": 20499936,
+    "missing_direction_or_distance": 2941536,
+    "missing_owned_ammunition": 2841120,
+    "required_directed_pairs": 23441472
+  },
+  "directions_for_source_profiles_awaiting_maps": 100416,
+  "formal_rankings": 0,
+  "full_report_sha256": "990202b0cd8675a550da88b0059467a22eee92baea72393687b4ecc1daba37fd",
+  "input_sha256": {
+    "ammunition": "55c069ee0771eb8d7c7fd0d52b3813b1514031f92b9f744fff03e9c316d01c0a",
+    "catalog": "e6541fdef1e2a61472b72c9378a262926a1085bc7f7279e923bd84bfe0ea1325",
+    "config": "fb6c9a2c39db7e1597796eee65d2a8fbb1d558137d15442bac5c64f5b9448de6"
+  },
+  "note": "The 12-array resample is separate from the index-only coverage audit. Full assembled-array preflight and final eligibility remain required. Legacy 10 m V2 maps and fresh first-armor range maps retain their respective model identities.",
+  "original_10m": {
+    "index_sha256": "6bb7ba25442144df870035acadcc94cbeff4f895d78ed31d7b046fa5cf023130",
+    "indexed_bytes": 16927346056,
+    "previously_verified_maps": 97779,
+    "resample_receipt_sha256": "5a1193569339a81f93c06c535adc45b5f5298b70d93377b7b62f62b3fcf6b4bd",
+    "resample_stamps_match": true,
+    "resample_verified": 12,
+    "resampled_arrays": 12
+  },
+  "publishable": false,
+  "repeat_counts_matrix_and_sources_identical": true,
+  "root_rocket_batch_included": false,
+  "schema_version": "1.0.0",
+  "scope": "Provisional coverage planning from previously verified index snapshots; source arrays and assembled atlas are not rechecked here. The matrix uses base catalog BR and does not establish unlocked or dynamic-mount eligibility.",
+  "selected_maps": 531214,
+  "source_arrays_rechecked": false,
+  "source_indexes": [
+    {
+      "index_sha256": "6bb7ba25442144df870035acadcc94cbeff4f895d78ed31d7b046fa5cf023130",
+      "verified_selections": 97779
+    },
+    {
+      "index_sha256": "4f0ad1a498e92413548daf00b7de562576c02f84a1ac871b6272b1653989f086",
+      "verified_selections": 351403
+    },
+    {
+      "index_sha256": "6be35541542dfe047edaee8d7aacd59610e0caf809cd076890b5eaf760bdbee7",
+      "verified_selections": 40928
+    },
+    {
+      "index_sha256": "78a0356a110b12c43f90314951b46c72f900b49eba6d7a5f4042295b98df3dba",
+      "verified_selections": 1664
+    },
+    {
+      "index_sha256": "b5aea4437164cd9bd1e28a689e50c589f5b8d1fefcfe98473a070a0aacd5143a",
+      "verified_selections": 38664
+    },
+    {
+      "index_sha256": "d4317ffc32f76fc343bcbde11498d5fda5828ab414bc51c6c136556486d72ee7",
+      "verified_selections": 776
+    }
+  ],
+  "source_version": [
+    "2.59.0.92",
+    "af0cce561a73704e30c1df66eff06209bcc3f035"
+  ],
+  "vehicles_with_any_missing_forward_direction": 155,
+  "vehicles_with_source_profile_but_missing_all_required_maps": [
+    "cn_m113a1_tow",
+    "il_m113a1_tow",
+    "it_m113a1_tow",
+    "uk_ratel_20"
+  ],
+  "vehicles_without_owned_ranged_profile": 151
+}

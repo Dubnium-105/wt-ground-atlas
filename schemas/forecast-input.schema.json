@@ -413,6 +413,67 @@
         "endpoint",
         "observations"
       ]
+    },
+    "sensitivity_policy": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "status",
+        "thresholds",
+        "aim_narrower_factor",
+        "aim_wider_factor",
+        "opponent_skill_mean_shift",
+        "search_budget_multiplier",
+        "seed_offset"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "status": {
+          "const": "assumed_robustness_policy"
+        },
+        "thresholds": {
+          "type": "object",
+          "required": [
+            "minimum_overlap",
+            "maximum_score_delta"
+          ],
+          "properties": {
+            "minimum_overlap": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1
+            },
+            "maximum_score_delta": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        },
+        "aim_narrower_factor": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 1
+        },
+        "aim_wider_factor": {
+          "type": "number",
+          "exclusiveMinimum": 1
+        },
+        "opponent_skill_mean_shift": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "search_budget_multiplier": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "seed_offset": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
     }
   },
   "oneOf": [

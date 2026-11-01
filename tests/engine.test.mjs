@@ -111,6 +111,31 @@ test('AT08 unknown/NaN/background/no-inner-target and off-canvas mass stay disti
   assert.ok(result.aim_points.every(point => point.inside_target));
 });
 
+test('carried support equipment counts toward mass but never supplies weapon effectiveness', () => {
+  const fuel = {id: 'fuel', type: 'fuel_tank', count: 2, mass_kg: 42, mass_complete: false, combat_delivery: false};
+  const pod = {id: 'pod', type: 'targeting_pod', count: 1, mass_kg: 230, combat_delivery: false};
+  const loadout = {id: 'support', legal: true, weapons: [fuel, pod]};
+  const plane = vehicle('plane', 'usa', 10, {kind: 'aircraft', loadouts: [loadout]});
+  const result = validateLoadout(plane, loadout, {}, config);
+  assert.equal(result.valid, true);
+  assert.deepEqual(result.active_weapons, []);
+  assert.ok(result.warnings.includes('payload_mass_incomplete'));
+  assert.ok(validateLoadout({...plane, max_payload_kg: 300}, loadout, {}, config).errors.includes('payload_overweight'));
+  const pair = evaluatePair(plane, vehicle('target', 'ussr', 10), {}, config);
+  assert.equal(pair.mission_capability_known, false);
+  assert.equal(pair.components.weapon_delivery.value, null);
+  assert.equal(pair.components.weapon_delivery.coverage, 0);
+});
+
+test('gun ammunition capacity is not a count of ground attack deliveries', () => {
+  const loadout = {id: 'gun', legal: true, weapons: [{id: 'gun', type: 'gun', count: 1, ammunition_count: 150, mass_kg: 210, mass_complete: false}]};
+  const plane = vehicle('plane', 'usa', 10, {kind: 'aircraft', loadouts: [loadout]});
+  assert.equal(validateLoadout(plane, loadout, {}, config).active_weapons[0].count, 1);
+  const pair = evaluatePair(plane, vehicle('target', 'ussr', 10), {}, config);
+  assert.equal(pair.components.weapon_delivery.value, null);
+  assert.ok(pair.missing.includes('verified_legal_ground_attack_loadout'));
+});
+
 test('AT09 skill changes impact selection/error without altering armor samples', () => {
   const shard = {width: 5, height: 3, pixel_pitch_m: 0.1, probabilities: new Float32Array([0, 0, 0, 0, 0, 0, 0.2, 0.1, 1, 0, 0, 0, 0, 0, 0]), status: new Uint8Array([0, 0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0, 0, 0])};
   const copy = [...shard.probabilities], normal = integrateAim(shard, {}, config), skilled = integrateAim(shard, {skill: 2}, config);

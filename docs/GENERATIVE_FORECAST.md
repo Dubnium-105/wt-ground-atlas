@@ -128,7 +128,13 @@ T_{cycle}=\max(T_{reload},T_{reaim}).
 
 收益上下界沿同一条以均值选出的策略传播。无法再出击的阶段为已知的零贡献，不会被错误计为资料缺失。默认点数规则只是公开假设，配置明确标为 `assumed_not_official_rules`；航空出击成本未知时不能把它当免费火力。
 
-防空、CAS、制空、侦察等扩展阶段使用 `--missions` 的版本化任务证据：记录必须包含 `variant_key / target_vehicle_id / scenario_id / task / lower / mean / upper / source_version / source / status=validated`。没有这类数据时，不能从导弹最大射程或飞机存在与否硬凑任务收益；默认榜单范围明确限定为原生距离地面对抗。出击规划可执行这些任务与合法航空配置，但本地地面样例不证明它们的效果。
+防空、CAS、制空、侦察等任务可导入 `--missions` 版本化证据：记录包含 `variant_key / target_vehicle_id / scenario_id / task / lower / mean / upper / source_version / source / status`。当前用户选择允许记录留空：`mission_policy=assumed_defaults` 使用显式的均值 0.5、区间 [0,1]，不增加观测或生产证据覆盖，模型保持 `uncalibrated`；严格模式 `require_evidence` 仍可使用。地面 `anti_tank` 与旧 `ground` 共用精确双向物理对抗，不能用默认任务值替代缺失的距离、角度或反向图。航空反坦克继续走任务证据/默认假设。
+
+正式产品入口 `python build.py --forecast` 默认使用 `config/forecast.full-ground-rb.json`：普通技能、空地协同偏好，10/100/500/1000m × 每 15° 的 24 方位，5/8/10 槽，全部已采集国家与有效 BR。`--config` 可覆盖；单独 `scripts/build_forecast.py` 和 `--sample-root` 保留旧原生距离配置与样例诊断。切换到完整配置不表示已通过发布准入。
+
+完整配置用开局/中段/替补三个出击阶段，每阶段的 `phase_task_weights` 分配地面控制、反坦克、侦察、反直升机、防空、CAP、CAS、SEAD 的条件任务效用；它们是归一化的任务先验，不代表一辆车同时进行八场独立交战，也不代表赚取 SP 的概率。每辆车的阶段均值、缺项上下界、覆盖率沿相同任务权重汇总，再进入原出击规划器。`task_weight_status=assumed_not_observed` 与距离/方位均匀先验公开保留。地面车辆不能执行 CAP/CAS，航空不能执行地面占领或旧地面对抗任务；其他能力不从载具类别推断加分。
+
+`--all-profiles` 将 `default_cohort` 指定的技能/偏好置于网站根目录，其余八个组合保留静态切换。完整配置的纯地面偏好明确标为 `ground_engagement` 研究范围。任务混合、各任务物理/外部证据、出击策略与保留成员贡献均可回溯；SP、同版来源、物理覆盖、搜索预算和敏感性门禁继续有效。
 
 匹配模型先枚举**整场 BR 上限**，再对对应窗口的对手求条件分布。假设频率不是实测匹配频率。等价构型组 → 载具父 ID → 配置逐层分配质量，增加同一架飞机的 BR 选项不会使其出现频率变成数倍。
 

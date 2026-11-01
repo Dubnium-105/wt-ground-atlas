@@ -1,0 +1,124 @@
+{
+  "cpu_cuda_parity": {
+    "checks": 12,
+    "maximum_delta": 5.960464477539063e-08,
+    "report": "reports/root-rockets-cpu-cuda-crosscheck.json",
+    "sampled_rays": 195828,
+    "sha256": "ca9b39a8d267791d24d2b015711fa170e3dc274f8d51789898581ae2561583c9"
+  },
+  "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+  "endpoint": "conditional_penetration",
+  "first_sample": {
+    "binding_errors": [],
+    "blockers": [
+      "incomplete_bidirectional_native_coverage"
+    ],
+    "report_status": "blocked",
+    "verified_arrays": 32
+  },
+  "formal_rankings": false,
+  "full_batch_status_at_report": "generation_completed_and_standalone_arrays_verified",
+  "full_preflight": {
+    "binding_error_count": 0,
+    "blockers": [
+      "incomplete_bidirectional_native_coverage"
+    ],
+    "duration_seconds": 254.2681031000102,
+    "inventory": {
+      "ambiguous_maps": 0,
+      "annotation_reconciled_maps": 0,
+      "content_sha256": "49ca61984bf9b7586605f6c5a69e31879617ff18e0165ab2b4d06c1395d5ba26",
+      "historical_duplicate_maps": 0,
+      "metadata_objects": 8584,
+      "metrics": {
+        "array_seconds": 99.3622483999934,
+        "arrays_checked": 8552,
+        "incremental_hits": 32,
+        "memory_budget_bytes": 536870912,
+        "metadata_cpu_seconds": 9.953125,
+        "metadata_rebuilt": 8552,
+        "metadata_seconds": 47.7911437000148,
+        "workers": 2
+      },
+      "rejections": {},
+      "selected_array_bytes": 3130787728,
+      "selected_maps": 8584,
+      "status_counts": {
+        "verified": 8584
+      },
+      "verified_arrays": 8584
+    },
+    "report_sha256": "037c561d0aa5b98b0a3404eb5aec031ed09b1dd3daab531cd4ebe109b48e20c1",
+    "report_status": "blocked",
+    "scope": "Standalone rocket batch; full bidirectional coverage requires the other batches and a new assembled-atlas preflight."
+  },
+  "game_probability_validated": false,
+  "generation": {
+    "array_bytes": 3130787728,
+    "computed_maps": 8552,
+    "duration_seconds": 887.9047971999971,
+    "input_ammunition_sha256": "55c069ee0771eb8d7c7fd0d52b3813b1514031f92b9f744fff03e9c316d01c0a",
+    "input_catalog_sha256": "e6541fdef1e2a61472b72c9378a262926a1085bc7f7279e923bd84bfe0ea1325",
+    "model": {
+      "backend": "v2-cuda",
+      "chemical_profile_code_sha256": "5fcd504692d26dd9128607f0f9dc7c612825afb1f29d65ae54deabf88cc6f7d4",
+      "range_profile_code_sha256": "8fcea023f76eda19566739b5fe94601eb969b8ddb0569571bcfe24b8bb1cd671",
+      "tool_code_sha256": "58f1bf518f58f16386ff8ee9851673aa7d588a380545656df643c3cef9e9ad3b",
+      "tool_manifest_sha256": "38b35c2418cd1731fb1fc00c194482d464dedb41e9291ee775ea23866499542c"
+    },
+    "pending_maps": 0,
+    "planned_maps": 8584,
+    "requests_sha256": "407602f0fd7272e608d7107f1371d2a3828fb86278100c3bdc84629c08342e87",
+    "resources": {
+      "cpu_seconds": 809.65625,
+      "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+      "peak_rss_bytes": 1410633728
+    },
+    "reused_maps": 32
+  },
+  "limitations": "Source recovery and sample validation do not establish full-map coverage, in-game kill rates, win rates, or formal rankings.",
+  "new_ground_vehicles_with_source_profile": [
+    "cn_m113a1_tow",
+    "il_m113a1_tow",
+    "it_m113a1_tow",
+    "uk_ratel_20"
+  ],
+  "new_profiles": 8,
+  "planned_maps": 8584,
+  "prior_range_profiles_preserved": 1968,
+  "range_bundle_sha256": "55c069ee0771eb8d7c7fd0d52b3813b1514031f92b9f744fff03e9c316d01c0a",
+  "range_profiles_added": 32,
+  "recovered_ammunition_ids": [
+    "cn_m113a1_tow::BGM-71 TOW",
+    "cn_m113a1_tow::BGM-71C I-TOW",
+    "cn_object_122tm::302 anti-tank guided missile",
+    "cn_type_86::HJ-73 anti-tank guided missile",
+    "fr_amx_13_hot::HOT",
+    "germ_bmp_1_ddr::9M113",
+    "germ_bmp_1_ddr::9M14",
+    "il_m113a1_tow::BGM-71 TOW",
+    "il_m113a1_tow::BGM-71C I-TOW",
+    "it_m113a1_tow::BGM-71 TOW",
+    "it_m113a1_tow::BGM-71C I-TOW",
+    "uk_ratel_20::MILAN",
+    "ussr_bmp_1::9M113",
+    "ussr_bmp_1::9M14"
+  ],
+  "recovered_vehicles": 9,
+  "schema_version": "1.0.0",
+  "source_evidence": {
+    "client_capture_sha256": "fd7c7ab7b9766f860b5d74d5b58c155009189b131798a1db6389c2fd7541a68a",
+    "language_capture_sha256": "2ac4bf8626850137ca580c38fb1ab025810e7704f293eff7661846967d7aec3d",
+    "output_ammunition_sha256": "9f501e5dc55cf634fb4ff7ed51f4e9b3a9bd901ccc3abb98405e9aac24301f18",
+    "output_catalog_sha256": "e6541fdef1e2a61472b72c9378a262926a1085bc7f7279e923bd84bfe0ea1325",
+    "rules_capture_sha256": "fe93b1f2a356207e5af01471d79776d4a58cccea99f95cf7e208ad757cdec329"
+  },
+  "source_version": "2.59.0.92",
+  "validation": {
+    "diagnostic_static_build_passed": true,
+    "node_tests_passed": 64,
+    "playwright_passed": true,
+    "python_tests_passed": 419,
+    "smoke_tests_passed": 4
+  }
+}

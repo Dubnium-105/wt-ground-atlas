@@ -23,6 +23,7 @@ from wt_atlas.forecast.search import Optimizer, feasible, lower_tail, sortie_pol
 
 def settings():
     c = json.loads((ROOT / "config/forecast.json").read_text(encoding="utf-8"))
+    c["mission_policy"] = {"mode": "require_evidence"}  # Legacy strict protocol fixtures.
     c["population"]["sd"] = 0
     c["scenarios"] = [copy.deepcopy(c["scenarios"][0])]
     c["scenarios"][0].update(weight=1., horizon_s=8.)
@@ -77,6 +78,15 @@ class AimTests(unittest.TestCase):
         self.assertAlmostEqual(sum(w for _, w in nodes), 1.)
         self.assertAlmostEqual(sum(x * w for x, w in nodes), 0.)
         self.assertAlmostEqual(sum(x * x * w for x, w in nodes), 1.)
+
+    def test_certain_penetration_remains_a_valid_interval_after_rounding(self):
+        config=json.loads((Path(__file__).resolve().parents[1]/'config/forecast.full-ground-rb.json').read_text(encoding='utf8'))
+        p=np.ones((10,10),dtype=np.float32);s=np.full(p.shape,3,dtype=np.uint8)
+        result=integrate(p,s,.2,0.,config['scenarios'][0],config['aim'])
+        self.assertLessEqual(0.,result['lower'])
+        self.assertLessEqual(result['lower'],result['mean'])
+        self.assertLessEqual(result['mean'],result['upper'])
+        self.assertLessEqual(result['upper'],1.)
 
     def test_impact_mass_and_distinct_unknown_semantics(self):
         p = np.full((4, 4), np.nan, np.float32)

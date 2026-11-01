@@ -1,0 +1,117 @@
+{
+  "code_sha256": {
+    "backend/wt_atlas/ammunition_recovery.py": "cf37238c8d4fff85a947e21db31462035bcd79740af48b90acd315ba325738d7",
+    "backend/wt_atlas/chemical_projectiles.py": "26f2d0d0d3a551942c2ce2d448d3b13bd9547748058031586a6f3f2a3d836b6e",
+    "backend/wt_atlas/forecast/engine.py": "57c523954ef6e67e87957f93bcd8642b86e872920b55f00dd9ad721c62bb85de",
+    "scripts/prepare_range_profiles.py": "2b0f5214964db88c22728d9580bafb52b05c9c9d00c5af44b843a3d665e43f1d",
+    "scripts/recover_native_ammunition.py": "45d9beb1287f15d11c93f62e84214d9de60f02546fbe79efb29af4781b43d3de"
+  },
+  "collected_at": "2026-10-31T11:07:13.415981+00:00",
+  "computation": {
+    "array_bytes": 367783184,
+    "computed_maps": 744,
+    "duration_seconds": 222.71703610010445,
+    "first_batch_binding_errors": 0,
+    "first_batch_rejections": {},
+    "first_batch_scope": "32 arrays only, not complete bidirectional coverage",
+    "first_batch_verified_arrays": 32,
+    "full_batch_state": "completed_and_standalone_arrays_verified",
+    "full_preflight": {
+      "ambiguous_maps": 0,
+      "arrays_newly_checked": 744,
+      "binding_errors": 0,
+      "blockers": [
+        "incomplete_bidirectional_native_coverage"
+      ],
+      "duration_seconds": 102.18998550006654,
+      "prior_verified_reused": 32,
+      "rejections": {},
+      "report_sha256": "2a27c57b3528e3bb6ba8e88258065e542c1e941f705150266a51ddf14c12db6c",
+      "status": "blocked",
+      "verified_arrays": 776
+    },
+    "full_preflight_report": "reports/primary-modification-full-preflight.json",
+    "peak_rss_bytes": 1365311488,
+    "planned_maps": 776,
+    "requests_sha256": "4fa6227cab38f1051a6db6bce8777720a79bfd94e83f3b48ade5214f210d1636",
+    "reused_maps": 32,
+    "targets": 194,
+    "yaws_per_map": 24
+  },
+  "cpu_cuda_crosscheck": {
+    "cases": 4,
+    "game_probability_validated": false,
+    "max_probability_delta": 5.960464477539063e-08,
+    "partial_probability_cases": 4,
+    "report": "reports/primary-modification-cpu-cuda-crosscheck.json",
+    "sampled_rays": 65292,
+    "sha256": "0aad8fde616d1e5cb636b69199fa9f22fcaa9dd25eb52f773a4f3a6a6e8ef378"
+  },
+  "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+  "formal_rankings": 0,
+  "incremental_profiles": {
+    "new_distance_profiles": 4,
+    "new_source_profiles": 1,
+    "output_sha256": "67d8143453499533326fc9a82c6dd7926b9c382947bac6378d24726412e6e085",
+    "preserved_prior_profiles": 1963,
+    "prior_ranges_sha256": "995f7f3d3d43884e3c1e8d4a1379bebcc491fca445334c78284f819db0bf06aa",
+    "prior_source_sha256": "3df4ba0d20023b999e002a3dde48641799800f46461497878f415e9646f1ac50",
+    "replay_identical": true
+  },
+  "publishable": false,
+  "recovered": {
+    "additional_vehicles": 0,
+    "ammo_id": "us_lav_ad::M247",
+    "primary_modification_id": "lav_ad_hydra_70",
+    "profile": "recovered_da755fe0d7d0f6cf9dfa207e",
+    "projectile_sha256": "f52d980395c78675f471cf5e4cbd78060376617c6ab06c32f0b199d2c95ed2a2",
+    "recovered_ammunition": 1,
+    "required_modification_ids": [
+      "lav_ad_hydra_70"
+    ],
+    "source_unit_sha256": "cfcde990f05923591a7ce86c8b802127e83a059bc26b16d18e148e9e672f2e80",
+    "source_weapon_sha256": "1dd1fd163377b6b3a77dbaa85112d9c6afd6203f8d51d7cf7a4706fd685cdd1d"
+  },
+  "schema_version": "1.0.0",
+  "source_scope": "Conditional CE penetration of a functioning jet at impact; no flight, fuzing, hit probability, post-penetration damage or win rate is claimed.",
+  "source_version": "2.59.0.92",
+  "tests": {
+    "diagnostic_build": "passed, zero rankings",
+    "logs_sha256": {
+      "build.log": "2f5fc24ac3e92a00b8888597408908cc86511c1f6d46e12503cc5a813fb4b8ca",
+      "final-node-tests.log": "6a2cfb7c518776315f260ca11cba42c935515cf3060055eb5dfdfbf521c89795",
+      "final-playwright.log": "9fdbc64b5e733a79f49235eb4b544dfc2c8ef024b8e510d6f24a828d6fbc83fd",
+      "final-smoke.log": "217db804e638534317f383c898c71bebffba665cfb6fe3c61f65617de1b56b88",
+      "verified-python-tests.log": "de015310095691aa1a4a65f2e7d9bda4b2f1cf8373a936f43a8553642377d8a7"
+    },
+    "node_passed": 64,
+    "playwright": "passed",
+    "python_passed": 408,
+    "smoke_passed": 4
+  },
+  "whole_catalog_recovery": {
+    "counts": {
+      "exactly_bound_selections": 1960,
+      "examined_ammunition": 2813,
+      "new_profiles": 1,
+      "recovered_ammunition": 1,
+      "recovered_ordered_belts": 8,
+      "recovered_profiles": 1,
+      "recovered_vehicles": 1
+    },
+    "detailed_report_sha256": "e8c468c929c461351e6fe07dc40136fa8236f61439f31e23ed2dfc60d47c7f0b",
+    "unresolved_reasons": {
+      "ambiguous_localized_mounted_selection": 7,
+      "chemical_multiple_or_directed_charge_unsupported": 9,
+      "chemical_single_jet_type_unsupported": 1490,
+      "conditional_ordered_belt_source_revalidation_unavailable": 1,
+      "exact_localized_mounted_selection_missing": 846,
+      "native_generic_kinetic_mechanism_not_verified": 5,
+      "native_response_preset_missing": 1,
+      "ordered_belt_component_counts_missing": 330,
+      "ordered_belt_component_profile_missing": 103,
+      "ordered_belt_unequal_component_counts_require_native_sequence": 12
+    },
+    "vehicle_errors": 0
+  }
+}

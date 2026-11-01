@@ -10,30 +10,39 @@
       "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
       "effective_date": null,
       "game_version": null,
-      "sha256": "f1738dae0a13689edd1a985b8ef31a8f5bb328a3223a712da911de9685701884",
-      "snapshot_id": "wiki-d759fcb02ab375b4",
+      "sha256": "e5ecf32d868db122853026594385bdb2a699250f8b856c67e32bb59b26b76651",
+      "snapshot_id": "wiki-5623f68d352b3916",
       "source_status": "unknown",
       "sources": [
         {
+          "br_field": "rb",
+          "bytes": 1336296,
           "count": 1226,
           "kind": "ground",
-          "sha256": "48f16f5a4dd40cc4243530035609689926d9d0809b9cdf69f0e28f22a5f90243",
+          "path": "cc2eb7a15f16b27e3f39e86de9902b1c4469326a29daea81543c6f957bd868f8.html",
+          "sha256": "cc2eb7a15f16b27e3f39e86de9902b1c4469326a29daea81543c6f957bd868f8",
           "url": "https://wiki.warthunder.com/ground"
         },
         {
-          "count": 1341,
+          "br_field": "trb",
+          "bytes": 1478761,
+          "count": 1342,
           "kind": "aircraft",
-          "sha256": "fdac34358e9626485d27352a7f21c5e2fcab9c6147345a32fadc819d49c86963",
+          "path": "3979ae97a58c65c9157fee8d47fdb7207dd4bbbec985a5d38b119ce8fc15d951.html",
+          "sha256": "3979ae97a58c65c9157fee8d47fdb7207dd4bbbec985a5d38b119ce8fc15d951",
           "url": "https://wiki.warthunder.com/aviation"
         },
         {
+          "br_field": "rb",
+          "bytes": 429841,
           "count": 112,
           "kind": "helicopter",
-          "sha256": "d2caa3307d468a25290085dd8292ce4cf4dd41c6fc58eede53aa1121c8d623b9",
+          "path": "4ea08fd04f1559038a6be193cd1bb1856fb65d47e4a5a5692f32b27f0a2a3969.html",
+          "sha256": "4ea08fd04f1559038a6be193cd1bb1856fb65d47e4a5a5692f32b27f0a2a3969",
           "url": "https://wiki.warthunder.com/helicopters"
         }
       ],
-      "wiki_collected_at": "2026-10-29T01:19:11.129331+00:00"
+      "wiki_collected_at": "2026-10-30T13:06:38.003583+00:00"
     },
     "why_not_publishable": [
       "snapshot_identity_missing",
@@ -50,43 +59,61 @@
       "rating_version_provenance_incomplete"
     ]
   },
-  "schema_version": "1.0.0",
-  "build_key": "3a389aaae149267783b68b9246fc5af627999429c2233ce19baf9cc311d6a42f",
+  "schema_version": "1.1.0",
+  "build_key": "b9b45f5879986b7299084103aef625141f2f479ac7d3de5ecf69131588628e51",
+  "algorithm_ready": true,
+  "data_ready": false,
+  "publishable": false,
   "static_artifact": {
-    "build": "passed",
+    "status": "verified_local_package",
+    "site": "dist/site-native-0f50df1",
     "package": {
-      "bytes": 66742822,
-      "sha256": "0c205527ea941b46eeffd69919dc91dec5a43eb142c986912868004afd069f75",
-      "entries": 5447,
-      "uncompressed_bytes": 76950842,
+      "file": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\ground-atlas-native-0f50df1.zip",
+      "bytes": 66086091,
+      "sha256": "0f88eb61de470a2098f2bb33febaa780a4adec79ab580af3e46c1225335fcf8f",
+      "entries": 5554,
+      "uncompressed_bytes": 69036327,
       "probability_mode": "disabled",
       "crc_validation": "all_entries_passed",
       "checksum_manifest": "FILE_INTEGRITY.sha256",
       "scope": "deployable_static_site_only"
     },
     "verification": {
-      "checked": 5446,
-      "failures": [],
-      "site": {
-        "static_total_bytes": 77649242,
-        "static_published_file_count": 5447,
-        "probability_mode": "disabled",
-        "budgets": {
-          "site_bytes": 104857600,
-          "file_bytes": 26214400
-        }
+      "checked": 5553,
+      "failures": []
+    },
+    "extracted_site": {
+      "static_total_bytes": 69747828,
+      "static_published_file_count": 5554,
+      "probability_mode": "disabled",
+      "budgets": {
+        "site_bytes": 104857600,
+        "file_bytes": 26214400
       }
     },
-    "public_deployment": "blocked_target_not_configured",
-    "probability_mode": "disabled",
-    "raw_probability_data_included": false
+    "runtime": {
+      "checks": [
+        "same-build identity and no initial raw physics requests",
+        "truthful source coverage and publication gate",
+        "mobile layout",
+        "real research drilldown",
+        "no page exceptions"
+      ],
+      "build_key": "b9b45f5879986b7299084103aef625141f2f479ac7d3de5ecf69131588628e51",
+      "source_vehicles": 2680,
+      "source_maps": 97779,
+      "ready_ms": 88.99799999999999,
+      "first_load_transfer_bytes": 1719239,
+      "page_errors": [],
+      "status": "passed"
+    },
+    "catalog_alignment": {
+      "status": "verified_same_input_catalog",
+      "catalog_sha256": "b7e3df3f63356353569087fd9c5fcacba61a3dde423daf552000645251dbcca9"
+    },
+    "public_deployment": "not_deployed_no_hosting_target_or_probability_CDN_configured"
   },
   "required_external_inputs": [
-    {
-      "id": "original_sample",
-      "path": "analysis-sample-2.59.0.92.zip",
-      "needed": "Original 32-file manifest archive (expected historical ZIP SHA256 5a5dc1b5e4254f54491599505cbdb15a1292562c1dfc148849dcf270ce10b463); the derived 4-file local sample does not replace this acceptance."
-    },
     {
       "id": "snapshot_identity",
       "path": "data/raw/next-stage/snapshot-info.json",
@@ -95,128 +122,357 @@
     {
       "id": "physical_coverage",
       "path": "data/derived/grp_probability_v2/<version>/<atlas>/arrays/",
-      "needed": "Global exact-owned-ammunition reciprocal maps remain incomplete. Original atlas is native 10m only. Six independently recomputed KE maps now cover Khalid/BMP-2M at native 100/500/1000m; this two-vehicle subset does not establish global far-range coverage. See native-range-validation.json."
+      "needed": "97,779 maps are verified at native 10 m/yaw 0. No computable missing-map requests remain for currently bound native profiles. Remaining 64,836 directions: 53,149 from 268 vehicles without exact owned profiles, and 11,687 from 52 vehicles whose owned profiles lack native distance. Supply same-version exact vehicle/ammo/projectile bindings and source physics parameters; do not infer from names or caliber. Detailed IDs: reports/native-profile-gaps.json. Existing six independently recomputed 100/500/1000 m KE maps remain a two-vehicle subset, not global far-range coverage."
     },
     {
       "id": "official_configuration",
       "path": "data/snapshots/catalog.json",
-      "needed": "Per-vehicle br_provenance.source/source_version; rating_configurations.ground_rb with official_verified source/version/options/allowlists; legal loadouts with source/source_version/source_status; spawn_rule.status/source/source_version/base_points/room_costs/respawn_multiplier."
+      "needed": "Pinned .94 BR and hardpoint rules were imported, including four official BR corrections; this does not prove coherent current snapshot/physical identity. Supply same-version legal carried loadouts and native SP rules: source/source_version/status, exact payload identity, base_points/room_costs, spawn_group and respawn_model. count-power respawn semantics are implemented; native final shop_get_spawn_score base costs and full payload provenance remain unavailable."
     },
     {
       "id": "missions",
       "path": "data/raw/next-stage/missions.json",
-      "needed": "records: variant_key,target_vehicle_id,scenario_id,task,lower,mean,upper,source_version,source,status; validated evidence includes loadout_id,flight_conditions,radar_conditions,target_countermeasures,source_sha256. No maximum-range-to-hit-rate conversion."
+      "needed": "Optional under mission_policy.mode=assumed_defaults. Future imported records retain the following contract: records: variant_key,target_vehicle_id,scenario_id,task,lower,mean,upper,source_version,source,status; validated evidence includes loadout_id,flight_conditions,radar_conditions,target_countermeasures,source_sha256. No maximum-range-to-hit-rate conversion.",
+      "optional_for_current_penetration_model": true
     },
     {
       "id": "damage",
       "path": "data/raw/next-stage/effects.json and referenced NPZ",
-      "needed": "records: map_id,map_array_sha256,source,source_version,status,array_file,array_sha256. conditional_outcomes[angle,height,width,3] for firepower,mobility,termination; finite nonnegative mutually exclusive mass <=1. Required only to switch the endpoint to damage."
+      "needed": "records: map_id,map_array_sha256,source,source_version,status,array_file,array_sha256. conditional_outcomes[angle,height,width,3] for firepower,mobility,termination; finite nonnegative mutually exclusive mass <=1. Required only to switch the endpoint to damage.",
+      "optional_for_current_penetration_model": true
     },
     {
       "id": "statistics",
       "path": "data/private/authorized-statistics.json",
-      "needed": "Authorized packet: source,sampling_window,game_version,mode,sample_count,deduplication,bias_notes,authorization,endpoint,observations; observations have observation_id,player_id,match_id,timestamp,stratum,game_version,prediction,outcome. Optional empirical calibration; missing keeps uncalibrated."
+      "needed": "Authorized packet: source,sampling_window,game_version,mode,sample_count,deduplication,bias_notes,authorization,endpoint,observations; observations have observation_id,player_id,match_id,timestamp,stratum,game_version,prediction,outcome. Optional empirical calibration; missing keeps uncalibrated.",
+      "optional_for_current_penetration_model": true
     },
     {
       "id": "planned_version",
       "path": "data/raw/next-stage/scenario.json or a complete --planned-* snapshot",
-      "needed": "Official announced/proposed next-version changes with sources and version identity, or explicitly hypothetical labels; no next-version source was supplied."
+      "needed": "Official announced/proposed next-version changes with sources and version identity, or explicitly hypothetical labels; no next-version source was supplied. Already released October BR changes are in the current captured baseline; no duplicate future board is generated.",
+      "optional_for_current_penetration_model": true
     },
     {
       "id": "hosting",
       "path": "deployment target and versioned probability CDN URL",
-      "needed": "No authorized public deployment target/CDN configured. Static ZIP is verified locally; remote live deployment is not performed."
+      "needed": "No authorized public deployment target/CDN configured. Static ZIP is verified locally; remote live deployment is not performed.",
+      "optional_for_current_penetration_model": true
     }
   ],
-  "search_scope": {
-    "config": "config/forecast.audit.json",
-    "nations": "all collected",
-    "br": "all valid discovered",
-    "slots": [
-      5
-    ],
-    "acquisition": [
-      "researchable",
-      "all"
-    ],
-    "budget_per_table": 2,
-    "opponent_samples": 8,
-    "skill_nodes": 1,
-    "physical_distance_m": 10,
-    "exhaustive_real_search": false,
-    "synthetic_nine_profile_build_verified": true
-  },
   "tests": {
     "python": {
-      "total": 132,
-      "passed": 131,
-      "skipped": 1,
-      "skip_reason": "Windows filesystem symlink creation unavailable",
-      "seconds": 38.773
-    },
-    "node": {
-      "passed": 51
-    },
-    "research_source_node": {
-      "passed": 55,
-      "scope": "supplied uncommitted legacy research source, copied without modifying original"
+      "passed": 197,
+      "skipped": 0,
+      "seconds": 40.226,
+      "command": "npm test (Python portion)"
     },
     "forecast": {
-      "passed": 79,
-      "subset_of_python": true
+      "passed": 144,
+      "subset_of_python": true,
+      "seconds": 22.554,
+      "command": "python -m unittest discover -s tests -p 'test_forecast*.py' -v"
+    },
+    "node": {
+      "passed": 58,
+      "command": "npm test (Node portion)"
     },
     "smoke": {
-      "passed": 4
+      "passed": 4,
+      "command": "npm run test:smoke"
     },
     "forecast_browser": {
       "status": "passed",
-      "automatic_ranking": true,
-      "version_switch": true,
-      "nation_filter": true,
-      "subpath": true,
-      "mobile": true,
-      "cohort_switch": true,
-      "unified_research": true,
-      "hash_error_retry": true,
+      "command": "node tests/forecast.e2e.mjs",
       "raw_physics_initial_requests": 0,
       "page_errors": []
     },
     "real_product_browser": {
-      "passed": 5
+      "passed": 5,
+      "report": "reports/native-combined-product/product-runtime.json"
     },
     "real_research_browser": {
       "passed": 11,
-      "browser": "151.0.7922.34"
+      "browser": "151.0.7922.34",
+      "report": "reports/native-combined-product/research-browser.json"
     },
     "remote_ci": {
-      "tested_head": "24996fea47fbaa78c3da7083408fddaa02f63f46",
+      "tested_head": "0f50df140b9a2ad6e36735da373a0c13eb61e6b1",
       "status": "success",
-      "workflows": [
-        {
-          "id": 41053806658,
-          "name": "Validate source and lightweight site",
-          "status": "completed",
-          "conclusion": "success",
-          "url": "https://github.com/Dubnium-105/wt-ground-atlas/actions/runs/41053806658"
-        },
-        {
-          "id": 41053806579,
-          "name": "Generative forecast contracts",
-          "status": "completed",
-          "conclusion": "success",
-          "url": "https://github.com/Dubnium-105/wt-ground-atlas/actions/runs/41053806579"
-        }
-      ],
-      "confirmed_at": "2026-10-30T12:16:07.541876+00:00"
+      "runs": [
+        41160867096,
+        41160867126
+      ]
     }
   },
-  "local_requirements": {
-    "sensitivity": "Executable --run-sensitivity now measures five perturbations with source hashes; global bounded audit has not passed robustness or sufficient search budgets."
+  "search_scope": {
+    "config": "config/forecast.audit.json",
+    "slots": [
+      5
+    ],
+    "acquisition": [
+      "all",
+      "researchable"
+    ],
+    "all_collected_nations_and_legal_br": true,
+    "max_evaluations_per_table": 2,
+    "opponent_samples": 8,
+    "skill_nodes": 1,
+    "native_distance_m": 10,
+    "fully_converged_production_search": false,
+    "execution": {
+      "current": {
+        "restored_tables": 0,
+        "computed_tables": 758,
+        "new_evaluations": 1100,
+        "restored_evaluations": 0
+      }
+    },
+    "sensitivity": {
+      "current": {
+        "cases": [
+          {
+            "baseline_truncated": 550,
+            "boards": [],
+            "case": "aim_narrower",
+            "changed_truncated": 550,
+            "config_sha256": "d3602b9abfa33eac1f610117eaaa7a98ec6bcc473606044a0bb1f9a2121e49fc",
+            "evaluations": 1100,
+            "execution": {
+              "computed_tables": 758,
+              "new_evaluations": 1100,
+              "restored_evaluations": 0,
+              "restored_tables": 0
+            },
+            "passed": false
+          },
+          {
+            "baseline_truncated": 550,
+            "boards": [],
+            "case": "aim_wider",
+            "changed_truncated": 550,
+            "config_sha256": "4ceabf545d03dd7c9e1a9dbe99191558afdc1777d220a9ac20644c06c2c31547",
+            "evaluations": 1100,
+            "execution": {
+              "computed_tables": 758,
+              "new_evaluations": 1100,
+              "restored_evaluations": 0,
+              "restored_tables": 0
+            },
+            "passed": false
+          },
+          {
+            "baseline_truncated": 550,
+            "boards": [],
+            "case": "opponent_skill_higher",
+            "changed_truncated": 550,
+            "config_sha256": "64b979b46c5b5ab3ae88c2eeddc1d416faf27c0673175945f27950e94b6b6244",
+            "evaluations": 1100,
+            "execution": {
+              "computed_tables": 758,
+              "new_evaluations": 1100,
+              "restored_evaluations": 0,
+              "restored_tables": 0
+            },
+            "passed": false
+          },
+          {
+            "baseline_truncated": 550,
+            "boards": [],
+            "case": "increased_search_budget",
+            "changed_truncated": 550,
+            "config_sha256": "e5a53b42a912dd2a57c6adbcc217006b319fb6e96467740b396246bd782fa8d5",
+            "evaluations": 2200,
+            "execution": {
+              "computed_tables": 758,
+              "new_evaluations": 2200,
+              "restored_evaluations": 0,
+              "restored_tables": 0
+            },
+            "passed": false
+          },
+          {
+            "baseline_truncated": 550,
+            "boards": [],
+            "case": "alternate_queue_seed",
+            "changed_truncated": 550,
+            "config_sha256": "b770f1602966d01d31e267c2b8a099f1f5494519575121ba8ab756792ed8e796",
+            "evaluations": 1100,
+            "execution": {
+              "computed_tables": 758,
+              "new_evaluations": 1100,
+              "restored_evaluations": 0,
+              "restored_tables": 0
+            },
+            "passed": false
+          }
+        ],
+        "catalog_sha256": "7e145cdb6c1896f01d24a00e3bee0aa42afa65efba74fcb6586518500105d877",
+        "config_sha256": "352fec773f799515ea98c3da1cee4e0cb6e1f84a17bf4c9218ddb5c72b413dfe",
+        "duration_seconds": 3706.450689499965,
+        "empirical_validation": false,
+        "inputs_sha256": "fdae1b83cb9ca01cb81b32b0f165403e839fa1dfef9de5717ec19d809052a50e",
+        "kind": "measured_model_search_sensitivity",
+        "passed": false,
+        "policy": {
+          "aim_narrower_factor": 0.8,
+          "aim_wider_factor": 1.2,
+          "opponent_skill_mean_shift": 0.5,
+          "schema_version": "1.0.0",
+          "search_budget_multiplier": 2,
+          "seed_offset": 1,
+          "status": "assumed_robustness_policy",
+          "thresholds": {
+            "maximum_score_delta": 10.0,
+            "minimum_overlap": 0.5
+          }
+        },
+        "schema_version": "1.0.0",
+        "sha256": "ec9c83fc5a8a6f93cf4b6640300b765d88c199a2aa1724d0cd61e457631e85e3",
+        "thresholds": {
+          "maximum_score_delta": 10.0,
+          "minimum_overlap": 0.5
+        }
+      }
+    },
+    "total_tables_with_sensitivity": 4548,
+    "total_evaluations_with_sensitivity": 7700
   },
-  "continuation_commits": {
-    "code": "9331d2e75c56aa5cf90dad99d0091677b0407fc6",
-    "remote_head": "24996fea47fbaa78c3da7083408fddaa02f63f46",
-    "remote_update_blocked": false,
-    "confirmed_at": "2026-10-30T12:16:07.541876+00:00"
+  "current_catalog_refresh": {
+    "collected_at": "2026-10-30T13:06:38.003583+00:00",
+    "observed_vehicles": 2680,
+    "rating_changes": 592,
+    "added_ids": [
+      "fw_190a_8_mistel"
+    ],
+    "unobserved_ids": [],
+    "rules_requiring_revalidation_count": 1195,
+    "before_sha256": "881892454ed3b1cc658006fb5ad19481323ed6da23f6c8d61631914f545d2577",
+    "after_sha256": "620d21a1656646f1c4d58703da0c10b58f07cd8d4df3f8432e6ef02fbc235be2",
+    "game_version_alignment_verified": false,
+    "future_snapshot_created": false,
+    "captures": [
+      {
+        "br_field": "rb",
+        "bytes": 1336296,
+        "count": 1226,
+        "kind": "ground",
+        "path": "cc2eb7a15f16b27e3f39e86de9902b1c4469326a29daea81543c6f957bd868f8.html",
+        "sha256": "cc2eb7a15f16b27e3f39e86de9902b1c4469326a29daea81543c6f957bd868f8",
+        "url": "https://wiki.warthunder.com/ground"
+      },
+      {
+        "br_field": "trb",
+        "bytes": 1478761,
+        "count": 1342,
+        "kind": "aircraft",
+        "path": "3979ae97a58c65c9157fee8d47fdb7207dd4bbbec985a5d38b119ce8fc15d951.html",
+        "sha256": "3979ae97a58c65c9157fee8d47fdb7207dd4bbbec985a5d38b119ce8fc15d951",
+        "url": "https://wiki.warthunder.com/aviation"
+      },
+      {
+        "br_field": "rb",
+        "bytes": 429841,
+        "count": 112,
+        "kind": "helicopter",
+        "path": "4ea08fd04f1559038a6be193cd1bb1856fb65d47e4a5a5692f32b27f0a2a3969.html",
+        "sha256": "4ea08fd04f1559038a6be193cd1bb1856fb65d47e4a5a5692f32b27f0a2a3969",
+        "url": "https://wiki.warthunder.com/helicopters"
+      }
+    ]
+  },
+  "pull_request": "https://github.com/Dubnium-105/wt-ground-atlas/pull/6",
+  "continuation_commits": [
+    "52d5902 fix: label the preserved research model in the unified site",
+    "8060dd2 fix: require selectable payloads and bound all spatial kernel arrays",
+    "41e09c9 fix: hide research version rankings without a future scenario",
+    "5a6bdbf feat: refresh current Wiki catalogs with exact-ID provenance",
+    "33e97b0 Merge main after the initial product PR",
+    "c723e59 perf: load version comparison details in hashed shards",
+    "58bb731 fix: require complete rosters for selected lineup slots",
+    "f8d66d3 feat: version sensitivity perturbations and acceptance thresholds",
+    "441ce63 fix: rank every forecast view before global truncation",
+    "a023a2a fix exact current selection over compatible historical duplicates",
+    "dd56552 implement missing native-pair discovery and recomputation",
+    "2bcf8e7 assemble native map additions atomically",
+    "0f50df1 require one catalog across prediction and research routes"
+  ],
+  "resolved_external_inputs": [
+    {
+      "id": "original_sample",
+      "status": "verified",
+      "receipt": "reports/original32-sample-verification.json",
+      "sha256": "5a5dc1b5e4254f54491599505cbdb15a1292562c1dfc148849dcf270ce10b463",
+      "manifest_files": 32
+    }
+  ],
+  "subsequent_source_audit": {
+    "report": "reports/formal-gap-progress.json",
+    "scope": "Follow-up audit; original static build is unchanged.",
+    "formal_rankings": 0
+  },
+  "observed_at": "2026-10-31T03:46:00.762346+00:00",
+  "previous_static_artifact": {
+    "status": "verified_local_package",
+    "site": "dist/site-8060dd2",
+    "package": {
+      "file": "D:\\tools\\wtwebpage\\wt-atlas-next-stage\\dist\\ground-atlas-complete-8060dd2.zip",
+      "bytes": 63645418,
+      "sha256": "edb9618e7224d8c172a4bd3cb81ec74d2308c6207e74f35a2441fc1acf4de148",
+      "entries": 5554,
+      "uncompressed_bytes": 66559129,
+      "probability_mode": "disabled",
+      "crc_validation": "all_entries_passed",
+      "checksum_manifest": "FILE_INTEGRITY.sha256",
+      "scope": "deployable_static_site_only"
+    },
+    "verification": {
+      "checked": 5553,
+      "failures": [],
+      "site": {
+        "static_total_bytes": 67270630,
+        "static_published_file_count": 5554,
+        "probability_mode": "disabled",
+        "budgets": {
+          "site_bytes": 104857600,
+          "file_bytes": 26214400
+        }
+      }
+    },
+    "runtime": {
+      "checks": [
+        "same-build identity and no initial raw physics requests",
+        "truthful source coverage and publication gate",
+        "mobile layout",
+        "real research drilldown",
+        "no page exceptions"
+      ],
+      "build_key": "d0bca96c6fd8e436e5ebcca7849428042065723db6a667fc81849e6cb7bde0c9",
+      "source_vehicles": 2680,
+      "source_maps": 97421,
+      "ready_ms": 96.81869999999981,
+      "first_load_transfer_bytes": 1698119,
+      "page_errors": [],
+      "status": "passed"
+    },
+    "public_deployment": "blocked_missing_hosting_target_and_probability_CDN"
+  },
+  "remaining_local_validation_after_inputs": "Run an adequately budgeted full-mode search and sensitivity acceptance after remaining source/physical/SP/payload inputs are supplied. Mission and battle records are optional under the default policy. The recorded full build predates this policy update and has 550 truncated baseline tables.",
+  "native_data_progress": "reports/native-data-progress.json",
+  "mission_policy_update": {
+    "decision": "mission and battle records optional; use explicit default priors",
+    "policy": {
+      "schema_version": "1.0.0",
+      "mode": "assumed_defaults",
+      "status": "assumed_not_observed",
+      "default_interval": {
+        "lower": 0.0,
+        "mean": 0.5,
+        "upper": 1.0
+      }
+    },
+    "validation_report": "reports/mission-default-policy.json",
+    "prior_full_build_results_unchanged": true,
+    "prior_full_build_gate_precedes_this_policy": true
   }
 }

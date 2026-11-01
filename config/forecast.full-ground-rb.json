@@ -1,0 +1,2591 @@
+{
+  "schema_version": "1.0.0",
+  "model_version": "engagement-forecast-3.1.0",
+  "calibration_status": "uncalibrated",
+  "semantics": "conditional_first_protected_target_penetration_not_kill_or_win_rate",
+  "aim": {
+    "weak_threshold": 0.6,
+    "max_regions": 8,
+    "value_weight": 2.0,
+    "area_weight": 0.2,
+    "depth_weight": 0.3,
+    "eccentricity_weight": 0.2,
+    "area_scale_m2": 0.01,
+    "depth_scale_m": 0.1,
+    "offset_scale_m": 1.0,
+    "temperature": 2.0,
+    "temperature_skill": 0.5,
+    "center_intercept": 0.0,
+    "center_skill": 0.7,
+    "sigma_x_m": 0.25,
+    "sigma_y_m": 0.2,
+    "distance_scale_m": 1000.0,
+    "distance_floor": 0.2,
+    "skill_error": 0.35,
+    "minimum_sigma_m": 0.002,
+    "motion_time_s": 0.025,
+    "angular_time_s": 0.05,
+    "control_reference_deg_s": 25.0,
+    "control_sensitivity": 0.15,
+    "stabilizer_residual": 0.4,
+    "unknown_prior": 0.5
+  },
+  "population": {
+    "distribution": "normal_assumption",
+    "mean": 0.0,
+    "sd": 1.0,
+    "nodes": 3
+  },
+  "timing": {
+    "acquire_s": 2.5,
+    "acquire_skill": 0.2,
+    "aim_s": 2.0,
+    "aim_skill": 0.35,
+    "sensor_gain": 0.1,
+    "reaim_s": 1.0,
+    "traverse_fallback_deg_s": 15.0,
+    "acceleration_per_hp_t": 0.06,
+    "acceleration_fallback_m_s2": 1.0,
+    "missing_speed_m_s": 5.0,
+    "terrain_speed_fraction": 0.5,
+    "max_events": 4096,
+    "simultaneous_tolerance_s": 1e-09
+  },
+  "matchmaking": {
+    "mode": "ground_rb",
+    "br_step_denominator": 3,
+    "spread_steps": 3,
+    "room_prior": "uniform_legal_room_maxima_assumption",
+    "opponent_prior": "equal_verified_configuration_group_then_vehicle_then_variant",
+    "lower_carried_mass": 0.0,
+    "same_nation_enemies": false,
+    "empirical": false,
+    "lineup_sampler": {
+      "enabled": false,
+      "samples": 64,
+      "slots": 5,
+      "seed": 105,
+      "status": "assumed_not_queue_telemetry"
+    }
+  },
+  "spawn": {
+    "status": "assumed_not_official_rules",
+    "initial_points": 450,
+    "ground_cost": 150,
+    "air_cost": null,
+    "phases": [
+      "opening",
+      "middle",
+      "reserve"
+    ],
+    "phase_weights": [
+      0.5,
+      0.3,
+      0.2
+    ],
+    "point_gains": [
+      {
+        "points": 0,
+        "probability": 0.5
+      },
+      {
+        "points": 150,
+        "probability": 0.5
+      }
+    ],
+    "max_points": 1500,
+    "max_states": 200000,
+    "phase_task_weights": [
+      {
+        "ground_control": 0.2,
+        "anti_tank": 0.45,
+        "recon": 0.1,
+        "anti_helicopter": 0.05,
+        "anti_air": 0.1,
+        "cap": 0.025,
+        "cas": 0.05,
+        "sead": 0.025
+      },
+      {
+        "ground_control": 0.1,
+        "anti_tank": 0.25,
+        "recon": 0.05,
+        "anti_helicopter": 0.1,
+        "anti_air": 0.15,
+        "cap": 0.15,
+        "cas": 0.15,
+        "sead": 0.05
+      },
+      {
+        "ground_control": 0.15,
+        "anti_tank": 0.25,
+        "recon": 0.1,
+        "anti_helicopter": 0.1,
+        "anti_air": 0.1,
+        "cap": 0.1,
+        "cas": 0.1,
+        "sead": 0.1
+      }
+    ],
+    "task_weight_status": "assumed_not_observed"
+  },
+  "search": {
+    "slots": [
+      5,
+      8,
+      10
+    ],
+    "acquisition_profiles": [
+      "researchable",
+      "all"
+    ],
+    "beam_width": 16,
+    "local_passes": 2,
+    "exchange_width": 8,
+    "max_evaluations": 20000,
+    "per_cap_limit": 3,
+    "global_limit": 100,
+    "risk_aversion": 0.2,
+    "tail_mass": 0.1,
+    "minimum_pair_coverage": 0.8,
+    "diversity_overlap": 0.85,
+    "pareto": true,
+    "seed": 105
+  },
+  "scenarios": [
+    {
+      "id": "range-10-yaw-000",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 0.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-015",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 15.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-030",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 30.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-045",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 45.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-060",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 60.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-075",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 75.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-090",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 90.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-105",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 105.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-120",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 120.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-135",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 135.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-150",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 150.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-165",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 165.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-180",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 180.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-195",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 195.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-210",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 210.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-225",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 225.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-240",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 240.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-255",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 255.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-270",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 270.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-285",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 285.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-300",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 300.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-315",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 315.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-330",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 330.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-10-yaw-345",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 10.0,
+      "aiming_distance_m": 10.0,
+      "yaw_deg": 345.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-000",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 0.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-015",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 15.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-030",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 30.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-045",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 45.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-060",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 60.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-075",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 75.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-090",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 90.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-105",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 105.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-120",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 120.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-135",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 135.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-150",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 150.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-165",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 165.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-180",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 180.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-195",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 195.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-210",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 210.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-225",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 225.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-240",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 240.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-255",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 255.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-270",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 270.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-285",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 285.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-300",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 300.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-315",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 315.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-330",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 330.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-100-yaw-345",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 100.0,
+      "aiming_distance_m": 100.0,
+      "yaw_deg": 345.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-000",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 0.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-015",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 15.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-030",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 30.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-045",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 45.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-060",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 60.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-075",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 75.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-090",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 90.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-105",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 105.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-120",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 120.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-135",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 135.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-150",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 150.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-165",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 165.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-180",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 180.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-195",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 195.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-210",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 210.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-225",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 225.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-240",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 240.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-255",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 255.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-270",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 270.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-285",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 285.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-300",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 300.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-315",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 315.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-330",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 330.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-500-yaw-345",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 500.0,
+      "aiming_distance_m": 500.0,
+      "yaw_deg": 345.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-000",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 0.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-015",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 15.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-030",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 30.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-045",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 45.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-060",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 60.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-075",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 75.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-090",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 90.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-105",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 105.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-120",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 120.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-135",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 135.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-150",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 150.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-165",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 165.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-180",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 180.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-195",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 195.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-210",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 210.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-225",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 225.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-240",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 240.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-255",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 255.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-270",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 270.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-285",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 285.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-300",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 300.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-315",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 315.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-330",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 330.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "id": "range-1000-yaw-345",
+      "weight": 0.010416666666666666,
+      "physical_distance_m": 1000.0,
+      "aiming_distance_m": 1000.0,
+      "yaw_deg": 345.0,
+      "horizon_s": 30.0,
+      "approach_m": 0.0,
+      "cover_distance_m": 0.0,
+      "hull_offset_deg": 0.0,
+      "target_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "own_velocity_xy_m_s": [
+        0.0,
+        0.0
+      ],
+      "target_angular_velocity_xy_rad_s": [
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "publication": {
+    "scope": "full_ground_rb",
+    "sample_is_publishable": false,
+    "require_consistent_distance": true,
+    "budgets": {
+      "site_bytes": 104857600,
+      "file_bytes": 8388608,
+      "gzip_file_bytes": 2097152
+    },
+    "required_tasks": [
+      "ground_control",
+      "anti_tank",
+      "recon",
+      "anti_helicopter",
+      "anti_air",
+      "cap",
+      "cas",
+      "sead"
+    ]
+  },
+  "endpoint": "penetration",
+  "effect_rewards": [
+    0.8,
+    0.4,
+    1.0
+  ],
+  "calibration": {
+    "minimum_matches": 4,
+    "minimum_shots": 40,
+    "holdout_fraction": 0.25,
+    "max_iterations": 50,
+    "bounds": {
+      "sigma_x_m": [
+        0.01,
+        2.0
+      ],
+      "sigma_y_m": [
+        0.01,
+        2.0
+      ],
+      "skill_error": [
+        0.01,
+        1.5
+      ],
+      "temperature": [
+        0.05,
+        20.0
+      ],
+      "center_skill": [
+        0.01,
+        3.0
+      ]
+    }
+  },
+  "skill_profiles": {
+    "novice": {
+      "distribution": "normal_assumption",
+      "mean": -1.0,
+      "sd": 1.0,
+      "nodes": 3
+    },
+    "normal": {
+      "distribution": "normal_assumption",
+      "mean": 0.0,
+      "sd": 1.0,
+      "nodes": 3
+    },
+    "expert": {
+      "distribution": "normal_assumption",
+      "mean": 1.0,
+      "sd": 1.0,
+      "nodes": 3
+    }
+  },
+  "task_profiles": {
+    "ground": {
+      "phases": [
+        "ground",
+        "ground",
+        "ground"
+      ],
+      "phase_weights": [
+        0.5,
+        0.3,
+        0.2
+      ],
+      "publication_scope": "ground_engagement"
+    },
+    "balanced": {
+      "phases": [
+        "opening",
+        "middle",
+        "reserve"
+      ],
+      "phase_weights": [
+        0.5,
+        0.3,
+        0.2
+      ],
+      "phase_task_weights": [
+        {
+          "ground_control": 0.2,
+          "anti_tank": 0.45,
+          "recon": 0.1,
+          "anti_helicopter": 0.05,
+          "anti_air": 0.1,
+          "cap": 0.025,
+          "cas": 0.05,
+          "sead": 0.025
+        },
+        {
+          "ground_control": 0.1,
+          "anti_tank": 0.25,
+          "recon": 0.05,
+          "anti_helicopter": 0.1,
+          "anti_air": 0.15,
+          "cap": 0.15,
+          "cas": 0.15,
+          "sead": 0.05
+        },
+        {
+          "ground_control": 0.15,
+          "anti_tank": 0.25,
+          "recon": 0.1,
+          "anti_helicopter": 0.1,
+          "anti_air": 0.1,
+          "cap": 0.1,
+          "cas": 0.1,
+          "sead": 0.1
+        }
+      ],
+      "task_weight_status": "assumed_not_observed",
+      "publication_scope": "full_ground_rb"
+    },
+    "air_support": {
+      "phases": [
+        "opening",
+        "middle",
+        "reserve"
+      ],
+      "phase_weights": [
+        0.5,
+        0.3,
+        0.2
+      ],
+      "phase_task_weights": [
+        {
+          "ground_control": 0.2,
+          "anti_tank": 0.4,
+          "recon": 0.1,
+          "anti_helicopter": 0.05,
+          "anti_air": 0.1,
+          "cap": 0.05,
+          "cas": 0.075,
+          "sead": 0.025
+        },
+        {
+          "ground_control": 0.05,
+          "anti_tank": 0.15,
+          "recon": 0.05,
+          "anti_helicopter": 0.1,
+          "anti_air": 0.1,
+          "cap": 0.2,
+          "cas": 0.25,
+          "sead": 0.1
+        },
+        {
+          "ground_control": 0.05,
+          "anti_tank": 0.15,
+          "recon": 0.05,
+          "anti_helicopter": 0.1,
+          "anti_air": 0.1,
+          "cap": 0.2,
+          "cas": 0.2,
+          "sead": 0.15
+        }
+      ],
+      "task_weight_status": "assumed_not_observed",
+      "publication_scope": "full_ground_rb"
+    }
+  },
+  "ownership": {
+    "require_unlocked": false,
+    "unlocked_modifications_by_vehicle": {}
+  },
+  "statistics": {
+    "minimum_samples": 100,
+    "train_fraction": 0.6,
+    "validation_fraction": 0.2,
+    "shrinkage": 0.1,
+    "max_iterations": 100,
+    "bins": 10,
+    "bootstrap_draws": 100,
+    "seed": 105
+  },
+  "sensitivity": {
+    "schema_version": "1.0.0",
+    "status": "assumed_robustness_policy",
+    "thresholds": {
+      "minimum_overlap": 0.5,
+      "maximum_score_delta": 10.0
+    },
+    "aim_narrower_factor": 0.8,
+    "aim_wider_factor": 1.2,
+    "opponent_skill_mean_shift": 0.5,
+    "search_budget_multiplier": 2,
+    "seed_offset": 1
+  },
+  "mission_policy": {
+    "schema_version": "1.0.0",
+    "mode": "assumed_defaults",
+    "status": "assumed_not_observed",
+    "default_interval": {
+      "lower": 0.0,
+      "mean": 0.5,
+      "upper": 1.0
+    }
+  },
+  "default_cohort": {
+    "skill": "normal",
+    "preference": "balanced"
+  },
+  "scenario_prior": {
+    "status": "assumed_not_observed",
+    "description": "Uniform four native distances and 24 yaw directions. Stationary duel conditions, not measured map or player frequencies."
+  }
+}

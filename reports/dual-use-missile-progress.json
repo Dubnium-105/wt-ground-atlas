@@ -1,0 +1,101 @@
+{
+  "cpu_cuda_parity": {
+    "all_include_partial_probabilities": true,
+    "checks": 4,
+    "max_probability_delta": 5.960464477539063e-08,
+    "report": "reports/dual-use-cpu-cuda-crosscheck.json",
+    "sampled_rays": 65276,
+    "sha256": "95292abdc7cbd037113a331678930c1c1d2f41fccba7e1828483b42daa369865"
+  },
+  "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
+  "endpoint": "conditional_penetration_only_flight_activation_and_fragmentation_not_modeled",
+  "formal_rankings": 0,
+  "full_preflight": {
+    "binding_error_count": 0,
+    "blockers": [
+      "incomplete_bidirectional_native_coverage"
+    ],
+    "duration_seconds": 127.12406389997341,
+    "inventory": {
+      "ambiguous_maps": 0,
+      "annotation_reconciled_maps": 0,
+      "content_sha256": "b1340c9aedbb2d07098cd91fa32e80e2b23984d5122850ef5d1c4242f9c626dd",
+      "historical_duplicate_maps": 0,
+      "metadata_objects": 680,
+      "metrics": {
+        "array_seconds": 9.654269399936311,
+        "arrays_checked": 680,
+        "memory_budget_bytes": 536870912,
+        "metadata_cpu_seconds": 0.859375,
+        "metadata_rebuilt": 680,
+        "metadata_seconds": 3.7608906000386924,
+        "workers": 2
+      },
+      "rejections": {},
+      "selected_array_bytes": 383358292,
+      "selected_maps": 680,
+      "status_counts": {
+        "verified": 680
+      },
+      "verified_arrays": 680
+    },
+    "report_sha256": "ecbc1043d894614ef5532bfef62b2541d452371704f4c9a2fc212b22fc82cbfd",
+    "report_status": "blocked",
+    "scope": "Standalone dual-use missile batch; combined full-array preflight is still required."
+  },
+  "game_probability_validated": false,
+  "generation": {
+    "array_bytes": 383358292,
+    "computed_maps": 680,
+    "duration_seconds": 283.3493375000544,
+    "input_ammunition_sha256": "2f4dbb4f7788e0225771988752a98b70dc7477212215b4ed1625150914ddb22b",
+    "input_catalog_sha256": "3a402261ab45bd1812759230470ad8c714a4915045ad89d42de5b0b33a0fd9c1",
+    "model": {
+      "backend": "v2-cuda",
+      "chemical_profile_code_sha256": "5fcd504692d26dd9128607f0f9dc7c612825afb1f29d65ae54deabf88cc6f7d4",
+      "dual_use_missile_profile_code_sha256": "609288bc7a11c86d50f43e5cc3250b9e2aa50037ace02cb5c4f20390e9f08469",
+      "range_profile_code_sha256": "9193d164442679f47326eb5fcb47cb3bad20c41ef5fbc5cd1d8f3938683dc5c5",
+      "tool_code_sha256": "58f1bf518f58f16386ff8ee9851673aa7d588a380545656df643c3cef9e9ad3b",
+      "tool_manifest_sha256": "38b35c2418cd1731fb1fc00c194482d464dedb41e9291ee775ea23866499542c"
+    },
+    "pending_maps": 0,
+    "planned_maps": 680,
+    "requests_sha256": "a7ec89dfe96ace3d5710f21bd1644e41ee3ae8b6a576c6c3ba8591073b3386ad",
+    "resources": {
+      "cpu_seconds": 268.90625,
+      "measurement_scope": "current_process; workers separately bounded, not included in peak RSS",
+      "peak_rss_bytes": 1478455296
+    },
+    "reused_maps": 0
+  },
+  "incremental_catalog_and_ammunition_replay_byte_identical": true,
+  "map_status_at_report": "generation_completed_and_standalone_arrays_verified",
+  "new_ground_vehicles_with_source_profile": 2,
+  "new_range_profiles": 4,
+  "new_source_profiles": 1,
+  "planned_maps": 680,
+  "prior_range_profiles_preserved": 2013,
+  "profile": "recovered_80b8d514401454daec4821ab",
+  "publishable": false,
+  "schema_version": "1.0.0",
+  "selections": [
+    "uk_adats_m113a3::MIM-146",
+    "us_adats_bradley::MIM-146"
+  ],
+  "source_minimum_distance_m": 30,
+  "source_sha256": {
+    "ammunition": "f39cfade1f05424041f145705fbd21cc09dea5f4290e36e20cb4e91b91716fa2",
+    "catalog": "3a402261ab45bd1812759230470ad8c714a4915045ad89d42de5b0b33a0fd9c1",
+    "range_ammunition": "2f4dbb4f7788e0225771988752a98b70dc7477212215b4ed1625150914ddb22b",
+    "recovery_report": "783a0217813c9c23f1410597eca44edb8a25625f2af18575680d17d345505e17"
+  },
+  "source_version": "2.59.0.92",
+  "tests": {
+    "node": 64,
+    "playwright": "passed",
+    "python": 428,
+    "sample_diagnostic_build": "passed_zero_rankings",
+    "smoke": 4
+  },
+  "v16_ce_range_profiles_replayed": 380
+}

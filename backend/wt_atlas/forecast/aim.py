@@ -101,8 +101,12 @@ def integrate(probability: np.ndarray, status: np.ndarray, pitch: float, skill: 
     no_target = float(mass[s == 1].sum())
     miss = float(mass[s == 0].sum()) + max(0.0, 1.0 - float(mass.sum()))
     lower = float(np.sum(mass[s == 3] * p[s == 3]))
+    # Floating-point summation can exceed one by an ulp even for a grid of
+    # certain penetration. Preserve valid bounds without masking mass errors.
+    if lower > 1.0 + 1e-10: raise ArithmeticError("Penetration mass exceeds one")
+    lower = min(1.0, lower)
     upper = min(1.0, lower + unknown)
-    result = {"mean": lower + c["unknown_prior"] * unknown, "lower": lower, "upper": upper,
+    result = {"mean": min(upper, lower + c["unknown_prior"] * unknown), "lower": lower, "upper": upper,
               "known_mass": known, "unknown_mass": unknown, "no_protected_target_mass": no_target,
               "miss_mass": miss, "sigma_xy_m": sigma.tolist(), "aim_points": points,
               "skill": skill, "semantics": "protected_target_penetration", "lethality": None}

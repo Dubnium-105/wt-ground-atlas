@@ -1,0 +1,44 @@
+{
+  "binding_error_count": 0,
+  "blockers": [
+    "incomplete_bidirectional_native_coverage"
+  ],
+  "counts": {
+    "available_bidirectional_pairs": 13663824,
+    "available_forward_pairs": 16473552,
+    "missing_direction_or_distance": 6967920,
+    "missing_owned_ammunition": 2941536,
+    "required_directed_pairs": 23441472
+  },
+  "duration_seconds": 6521.735520199989,
+  "formal_rankings": 0,
+  "full_report_sha256": "d20e1789f3ec31b2ecaa3ba187fc491d713a2a421ddc8c30456bfe84b1ffbb45",
+  "inventory": {
+    "ambiguous_maps": 0,
+    "annotation_reconciled_maps": 0,
+    "content_sha256": "ad99f99308a0858ea7007cc56c65443ed5cef101b6f992cba9879bbcc52a902f",
+    "historical_duplicate_maps": 0,
+    "metadata_objects": 432659,
+    "metrics": {
+      "array_seconds": 4525.71823369991,
+      "arrays_checked": 432659,
+      "memory_budget_bytes": 536870912,
+      "metadata_cpu_seconds": 422.71875,
+      "metadata_rebuilt": 432659,
+      "metadata_seconds": 1899.1925293999957,
+      "workers": 2
+    },
+    "rejections": {},
+    "selected_array_bytes": 92388601599,
+    "selected_maps": 432659,
+    "status_counts": {
+      "verified": 432659
+    },
+    "verified_arrays": 432659
+  },
+  "publishable": false,
+  "schema_version": "1.0.0",
+  "scope": "Fresh full-array preflight of four newly generated batches only; excludes original 10 m atlas and later five additional batches. Not a production ranking or complete global coverage.",
+  "source_version": "2.59.0.92",
+  "status": "blocked"
+}

@@ -148,6 +148,8 @@ export function validateLoadout(vehicle, loadout, context = {}, config) {
     if ((weapon.requires ?? []).some(id => !weaponIds.has(id))) errors.push(`missing_dependency:${weapon.id}`);
     if (finite(weapon.mass_kg) && finite(weapon.count)) totalMass += weapon.mass_kg * weapon.count;
     else allMassKnown = false;
+    if (weapon.mass_complete === false) allMassKnown = false;
+    if (weapon.combat_delivery === false) continue;
     const isArm = config.air.anti_radiation_types.includes(weapon.type);
     if (isArm && context.target_radar_emitting !== true) {
       warnings.push(`anti_radiation_condition_not_met:${weapon.id}`);
@@ -156,7 +158,7 @@ export function validateLoadout(vehicle, loadout, context = {}, config) {
     active_weapons.push(weapon);
   }
   const capacity = loadout.max_payload_kg ?? vehicle.max_payload_kg ?? vehicle.payload_limits?.total_mass_kg;
-  if (finite(capacity) && allMassKnown && totalMass > capacity) errors.push('payload_overweight');
+  if (finite(capacity) && totalMass > capacity) errors.push('payload_overweight');
   if (!allMassKnown) warnings.push('payload_mass_incomplete');
   return {valid: !errors.length, errors: unique(errors), warnings: unique(warnings), active_weapons, preset_id: loadout.id, mixed_preset: false};
 }
@@ -402,7 +404,7 @@ function bestLoadout(vehicle, context, config) {
       const result = weighted(fields, config.air.weapon_weights);
       return {weapon_id: weapon.id, ...result, fields, missing: Object.entries(fields).filter(([, value]) => !finite(value)).map(([field]) => `weapon.${weapon.id}.${field}`)};
     });
-    return {item, validated, score: weapons.length ? mean(weapons.map(w => w.value).filter(finite)) : 0, coverage: weapons.length ? mean(weapons.map(w => w.coverage)) : 1, weapons};
+    return {item, validated, score: weapons.length ? mean(weapons.map(w => w.value).filter(finite)) : null, coverage: weapons.length ? mean(weapons.map(w => w.coverage)) : 0, weapons};
   });
   return candidates.filter(c => c.validated.valid).sort((a, b) => (b.score ?? -Infinity) - (a.score ?? -Infinity) || String(a.item.id).localeCompare(String(b.item.id)))[0] ?? null;
 }
@@ -424,7 +426,8 @@ function airPair(attacker, target, context, config) {
   if (attackerAir && !targetAir) {
     const loadout = bestLoadout(attacker, {...context, target_radar_emitting: context.target_radar_emitting ?? target.sensors?.radar?.emitting}, config);
     if (loadout) {
-      result.mission_capability_known = true;
+      result.mission_capability_known = loadout.weapons.length > 0;
+      if (!result.mission_capability_known) missing.push('verified_legal_ground_attack_loadout');
       result.loadout_id = loadout.item.id;
       result.weapons = loadout.weapons;
       components.weapon_delivery = {value: loadout.score, coverage: loadout.coverage};
