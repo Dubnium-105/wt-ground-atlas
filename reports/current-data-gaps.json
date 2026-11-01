@@ -64,6 +64,8 @@
       "report_sha256": "e7e7b8859ebbea6c6fdecfd23997987deac123f225e48f0b7b684360821210ea",
       "scope": "Source-owned ground projectile impact maps against 10 system component types within parent base-BR and nation planning scope; no system-level damage, target-selection distribution, dynamic BR, flight or combat validation is inferred.",
       "system_target_distribution_verified": false,
+      "eight_system_member_study": "reports/system-eight-study-progress.json",
+      "eight_system_member_study_sha256": "019c08ce5d47ffbc088ff173f51b2936bc21ef3bc26956fd3a6a20567a1e35a7",
       "verified_component_maps": 1725
     },
     "total_scope": "Five-batch combined full-array preflight passed array and binding checks but is blocked by incomplete bidirectional coverage. Seven-batch verification resumed after a process-pool failure; eight- and nine-batch work is queued sequentially. Final combined acceptance remains pending."

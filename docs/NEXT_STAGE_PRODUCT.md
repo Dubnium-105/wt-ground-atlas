@@ -528,3 +528,9 @@ python scripts/rebuild_native_maps.py --repository /data/source-repository --cat
 `scripts/evaluate_system_member_bounds.py` 可以对已验证的各成员目标图按现有瞄准模型计算条件穿透区间。由于选择哪个成员作为目标的分布未知，结果不提供均值，并允许目标选择随技能变化；缺失地图时相应范围为 `[0,1]`。Buk 示例在四个距离、24 个方位共 96 个情景中检查了主车与发射车，结果和来源哈希见 `reports/system-member-bounds.json`。这不是整套系统失效、击毁或胜率，也不会解除全服发布门禁。
 
 完整陆战范围的来源审计在目录含多车系统时明确报告 `multi_vehicle_system_aggregation_unmodeled` 和受影响的系统 ID，并阻止正式发布。组件仍不作为独立槽位或独立出击规则参与审计；组件物理图与条件穿透区间不能替代对目标选择、成员间作用和系统出击行为的建模。
+
+`scripts/assemble_system_research_atlas.py` 可从多个已完成预检的索引中复制指定系统成员与所选自有弹药对应的精确物理图。它拒绝活动 WAL、未验证选择、重复物理身份、缺图、版本或弹药哈希冲突，以及改变过的元数据、数组和几何；复制结果以独立目录原子发布，再交给 `evaluate_system_member_bounds.py` 逐情景重读。它不是合并后的全服物理验收。
+
+本地将 M1A2 SEPv3 的 M829A2 与 8 套异国系统的主车、发射车共 64 张已验证图组成研究图集，重新计算四个距离各 24 方位，共 768 个情景、1,536 个成员情景；来源和页面数据哈希见 `reports/system-eight-study-progress.json`。另外两套是同国系统，不属于此例的对手规划范围。浮点积分的单个单位舍入误差现在会限制在合法概率边界内，较大的质量错误仍会被拒绝。
+
+统一站点可以用 `--system-study-catalog`、`--system-study-ammunition`、`--system-study-bindings`、`--system-study-config` 和重复的 `--system-study-report` 组合这些研究报告。构建前后核对目录、弹药、几何、配置及计算代码哈希，并核对自有弹药、距离、成员、技能节点和目标选择区间；页面数据使用内容哈希和浏览器校验。相同距离及方位下有多个战术情景时，页面保留独立情景选择。页面明确显示独立来源版本，不将结果写入自动榜或推断系统失效。未提供研究报告时不会增加该入口。

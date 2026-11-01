@@ -15,6 +15,7 @@ import tempfile
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'backend'))
 from wt_atlas.forecast.data import canonical,file_hash,read_json
+from wt_atlas.system_study import build_study
 from site_lib import validate_site,copy_sources,deployment_settings,local_file
 
 
@@ -98,10 +99,15 @@ def bridge_research(directory):
     encoded=canonical(manifest).encode();(directory/'data/manifest.json').write_bytes(encoded);(directory/'data/manifest.json.gz').write_bytes(gzip.compress(encoded,mtime=0))
 
 
-def compose(forecast,output,research=None):
+def compose(forecast,output,research=None,system_reports=(),system_catalog=None,system_ammunition=None,system_bindings=None,system_config=None):
     forecast=Path(forecast).resolve();output=Path(output)
     if any(p.is_symlink() for p in (output,*output.parents)):raise ValueError('Symlink output')
     output=output.resolve()
+    if any((bool(system_reports),bool(system_catalog),bool(system_ammunition),bool(system_bindings),bool(system_config))) and not all((system_reports,system_catalog,system_ammunition,system_bindings,system_config)):
+        raise ValueError('System research requires reports, catalog, ammunition, geometry bindings and configuration')
+    if system_reports and any(Path(p).resolve().is_relative_to(output) for p in (*system_reports,system_catalog,system_ammunition,system_bindings,system_config)):
+        raise ValueError('System research input overlaps product output')
+    study=build_study(system_reports,system_catalog,system_ammunition,system_bindings,system_config,ROOT) if system_reports else None
     if ROOT.is_relative_to(output) or any(output.is_relative_to(ROOT/p) for p in ('data','web','backend','scripts','tests','config','docs','.git')):raise ValueError('Unsafe product output')
     if forecast==output or forecast.is_relative_to(output):raise ValueError('Forecast input overlaps output')
     if research and (Path(research).resolve()==output or Path(research).resolve().is_relative_to(output)):raise ValueError('Research input overlaps output')
@@ -110,6 +116,12 @@ def compose(forecast,output,research=None):
     with tempfile.TemporaryDirectory(prefix='.product-',dir=output.parent) as temporary:
         stage=Path(temporary)/'site';shutil.copytree(forecast,stage,ignore=shutil.ignore_patterns('.wt-forecast-site'))
         index=read_json(stage/'index.json')
+        if study:
+            raw=canonical(study).encode();sha=hashlib.sha256(raw).hexdigest();name='data/system-study.'+sha[:16]+'.json'
+            (stage/name).write_bytes(raw)
+            for filename in ('system-study.html','system-study.mjs'):shutil.copyfile(ROOT/'web/forecast'/filename,stage/filename)
+            index['system_study']={'page_url':'system-study.html','source_version':study['source_version'],
+                                   'data':{'url':name,'sha256':sha,'bytes':len(raw)}}
         if research:
             research=Path(research).resolve();validate_site(research)
             alignment=research_catalog_identity(forecast,index,research)
@@ -124,6 +136,7 @@ def compose(forecast,output,research=None):
         for cohort in index.get('cohorts',[]):
             directory=stage/cohort['directory'];ci=read_json(directory/'index.json')
             ci['research']={**index['research'],'url':os.path.relpath(stage/'research/index.html',directory).replace('\\','/')}
+            if study:ci['system_study']={**index['system_study'],'page_url':os.path.relpath(stage/'system-study.html',directory).replace('\\','/')}
             (directory/'index.json').write_text(canonical(ci),encoding='utf-8')
         if research:
             html=stage/'research/index.html';text=html.read_text(encoding='utf-8')
@@ -137,6 +150,7 @@ def compose(forecast,output,research=None):
                   'build_key':index['build_key'],'deployment':{'probability_mode':read_json(stage/'research/data/manifest.json').get('deployment',{}).get('probability_mode','disabled') if research else 'disabled'}}
         (stage/'data/manifest.json').write_text(canonical(manifest),encoding='utf-8')
         report=validate_site(stage,deployment_settings(ROOT)['budgets'])
+        if study and build_study(system_reports,system_catalog,system_ammunition,system_bindings,system_config,ROOT)!=study:raise ValueError('System research changed during composition')
         previous=output.with_name(output.name+'.previous')
         if previous.exists():
             if previous.is_symlink() or not (previous/'.wt-atlas-site').is_file() or previous.parent!=output.parent:raise ValueError('Unsafe previous publication')
@@ -153,6 +167,11 @@ def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__,add_help=False)
     p.add_argument('--output',type=Path,default=ROOT/'dist/site')
     p.add_argument('--research-site',type=Path)
+    p.add_argument('--system-study-report',type=Path,action='append',default=[])
+    p.add_argument('--system-study-catalog',type=Path)
+    p.add_argument('--system-study-ammunition',type=Path)
+    p.add_argument('--system-study-bindings',type=Path)
+    p.add_argument('--system-study-config',type=Path)
     p.add_argument('--forecast-output',type=Path,default=ROOT/'dist/forecast')
     a,remaining=p.parse_known_args(argv)
     # The product opens on the full task model. Explicit research/sample builds
@@ -162,7 +181,7 @@ def main(argv=None):
     command=[sys.executable,str(ROOT/'scripts/build_forecast.py'),*remaining,'--out',str(a.forecast_output)]
     subprocess.run(command,check=True)
     if any(option in remaining for option in ('--dry-run','--help','-h')):return
-    result=compose(a.forecast_output,a.output,a.research_site)
+    result=compose(a.forecast_output,a.output,a.research_site,a.system_study_report,a.system_study_catalog,a.system_study_ammunition,a.system_study_bindings,a.system_study_config)
     print(json.dumps(result,ensure_ascii=False,indent=2))
 
 
