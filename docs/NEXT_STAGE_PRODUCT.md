@@ -454,6 +454,8 @@ BR 选项可通过 `allowed_source_preset_ids` 和 `allowed_primary_armament_ids
 
 `scripts/list_remaining_ammunition.py` 用 `--gaps`、`--summary`、`--recovery`、`--catalog` 和 `--out` 接收对应的缺口、汇总、恢复报告和 v17 目录。工具核对来源哈希、版本、全部目录身份及选项汇总，拒绝重复或不一致数据；与缺口列表无关的后台进度更新不会改变输出。该清单用于寻找和验证数据，不增加物理覆盖，也不放行正式排名。
 
+T-60 的 `20 mm API` 精确挂载弹体缺少 `slopeEffectPreset`。`scripts/audit_native_slope_preset.py` 可核对客户端、来源包、挂载、选择器、弹体及已审阅的原生指令字节：两个新建对象路径将对应索引初始化为 -1，查找未得到字符串时不写入新索引。该静态证据不能确定继承后的输入、复用对象的状态或 -1 在命中计算中的角度响应，因而不能把它替换成其他弹种的斜射曲线。复现结果见 `reports/native-slope-preset-evidence.json`；它不产生物理档案或排名。
+
 ### 加速动能导弹的精确距离研究
 
 MGM-166 的同版官方 Wiki 表列出 10、100、500、1000 米四个精确距离的垂直穿深；客户端火箭块声明该弹按速度计算动能穿透，并声明最小距离 400 米。普通 V2 距离曲线要求穿深单调下降，不能用于该弹的加速段。`scripts/prepare_kinetic_missile_points.py` 验证车体挂载、同一默认弹体、客户端本地化、弹体与响应表哈希、目录版本以及官方页面表格，将四个距离分别生成为固定冲击穿深的 `reference_only` 档案，不做插值。`scripts/verify_kinetic_missile_points.py` 在真实几何上分别运行 CPU 与 V2 CUDA 并核对状态和概率。

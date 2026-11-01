@@ -40,3 +40,4 @@ reports/five-batch-combined-preflight-summary.json -text
 reports/system-component-range-crosscheck.json -text
 reports/system-member-bounds.json -text
 reports/system-components-progress.json -text
+reports/native-slope-preset-evidence.json -text

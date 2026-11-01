@@ -93,6 +93,14 @@
     "verified_arrays": 432659
   },
   "ground_ammunition": {
+    "native_slope_preset_review": {
+      "ammo_id": "ussr_t_60_1941::20 mm API",
+      "client_version": "2.59.0.92",
+      "report": "reports/native-slope-preset-evidence.json",
+      "report_sha256": "37e5fc277426dba8eedf974b20bdc511402f5c1c76b193546f8a7bf518dfd696",
+      "scope": "The source field is absent; reviewed fresh-object and lookup paths leave a sentinel index, whose runtime angular behavior remains unverified.",
+      "slope_response_verified": false
+    },
     "conditional_primary_recovery": {
       "additional_ground_vehicles_with_profile": 0,
       "id": "us_lav_ad::M247",
