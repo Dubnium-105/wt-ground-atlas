@@ -59,6 +59,7 @@
     "system_component_targets": {
       "aggregated_system_damage_implemented": false,
       "components": 10,
+      "full_scope_release_blocker": "multi_vehicle_system_aggregation_unmodeled",
       "report": "reports/system-components-progress.json",
       "report_sha256": "e7e7b8859ebbea6c6fdecfd23997987deac123f225e48f0b7b684360821210ea",
       "scope": "Source-owned ground projectile impact maps against 10 system component types within parent base-BR and nation planning scope; no system-level damage, target-selection distribution, dynamic BR, flight or combat validation is inferred.",

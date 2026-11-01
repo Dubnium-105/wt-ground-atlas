@@ -33,13 +33,15 @@ assert.equal(build.status,0,build.stderr);
 // Give the full-mode fixture a real-shaped but synthetic missile bound. The
 // corresponding NPZ remains a conditional impact map, not delivery proof.
 const missileFixture=spawnSync(python,['-c',`
-import json,sys
+import copy,json,sys
 from pathlib import Path
 sys.path.insert(0, str(Path('backend').resolve()))
 from wt_atlas.forecast.data import digest
 p=Path(sys.argv[1]); catalog_path=p/'catalog.json'; catalog=json.loads(catalog_path.read_text())
 catalog['snapshot']['client_source']['version']='2.59.0.92'
 for vehicle in catalog['vehicles']: vehicle['source_attributes']['client']['source_version']='2.59.0.92'
+component=copy.deepcopy(catalog['vehicles'][0]); component.update(id='fixture-system-component',system_role='component',system_id='fixture-system',ammo=[])
+catalog['vehicles'].append(component)
 catalog_path.write_text(json.dumps(catalog))
 path=p/'ammo.json'; profiles=json.loads(path.read_text())
 for profile in profiles: profile['provenance']['client_version']='2.59.0.92'
@@ -114,6 +116,8 @@ try{
   assert.match(await fullPage.locator('#coverage').innerText(),/部分导弹的场景距离超出来源声明范围，投射能力尚未核验/);
   assert.match(await fullPage.locator('#coverage').innerText(),/图表覆盖不代表导弹飞行或投射能力已核验/);
   assert.ok(fullReport.release_readiness.current.why_not_publishable.includes('random_ground_reinforcements_unmodeled_or_unverified'));
+  assert.ok(fullReport.release_readiness.current.why_not_publishable.includes('multi_vehicle_system_aggregation_unmodeled'));
+  assert.match(await fullPage.locator('#coverage').innerText(),/多车系统成员的整体出击与对抗效果尚未完整建模/);
   assert.match(await fullPage.locator('#coverage').innerText(),/高分房随机补充载具的当前分配与出击规则尚未完整建模/);
   await fullPage.locator('#coverage details summary').click();
   await fullPage.locator('#coverage details li').first().waitFor();

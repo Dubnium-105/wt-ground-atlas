@@ -76,6 +76,12 @@ def source_audit(catalog, config, version, variants, rows):
     visible; no candidate is removed to improve a coverage denominator.
     """
     blockers = set(); excluded = []; unknown_ratings = []; legal = 0; quarantined = 0; checked = 0
+    systems = sorted({v.get('system_id') or v['id'] for v in catalog['vehicles']
+                      if v.get('system_role') in ('basic','component')})
+    if systems and config['publication']['scope']=='full_ground_rb':
+        # Component maps alone do not describe target selection, multi-unit
+        # effects or the owning system's sortie behavior in Forecast.pair.
+        blockers.add('multi_vehicle_system_aggregation_unmodeled')
     def sourced(rule):
         return (isinstance(rule, dict) and rule.get('status') == 'official_verified' and
                 rule.get('source_version') == version and bool(rule.get('source')))
@@ -143,7 +149,8 @@ def source_audit(catalog, config, version, variants, rows):
                 blockers.add('ranked_configuration_not_verified'); continue
             selected.add(variant['key'])
     return {'blockers': sorted(blockers), 'checked_vehicles': checked,
-            'excluded_component_ids': sorted(excluded), 'unknown_rating_or_eligibility_ids': sorted(unknown_ratings), 'checked_legal_loadouts': legal,
+            'excluded_component_ids': sorted(excluded), 'unmodeled_multi_vehicle_system_ids': systems,
+            'unknown_rating_or_eligibility_ids': sorted(unknown_ratings), 'checked_legal_loadouts': legal,
             'quarantined_loadouts': quarantined, 'verified_ranked_configurations': len(selected),
             'unknown_opponent_configurations': sum(not v.get('selection_ready') for v in variants),
             'delivery_unverified_profiles': [delivery_gaps[key] for key in sorted(delivery_gaps)]}

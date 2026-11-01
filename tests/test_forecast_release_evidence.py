@@ -176,12 +176,24 @@ class ReleaseEvidenceTests(unittest.TestCase):
         cat['vehicles'].append({'id':'launcher-part','system_role':'component'})
         self.resign_fixture(cat,config,kwargs)
         result=release_gate(cat,atlas,config,world,**kwargs)
-        self.assertTrue(result['publishable'])
+        self.assertFalse(result['publishable'])
+        self.assertIn('multi_vehicle_system_aggregation_unmodeled',result['why_not_publishable'])
+        self.assertEqual(result['source_audit']['unmodeled_multi_vehicle_system_ids'],['launcher-part'])
         self.assertEqual(result['source_audit']['excluded_component_ids'],['launcher-part'])
         self.assertEqual(result['source_audit']['checked_vehicles'],1)
         member=world['boards']['2/all'][0]['members'][0]
         member['vehicle_id']='launcher-part'
         self.assertIn('ranked_configuration_not_verified',release_gate(cat,atlas,config,world,**kwargs)['why_not_publishable'])
+
+    def test_linked_system_is_reported_once_even_if_component_has_no_spawn_rule(self):
+        cat,atlas,config,world,kwargs=self.gate_inputs()
+        cat['vehicles'][0].update(system_role='basic',system_id='linked-system')
+        cat['vehicles'].append({'id':'launcher-part','system_role':'component','system_id':'linked-system'})
+        self.resign_fixture(cat,config,kwargs)
+        result=release_gate(cat,atlas,config,world,**kwargs)
+        self.assertIn('multi_vehicle_system_aggregation_unmodeled',result['why_not_publishable'])
+        self.assertEqual(result['source_audit']['unmodeled_multi_vehicle_system_ids'],['linked-system'])
+        self.assertEqual(result['source_audit']['excluded_component_ids'],['launcher-part'])
 
     def test_unknown_opponent_is_retained_and_not_marked_ready(self):
         cat,atlas,config,world,kwargs=self.gate_inputs()
