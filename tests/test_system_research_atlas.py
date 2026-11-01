@@ -2,11 +2,13 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from test_forecast import fixture
 from wt_atlas.common import file_hash
 from wt_atlas.forecast.inventory import Inventory
 from wt_atlas.system_research_atlas import assemble_subset
+from wt_atlas.system_research_atlas import stage_verified_file
 
 
 class SystemResearchAtlasTests(unittest.TestCase):
@@ -48,6 +50,21 @@ class SystemResearchAtlasTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'input changed'):
             assemble_subset([self.index_path],[self.key],self.profiles,self.bindings,self.output,validate_inputs=changed)
         self.assertFalse(self.output.exists())
+
+    def test_interrupted_copy_resumes_only_matching_staged_bytes(self):
+        calls=[]
+        def interrupted(source,destination,expected,**kwargs):
+            calls.append(destination)
+            if len(calls)==2:raise RuntimeError('simulated interruption')
+            return stage_verified_file(source,destination,expected,**kwargs)
+        with patch('wt_atlas.system_research_atlas.stage_verified_file',side_effect=interrupted):
+            with self.assertRaisesRegex(RuntimeError,'simulated interruption'):
+                assemble_subset([self.index_path],[self.key],self.profiles,self.bindings,self.output,resume=True)
+        self.assertFalse(self.output.exists());partial=self.output.with_name('.'+self.output.name+'.partial')
+        saved=next((partial/'arrays').glob('*.json'));before=saved.stat().st_mtime_ns
+        result=assemble_subset([self.index_path],[self.key],self.profiles,self.bindings,self.output,resume=True)
+        self.assertEqual(result['maps'],1)
+        self.assertEqual((self.output/'arrays'/saved.name).stat().st_mtime_ns,before)
 
 
 if __name__=='__main__':unittest.main()

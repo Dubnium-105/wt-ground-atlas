@@ -22,6 +22,7 @@ def main():
     parser.add_argument('--index',type=Path,action='append',required=True)
     parser.add_argument('--attacker',required=True);parser.add_argument('--ammo',required=True)
     parser.add_argument('--system',nargs='+',required=True)
+    parser.add_argument('--resume',action='store_true',help='Reuse matching, verified copies from an interrupted stage')
     args=parser.parse_args()
     if len(set(args.system))!=len(args.system):raise ValueError('Duplicate system')
     sources=[args.catalog,args.ammunition,args.config,args.bindings,*args.index]
@@ -50,7 +51,7 @@ def main():
     def validate_inputs():
         if any(file_hash(Path(path))!=sha for path,sha in hashes.items()) or geometry()!=bound:
             raise ValueError('Research inputs changed during assembly')
-    report=assemble_subset(args.index,keys,atlas.profiles,bound,args.out,validate_inputs=validate_inputs)
+    report=assemble_subset(args.index,keys,atlas.profiles,bound,args.out,validate_inputs=validate_inputs,resume=args.resume)
     print(json.dumps({'maps':report['maps'],'systems':len(args.system),'publishable':False}))
 
 

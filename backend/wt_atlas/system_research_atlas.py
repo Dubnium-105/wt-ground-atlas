@@ -3,15 +3,14 @@
 This does not establish global coverage or publishability. Each copied array is
 independently rehashed; the evaluator still validates its contents and geometry.
 """
-from contextlib import closing
+from contextlib import closing, contextmanager
 import json
 import os
 from pathlib import Path
-import shutil
 import sqlite3
 import tempfile
 
-from .common import content_hash, file_hash, write_json
+from .common import content_hash, file_hash, read_json, stage_verified_file, write_json
 from .forecast.data import safe_file
 from .forecast.inventory import stamp
 
@@ -22,8 +21,26 @@ def index_snapshot(path):
     return file_hash(path)
 
 
-def assemble_subset(indexes, keys, profiles, bindings, output, *, validate_inputs=None):
-    indexes=[Path(p).resolve() for p in indexes]; output=Path(output).resolve(); keys=set(keys)
+@contextmanager
+def research_stage(output, identity, resume):
+    if not resume:
+        with tempfile.TemporaryDirectory(prefix='.system-research-',dir=output.parent) as temporary:
+            stage=Path(temporary)/'atlas';stage.mkdir();yield stage
+        return
+    stage=output.with_name('.'+output.name+'.partial');marker=stage/'.wt-system-research-stage.json'
+    if stage.is_symlink():raise ValueError('Symlink research stage')
+    if stage.exists():
+        if marker.is_symlink() or not marker.is_file() or read_json(marker)!=identity:
+            raise ValueError('Existing research stage does not match inputs')
+    else:
+        stage.mkdir();write_json(marker,identity)
+    yield stage
+
+
+def assemble_subset(indexes, keys, profiles, bindings, output, *, validate_inputs=None, resume=False):
+    indexes=[Path(p).resolve() for p in indexes]; output=Path(output);keys=set(keys)
+    if any(p.is_symlink() for p in (output,*output.parents)):raise ValueError('Symlink research output')
+    output=output.resolve()
     if not keys or not indexes or len(set(indexes))!=len(indexes):raise ValueError('Missing or duplicate research inputs')
     if output.exists():raise ValueError('Research atlas output already exists')
     before={str(p):index_snapshot(p) for p in indexes}; found={}; receipts=[]
@@ -65,14 +82,22 @@ def assemble_subset(indexes, keys, profiles, bindings, output, *, validate_input
     if set(found)!=keys:raise ValueError('Missing verified research maps: '+str(len(keys-set(found))))
     if len({v['map_id'] for v in found.values()})!=len(found):raise ValueError('Duplicate map ID')
     output.parent.mkdir(parents=True,exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix='.system-research-',dir=output.parent) as temporary:
-        stage=Path(temporary)/'atlas';(stage/'arrays').mkdir(parents=True)
+    identity={'schema_version':'1.0.0','assembler_sha256':file_hash(Path(__file__)),
+              'input_indexes':before,'maps_sha256':content_hash([{'key':list(key),'map_id':item['map_id'],
+                'metadata_sha256':item['metadata_sha256'],'array_sha256':item['array_sha256']} for key,item in sorted(found.items())])}
+    with research_stage(output,identity,resume) as stage:
+        arrays=stage/'arrays'
+        if arrays.is_symlink():raise ValueError('Symlink research stage arrays')
+        arrays.mkdir(exist_ok=True)
         records=[]
         for key,item in sorted(found.items()):
-            metadata=stage/'arrays'/(item['map_id']+'.json');array=stage/'arrays'/(item['map_id']+'.npz')
-            shutil.copyfile(item['metadata'],metadata);shutil.copyfile(item['array'],array)
-            if file_hash(metadata)!=item['metadata_sha256'] or file_hash(array)!=item['array_sha256']:
-                raise ValueError('Copied research map checksum mismatch')
+            metadata=arrays/(item['map_id']+'.json');array=arrays/(item['map_id']+'.npz')
+            for source,destination,expected in ((item['metadata'],metadata,item['metadata_sha256']),(item['array'],array,item['array_sha256'])):
+                if destination.is_symlink():raise ValueError('Symlink staged research map')
+                if destination.exists():
+                    if not resume or not destination.is_file() or file_hash(destination)!=expected:
+                        raise ValueError('Staged research map changed')
+                else:stage_verified_file(source,destination,expected,allow_hardlink=False)
             records.append({'target_id':key[0],'profile_id':key[1],'distance_m':key[2],
                 'map_id':item['map_id'],'metadata_sha256':item['metadata_sha256'],
                 'array_sha256':item['array_sha256'],'source_index_sha256':item['source_index_sha256']})
