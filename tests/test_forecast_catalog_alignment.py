@@ -54,5 +54,12 @@ class CatalogAlignmentTests(unittest.TestCase):
             compose(self.forecast,self.output,self.research)
         self.assertFalse(self.output.exists())
 
+    def test_sample_forecast_marks_shared_research_as_sample(self):
+        package_site(self.forecast,{'build_key':'c'*64,'inputs':{'catalog':self.sha},'sample_subset':True,'catalog_vehicles':6}, {}, [], ROOT)
+        compose(self.forecast,self.output,self.research)
+        html=(self.output/'research/index.html').read_text(encoding='utf8')
+        self.assertIn('样例目录：仅 6 辆载具',html)
+        self.assertEqual(html.count('aria-label="样例范围"'),1)
+
 
 if __name__=='__main__':unittest.main()

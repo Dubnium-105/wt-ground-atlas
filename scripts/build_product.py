@@ -147,6 +147,11 @@ def compose(forecast,output,research=None,system_reports=(),system_catalog=None,
             research_manifest=read_json(stage/'research/data/manifest.json')
             model=html_module.escape(str(research_manifest.get('model_version','unknown')))
             banner=f'<aside class="model-note" aria-label="研究模型说明">研究模型 {model} · 条件分析分数；V3 正式推荐及数据准入状态见自动预测首页。</aside>'
+            forecast_report=read_published_json(forecast,index['report'])
+            if forecast_report.get('sample_subset') is True:
+                count=forecast_report.get('catalog_vehicles')
+                count_text=f'仅 {count} 辆载具' if type(count) is int and count>=0 else '数据范围有限'
+                banner+=f'<aside class="model-note" aria-label="样例范围">样例目录：{count_text}；逐车与防护页面不代表全服，缺失物理数据不会推断。</aside>'
             text=text.replace('<body>','<body><a href="../index.html" class="predictor-return">← 自动队列预测</a>'+banner)
             html.write_text(text,encoding='utf-8')
         (stage/'.wt-atlas-site').write_text('Unified V3 predictor and legacy research\n',encoding='utf-8')
