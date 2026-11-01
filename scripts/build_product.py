@@ -16,6 +16,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'backend'))
 from wt_atlas.forecast.data import canonical,file_hash,read_json
 from wt_atlas.system_study import build_study
+from wt_atlas.system_batch_study import build_batch
 from site_lib import validate_site,copy_sources,deployment_settings,local_file
 
 
@@ -99,15 +100,17 @@ def bridge_research(directory):
     encoded=canonical(manifest).encode();(directory/'data/manifest.json').write_bytes(encoded);(directory/'data/manifest.json.gz').write_bytes(gzip.compress(encoded,mtime=0))
 
 
-def compose(forecast,output,research=None,system_reports=(),system_catalog=None,system_ammunition=None,system_bindings=None,system_config=None):
+def compose(forecast,output,research=None,system_reports=(),system_catalog=None,system_ammunition=None,system_bindings=None,system_config=None,system_batch=None,system_plan=None,system_source_root=None):
     forecast=Path(forecast).resolve();output=Path(output)
     if any(p.is_symlink() for p in (output,*output.parents)):raise ValueError('Symlink output')
     output=output.resolve()
-    if any((bool(system_reports),bool(system_catalog),bool(system_ammunition),bool(system_bindings),bool(system_config))) and not all((system_reports,system_catalog,system_ammunition,system_bindings,system_config)):
+    if system_reports and system_batch or bool(system_batch)!=bool(system_plan):raise ValueError('Choose system reports or a batch with its plan')
+    if any((bool(system_reports),bool(system_batch),bool(system_catalog),bool(system_ammunition),bool(system_bindings),bool(system_config))) and not all((system_reports or system_batch,system_catalog,system_ammunition,system_bindings,system_config)):
         raise ValueError('System research requires reports, catalog, ammunition, geometry bindings and configuration')
-    if system_reports and any(Path(p).resolve().is_relative_to(output) for p in (*system_reports,system_catalog,system_ammunition,system_bindings,system_config)):
+    if (system_reports or system_batch) and any(Path(p).resolve().is_relative_to(output) for p in (*system_reports,*([system_batch,system_plan] if system_batch else []),system_catalog,system_ammunition,system_bindings,system_config)):
         raise ValueError('System research input overlaps product output')
-    study=build_study(system_reports,system_catalog,system_ammunition,system_bindings,system_config,ROOT) if system_reports else None
+    source_root=Path(system_source_root).resolve() if system_source_root else ROOT
+    study=build_study(system_reports,system_catalog,system_ammunition,system_bindings,system_config,source_root) if system_reports else None
     if ROOT.is_relative_to(output) or any(output.is_relative_to(ROOT/p) for p in ('data','web','backend','scripts','tests','config','docs','.git')):raise ValueError('Unsafe product output')
     if forecast==output or forecast.is_relative_to(output):raise ValueError('Forecast input overlaps output')
     if research and (Path(research).resolve()==output or Path(research).resolve().is_relative_to(output)):raise ValueError('Research input overlaps output')
@@ -116,6 +119,7 @@ def compose(forecast,output,research=None,system_reports=(),system_catalog=None,
     with tempfile.TemporaryDirectory(prefix='.product-',dir=output.parent) as temporary:
         stage=Path(temporary)/'site';shutil.copytree(forecast,stage,ignore=shutil.ignore_patterns('.wt-forecast-site'))
         index=read_json(stage/'index.json')
+        if system_batch:study=build_batch(system_batch,system_plan,system_catalog,system_ammunition,system_bindings,system_config,source_root,stage/'data/system-study')
         if study:
             raw=canonical(study).encode();sha=hashlib.sha256(raw).hexdigest();name='data/system-study.'+sha[:16]+'.json'
             (stage/name).write_bytes(raw)
@@ -150,7 +154,7 @@ def compose(forecast,output,research=None,system_reports=(),system_catalog=None,
                   'build_key':index['build_key'],'deployment':{'probability_mode':read_json(stage/'research/data/manifest.json').get('deployment',{}).get('probability_mode','disabled') if research else 'disabled'}}
         (stage/'data/manifest.json').write_text(canonical(manifest),encoding='utf-8')
         report=validate_site(stage,deployment_settings(ROOT)['budgets'])
-        if study and build_study(system_reports,system_catalog,system_ammunition,system_bindings,system_config,ROOT)!=study:raise ValueError('System research changed during composition')
+        if system_reports and build_study(system_reports,system_catalog,system_ammunition,system_bindings,system_config,source_root)!=study:raise ValueError('System research changed during composition')
         previous=output.with_name(output.name+'.previous')
         if previous.exists():
             if previous.is_symlink() or not (previous/'.wt-atlas-site').is_file() or previous.parent!=output.parent:raise ValueError('Unsafe previous publication')
@@ -172,6 +176,9 @@ def main(argv=None):
     p.add_argument('--system-study-ammunition',type=Path)
     p.add_argument('--system-study-bindings',type=Path)
     p.add_argument('--system-study-config',type=Path)
+    p.add_argument('--system-study-batch',type=Path)
+    p.add_argument('--system-study-plan',type=Path)
+    p.add_argument('--system-study-source-root',type=Path)
     p.add_argument('--forecast-output',type=Path,default=ROOT/'dist/forecast')
     a,remaining=p.parse_known_args(argv)
     # The product opens on the full task model. Explicit research/sample builds
@@ -181,7 +188,7 @@ def main(argv=None):
     command=[sys.executable,str(ROOT/'scripts/build_forecast.py'),*remaining,'--out',str(a.forecast_output)]
     subprocess.run(command,check=True)
     if any(option in remaining for option in ('--dry-run','--help','-h')):return
-    result=compose(a.forecast_output,a.output,a.research_site,a.system_study_report,a.system_study_catalog,a.system_study_ammunition,a.system_study_bindings,a.system_study_config)
+    result=compose(a.forecast_output,a.output,a.research_site,a.system_study_report,a.system_study_catalog,a.system_study_ammunition,a.system_study_bindings,a.system_study_config,a.system_study_batch,a.system_study_plan,a.system_study_source_root)
     print(json.dumps(result,ensure_ascii=False,indent=2))
 
 
