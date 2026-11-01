@@ -4,6 +4,7 @@ import json
 import numpy as np
 from wt_atlas.forecast.data import digest
 from wt_atlas.forecast.system_physics import declared_members,unknown_exposure_bounds,evaluate
+from wt_atlas.forecast.system_batch_evaluation import AimIntervalCache,evaluate_cached
 
 
 class SystemPhysicsTests(unittest.TestCase):
@@ -41,6 +42,11 @@ class SystemPhysicsTests(unittest.TestCase):
                 'status':np.array([[[3]]],dtype=np.uint8),'pixel_pitch_m':np.float64(.04)}
         atlas=FakeAtlas();bounds={name:{'target_sha256':name} for name in ('base','part')};scenario=config['scenarios'][0]
         result=evaluate(atlas,members,bounds,{'firepower':{},'sensors':{}},{'id':'ammo'},[profile],scenario,config,'normal')
+        cache=AimIntervalCache(config['aim'],max_entries=20)
+        cached=evaluate_cached(atlas,members,bounds,{'firepower':{},'sensors':{}},{'id':'ammo'},[profile],scenario,config,'normal',cache)
+        self.assertEqual(cached,result)
+        self.assertEqual(evaluate_cached(atlas,members,bounds,{'firepower':{},'sensors':{}},{'id':'ammo'},[profile],scenario,config,'normal',cache),result)
+        self.assertEqual(cache.hits,6)
         self.assertLess(result['members'][0]['lower'],result['members'][1]['lower'])
         self.assertLessEqual(result['exposure_bounds']['lower'],result['members'][0]['lower'])
         self.assertGreaterEqual(result['exposure_bounds']['upper'],result['members'][1]['upper'])

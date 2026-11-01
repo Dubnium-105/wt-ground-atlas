@@ -534,3 +534,7 @@ python scripts/rebuild_native_maps.py --repository /data/source-repository --cat
 本地将 M1A2 SEPv3 的 M829A2 与 8 套异国系统的主车、发射车共 64 张已验证图组成研究图集，重新计算四个距离各 24 方位，共 768 个情景、1,536 个成员情景；来源和页面数据哈希见 `reports/system-eight-study-progress.json`。另外两套是同国系统，不属于此例的对手规划范围。浮点积分的单个单位舍入误差现在会限制在合法概率边界内，较大的质量错误仍会被拒绝。
 
 统一站点可以用 `--system-study-catalog`、`--system-study-ammunition`、`--system-study-bindings`、`--system-study-config` 和重复的 `--system-study-report` 组合这些研究报告。构建前后核对目录、弹药、几何、配置及计算代码哈希，并核对自有弹药、距离、成员、技能节点和目标选择区间；页面数据使用内容哈希和浏览器校验。相同距离及方位下有多个战术情景时，页面保留独立情景选择。页面明确显示独立来源版本，不将结果写入自动榜或推断系统失效。未提供研究报告时不会增加该入口。
+
+`scripts/plan_system_research_batch.py` 可从已验证索引自动枚举来源绑定的单弹种与完整成员物理图；规划按目录基础 BR 和国家过滤，不证明动态 BR、改装解锁或实战命中。`scripts/assemble_system_research_batch.py --resume` 逐图验证来源后复制，使用带输入哈希的暂存目录恢复中断，并在全部核对后原子发布。`scripts/evaluate_system_research_batch.py --resume` 为每个候选分别记录来源、代码和运行时身份，原子写入结果及校验和；重启时重新检查输入、几何和已用数组后复用。内存受限的数组缓存与瞄准区间缓存不替代来源校验；可用 `--memory-budget` 控制数组缓存和单图读取预算，实际进程内存还包括 Python、目录和计算缓存。
+
+本地对 11 个独立索引生成了 1,666 个候选，涉及 111 辆攻击载具、10 套系统和 2,936 张去重物理图；485,247,115 字节的图集已复制并核对。真实样本的 96 个情景与未缓存算法逐项一致，单套系统的数组解压由 192 次降至 8 次；两项断点样本重启时全部复用。完整批次正在后台运行，采集时进度及来源哈希见 `reports/system-batch-progress.json`；该快照不是批次完成报告，也不解除正式排名门禁。
