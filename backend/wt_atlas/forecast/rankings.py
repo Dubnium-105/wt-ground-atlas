@@ -7,7 +7,10 @@ VIEWS = ('global', 'br', 'nation', 'uptier', 'ground_only', 'combined_arms')
 def order(row, view='global'):
     value = row.get('uptier_lower_utility') if view == 'uptier' else row.get('score')
     if not number(value):
-        value = row.get('estimate', float('-inf'))
+        value = row.get('estimate')
+    if not number(value):
+        value = row.get('lower', float('-inf'))
+    if not number(value):value=float('-inf')
     return (-int(row.get('rankable', False)), -value,
             -row.get('evidence_coverage', 0), len(row.get('members', [])),
             tuple(sorted(row.get('keys', [row.get('lineup_key', '')]))))
