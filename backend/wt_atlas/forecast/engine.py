@@ -250,6 +250,12 @@ class Forecast:
         return self.effect_array[1][angle_index], digest(row)
 
     def shot(self, attacker: dict, target: dict, scenario: dict, skill: float, *, projectile_index=0) -> dict | None:
+        if target['vehicle'].get('system_role')=='basic':
+            from .system_forecast import system_shot
+            return system_shot(self,attacker,target,scenario,skill,projectile_index=projectile_index)
+        return self._single_shot(attacker,target,scenario,skill,projectile_index=projectile_index)
+
+    def _single_shot(self, attacker: dict, target: dict, scenario: dict, skill: float, *, projectile_index=0) -> dict | None:
         if attacker["vehicle"].get("forecast_physics_invalidated") or target["vehicle"].get("forecast_physics_invalidated"):
             return None
         groups = variant_projectiles(attacker)
@@ -317,7 +323,7 @@ class Forecast:
         scenario = next(s for s in self.config["scenarios"] if s["id"] == scenario_id)
         endpoint = self.config.get("endpoint", "penetration")
         totals = {"mean": 0., "lower": 0., "upper": 0., "coverage": 0., "first_fire": 0.}
-        missing = set(); trace = set();timing_trace=[]
+        missing = set(); trace = set();timing_trace=[];system_selection_unmodeled=False
         for variant in (a, b):
             for group in variant_projectiles(variant):
                 for profile in group:
@@ -338,9 +344,21 @@ class Forecast:
                     'b_projectile_shot_keys':[p['aim_cache_key'] if p else None for p in pb]})
                 trace.update(p['aim_cache_key'] for p in pa + pb if p is not None)
                 missing.update(ta['missing'] + tb['missing'])
+                has_system=any(v['vehicle'].get('system_role')=='basic' for v in (a,b))
+                if has_system:
+                    system_selection_unmodeled=True;missing.add('system_target_selection_unmodeled')
                 if any(p is None for p in pa + pb) or not ta["valid"] or not tb["valid"]:
                     missing.add("one_or_both_directions_or_timing_missing")
-                    totals["mean"] += weight * .5; totals["upper"] += weight
+                    totals["mean"] += weight * (0. if has_system else .5); totals["upper"] += weight
+                    continue
+                if has_system:
+                    if endpoint=='penetration':
+                        outcomes=lambda shots,field:[[0,0,p[field]] for p in shots]
+                        lo=duel(ta,tb,outcomes(pa,'lower'),outcomes(pb,'upper'),scenario['horizon_s'],self.config['timing'])
+                        hi=duel(ta,tb,outcomes(pa,'upper'),outcomes(pb,'lower'),scenario['horizon_s'],self.config['timing'])
+                        totals['mean']+=weight*lo['score'];totals['lower']+=weight*lo['score'];totals['upper']+=weight*hi['score']
+                        totals['first_fire']+=weight*lo['first_fire_probability'][0]
+                    else:totals['upper']+=weight
                     continue
                 if endpoint == "damage":
                     if any(p['lethality'] is None for p in pa + pb):
@@ -365,10 +383,11 @@ class Forecast:
                 unknown_b = max(p['lethality']['unknown_mass'] if endpoint == 'damage' else p['unknown_mass'] for p in pb)
                 totals["coverage"] += weight * min(1 - unknown_a, 1 - unknown_b)
                 totals["first_fire"] += weight * outcome["first_fire_probability"][0]
-        result={**totals, "score": totals["mean"] if totals["coverage"] > 0 else None,
+        result={**totals, "score": totals["mean"] if totals["coverage"] > 0 and not system_selection_unmodeled else None,
                 "endpoint": endpoint, "missing": sorted(missing), "calibrated": False,
                 "shot_keys":sorted(trace), "pair_key":digest([a_key,b_key,scenario,sorted(trace),timing_trace,totals,self.config]),
-                "estimate_kind":"conditional_model_with_declared_unknown_prior", "observed_mean":None}
+                "estimate_kind":"system_selection_lower_bound_not_expected_value" if system_selection_unmodeled else "conditional_model_with_declared_unknown_prior",
+                "system_target_selection_unmodeled":system_selection_unmodeled, "observed_mean":None}
         self.cache.evidence_put(result['pair_key'],'pair',{**result,'attacker_key':a_key,'target_key':b_key,'scenario':scenario,'timing':timing_trace})
         return result
 
@@ -452,6 +471,7 @@ class Forecast:
             if physical:
                 row = self.pair(key, enemy, scenario_id)
                 trace.append(row['pair_key'])
+                if row.get('system_target_selection_unmodeled'):totals['system_target_selection_unmodeled']=True
             else:
                 external = self.missions.get((key, self.by_key[enemy]["vehicle_id"], scenario_id, task))
                 defaults = self.mission_policy['mode'] == 'assumed_defaults'
@@ -468,6 +488,8 @@ class Forecast:
             totals["production_coverage"]+=weight*(row["coverage"] if physical else float(bool(external and external.get("production_validated"))))
             for name in ("mean", "lower", "upper", "coverage"):
                 totals[name] += weight * row[name]
+        if totals.get('system_target_selection_unmodeled'):
+            totals['estimate_kind']='conservative_lower_bound_not_expected_value'
         totals['mission_key']=digest([key,task,room_top,scenario_id,trace,totals])
         totals['evidence_trace']={'pair_keys':trace,'external_evidence':not physical}
         self.cache.evidence_put(totals['mission_key'],'mission',{**totals,'variant_key':key,'task':task,'room_top':room_top,'scenario':scenario_id})
@@ -481,6 +503,9 @@ class Forecast:
         rows = {task: self.mission(key, task, room_top, scenario_id) for task in mix}
         totals = {field: sum(mix[t] * r.get(field, 0.) for t, r in rows.items())
                   for field in ('mean', 'lower', 'upper', 'coverage', 'production_coverage', 'assumed_coverage')}
+        if any(mix[t]>0 and r.get('system_target_selection_unmodeled') for t,r in rows.items()):
+            totals['system_target_selection_unmodeled']=True
+            totals['estimate_kind']='conservative_lower_bound_not_expected_value'
         totals['usable'] = any(r['usable'] for r in rows.values())
         trace = {task: {'weight': mix[task], 'mission_key': row.get('mission_key'),
                         'reason': row.get('reason')} for task, row in rows.items()}

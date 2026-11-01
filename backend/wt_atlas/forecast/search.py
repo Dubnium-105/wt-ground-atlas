@@ -124,6 +124,7 @@ class Optimizer:
                 costs = [spawn_cost(v,self.config['spawn'],room) for v in lineup]
                 result = sortie_policy(rows, costs, self.config["spawn"], spawn_groups=[spawn_group(v) for v in lineup],
                     cost_function=lambda i,n:spawn_cost(lineup[i],self.config['spawn'],room,n))
+                result['system_target_selection_unmodeled']=any(r.get('system_target_selection_unmodeled') for phase in rows for r in phase)
                 result['task_evidence']=[sum(a['probability']*(rows[i][a['member_index']]['coverage'] if a['member_index'] is not None else 0.) for a in phase['actions']) for i,phase in enumerate(result['policy'])]
                 result['mission_keys']=[[r.get('mission_key') for r in phase] for phase in rows]
                 task_rows = {task: [self.e.mission(v['key'],task,room,scenario['id']) for v in lineup] for task in self.tasks}
@@ -152,7 +153,8 @@ class Optimizer:
         coverage = sum(r["weight"] * r["evidence_coverage"] for r in cases)
         assumed = sum(r['weight'] * r['assumed_coverage'] for r in cases)
         physical = sum(r['weight'] * r['physical_pair_coverage'] for r in cases)
-        eligible = min(coverage + assumed, physical) >= self.config["search"]["minimum_pair_coverage"]
+        system_unknown=any(r.get('system_target_selection_unmodeled') for r in cases)
+        eligible = min(coverage + assumed, physical) >= self.config["search"]["minimum_pair_coverage"] and not system_unknown
         estimate = aggregate("mean")
         members = [{k: v[k] for k in ("vehicle_id", "rating_configuration_id", "ammo_id", "loadout_id", "key", "br", "classification")} for v in lineup]
         for m,v in zip(members,lineup):
@@ -169,14 +171,15 @@ class Optimizer:
                         for ref,identity,group in zip(belt['projectiles'],belt['binding']['projectile_identities'],projectile_groups(v['ammo'],v['profiles']))]}
         return {"keys": list(keys), "members": members, "lineup_size": len(members), "nation": nation,
                 "actual_br": round(cap / self.config["matchmaking"]["br_step_denominator"], 1),
-                "score": 100 * estimate if eligible else None, "estimate": 100 * estimate,
+                "score": 100 * estimate if eligible else None, "estimate": None if system_unknown else 100 * estimate,
                 "lower": 100 * aggregate("lower"), "upper": 100 * aggregate("upper"),
                 "evidence_coverage": coverage, "rankable": eligible,
                 "assumed_mission_coverage":assumed, "physical_pair_coverage":physical,
                 "mission_policy":self.config.get('mission_policy',{'mode':'require_evidence'}),
                 "model_state_coverage":sum(r["weight"]*r["coverage"] for r in cases),
                 "production_mission_coverage":{task:sum(r["weight"]*r["production_mission_coverage"][task] for r in cases) for task in self.tasks},
-                "status": ("assumed_mission_prediction" if assumed else "uncalibrated_conditional_prediction") if eligible else "insufficient_paired_evidence",
+                "status": ("assumed_mission_prediction" if assumed else "uncalibrated_conditional_prediction") if eligible else ("system_target_selection_unmodeled" if system_unknown else "insufficient_paired_evidence"),
+                "system_target_selection_unmodeled":system_unknown,
                 "cases": cases, "endpoint": self.config.get("endpoint", "penetration"),
                 "composition": "ground_only" if all(v["domain"] == "ground" for v in lineup) else "combined_arms",
                 "uptier_lower_utility": 100 * min((c["lower"] for c in cases if c["room_top_step"] > cap), default=min(c["lower"] for c in cases)),
@@ -217,6 +220,12 @@ class Optimizer:
 
     def explain(self,result):
         """Remove each member in the SAME rooms; this is conditional reserve value."""
+        if result.get('system_target_selection_unmodeled'):
+            result['reserve_contributions']=[]
+            result['explanation_status']='system_target_selection_unmodeled'
+            result['environment_threats']=sorted([{'room_top_step':c['room_top_step'],'scenario':c['scenario'],'lower':c['lower'],'upper':c['upper'],'coverage':c['coverage']} for c in result['cases']],key=lambda c:c['lower'])
+            self.e.cache.evidence_put(result['lineup_key'],'lineup',result)
+            return result
         lineup=[self.e.by_key[k] for k in result['keys']];contributions=[]
         for removed,v in enumerate(lineup):
             without=0.;use=0.
@@ -236,7 +245,8 @@ class Optimizer:
 
     def _rank(self, keys: tuple[str, ...]):
         result = self.evaluate(keys)
-        return (-int(result["rankable"]), -result["estimate"], -result["evidence_coverage"], -len(keys), keys)
+        heuristic=result['estimate'] if number(result['estimate']) else result['lower']
+        return (-int(result["rankable"]), -heuristic, -result["evidence_coverage"], -len(keys), keys)
 
     def discover(self, nation: str, cap: int, slots: int, acquisition: str) -> dict:
         if acquisition not in ("researchable", "all"): raise ValueError("Unknown acquisition profile")
