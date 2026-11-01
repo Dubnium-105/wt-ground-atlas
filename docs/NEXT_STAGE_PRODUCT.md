@@ -482,6 +482,18 @@ MGM-166 的同版官方 Wiki 表列出 10、100、500、1000 米四个精确距�
 
 对 BTR-3E1、BTR-82AT、BMD-4M2 的 30 毫米炮作进一步核查：九个声明选择的各个弹丸源块均未显式声明 `bulletCount`。`scripts/audit_native_bullet_count.py` 只读核对同版客户端可执行文件及源包，固定相关二进制区间并记录源块；在审阅过的字段读取指令中，取不到可读的 `bulletCount` 时 getter 使用的默认值为整数 0。这一观察不证明源块是否经继承补值，也不证明字段的运行时语义、发射顺序或射击概率，不能把未写数量当作每种 1 发来恢复弹链。来源与限制见 `reports/native-bullet-count-evidence.json`。
 
+### 客户端逐弹丸导出与研究档案
+
+同版客户端的 `weaponsinfoexporter.nut` 可以逐弹丸导出参数和穿深，但导出文件本身没有充分的版本和选择器身份凭证。本机未发现该导出文件。`scripts/import_exported_bullet_points.py` 接受用户实际提供的单车导出文件，核验固定客户端源包、实际挂载、直接声明的选择器、弹丸参数及逐车导出值，只接受 10、100、500、1000 米的精确零度动能穿深点；缺失点不插值，综合穿深不冒充动能穿深。它输出四个可供离线 V2 层模型和研究地图存储使用的 `reference_only` 档案，并记录数据和代码哈希；导出版本和选择器仍标为未验证，正式索引拒绝这些档案。没有真实导出时只运行合成测试，不生成真实穿深结果。
+
+```sh
+python scripts/import_exported_bullet_points.py --capture /data/capture.json --database /data/weapons_db.json --unit ussr_btr_82at --weapon gamedata/weapons/groundmodels_weapons/30mm_2a72_btr_user_cannon.blk --selector 30mm_2a42_APDS --projectile 30mm_3UBR8 --out /data/research-export-points.json
+```
+
+### 合并预检状态
+
+五批合并后的 433,435 张数组已完成全量重验：92,756,384,783 字节，耗时 7,312.56 秒，无数组拒绝、歧义或几何绑定错误；该批次不包含原始 10 米图和后续火箭／导弹批次，双向覆盖仍不完整，结果不是正式排名。摘要见 `reports/five-batch-combined-preflight-summary.json`。七批合并验证发生工作进程异常退出后，保留的 SQLite 索引通过完整性检查，并从 1,890 条已验证记录续跑；八、九批等待前一阶段成功完成再运行。旧失败日志与新的续跑日志分别保留。
+
 ## 改装添加的弹药与增量距离档案
 
 `scripts/recover_native_ammunition.py --primary-modifications` 会校验捕获的客户端武器界面脚本，并从独立改装的 `effects.commonWeapons` 中读取新增武器。不同改装之间的同名候选不会被任意合并；改装、武器槽前置要求、源文件哈希、本地化和弹药块均写入来源证明。当前仅恢复可验证的单射流 CE 弹药；改装新增的混合弹链与动能弹继续明确列为待验证。预测枚举会核对该证明、已解锁的改装，以及动态 BR 配置允许的主武器。单射流计算仍仅表示射流已经有效命中后的条件贯穿，不代表飞行、引信、命中或穿后毁伤。

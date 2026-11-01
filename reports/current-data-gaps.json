@@ -45,12 +45,18 @@
     },
     "main_preflight_complete_report_exists": true,
     "remaining_processing": [
-      "finish fresh five-batch combined full-array and bidirectional preflight",
-      "finish seven-batch assembly and fresh full-array and bidirectional preflight including original 10 m and root rocket maps",
+      "finish resumed seven-batch full-array and bidirectional preflight",
       "finish sequential eight- and nine-batch assemblies and fresh full-array preflights including nested and dual-use missiles",
       "complete full candidate search and sensitivity acceptance"
     ],
-    "total_scope": "The five earlier generated batches were individually checked. The four-batch combined full-array preflight is complete but blocked by incomplete bidirectional coverage; the five-batch combined preflight and seven-batch assembly are running. Eight- and nine-batch assemblies and full preflights are queued. Final combined acceptance remains pending."
+    "seven_batch_resume": {
+      "initial_error": "BrokenProcessPool",
+      "sqlite_quick_check": "ok",
+      "status_at_update": "preflight_running",
+      "verified_arrays_at_restart": 1890,
+      "watcher_pid": 20864
+    },
+    "total_scope": "Five-batch combined full-array preflight passed array and binding checks but is blocked by incomplete bidirectional coverage. Seven-batch verification resumed after a process-pool failure; eight- and nine-batch work is queued sequentially. Final combined acceptance remains pending."
   },
   "collected_at": "2026-10-31T11:26:03.310791+00:00",
   "datamine_commit": "af0cce561a73704e30c1df66eff06209bcc3f035",
@@ -59,7 +65,14 @@
     "report": "reports\\five-batch-assembly-progress.json",
     "report_sha256": "ef444d27f4d668d5bec10955850e62b6099b8875b34943c83ae01765c3494455",
     "scope": "New batches only; original 10m and root rockets are planned for the subsequent seven-batch assembly.",
-    "status": "assembled_fresh_preflight_running"
+    "status": "assembled_fresh_preflight_completed_blocked"
+  },
+  "five_batch_combined_preflight": {
+    "report": "reports/five-batch-combined-preflight-summary.json",
+    "report_sha256": "4a188fe63c14dec05ff9762cfca17f995746ba657a57a64bff676beecc2fce93",
+    "scope": "Fresh full-array preflight of five newly generated batches only; excludes the original 10 m atlas and later rocket and missile batches. Not complete global coverage or a ranking.",
+    "status": "blocked",
+    "verified_arrays": 433435
   },
   "formal_rankings": 0,
   "four_batch_combined_preflight": {
@@ -365,6 +378,7 @@
     "reports/federated-delivery-coverage-v17.json": "8b7a0999c272d730188cc16e1dfb022a27f67e59e94b5821903418f3e934e8ff",
     "reports/federated-delivery-progress.json": "07a85024c5851ffc7170cfd0700c3e1856a5c6a1441d89a8f0182e67d850a082",
     "reports/federated-original-coverage-progress.json": "b1aa601f7a80666d618502396f202ac741d10943c9411ff488df807464d2adb3",
+    "reports/five-batch-combined-preflight-summary.json": "4a188fe63c14dec05ff9762cfca17f995746ba657a57a64bff676beecc2fce93",
     "reports/formal-client-payloads-v9.json": "96477382d20116ad5d85ccfba5d0c867c95095b1278a64aa96ab356407cbcd4c",
     "reports/formal-ordered-belt-recovery.json": "1fcb213eb3eb6953ab4e464099f7b57a61507f0370440fa667ccebdd256f023d",
     "reports/formal-sp-components-v9.json": "01723940ff5f40fe31719bfa871c0a4e05c223a5b01cbad94a691f91b419a238",

@@ -1,0 +1,44 @@
+{
+  "binding_error_count": 0,
+  "blockers": [
+    "incomplete_bidirectional_native_coverage"
+  ],
+  "counts": {
+    "available_bidirectional_pairs": 13688832,
+    "available_forward_pairs": 16492176,
+    "missing_direction_or_distance": 6949296,
+    "missing_owned_ammunition": 2941536,
+    "required_directed_pairs": 23441472
+  },
+  "duration_seconds": 7312.561890200013,
+  "formal_rankings": 0,
+  "full_report_sha256": "25f111d2887ab180028f26c39f59f7580196a4a68ab6ded48e5b71fd17c11427",
+  "inventory": {
+    "ambiguous_maps": 0,
+    "annotation_reconciled_maps": 0,
+    "content_sha256": "7e8fa16a789adbb511db673ab0ca3cfb350ba7938d56e3ca1510f635976a39f8",
+    "historical_duplicate_maps": 0,
+    "metadata_objects": 433435,
+    "metrics": {
+      "array_seconds": 4683.206818400067,
+      "arrays_checked": 433435,
+      "memory_budget_bytes": 536870912,
+      "metadata_cpu_seconds": 537.34375,
+      "metadata_rebuilt": 433435,
+      "metadata_seconds": 2510.974740899983,
+      "workers": 2
+    },
+    "rejections": {},
+    "selected_array_bytes": 92756384783,
+    "selected_maps": 433435,
+    "status_counts": {
+      "verified": 433435
+    },
+    "verified_arrays": 433435
+  },
+  "publishable": false,
+  "schema_version": "1.0.0",
+  "scope": "Fresh full-array preflight of five newly generated batches only; excludes the original 10 m atlas and later rocket and missile batches. Not complete global coverage or a ranking.",
+  "source_version": "2.59.0.92",
+  "status": "blocked"
+}

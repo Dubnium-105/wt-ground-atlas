@@ -36,3 +36,4 @@ scripts/audit_random_reinforcements.py -text
 reports/random-ground-reinforcements-evidence.json -text
 reports/random-ground-reinforcements-coverage.json -text
 reports/native-bullet-count-evidence.json -text
+reports/five-batch-combined-preflight-summary.json -text
