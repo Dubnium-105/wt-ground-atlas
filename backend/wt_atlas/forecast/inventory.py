@@ -137,6 +137,7 @@ class Inventory:
                 if not force and old and (h, current_stamp, input_key) == (old[0], old[1], old[3]) and old[2] in ('metadata_valid', 'verified', 'historical_duplicate'):
                     self.db.execute('UPDATE maps SET generation=? WHERE path=?', (generation,key))
                     counts['incremental_hits'] += 1
+                    if sum(counts.values()) % 500 == 0: self.db.commit()
                     continue
                 for field in ('map_id','target_id','target_sha256','ammo_id','ammo_profile_sha256','source_version','datamine_commit','array_sha256'):
                     if not isinstance(m.get(field), str) or not m[field]: raise ValueError('Missing map identity: '+field)

@@ -1,8 +1,10 @@
 import copy
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 from test_forecast import fixture, settings
 from wt_atlas.forecast.data import Atlas, canonical, digest, file_hash
 from wt_atlas.forecast.inventory import Inventory, bind_geometry, coverage
@@ -29,6 +31,29 @@ class InventoryTests(unittest.TestCase):
         result=self.index.verify(self.atlas,resume=True)
         self.assertEqual(result['verified_arrays'],15)
         self.assertEqual(result['rejections']['NPZ checksum failure'],1)
+
+    def test_partial_metadata_rebuild_commits_across_incremental_hits(self):
+        self.index.sync(self.atlas,self.ammo,self.catalog)
+        with os.scandir(self.atlas/'arrays') as entries:
+            metadata=[entry for entry in entries if entry.name.endswith('.json')]
+        changed,unchanged=metadata[:2]
+        path=Path(changed.path);content=json.loads(path.read_text(encoding='utf-8'))
+        content['audit_note']='changed metadata before interrupted scan'
+        path.write_text(canonical(content),encoding='utf-8')
+        expected=file_hash(path)
+        def interrupted(_):
+            yield changed
+            for _ in range(499): yield unchanged
+            raise RuntimeError('simulated interruption')
+        with patch('wt_atlas.forecast.inventory.os.scandir',side_effect=interrupted):
+            with self.assertRaisesRegex(RuntimeError,'simulated interruption'):
+                self.index.sync(self.atlas,self.ammo,self.catalog)
+        self.index.db.rollback()  # Model loss of the interrupted transaction.
+        saved=self.index.db.execute('SELECT meta_hash FROM maps WHERE path=?',(changed.name,)).fetchone()[0]
+        self.assertEqual(saved,expected)
+        self.assertEqual(self.index.db.execute('SELECT count(*) FROM maps WHERE selected=1').fetchone()[0],0)
+        resumed=self.index.sync(self.atlas,self.ammo,self.catalog)
+        self.assertEqual(resumed['metrics']['incremental_hits'],16)
 
     def test_bad_profile_does_not_abort_other_maps(self):
         profiles=json.loads(self.ammo.read_text(encoding="utf-8"));profiles[0]['distance_m']=100
